@@ -1,8 +1,8 @@
 # @akhil-saxena/design-system
 
-JobDash Design System — accessible React primitives with semantic tokens. Warm-cream + ink + amber aesthetic with full light/dark mode.
+Design System — accessible React primitives with semantic tokens. Warm-cream + ink + amber aesthetic with full light/dark mode.
 
-Status: **0.0.0 (scaffold; first publishable release v0.1.0 lands with 13 primitives in JobDash Phase 13.5-04).**
+Status: **v0.1.0 — first publishable release with 13 primitives (Wave 1 + Wave 2).**
 
 Published to **GitHub Packages** (private registry, free under personal account quota). Requires auth to install — see below.
 

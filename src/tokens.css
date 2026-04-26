@@ -1,0 +1,170 @@
+/* @akhil-saxena/design-system v0.1.0 — token layer.
+   Imported via:
+     import "@akhil-saxena/design-system/tokens.css";
+   Use BEFORE primitives.css and utilities.css (cascade order matters). */
+
+/* @fontsource — replaces Google Fonts CDN @import. Versioned with the package. */
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/archivo/500.css";
+@import "@fontsource/archivo/600.css";
+@import "@fontsource/archivo/700.css";
+@import "@fontsource/archivo/800.css";
+@import "@fontsource/archivo/900.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/jetbrains-mono/600.css";
+@import "@fontsource/jetbrains-mono/700.css";
+
+/* ─── Light mode tokens ─────────────────────────────────────────────── */
+:root {
+	/* Type stacks */
+	--font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", system-ui,
+		sans-serif;
+	--mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+	--display: "Archivo", system-ui, sans-serif;
+
+	/* Ink ramp (text + dark surfaces) */
+	--ink: #292524;
+	--ink-2: #57534e;
+	--ink-3: #6b6560;
+	--ink-4: #8a8380;
+	--ink-5: #d6d3d1;
+
+	/* Cream ramp (warm background surfaces) */
+	--cream: #f5f3f0;
+	--cream-2: #ece8e3;
+	--cream-3: #e7e2dc;
+
+	/* Amber accent */
+	--amber: #f59e0b;
+	--amber-d: #b45309;
+	--amber-l: #fef3c7;
+
+	/* Status text-safe — handoff v1.0 AAA-on-cream values */
+	--blue: #1e3a8a;
+	--purple: #5b21b6;
+	--green: #14532d;
+	--red: #991b1b;
+
+	/* Hairline rule */
+	--rule: rgba(0, 0, 0, 0.08);
+
+	/* Vivids — decorative-only (dots, fills, borders), never text */
+	--amber-vivid: #f59e0b;
+	--blue-vivid: #3b82f6;
+	--purple-vivid: #8b5cf6;
+	--green-vivid: #22c55e;
+	--red-vivid: #ef4444;
+
+	/* Glass effect tokens (default variant; .glass-subtle and .glass-heavy
+     ship their own values per the README handoff table) */
+	--g-bg: rgba(255, 255, 255, 0.55);
+	--g-bd: rgba(255, 255, 255, 0.5);
+	--g-blur: 14px;
+
+	/* Border radii — handoff v1.0 token table */
+	--radius-sm: 4px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 16px;
+	--radius-pill: 999px;
+	/* Backwards-compat aliases retained from in-tree refresh (13.5-02) */
+	--radius-2xl: 16px;
+	--radius-full: 999px;
+
+	/* Shadows — handoff v1.0 token table */
+	--shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
+	--shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08);
+	--shadow-3: 0 12px 32px rgba(0, 0, 0, 0.12);
+	/* Backwards-compat aliases retained from in-tree refresh (13.5-02) */
+	--shadow-subtle: var(--shadow-1);
+	--shadow-card: var(--shadow-2);
+	--shadow-elevated: var(--shadow-2);
+	--shadow-overlay: var(--shadow-3);
+
+	/* Spacing scale — handoff v1.0 (multiples of 4px, 16-step) */
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 12px;
+	--space-4: 16px;
+	--space-5: 20px;
+	--space-6: 24px;
+	--space-7: 28px;
+	--space-8: 32px;
+	--space-9: 36px;
+	--space-10: 40px;
+	--space-11: 44px;
+	--space-12: 48px;
+	--space-13: 52px;
+	--space-14: 56px;
+	--space-15: 60px;
+	--space-16: 64px;
+
+	/* Motion tokens — handoff v1.0 */
+	--ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+	--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+	--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+	--dur-1: 120ms;
+	--dur-2: 180ms;
+	--dur-3: 240ms;
+	--dur-4: 360ms;
+
+	/* Surface tokens — handoff v1.0 (translucent overlays, light) */
+	--surf-1: rgba(255, 255, 255, 0.4);
+	--surf-2: rgba(255, 255, 255, 0.55);
+	--surf-3: rgba(255, 255, 255, 0.7);
+
+	/* Focus tokens — handoff v1.0 */
+	--focus: var(--amber);
+	--focus-ring: 0 0 0 3px rgba(245, 158, 11, 0.45);
+}
+
+/* ─── Dark mode overrides ─────────────────────────────────────────────
+   Selector is :root.dark (NOT body.dark like the handoff HTML) because
+   our app + Storybook both toggle .dark on <html> via documentElement. */
+:root.dark {
+	/* Ink ramp inverts: ink becomes cream-toned, cream becomes near-black */
+	--ink: #f5f3f0;
+	--ink-2: #d6d3d1;
+	--ink-3: #a8a29e;
+	--ink-4: #8a8380;
+	--ink-5: #44403c;
+
+	--cream: #1c1917;
+	--cream-2: #292524;
+	--cream-3: #44403c;
+
+	/* Hairline brightens for dark surfaces */
+	--rule: rgba(255, 255, 255, 0.08);
+
+	/* Glass tints to dark ink */
+	--g-bg: rgba(40, 37, 34, 0.7);
+	--g-bd: rgba(255, 255, 255, 0.08);
+
+	/* Status colors lift for dark contrast — handoff v1.0 dark table */
+	--amber-d: #fbbf24;
+	--blue: #7cb8fb;
+	--purple: #bfa3fb;
+	--green: #4ade80;
+	--red: #fb8888;
+
+	/* Vivids are decorative-only; restated explicitly even though values
+     are identical to light mode (handoff comment line 28: "vivids
+     unchanged in dark"). */
+	--amber-vivid: #f59e0b;
+	--blue-vivid: #3b82f6;
+	--purple-vivid: #8b5cf6;
+	--green-vivid: #22c55e;
+	--red-vivid: #ef4444;
+
+	/* Surface tokens — handoff v1.0 dark (white-low-alpha overlays) */
+	--surf-1: rgba(255, 255, 255, 0.04);
+	--surf-2: rgba(255, 255, 255, 0.06);
+	--surf-3: rgba(255, 255, 255, 0.1);
+
+	/* Focus ring — dark-mode amber-d glow */
+	--focus-ring: 0 0 0 3px rgba(251, 191, 36, 0.5);
+}

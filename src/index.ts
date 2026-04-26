@@ -1,3 +1,24 @@
-// @akhil-saxena/design-system v0.0.0 — empty barrel placeholder.
-// Populated in JobDash Phase 13.5-04 with 13 primitives + 4 hooks (Wave 1 + Wave 2).
-export {};
+// @akhil-saxena/design-system v0.1.0 — barrel exports.
+
+export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from "./Button";
+export { TextInput, type TextInputProps } from "./TextInput";
+export { Textarea, type TextareaProps } from "./Textarea";
+export { Badge, type BadgeProps, type BadgeTone } from "./Badge";
+export { Chip, type ChipProps, type ChipTone } from "./Chip";
+export {
+	Avatar,
+	AvatarStack,
+	deriveGradient,
+	deriveInitials,
+	type AvatarPresence,
+	type AvatarProps,
+	type AvatarSize,
+	type AvatarStackProps,
+} from "./Avatar";
+export { Checkbox, type CheckboxProps } from "./Checkbox";
+export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from "./Radio";
+export { Toggle, type ToggleProps } from "./Toggle";
+export { NumberStepper, type NumberStepperProps } from "./NumberStepper";
+export { RollingNumber, type RollingNumberProps } from "./RollingNumber";
+export { RangeSlider, type RangeSliderProps } from "./RangeSlider";
+export { StarRating, type StarRatingProps, type StarRatingSize } from "./StarRating";

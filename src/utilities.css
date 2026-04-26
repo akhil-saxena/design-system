@@ -1,0 +1,200 @@
+/* @akhil-saxena/design-system v0.1.0 — cross-cutting utility classes.
+   Imported via:
+     import "@akhil-saxena/design-system/utilities.css";
+   Requires tokens.css to be imported first.
+   Includes: .glass / .glass-subtle / .glass-heavy (+ dark variants),
+   .ds-label, .ds-focus-ring, .ds-dot-grid, native date input theming,
+   .jd-markdown rendered-content styles. */
+
+.glass {
+	background: var(--g-bg);
+	backdrop-filter: blur(var(--g-blur));
+	-webkit-backdrop-filter: blur(var(--g-blur));
+	border: 1px solid var(--g-bd);
+	border-radius: var(--radius-xl);
+}
+
+.glass-subtle {
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+	border: 1px solid rgba(0, 0, 0, 0.05);
+	border-radius: var(--radius-xl);
+}
+:root.dark .glass-subtle {
+	background: rgba(28, 25, 23, 0.85);
+	border-color: rgba(255, 255, 255, 0.06);
+}
+
+.glass-heavy {
+	background: rgba(255, 255, 255, 0.4);
+	backdrop-filter: blur(22px);
+	-webkit-backdrop-filter: blur(22px);
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	border-radius: var(--radius-xl);
+}
+:root.dark .glass-heavy {
+	background: rgba(28, 25, 23, 0.6);
+	border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Mono uppercase label ──────────────────────────────────────────────
+   The signature "section meta" label everywhere a small all-caps mono
+   header is called for. 10px / 600 / 0.08em tracking per spec §4. */
+.ds-label {
+	font-family: var(--mono);
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+}
+:root.dark .ds-label {
+	color: var(--ink-4);
+}
+
+/* ─── Amber focus-ring utility ──────────────────────────────────────────
+   Handoff input :focus state (line 85 of the source `<style>` block).
+   Apply to any interactive element — focus and focus-within both fire,
+   so it works on wrapping containers like .ds-input-wrap. */
+.ds-focus-ring:focus,
+.ds-focus-ring:focus-within {
+	outline: none;
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+
+/* ─── Optional dot-grid background helper ───────────────────────────────
+   Lets specific surfaces opt into the same dot pattern the body uses
+   (e.g., empty states, hero cards). Light variant uses ink dots, dark
+   variant flips to white dots. */
+.ds-dot-grid {
+	background-image: radial-gradient(circle, rgba(41, 37, 36, 0.08) 1px, transparent 1.2px);
+	background-size: 16px 16px;
+}
+:root.dark .ds-dot-grid {
+	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1.2px);
+}
+
+/* ─── Native date / time input theming ──────────────────────────────────
+   Preserved verbatim from the previous index.css. Without color-scheme,
+   browsers render the native popover chrome with the OS default scheme,
+   which looks broken inside a dark glass card. */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+input[type="month"],
+input[type="week"] {
+	color-scheme: light;
+}
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark input[type="time"],
+.dark input[type="month"],
+.dark input[type="week"] {
+	color-scheme: dark;
+}
+
+/* Nudge the native calendar indicator so it sits in the padding, not flush
+   against the border. Also subtly tint it to the accent on hover for
+   discoverability. Only applied on date-style inputs. */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+	opacity: 0.55;
+	cursor: pointer;
+	transition: opacity 120ms ease;
+}
+input[type="date"]:hover::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]:hover::-webkit-calendar-picker-indicator,
+input[type="time"]:hover::-webkit-calendar-picker-indicator {
+	opacity: 0.9;
+}
+
+/* ─── Markdown rendered content ─────────────────────────────────────────
+   Styles for arbitrary user-rendered markdown (notes, JD scrape output,
+   research). Applied via .jd-markdown class on the wrapping container. */
+.jd-markdown h1 {
+	font-family: var(--display);
+	font-size: 1.25rem;
+	font-weight: 700;
+	margin-top: 1.25rem;
+	margin-bottom: 0.5rem;
+}
+.jd-markdown h2 {
+	font-family: var(--display);
+	font-size: 1.1rem;
+	font-weight: 700;
+	margin-top: 1rem;
+	margin-bottom: 0.4rem;
+}
+.jd-markdown h3 {
+	font-family: var(--display);
+	font-size: 1rem;
+	font-weight: 600;
+	margin-top: 0.75rem;
+	margin-bottom: 0.3rem;
+}
+.jd-markdown p {
+	margin-bottom: 0.6rem;
+	line-height: 1.65;
+}
+.jd-markdown ul,
+.jd-markdown ol {
+	padding-left: 1.25rem;
+	margin-bottom: 0.6rem;
+}
+.jd-markdown ul {
+	list-style-type: disc;
+}
+.jd-markdown ol {
+	list-style-type: decimal;
+}
+.jd-markdown li {
+	margin-bottom: 0.25rem;
+	line-height: 1.55;
+}
+.jd-markdown code {
+	background: rgba(0, 0, 0, 0.04);
+	padding: 0.1rem 0.35rem;
+	border-radius: 4px;
+	font-size: 0.85em;
+	font-family: var(--mono);
+}
+.jd-markdown pre {
+	background: rgba(0, 0, 0, 0.04);
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	overflow-x: auto;
+	margin-bottom: 0.6rem;
+}
+.jd-markdown pre code {
+	background: transparent;
+	padding: 0;
+}
+.jd-markdown strong {
+	font-weight: 700;
+}
+.jd-markdown em {
+	font-style: italic;
+}
+.jd-markdown a {
+	color: #d97706;
+	text-decoration: underline;
+}
+.jd-markdown blockquote {
+	border-left: 3px solid #f59e0b;
+	padding-left: 0.75rem;
+	margin: 0.5rem 0;
+	opacity: 0.85;
+}
+
+.dark .jd-markdown code {
+	background: rgba(255, 255, 255, 0.06);
+}
+.dark .jd-markdown pre {
+	background: rgba(255, 255, 255, 0.06);
+}
+.dark .jd-markdown a {
+	color: #fbbf24;
+}

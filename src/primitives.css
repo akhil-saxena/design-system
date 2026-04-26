@@ -1,0 +1,442 @@
+/* @akhil-saxena/design-system v0.1.0 — primitive component CSS.
+   Imported via:
+     import "@akhil-saxena/design-system/primitives.css";
+   Requires tokens.css to be imported first (uses --amber, --ink-2, --rule, etc.). */
+
+/* ─── DS atom: Button ────────────────────────────────────────────────────
+   Pseudo-class states that inline style={{}} cannot express (D-103).
+   Variant-specific hover states keyed off data-variant attribute.
+   Source: original handoff `.ds-btn` rules transcribed verbatim. */
+.ds-atom-btn:active {
+	transform: scale(0.97);
+}
+.ds-atom-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+.ds-atom-btn:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+.ds-atom-btn[data-variant="primary"]:hover:not(:disabled) {
+	background: #1c1917;
+}
+.ds-atom-btn[data-variant="secondary"]:hover:not(:disabled) {
+	background: var(--cream-2);
+	border-color: rgba(0, 0, 0, 0.12);
+}
+.ds-atom-btn[data-variant="amber"]:hover:not(:disabled) {
+	background: #e8940a;
+}
+.ds-atom-btn[data-variant="ghost"]:hover:not(:disabled) {
+	background: rgba(0, 0, 0, 0.04);
+}
+.ds-atom-btn[data-variant="danger"]:hover:not(:disabled) {
+	background: var(--red);
+	color: #ffffff;
+	border-color: var(--red);
+}
+.ds-atom-btn[data-loading="true"] {
+	pointer-events: none;
+	opacity: 0.8;
+}
+:root.dark .ds-atom-btn[data-variant="primary"] {
+	background: var(--cream-3);
+	color: var(--ink);
+	border-color: var(--cream-3);
+}
+:root.dark .ds-atom-btn[data-variant="amber"] {
+	color: #1c1917;
+}
+:root.dark .ds-atom-btn[data-variant="ghost"]:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+/* ─── DS atom: TextInput ─────────────────────────────────────────────────
+   Source: handoff .ds-input + .ds-input-wrap rules. focus-within applies
+   to the wrap variant (D-103). */
+.ds-atom-input:focus {
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+.ds-atom-input:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+.ds-atom-input[data-error="true"] {
+	border-color: var(--red);
+	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+:root.dark .ds-atom-input {
+	background: rgba(255, 255, 255, 0.06);
+}
+.ds-atom-input-wrap:focus-within {
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+.ds-atom-input-wrap[data-error="true"] {
+	border-color: var(--red);
+	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+:root.dark .ds-atom-input-wrap {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+/* ─── DS atom: Textarea ──────────────────────────────────────────────────
+   Source: handoff .ds-textarea rule. Same focus/error contract as input. */
+.ds-atom-textarea:focus {
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+.ds-atom-textarea:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+.ds-atom-textarea[data-error="true"] {
+	border-color: var(--red);
+	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+:root.dark .ds-atom-textarea {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+/* ─── DS atom: Chip ──────────────────────────────────────────────────────
+   Source: handoff .ds-chip rule. × hover turns red. */
+:root.dark .ds-atom-chip {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.06);
+}
+.ds-atom-chip-x:hover {
+	color: var(--red);
+}
+
+/* ─── DS atom: Checkbox ──────────────────────────────────────────────────
+   Native input visually hidden + sibling-selector CSS for :checked /
+   :disabled (D-130 / D-131). Source: handoff .ds-checkbox rule. */
+.ds-atom-checkbox-input:checked + .ds-atom-checkbox-box {
+	background: var(--amber);
+	border-color: var(--amber);
+}
+.ds-atom-checkbox-input:checked + .ds-atom-checkbox-box .ds-atom-checkbox-check {
+	display: inline-block !important;
+}
+.ds-atom-checkbox-input:focus-visible + .ds-atom-checkbox-box {
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+.ds-atom-checkbox-label.is-disabled .ds-atom-checkbox-box {
+	cursor: not-allowed;
+}
+
+/* ─── DS atom: Radio ─────────────────────────────────────────────────────
+   Native input visually hidden + sibling-selector CSS for :checked /
+   :disabled (D-130 / D-131 / D-133). Source: handoff .ds-radio rule. */
+.ds-atom-radio-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--amber);
+	display: none;
+}
+.ds-atom-radio-input:checked + .ds-atom-radio-box {
+	border-color: var(--amber);
+}
+.ds-atom-radio-input:checked + .ds-atom-radio-box .ds-atom-radio-dot {
+	display: inline-block;
+}
+.ds-atom-radio-input:focus-visible + .ds-atom-radio-box {
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+.ds-atom-radio-label.is-disabled .ds-atom-radio-box {
+	cursor: not-allowed;
+}
+
+/* ─── DS atom: Toggle ────────────────────────────────────────────────
+   Native input visually hidden + sibling-selector CSS for :checked /
+   :focus-visible / :disabled (D-200). Source: handoff .ds-toggle rule. */
+.ds-atom-toggle-track {
+	width: 36px;
+	height: 20px;
+	border-radius: 10px;
+	background: var(--ink-5);
+	padding: 2px;
+	cursor: pointer;
+	transition: background 0.2s;
+	flex-shrink: 0;
+	position: relative;
+	display: inline-block;
+	box-sizing: border-box;
+}
+.ds-atom-toggle-thumb {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+	transition: transform 0.2s;
+	display: block;
+}
+.ds-atom-toggle-input:checked + .ds-atom-toggle-track {
+	background: var(--amber);
+}
+.ds-atom-toggle-input:checked + .ds-atom-toggle-track .ds-atom-toggle-thumb {
+	transform: translateX(16px);
+}
+.ds-atom-toggle-input:focus-visible + .ds-atom-toggle-track {
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+.ds-atom-toggle-label.is-disabled .ds-atom-toggle-track {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+/* ─── DS atom: NumberStepper ─────────────────────────────────────────
+   Custom −/+ stepper with bare numeric input. Single primitive composes
+   percent/days/salary variants via prefix/suffix/formatFn (D-210, D-211).
+   Source: handoff .ds-stepper* rules. */
+.ds-atom-stepper {
+	display: inline-flex;
+	align-items: center;
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	overflow: hidden;
+	background: rgba(255, 255, 255, 0.6);
+}
+:root.dark .ds-atom-stepper {
+	background: rgba(255, 255, 255, 0.06);
+}
+.ds-atom-stepper-btn {
+	width: 34px;
+	height: 36px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	color: var(--ink-2);
+	transition: all 0.12s;
+	flex-shrink: 0;
+}
+.ds-atom-stepper-btn:hover:not(:disabled) {
+	background: var(--cream-2);
+}
+.ds-atom-stepper-btn:active:not(:disabled) {
+	background: var(--cream-3);
+}
+.ds-atom-stepper-btn:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+.ds-atom-stepper-display {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	border-left: 1px solid var(--rule);
+	border-right: 1px solid var(--rule);
+	padding: 0 4px;
+	min-width: 64px;
+}
+.ds-atom-stepper-input {
+	width: 100%;
+	text-align: center;
+	border: none;
+	background: none;
+	font-family: var(--mono);
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--ink);
+	outline: none;
+	padding: 6px 0;
+}
+.ds-atom-stepper-input:disabled {
+	cursor: not-allowed;
+}
+.ds-atom-stepper-affix {
+	font-family: var(--mono);
+	font-size: 11px;
+	color: var(--ink-3);
+	flex-shrink: 0;
+}
+
+/* ─── DS atom: RollingNumber ─────────────────────────────────────────
+   Pure-CSS digit-strip animation. Each digit cell is overflow:hidden
+   with a vertical strip translateY'd to expose the current digit.
+   Transition is CSS-only — no JS lib (D-220).
+   Source: handoff .ds-rolling* rules. */
+.ds-atom-rolling {
+	display: inline-flex;
+	align-items: baseline;
+	font-variant-numeric: tabular-nums;
+	font-family: var(--mono);
+}
+.ds-atom-rolling-cell {
+	display: inline-block;
+	width: 14px;
+	height: 22px;
+	overflow: hidden;
+	vertical-align: middle;
+	position: relative;
+}
+.ds-atom-rolling-strip {
+	display: flex;
+	flex-direction: column;
+	transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ds-atom-rolling-strip > span {
+	height: 22px;
+	line-height: 22px;
+	display: block;
+	text-align: center;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--ink);
+}
+.ds-atom-rolling-static {
+	display: inline-block;
+	height: 22px;
+	line-height: 22px;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--ink);
+	padding: 0 1px;
+}
+
+/* ─── DS atom: RangeSlider ──────────────────────────────────────────
+   Hybrid native input visually hidden + custom track/fill/thumb (D-230).
+   Native <input type="range"> overlays the rendered track to capture
+   drag + keyboard events; visuals are driven by computed inline width/left.
+   Source: handoff .ds-slider* rules. */
+.ds-atom-range {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-family: var(--font);
+	color: var(--ink);
+	font-size: 13px;
+}
+.ds-atom-range-label-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.ds-atom-range-label {
+	font-size: 12px;
+	color: var(--ink-2);
+	font-weight: 600;
+}
+.ds-atom-range-value {
+	font-family: var(--mono);
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--amber-d);
+}
+.ds-atom-range-track-wrap {
+	position: relative;
+	height: 16px;
+	display: flex;
+	align-items: center;
+}
+.ds-atom-range-input {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+.ds-atom-range-input:disabled {
+	cursor: not-allowed;
+}
+.ds-atom-range-track {
+	width: 100%;
+	height: 6px;
+	background: var(--cream-2);
+	border-radius: 3px;
+	position: relative;
+	pointer-events: none;
+}
+.ds-atom-range-fill {
+	height: 100%;
+	background: linear-gradient(90deg, var(--amber), var(--amber-d));
+	border-radius: 3px;
+	pointer-events: none;
+	transition: width 150ms ease;
+}
+.ds-atom-range-thumb {
+	position: absolute;
+	top: 50%;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #fff;
+	border: 2px solid var(--amber);
+	transform: translate(-50%, -50%);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+	transition: box-shadow 150ms;
+	pointer-events: none;
+}
+.ds-atom-range:hover .ds-atom-range-thumb {
+	box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15), 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+.ds-atom-range[data-disabled="true"] {
+	opacity: 0.5;
+}
+.ds-atom-range[data-disabled="true"] .ds-atom-range-thumb {
+	cursor: not-allowed;
+}
+
+/* ─── DS atom: StarRating ───────────────────────────────────────────
+   5 whole-star buttons in role=radiogroup. Hover preview lifted to
+   component state. Lucide <Star /> icon (D-240). */
+.ds-atom-star {
+	display: inline-flex;
+	gap: 4px;
+	align-items: center;
+}
+.ds-atom-star[data-size="compact"] {
+	gap: 2px;
+}
+.ds-atom-star-btn {
+	background: transparent;
+	border: none;
+	padding: 2px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 100ms;
+	color: inherit;
+}
+.ds-atom-star-btn:hover:not(:disabled) {
+	transform: scale(1.1);
+}
+.ds-atom-star-btn:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+.ds-atom-star-btn:disabled {
+	cursor: default;
+}
+.ds-atom-star[data-disabled="true"] {
+	opacity: 0.5;
+}
+
+.ds-atom-btn-spinner {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 2px solid currentColor;
+	border-top-color: transparent;
+	border-radius: 50%;
+	animation: ds-atom-btn-spin 0.8s linear infinite;
+}
+@keyframes ds-atom-btn-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
