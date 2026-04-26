@@ -1,0 +1,74 @@
+{
+	"name": "@akhil-saxena/design-system",
+	"version": "0.0.0",
+	"type": "module",
+	"description": "JobDash Design System — accessible React primitives with semantic tokens",
+	"license": "MIT",
+	"author": "Akhil Saxena <saxena.akhil42@gmail.com>",
+	"repository": { "type": "git", "url": "https://github.com/akhil-saxena/design-system.git" },
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com",
+		"access": "restricted"
+	},
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": ["dist", "README.md", "LICENSE"],
+	"exports": {
+		".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+		"./hooks": { "types": "./dist/hooks/index.d.ts", "import": "./dist/hooks/index.js" },
+		"./tokens.css": "./dist/tokens.css",
+		"./primitives.css": "./dist/primitives.css",
+		"./utilities.css": "./dist/utilities.css"
+	},
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"test": "vitest run",
+		"test:visual": "playwright test",
+		"test:visual:update": "playwright test --update-snapshots",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build",
+		"check": "biome check .",
+		"format": "biome format --write .",
+		"typecheck": "tsc --noEmit",
+		"prepare": "husky",
+		"prepublishOnly": "npm run build && npm test"
+	},
+	"peerDependencies": {
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
+	},
+	"dependencies": {
+		"@fontsource/inter": "^5.0.0",
+		"@fontsource/archivo": "^5.0.0",
+		"@fontsource/jetbrains-mono": "^5.0.0",
+		"lucide-react": "^1.8.0"
+	},
+	"devDependencies": {
+		"tsup": "^8.4.0",
+		"typescript": "~6.0.2",
+		"vitest": "^4.1.4",
+		"@vitest/coverage-v8": "^4.1.4",
+		"jsdom": "^25.0.1",
+		"@testing-library/react": "^16.3.2",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@playwright/test": "^1.59.1",
+		"@biomejs/biome": "^1.9.4",
+		"storybook": "^8.6.18",
+		"@storybook/react-vite": "^8.6.18",
+		"@storybook/test-runner": "^0.23.0",
+		"@storybook/addon-essentials": "^8.6.14",
+		"@vitejs/plugin-react": "^6.0.1",
+		"husky": "^9.1.7",
+		"lint-staged": "^15.5.2",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3"
+	},
+	"lint-staged": {
+		"*.{ts,tsx,js,jsx,json,jsonc,css}": ["biome check --write --no-errors-on-unmatched"]
+	},
+	"engines": { "node": ">=20" }
+}

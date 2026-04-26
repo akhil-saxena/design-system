@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+
+# @akhilsaxena/design-system pre-commit hook
+# 1. Author-identity check (must be saxena.akhil42@gmail.com per global CLAUDE.md
+#    rule for ~/Documents/Repositories/akhil-saxena/* repos)
+# 2. lint-staged biome on staged files
+
+expected_email="saxena.akhil42@gmail.com"
+ident=$(git var GIT_AUTHOR_IDENT 2>/dev/null)
+author_email=$(printf "%s\n" "$ident" | sed -n 's/.*<\([^>]*\)>.*/\1/p')
+
+if [ -z "$author_email" ]; then
+	author_email=$(git config user.email)
+fi
+
+if [ "$author_email" != "$expected_email" ]; then
+	echo ""
+	echo "✗ Pre-commit blocked: GIT_AUTHOR email is '$author_email'"
+	echo "  Expected: '$expected_email'"
+	echo ""
+	echo "  Use the per-commit override:"
+	echo ""
+	echo "    git -c user.name=akhil-saxena \\"
+	echo "        -c user.email=saxena.akhil42@gmail.com \\"
+	echo "        commit ..."
+	echo ""
+	exit 1
+fi
+
+npx lint-staged
