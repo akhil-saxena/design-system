@@ -23,3 +23,5 @@ export { RollingNumber, type RollingNumberProps } from "./RollingNumber";
 export { RangeSlider, type RangeSliderProps } from "./RangeSlider";
 export { StarRating, type StarRatingProps, type StarRatingSize } from "./StarRating";
 export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./StickyNote";
+export { Card, type CardProps, type CardVariant } from "./Card";
+export { DSPortal, type DSPortalProps } from "./_internals/DSPortal";

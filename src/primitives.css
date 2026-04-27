@@ -470,3 +470,55 @@
 :root.dark .ds-atom-stickynote {
 	color: #292524;
 }
+
+/* ─── DS atom: Card ──────────────────────────────────────────────────
+   Surface primitive with 4 variants keyed off [data-variant] (D-300).
+   Freely-composed children — no compound API (D-301).
+   Source: design-handoff/design-system/ds-surfaces.jsx CardsSection. */
+.ds-atom-card {
+	box-sizing: border-box;
+	display: block;
+}
+.ds-atom-card[data-variant="glass"] {
+	background: var(--surf-1);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-lg);
+	padding: 20px 22px;
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+}
+.ds-atom-card[data-variant="amber"] {
+	background: linear-gradient(145deg, rgba(254, 243, 199, 0.5), var(--surf-1));
+	border: 1px solid rgba(245, 158, 11, 0.25);
+	border-radius: var(--radius-lg);
+	padding: 20px 22px;
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+}
+.ds-atom-card[data-variant="dark"] {
+	background: #1c1917;
+	color: #f5f3f0;
+	border: 1px solid #1c1917;
+	border-radius: var(--radius-lg);
+	padding: 20px 22px;
+}
+/* Dark variant is ALWAYS dark — does NOT respond to :root.dark cascade.
+   Handoff invariant. */
+:root.dark .ds-atom-card[data-variant="dark"] {
+	background: #1c1917;
+	color: #f5f3f0;
+}
+.ds-atom-card[data-variant="kanban"] {
+	background: var(--surf-1);
+	border: 1px solid var(--rule);
+	border-radius: 10px;
+	padding: 12px 14px;
+	cursor: pointer;
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+	transition: box-shadow 0.15s, border-color 0.15s;
+}
+.ds-atom-card[data-variant="kanban"]:hover {
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+	border-color: rgba(0, 0, 0, 0.12);
+}
