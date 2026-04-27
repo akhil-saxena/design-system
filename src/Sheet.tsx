@@ -89,11 +89,8 @@ export function Sheet({
 
 	return (
 		<DSPortal>
-			<div
-				className="ds-atom-sheet-backdrop"
-				// biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above
-				onClick={handleBackdropClick}
-			>
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above on `document` (handles all focus contexts, including the panel) */}
+			<div className="ds-atom-sheet-backdrop" onClick={handleBackdropClick}>
 				<div
 					ref={panelRef}
 					className={`ds-atom-sheet${className ? ` ${className}` : ""}`}
