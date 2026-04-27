@@ -35,3 +35,11 @@ export {
 	type PopoverProps,
 	type PopoverVariant,
 } from "./Popover";
+export {
+	ConfirmDialog,
+	Modal,
+	type ConfirmDialogProps,
+	type ModalProps,
+	type ModalRole,
+} from "./Modal";
+export { Sheet, type SheetProps, type SheetSide } from "./Sheet";

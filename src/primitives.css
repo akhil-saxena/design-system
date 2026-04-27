@@ -544,16 +544,13 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 	box-sizing: border-box;
 	max-width: 240px;
-	opacity: 1;
-	animation: ds-atom-tooltip-fade 180ms ease-out;
+	opacity: 0;
+	animation: ds-atom-tooltip-fade 180ms ease-out forwards;
 }
 /* Per-placement selectors omitted — JS sets absolute top/left from
    getBoundingClientRect(). data-placement attribute is still emitted on the
    surface (used by tests + future arrow pseudo-element / Floating-UI hooks
-   in v2.1). Empty CSS blocks are rejected by biome's noEmptyBlock rule.
-   Note: opacity defaults to 1 (final state) so baselines render the surface
-   even when test-runner disables animations via preVisit. The animation runs
-   on initial mount in production for the fade-in effect. */
+   in v2.1). Empty CSS blocks are rejected by biome's noEmptyBlock rule. */
 @keyframes ds-atom-tooltip-fade {
 	from {
 		opacity: 0;
@@ -639,4 +636,177 @@
 }
 .ds-atom-popover-item[data-tone="danger"]:hover:not(:disabled) {
 	background: rgba(239, 68, 68, 0.08);
+}
+
+/* ─── DS atom: Modal ─────────────────────────────────────────────────
+   DSPortal-mounted backdrop + glass panel. Focus-trapped via useFocusTrap
+   (Tab); Escape close handled by Modal directly. ConfirmDialog ships from
+   the same file (D-287, D-356). Source: design-handoff/design-system/
+   ds-surfaces.jsx ModalsSection + ds-confirmdialog.jsx. Animation keyframes
+   namespaced (ds-atom-modal-fadein / ds-atom-modal-in) to avoid colliding
+   with consumer-defined fadeIn / modalIn. */
+.ds-atom-modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.65);
+	-webkit-backdrop-filter: blur(2px);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	animation: ds-atom-modal-fadein 0.15s ease-out;
+}
+.ds-atom-modal {
+	background: var(--g-bg);
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-lg);
+	padding: 0;
+	max-width: 480px;
+	width: calc(100% - var(--space-4));
+	max-height: 80vh;
+	overflow-y: auto;
+	box-shadow: var(--shadow-3);
+	animation: ds-atom-modal-in 0.2s ease-out;
+	font-family: var(--font);
+	color: var(--ink);
+}
+.ds-atom-modal-hd {
+	padding: var(--space-4) var(--space-5);
+	border-bottom: 1px solid var(--rule);
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	font-family: var(--display);
+	font-weight: 700;
+	font-size: 17px;
+}
+.ds-atom-modal-body {
+	padding: var(--space-4) var(--space-5);
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--ink-2);
+}
+.ds-atom-modal-ft {
+	padding: var(--space-4) var(--space-5);
+	border-top: 1px solid var(--rule);
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--space-2);
+}
+@keyframes ds-atom-modal-fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes ds-atom-modal-in {
+	from {
+		opacity: 0;
+		transform: scale(0.96) translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* ─── DS atom: Sheet ─────────────────────────────────────────────────
+   DSPortal-mounted backdrop + side-anchored panel (right/left).
+   Focus-trapped via useFocusTrap. Mobile (<640px) full-width.
+   Source: handoff .ds-sheet + .ds-sheet-right/left + sheetIn keyframes. */
+@keyframes ds-atom-sheet-fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+.ds-atom-sheet-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.65);
+	-webkit-backdrop-filter: blur(2px);
+	backdrop-filter: blur(2px);
+	z-index: 1000;
+	animation: ds-atom-sheet-fadein 0.15s ease-out;
+}
+.ds-atom-sheet {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	height: 100vh;
+	width: 400px;
+	background: var(--g-bg);
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+	box-shadow: var(--shadow-3);
+	display: flex;
+	flex-direction: column;
+	font-family: var(--font);
+	color: var(--ink);
+	z-index: 1001;
+}
+.ds-atom-sheet[data-side="right"] {
+	right: 0;
+	left: auto;
+	border-left: 1px solid var(--rule);
+	animation: ds-atom-sheet-in-right 0.2s ease-out;
+}
+.ds-atom-sheet[data-side="left"] {
+	left: 0;
+	right: auto;
+	border-right: 1px solid var(--rule);
+	animation: ds-atom-sheet-in-left 0.2s ease-out;
+}
+.ds-atom-sheet-hd {
+	padding: var(--space-4) var(--space-5);
+	border-bottom: 1px solid var(--rule);
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	font-family: var(--display);
+	font-weight: 700;
+	font-size: 17px;
+}
+.ds-atom-sheet-body {
+	padding: var(--space-4) var(--space-5);
+	flex: 1;
+	overflow-y: auto;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--ink-2);
+}
+.ds-atom-sheet-ft {
+	padding: var(--space-4) var(--space-5);
+	border-top: 1px solid var(--rule);
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--space-2);
+}
+@keyframes ds-atom-sheet-in-right {
+	from {
+		transform: translateX(100%);
+	}
+	to {
+		transform: translateX(0);
+	}
+}
+@keyframes ds-atom-sheet-in-left {
+	from {
+		transform: translateX(-100%);
+	}
+	to {
+		transform: translateX(0);
+	}
+}
+@media (max-width: 640px) {
+	.ds-atom-sheet {
+		width: 100vw;
+	}
 }
