@@ -43,3 +43,4 @@ export {
 	type ModalRole,
 } from "./Modal";
 export { Sheet, type SheetProps, type SheetSide } from "./Sheet";
+export { HoverCard, type HoverCardPlacement, type HoverCardProps } from "./HoverCard";

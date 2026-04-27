@@ -810,3 +810,36 @@
 		width: 100vw;
 	}
 }
+
+/* ─── DS atom: HoverCard ───────────────────────────────────────────────
+   Rich-content popover on hover with click-to-pin behavior. Uses
+   DSPortal + anchor-ref positioning. (D-355) Animation keyframe
+   namespaced (ds-atom-hovercard-fadein) to avoid colliding with
+   consumer-defined fadeIn. */
+.ds-atom-hovercard {
+	position: fixed;
+	background: var(--cream);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-3);
+	padding: var(--space-3);
+	max-width: 320px;
+	font-family: var(--font);
+	font-size: 13px;
+	color: var(--ink);
+	animation: ds-atom-hovercard-fadein 0.15s ease-out;
+	z-index: 1500;
+}
+:root.dark .ds-atom-hovercard {
+	background: var(--surf-2, var(--cream));
+	border-color: var(--rule);
+	color: var(--ink);
+}
+@keyframes ds-atom-hovercard-fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
