@@ -216,7 +216,7 @@ export const Playground: Story = {
 };
 
 export const DarkMode: Story = {
-	parameters: { globals: { theme: "dark" } },
+	globals: { theme: "dark" },
 	render: () => (
 		<div
 			style={{
