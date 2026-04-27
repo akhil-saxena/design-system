@@ -522,3 +522,40 @@
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 	border-color: rgba(0, 0, 0, 0.12);
 }
+
+/* ─── DS atom: Tooltip ───────────────────────────────────────────────
+   Overlay surface for hover/focus reveal of contextual help text.
+   Mounts via DSPortal to document.body; absolute-positioned by JS at
+   coordinates derived from trigger.getBoundingClientRect() per
+   `data-placement`. (D-310, D-311, D-312)
+   var(--ink) bg + var(--cream) text — tokens themselves flip under
+   :root.dark, so no extra dark-mode override is needed.
+   Source: design-handoff/design-system/ds-surfaces.jsx ds-tooltip rule. */
+.ds-atom-tooltip {
+	background: var(--ink);
+	color: var(--cream);
+	padding: 6px 10px;
+	border-radius: 6px;
+	font-family: var(--font);
+	font-size: 12px;
+	line-height: 1.4;
+	white-space: nowrap;
+	pointer-events: none;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+	box-sizing: border-box;
+	max-width: 240px;
+	opacity: 0;
+	animation: ds-atom-tooltip-fade 180ms ease-out forwards;
+}
+/* Per-placement selectors omitted — JS sets absolute top/left from
+   getBoundingClientRect(). data-placement attribute is still emitted on the
+   surface (used by tests + future arrow pseudo-element / Floating-UI hooks
+   in v2.1). Empty CSS blocks are rejected by biome's noEmptyBlock rule. */
+@keyframes ds-atom-tooltip-fade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}

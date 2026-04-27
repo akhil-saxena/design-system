@@ -25,3 +25,4 @@ export { StarRating, type StarRatingProps, type StarRatingSize } from "./StarRat
 export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./StickyNote";
 export { Card, type CardProps, type CardVariant } from "./Card";
 export { DSPortal, type DSPortalProps } from "./_internals/DSPortal";
+export { Tooltip, type TooltipPlacement, type TooltipProps } from "./Tooltip";
