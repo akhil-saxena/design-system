@@ -26,3 +26,12 @@ export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./Sti
 export { Card, type CardProps, type CardVariant } from "./Card";
 export { DSPortal, type DSPortalProps } from "./_internals/DSPortal";
 export { Tooltip, type TooltipPlacement, type TooltipProps } from "./Tooltip";
+export {
+	ContextMenu,
+	Popover,
+	type ContextMenuItem,
+	type ContextMenuProps,
+	type PopoverPlacement,
+	type PopoverProps,
+	type PopoverVariant,
+} from "./Popover";

@@ -559,3 +559,81 @@
 		opacity: 1;
 	}
 }
+
+/* ─── DS atom: Popover ────────────────────────────────────────────────
+   Anchor-ref positioned overlay (D-330). DSPortal-mounted to body.
+   ContextMenu variant (D-331) is a same-file styled variant — keyed via
+   [data-variant="contextmenu"] on the panel root.
+   Source: design-handoff/design-system/ds-surfaces.jsx .ds-popover. */
+.ds-atom-popover {
+	position: fixed;
+	z-index: 100;
+	background: var(--g-bg);
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-3);
+	padding: 0;
+	min-width: 0;
+	animation: ds-atom-popover-in 0.1s ease-out;
+}
+@keyframes ds-atom-popover-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+.ds-atom-popover[data-placement="bottom-start"] {
+	transform-origin: top left;
+}
+.ds-atom-popover[data-placement="bottom-end"] {
+	transform-origin: top right;
+}
+.ds-atom-popover[data-placement="top-start"] {
+	transform-origin: bottom left;
+}
+.ds-atom-popover[data-placement="top-end"] {
+	transform-origin: bottom right;
+}
+.ds-atom-popover[data-variant="contextmenu"] {
+	padding: var(--space-1);
+	min-width: 200px;
+}
+.ds-atom-popover-item {
+	width: 100%;
+	background: transparent;
+	border: none;
+	padding: 8px 14px;
+	font-size: 13px;
+	font-family: var(--font);
+	color: var(--ink);
+	cursor: pointer;
+	border-radius: var(--radius-sm);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	text-align: left;
+	transition: background 0.1s;
+}
+.ds-atom-popover-item:hover:not(:disabled) {
+	background: var(--cream-2);
+}
+.ds-atom-popover-item:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: -2px;
+}
+.ds-atom-popover-item:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+.ds-atom-popover-item[data-tone="danger"] {
+	color: var(--red);
+}
+.ds-atom-popover-item[data-tone="danger"]:hover:not(:disabled) {
+	background: rgba(239, 68, 68, 0.08);
+}
