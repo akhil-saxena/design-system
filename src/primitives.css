@@ -843,3 +843,97 @@
 		opacity: 1;
 	}
 }
+
+/* ─── DS atom: BottomSheet ─────────────────────────────────────────────
+   DSPortal-mounted overlay sliding up from the bottom edge with a purely
+   visual drag-handle indicator. Mirrors Sheet geometry but bottom-anchored.
+   (D-340) Two height variants via [data-height]:
+   - 'half' (default): max-height: 60vh, top corners rounded
+   - 'full': height: 100vh, no rounding (true full-screen)
+   Animation namespaced (ds-atom-bottomsheet-fadein / sheetInBottom) to
+   avoid colliding with consumer-defined keyframes. */
+@keyframes ds-atom-bottomsheet-fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+.ds-atom-bottomsheet-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.65);
+	-webkit-backdrop-filter: blur(2px);
+	backdrop-filter: blur(2px);
+	z-index: 1000;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	animation: ds-atom-bottomsheet-fadein 0.15s ease-out;
+}
+.ds-atom-bottomsheet {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: var(--g-bg);
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+	border-top: 1px solid var(--rule);
+	box-shadow: var(--shadow-3);
+	border-radius: 16px 16px 0 0;
+	animation: sheetInBottom 0.2s ease-out;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	font-family: var(--font);
+	color: var(--ink);
+	z-index: 1001;
+}
+.ds-atom-bottomsheet[data-height="half"] {
+	max-height: 60vh;
+}
+.ds-atom-bottomsheet[data-height="full"] {
+	height: 100vh;
+	padding-top: env(safe-area-inset-top, 0);
+	border-radius: 0;
+}
+.ds-atom-bottomsheet-handle {
+	width: 32px;
+	height: 4px;
+	background: var(--ink-5);
+	border-radius: 2px;
+	margin: var(--space-2) auto;
+	flex-shrink: 0;
+}
+.ds-atom-bottomsheet-hd {
+	padding: var(--space-3) var(--space-4) 0;
+	font-family: var(--display);
+	font-weight: 700;
+	font-size: 16px;
+	color: var(--ink);
+}
+.ds-atom-bottomsheet-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: var(--space-3) var(--space-4);
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--ink-2);
+}
+.ds-atom-bottomsheet-ft {
+	padding: var(--space-3) var(--space-4);
+	border-top: 1px solid var(--rule);
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--space-2);
+}
+@keyframes sheetInBottom {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
