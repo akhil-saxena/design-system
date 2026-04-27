@@ -49,3 +49,4 @@ export {
 	type BottomSheetHeight,
 	type BottomSheetProps,
 } from "./BottomSheet";
+export { Lightbox, type LightboxItem, type LightboxProps } from "./Lightbox";

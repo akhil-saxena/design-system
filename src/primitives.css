@@ -937,3 +937,87 @@
 		transform: translateY(0);
 	}
 }
+
+/* ─── DS atom: Lightbox ────────────────────────────────────────────────
+   Full-bleed media overlay with arrow navigation. Always-dark invariant
+   — NO :root.dark overrides. (D-350) */
+.ds-atom-lightbox-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.92);
+	animation: lightboxFade 0.2s ease-out;
+	z-index: 2000;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-4);
+}
+.ds-atom-lightbox-image {
+	max-width: 90vw;
+	max-height: 80vh;
+	object-fit: contain;
+	display: block;
+}
+.ds-atom-lightbox-caption {
+	color: #ffffff;
+	text-align: center;
+	font-family: var(--font);
+	font-size: 14px;
+	padding-top: var(--space-3);
+	max-width: 80vw;
+}
+.ds-atom-lightbox-close {
+	position: fixed;
+	top: var(--space-3);
+	right: var(--space-3);
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.12);
+	border: none;
+	color: #ffffff;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 2001;
+}
+.ds-atom-lightbox-close:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+.ds-atom-lightbox-prev,
+.ds-atom-lightbox-next {
+	position: fixed;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.12);
+	border: none;
+	color: #ffffff;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 2001;
+}
+.ds-atom-lightbox-prev {
+	left: var(--space-3);
+}
+.ds-atom-lightbox-next {
+	right: var(--space-3);
+}
+.ds-atom-lightbox-prev:hover,
+.ds-atom-lightbox-next:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+@keyframes lightboxFade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
