@@ -440,3 +440,33 @@
 		transform: rotate(360deg);
 	}
 }
+
+/* ─── DS atom: StickyNote ────────────────────────────────────────────
+   Yellow gradient surface with slight static rotation per data-rotation.
+   Always-dark text — does NOT flip in :root.dark (handoff invariant).
+   Source: design-handoff/design-system/ds-surfaces.jsx ds-sticky CSS. */
+.ds-atom-stickynote {
+	background: linear-gradient(145deg, #fef3c7, #fde68a);
+	color: #292524;
+	padding: 16px;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+	box-sizing: border-box;
+	display: block;
+	transition: transform 0.15s, box-shadow 0.15s;
+}
+.ds-atom-stickynote[data-rotation="left"] {
+	transform: rotate(-0.6deg);
+}
+.ds-atom-stickynote[data-rotation="right"] {
+	transform: rotate(0.4deg);
+}
+.ds-atom-stickynote[data-rotation="none"] {
+	transform: rotate(0deg);
+}
+/* Handoff invariant: text stays dark even under :root.dark.
+   Without this rule, :root.dark body color would cascade in and tint the
+   text — sticky notes must read as paper-on-cream regardless of theme. */
+:root.dark .ds-atom-stickynote {
+	color: #292524;
+}

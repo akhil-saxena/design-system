@@ -22,3 +22,4 @@ export { NumberStepper, type NumberStepperProps } from "./NumberStepper";
 export { RollingNumber, type RollingNumberProps } from "./RollingNumber";
 export { RangeSlider, type RangeSliderProps } from "./RangeSlider";
 export { StarRating, type StarRatingProps, type StarRatingSize } from "./StarRating";
+export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./StickyNote";
