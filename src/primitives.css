@@ -544,13 +544,16 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 	box-sizing: border-box;
 	max-width: 240px;
-	opacity: 0;
-	animation: ds-atom-tooltip-fade 180ms ease-out forwards;
+	opacity: 1;
+	animation: ds-atom-tooltip-fade 180ms ease-out;
 }
 /* Per-placement selectors omitted — JS sets absolute top/left from
    getBoundingClientRect(). data-placement attribute is still emitted on the
    surface (used by tests + future arrow pseudo-element / Floating-UI hooks
-   in v2.1). Empty CSS blocks are rejected by biome's noEmptyBlock rule. */
+   in v2.1). Empty CSS blocks are rejected by biome's noEmptyBlock rule.
+   Note: opacity defaults to 1 (final state) so baselines render the surface
+   even when test-runner disables animations via preVisit. The animation runs
+   on initial mount in production for the fade-in effect. */
 @keyframes ds-atom-tooltip-fade {
 	from {
 		opacity: 0;
