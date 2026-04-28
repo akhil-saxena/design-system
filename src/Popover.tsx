@@ -66,7 +66,16 @@ export function Popover({
 	className,
 	style,
 }: PopoverProps) {
-	const panelRef = useRef<HTMLDivElement>(null);
+	// Callback-ref state: useLayoutEffect must re-run AFTER DSPortal mounts the
+	// panel (DSPortal returns null on first render until its useEffect flips
+	// mounted=true). With a plain useRef, panelRef.current is null on the first
+	// position-calc pass and pos stays at null/(0,0).
+	const [panel, setPanel] = useState<HTMLDivElement | null>(null);
+	const panelRef = useRef<HTMLDivElement | null>(null);
+	const setPanelRef = (node: HTMLDivElement | null) => {
+		panelRef.current = node;
+		setPanel(node);
+	};
 	const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
 	// Position computation: read anchor rect on open + after panel mounts.
@@ -76,12 +85,11 @@ export function Popover({
 			return;
 		}
 		const anchor = anchorRef.current;
-		const panel = panelRef.current;
 		if (!anchor || !panel) return;
 		const anchorRect = anchor.getBoundingClientRect();
 		const panelRect = panel.getBoundingClientRect();
 		setPos(computePosition(anchorRect, panelRect, placement, offset));
-	}, [open, anchorRef, placement, offset]);
+	}, [open, anchorRef, placement, offset, panel]);
 
 	// Outside-click dismissal (panelRef only — clicks on anchor handled by consumer).
 	useClickOutside(panelRef, () => onOpenChange(false), open);
@@ -101,7 +109,7 @@ export function Popover({
 	return (
 		<DSPortal>
 			<div
-				ref={panelRef}
+				ref={setPanelRef}
 				className={`ds-atom-popover${className ? ` ${className}` : ""}`}
 				data-placement={placement}
 				data-variant={variant === "contextmenu" ? "contextmenu" : undefined}

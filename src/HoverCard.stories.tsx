@@ -33,6 +33,7 @@
 
 import type { Meta, StoryObj } from "@storybook/react";
 import { useRef } from "react";
+import { Button } from "./Button";
 import { HoverCard } from "./HoverCard";
 
 const meta: Meta<typeof HoverCard> = {
@@ -141,9 +142,9 @@ export const WithImage: Story = {
 		const ref = useRef<HTMLButtonElement>(null);
 		return (
 			<div style={{ padding: 16 }}>
-				<button ref={ref} type="button">
+				<Button ref={ref} variant="secondary">
 					Hover for preview
-				</button>
+				</Button>
 				<HoverCard anchorRef={ref}>
 					<div
 						style={{
@@ -156,6 +157,26 @@ export const WithImage: Story = {
 					/>
 					<div style={{ fontWeight: 700 }}>Resume preview</div>
 					<div style={{ fontSize: 11, color: "var(--ink-3)" }}>PDF · 2 pages · 245 KB</div>
+				</HoverCard>
+			</div>
+		);
+	},
+};
+
+export const ButtonAnchor: Story = {
+	render: () => {
+		const ref = useRef<HTMLButtonElement>(null);
+		return (
+			<div style={{ padding: 32 }}>
+				<Button ref={ref} variant="primary">
+					Hover the Button
+				</Button>
+				<HoverCard anchorRef={ref}>
+					<div style={{ fontWeight: 700, marginBottom: 4 }}>Button-anchored card</div>
+					<div style={{ fontSize: 12, lineHeight: 1.5, color: "var(--ink-2)" }}>
+						HoverCard's anchorRef accepts any element — including the design-system Button
+						primitive. Forwards ref directly via Button's forwardRef.
+					</div>
 				</HoverCard>
 			</div>
 		);

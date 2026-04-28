@@ -68,11 +68,15 @@ export function Tooltip({ content, placement = "top", delay = 150, children }: T
 
 	const tooltipId = useId();
 	const triggerRef = useRef<HTMLElement | null>(null);
-	const surfaceRef = useRef<HTMLDivElement | null>(null);
 	const timerRef = useRef<number | null>(null);
 
 	const [isOpen, setIsOpen] = useState(false);
 	const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+	// Callback ref tracked as state so useLayoutEffect re-runs once DSPortal
+	// mounts the surface (DSPortal returns null on first render until its own
+	// useEffect flips mounted=true; without this, position calc fires before
+	// the surface DOM exists and pos stays at (0,0)).
+	const [surfaceEl, setSurfaceEl] = useState<HTMLDivElement | null>(null);
 
 	const clearTimer = useCallback(() => {
 		if (timerRef.current !== null) {
@@ -116,9 +120,9 @@ export function Tooltip({ content, placement = "top", delay = 150, children }: T
 	// useLayoutEffect fires synchronously before paint, so the surface never
 	// visibly "jumps" from (0,0) to its computed position.
 	useLayoutEffect(() => {
-		if (!isOpen || !triggerRef.current || !surfaceRef.current) return;
+		if (!isOpen || !triggerRef.current || !surfaceEl) return;
 		const tRect = triggerRef.current.getBoundingClientRect();
-		const sRect = surfaceRef.current.getBoundingClientRect();
+		const sRect = surfaceEl.getBoundingClientRect();
 		let top = 0;
 		let left = 0;
 		switch (placement) {
@@ -140,7 +144,7 @@ export function Tooltip({ content, placement = "top", delay = 150, children }: T
 				break;
 		}
 		setPos({ top, left });
-	}, [isOpen, placement]);
+	}, [isOpen, placement, surfaceEl]);
 
 	// Cleanup any pending open-timer on unmount.
 	useEffect(() => () => clearTimer(), [clearTimer]);
@@ -174,7 +178,7 @@ export function Tooltip({ content, placement = "top", delay = 150, children }: T
 			{isOpen ? (
 				<DSPortal>
 					<div
-						ref={surfaceRef}
+						ref={setSurfaceEl}
 						id={tooltipId}
 						role="tooltip"
 						className="ds-atom-tooltip"
