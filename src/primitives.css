@@ -1462,3 +1462,50 @@
 	justify-content: center;
 	margin-top: var(--space-1);
 }
+
+/* ─── DS atom: CopyToClipboard ────────────────────────────────────────
+   Mono value + Copy↔Check swap (DS-55, D-531). NO color hex hardcodes. */
+.ds-atom-copy {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	background: var(--cream);
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	padding: 6px 10px;
+	cursor: pointer;
+	font-family: var(--mono);
+	font-size: 12px;
+	color: var(--ink);
+	transition: background 0.15s, border-color 0.15s;
+}
+.ds-atom-copy:hover {
+	background: var(--cream-2);
+}
+.ds-atom-copy:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-copy-value {
+	font-family: var(--mono);
+	font-size: 12px;
+	color: var(--ink);
+}
+.ds-atom-copy-icon {
+	color: var(--ink-2);
+	flex-shrink: 0;
+}
+.ds-atom-copy-icon-check {
+	color: var(--green);
+}
+
+/* ─── DS atom: DSDropdown ─────────────────────────────────────────────
+   Shared dropdown panel chrome consumed by Select/MultiSelect/Autocomplete.
+   The TSX class .ds-atom-dropdown is set inline by DSDropdown.tsx; this
+   block provides bg/border/shadow/scroll. (D-500 internal infra.) */
+.ds-atom-dropdown {
+	background: var(--surf-1);
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
