@@ -108,9 +108,15 @@ describe("DatePicker", () => {
 		expect(dots.length).toBe(2);
 	});
 
-	it("showTime renders HH and MM number inputs", () => {
+	it("showTime renders HH (12-hour) and MM inputs + AM/PM toggle (v0.5.1)", () => {
 		render(<DatePicker value={new Date(2026, 3, 15, 14, 30)} onChange={() => {}} showTime />);
-		expect((screen.getByLabelText("Hours") as HTMLInputElement).value).toBe("14");
+		// 14:30 → 2:30 PM in 12-hour mode
+		expect((screen.getByLabelText("Hours") as HTMLInputElement).value).toBe("2");
 		expect((screen.getByLabelText("Minutes") as HTMLInputElement).value).toBe("30");
+		// AM/PM toggle is always rendered when showTime=true (no locale gating)
+		const am = screen.getByRole("button", { name: "AM" });
+		const pm = screen.getByRole("button", { name: "PM" });
+		expect(am.getAttribute("aria-pressed")).toBe("false");
+		expect(pm.getAttribute("aria-pressed")).toBe("true");
 	});
 });

@@ -152,13 +152,39 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 		onChange(out);
 	}
 
-	function updateTime(field: "h" | "m", n: number) {
+	// Time picker uses 12-hour mode with AM/PM toggle (v0.5.1 patch — was 24-hour).
+	// Internal Date object stays in 24-hour for caller consumption.
+	function updateHour12(h12: number) {
 		const base = value ?? new Date();
 		const out = new Date(base);
-		if (field === "h") out.setHours(Math.max(0, Math.min(23, n)));
-		else out.setMinutes(Math.max(0, Math.min(59, n)));
+		const isPm = base.getHours() >= 12;
+		const clamped = Math.max(1, Math.min(12, h12));
+		const h24 = isPm ? (clamped === 12 ? 12 : clamped + 12) : clamped === 12 ? 0 : clamped;
+		out.setHours(h24);
 		onChange(out);
 	}
+
+	function updateMinute(n: number) {
+		const base = value ?? new Date();
+		const out = new Date(base);
+		out.setMinutes(Math.max(0, Math.min(59, n)));
+		onChange(out);
+	}
+
+	function togglePeriod(period: "AM" | "PM") {
+		const base = value ?? new Date();
+		const currentHours = base.getHours();
+		const currentIsPm = currentHours >= 12;
+		const targetIsPm = period === "PM";
+		if (currentIsPm === targetIsPm) return;
+		const out = new Date(base);
+		out.setHours(targetIsPm ? currentHours + 12 : currentHours - 12);
+		onChange(out);
+	}
+
+	const displayHour24 = value?.getHours() ?? 0;
+	const displayHour12 = displayHour24 % 12 === 0 ? 12 : displayHour24 % 12;
+	const displayPeriod: "AM" | "PM" = displayHour24 >= 12 ? "PM" : "AM";
 
 	const eventSet = useMemo(() => new Set((events ?? []).map((e) => dayKey(e))), [events]);
 
@@ -244,20 +270,43 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 					<input
 						type="number"
 						aria-label="Hours"
-						min={0}
-						max={23}
-						value={value?.getHours() ?? 0}
-						onChange={(e) => updateTime("h", Number(e.target.value))}
+						min={1}
+						max={12}
+						value={displayHour12}
+						onChange={(e) => updateHour12(Number(e.target.value))}
 					/>
-					<span>:</span>
+					<span className="ds-atom-datepicker-time-sep">:</span>
 					<input
 						type="number"
 						aria-label="Minutes"
 						min={0}
 						max={59}
 						value={value?.getMinutes() ?? 0}
-						onChange={(e) => updateTime("m", Number(e.target.value))}
+						onChange={(e) => updateMinute(Number(e.target.value))}
 					/>
+					{/* biome-ignore lint/a11y/useSemanticElements: <fieldset> would inject default browser legend/border styling that conflicts with our segmented-control look; role="group" + aria-label is the WAI-ARIA equivalent for a 2-button toggle (matches Radix Toggle Group pattern) */}
+					<div className="ds-atom-datepicker-time-period" role="group" aria-label="AM or PM">
+						<button
+							type="button"
+							className={`ds-atom-datepicker-time-period-btn${
+								displayPeriod === "AM" ? " is-active" : ""
+							}`}
+							aria-pressed={displayPeriod === "AM"}
+							onClick={() => togglePeriod("AM")}
+						>
+							AM
+						</button>
+						<button
+							type="button"
+							className={`ds-atom-datepicker-time-period-btn${
+								displayPeriod === "PM" ? " is-active" : ""
+							}`}
+							aria-pressed={displayPeriod === "PM"}
+							onClick={() => togglePeriod("PM")}
+						>
+							PM
+						</button>
+					</div>
 				</div>
 			) : null}
 		</div>
