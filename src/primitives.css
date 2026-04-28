@@ -1232,6 +1232,12 @@
 :root.dark .ds-atom-banner[data-variant="error"] {
 	background: rgba(239, 68, 68, 0.16);
 }
+/* Dark-mode dismiss-X hover: black-alpha doesn't read on dark surfaces;
+   flip to white-alpha so the hover state remains visible. */
+:root.dark .ds-atom-banner-close:hover {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--ink);
+}
 
 /* ─── DS atom: Skeleton ─────────────────────────────────────────────
    Single primitive with shape prop (text/circle/pill) + cream-2 pulse
