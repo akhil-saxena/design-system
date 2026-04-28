@@ -90,7 +90,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
 	// Callback-ref-as-state (Tooltip line 79 + Popover line 73 pattern). Tracks
 	// the portaled stack-container DOM element as state. Any portal-dependent
 	// effect lists `stackEl` in deps so it re-runs once DSPortal commits the
-	// node. NOT the Modal portalMounted boolean — that pattern is wrong here.
+	// node. NOT the Modal mount-tick boolean flag — that pattern is wrong here.
 	const [, setStackEl] = useState<HTMLDivElement | null>(null);
 
 	// Schedule full removal of a dismissing toast after slide-out animation.
