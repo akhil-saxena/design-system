@@ -67,3 +67,9 @@ export {
 	type ToastTone,
 } from "./Toast";
 export { CopyToClipboard, type CopyToClipboardProps } from "./CopyToClipboard";
+export { DatePicker, type DatePickerProps } from "./DatePicker";
+export {
+	SplitButton,
+	type SplitButtonAction,
+	type SplitButtonProps,
+} from "./SplitButton";

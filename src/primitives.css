@@ -1509,3 +1509,238 @@
 	border-radius: 8px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
+/* ─── DS atom: DatePicker ──────────────────────────────────────────────
+   Calendar primitive (DS-53). 7×6 grid, 34×34 cells, mono headers.
+   Source: design-handoff/design-system/ds-pickers.jsx. */
+.ds-atom-datepicker {
+	display: inline-block;
+	background: var(--surf-1);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-lg);
+	padding: 12px;
+	font-family: var(--font);
+}
+.ds-atom-datepicker-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+.ds-atom-datepicker-label {
+	font-family: var(--display);
+	font-weight: 700;
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-datepicker-nav {
+	background: transparent;
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	width: 24px;
+	height: 24px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	color: var(--ink-2);
+}
+.ds-atom-datepicker-nav:hover {
+	background: var(--cream);
+}
+.ds-atom-datepicker-weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 34px);
+	gap: 0;
+	margin-bottom: 4px;
+}
+.ds-atom-datepicker-weekday {
+	font-family: var(--mono);
+	font-size: 9.5px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	text-align: center;
+	color: var(--ink-3);
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.ds-atom-datepicker-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 34px);
+	grid-template-rows: repeat(6, 34px);
+	gap: 0;
+}
+.ds-atom-datepicker-cell {
+	width: 34px;
+	height: 34px;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	border-radius: 6px;
+	font-size: 12.5px;
+	color: var(--ink);
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: var(--font);
+}
+.ds-atom-datepicker-cell:hover:not(:disabled) {
+	background: var(--cream);
+}
+.ds-atom-datepicker-cell.is-out {
+	color: var(--ink-3);
+}
+.ds-atom-datepicker-cell.is-today {
+	font-weight: 700;
+}
+.ds-atom-datepicker-cell.is-today::after {
+	content: "";
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: var(--amber);
+}
+.ds-atom-datepicker-cell.is-selected {
+	background: var(--amber);
+	color: var(--ink);
+	border-radius: 6px;
+}
+.ds-atom-datepicker-cell.is-in-range {
+	background: var(--amber-l);
+	border-radius: 0;
+}
+.ds-atom-datepicker-cell.is-disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+.ds-atom-datepicker-event-dot {
+	position: absolute;
+	bottom: 4px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 3px;
+	height: 3px;
+	border-radius: 50%;
+	background: var(--ink-3);
+}
+.ds-atom-datepicker-cell.is-selected .ds-atom-datepicker-event-dot {
+	background: var(--ink);
+}
+.ds-atom-datepicker-time {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid var(--rule);
+}
+.ds-atom-datepicker-time input {
+	width: 44px;
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	padding: 4px 6px;
+	font-family: var(--mono);
+	font-size: 12px;
+	text-align: center;
+}
+
+/* ─── DS atom: SplitButton ────────────────────────────────────────────
+   Primary face + chevron divider + Popover menu (DS-56, D-530). Mirrors
+   Button variant + size styling via data-variant + data-size selectors.
+   The chevron menu's <div role="menu"> is portaled by Popover so it
+   inherits .ds-atom-popover chrome; .ds-atom-split-menu only tunes the
+   inner stack layout. */
+.ds-atom-split {
+	display: inline-flex;
+	align-items: stretch;
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid var(--rule);
+}
+.ds-atom-split-primary,
+.ds-atom-split-chevron {
+	background: var(--surf-1);
+	border: none;
+	cursor: pointer;
+	font-family: var(--font);
+	color: var(--ink);
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 0 12px;
+}
+.ds-atom-split-primary[data-size="sm"],
+.ds-atom-split-chevron[data-size="sm"] {
+	height: 28px;
+	font-size: 12px;
+}
+.ds-atom-split-primary[data-size="md"],
+.ds-atom-split-chevron[data-size="md"] {
+	height: 36px;
+	font-size: 13px;
+}
+.ds-atom-split-primary[data-size="lg"],
+.ds-atom-split-chevron[data-size="lg"] {
+	height: 44px;
+	font-size: 14px;
+}
+.ds-atom-split-chevron {
+	border-left: 1px solid var(--rule);
+	padding: 0 8px;
+}
+.ds-atom-split-primary[data-variant="primary"],
+.ds-atom-split-chevron[data-variant="primary"] {
+	background: var(--ink);
+	color: var(--cream);
+}
+.ds-atom-split-primary[data-variant="primary"]:hover,
+.ds-atom-split-chevron[data-variant="primary"]:hover {
+	background: #1c1917;
+}
+.ds-atom-split[data-variant="primary"] {
+	border-color: var(--ink);
+}
+.ds-atom-split-chevron[data-variant="primary"] {
+	border-left-color: rgba(245, 243, 240, 0.2);
+}
+.ds-atom-split-primary[data-variant="secondary"]:hover,
+.ds-atom-split-chevron[data-variant="secondary"]:hover {
+	background: var(--cream);
+}
+.ds-atom-split-icon {
+	display: inline-flex;
+	align-items: center;
+}
+.ds-atom-split-menu {
+	display: flex;
+	flex-direction: column;
+	min-width: 180px;
+	padding: 4px;
+}
+.ds-atom-split-menuitem {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 8px 10px;
+	font-family: var(--font);
+	font-size: 13px;
+	color: var(--ink);
+	border-radius: 6px;
+	text-align: left;
+}
+.ds-atom-split-menuitem:hover {
+	background: var(--cream);
+}
+.ds-atom-split-menuitem.is-current {
+	background: var(--cream-2);
+	font-weight: 600;
+}
