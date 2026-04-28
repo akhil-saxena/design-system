@@ -58,6 +58,7 @@ export {
 	type InlineConfirmTriggerProps,
 } from "./InlineConfirm";
 export { AlertBanner, type AlertBannerProps, type AlertBannerTone } from "./AlertBanner";
+export { EmptyState, type EmptyStateProps } from "./EmptyState";
 export {
 	ToastProvider,
 	useToast,
