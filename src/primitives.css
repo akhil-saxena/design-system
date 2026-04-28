@@ -1804,6 +1804,34 @@
 .ds-atom-split-chevron[data-variant="secondary"]:hover {
 	background: var(--cream);
 }
+/* v0.5.1 patch — ghost + danger variants on the primary face/chevron + outer wrapper. */
+.ds-atom-split-primary[data-variant="ghost"],
+.ds-atom-split-chevron[data-variant="ghost"] {
+	background: transparent;
+	color: var(--ink-2);
+}
+.ds-atom-split-primary[data-variant="ghost"]:hover,
+.ds-atom-split-chevron[data-variant="ghost"]:hover {
+	background: var(--cream);
+}
+.ds-atom-split[data-variant="ghost"] {
+	border-color: var(--rule);
+}
+.ds-atom-split-primary[data-variant="danger"],
+.ds-atom-split-chevron[data-variant="danger"] {
+	background: var(--red);
+	color: #fff;
+}
+.ds-atom-split-primary[data-variant="danger"]:hover,
+.ds-atom-split-chevron[data-variant="danger"]:hover {
+	background: #b91c1c;
+}
+.ds-atom-split[data-variant="danger"] {
+	border-color: var(--red);
+}
+.ds-atom-split-chevron[data-variant="danger"] {
+	border-left-color: rgba(255, 255, 255, 0.3);
+}
 .ds-atom-split-icon {
 	display: inline-flex;
 	align-items: center;
@@ -1834,6 +1862,24 @@
 .ds-atom-split-menuitem.is-current {
 	background: var(--cream-2);
 	font-weight: 600;
+}
+/* v0.5.1 patch — per-action variant color hint via left-border accent. */
+.ds-atom-split-menuitem[data-action-variant="primary"] {
+	border-left: 3px solid var(--amber);
+	padding-left: 7px;
+}
+.ds-atom-split-menuitem[data-action-variant="secondary"] {
+	border-left: 3px solid var(--ink-4);
+	padding-left: 7px;
+}
+.ds-atom-split-menuitem[data-action-variant="ghost"] {
+	border-left: 3px solid transparent;
+	padding-left: 7px;
+}
+.ds-atom-split-menuitem[data-action-variant="danger"] {
+	border-left: 3px solid var(--red);
+	padding-left: 7px;
+	color: var(--red);
 }
 
 /* ─── DS atom: Autocomplete ───────────────────────────────────────────

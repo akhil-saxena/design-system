@@ -56,9 +56,32 @@ export const Default: Story = {
 
 export const Variants: Story = {
 	render: () => (
-		<div style={{ padding: 80, display: "flex", gap: 24, alignItems: "center" }}>
+		<div style={{ padding: 80, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
 			<SplitButton actions={saveActions} variant="primary" />
 			<SplitButton actions={saveActions} variant="secondary" />
+			<SplitButton actions={saveActions} variant="ghost" />
+			<SplitButton actions={saveActions} variant="danger" />
+		</div>
+	),
+};
+
+export const MixedVariants: Story = {
+	render: () => (
+		<div style={{ padding: 80, display: "flex", flexDirection: "column", gap: 16 }}>
+			<div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)" }}>
+				Each action has its own variant — selecting "Discard" turns the primary face red.
+			</div>
+			<SplitButton
+				actions={[
+					{ label: "Save", onClick: () => console.log("save"), variant: "primary" },
+					{
+						label: "Save as draft",
+						onClick: () => console.log("draft"),
+						variant: "secondary",
+					},
+					{ label: "Discard", onClick: () => console.log("discard"), variant: "danger" },
+				]}
+			/>
 		</div>
 	),
 };

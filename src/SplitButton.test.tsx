@@ -63,6 +63,36 @@ describe("SplitButton", () => {
 		expect(a0).not.toHaveBeenCalled();
 	});
 
+	it("per-action variant renders data-action-variant on the menu item (v0.5.1)", () => {
+		const actions: [SplitButtonAction, SplitButtonAction, SplitButtonAction] = [
+			{ label: "Save", onClick: () => {}, variant: "primary" },
+			{ label: "Save as draft", onClick: () => {}, variant: "secondary" },
+			{ label: "Discard", onClick: () => {}, variant: "danger" },
+		];
+		render(<SplitButton actions={actions} />);
+		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
+		const items = screen.getAllByRole("menuitem");
+		expect(items[0].getAttribute("data-action-variant")).toBe("primary");
+		expect(items[1].getAttribute("data-action-variant")).toBe("secondary");
+		expect(items[2].getAttribute("data-action-variant")).toBe("danger");
+	});
+
+	it("selecting an action with a different variant updates the primary face's data-variant (v0.5.1)", () => {
+		const actions: [SplitButtonAction, SplitButtonAction] = [
+			{ label: "Save", onClick: () => {}, variant: "primary" },
+			{ label: "Discard", onClick: () => {}, variant: "danger" },
+		];
+		const { container } = render(<SplitButton actions={actions} />);
+		const wrapper = container.querySelector(".ds-atom-split") as HTMLElement;
+		expect(wrapper.getAttribute("data-variant")).toBe("primary");
+
+		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
+		fireEvent.click(screen.getAllByRole("menuitem")[1]); // pick "Discard"
+		expect(wrapper.getAttribute("data-variant")).toBe("danger");
+		const primary = screen.getByRole("button", { name: "Discard" });
+		expect(primary.getAttribute("data-variant")).toBe("danger");
+	});
+
 	it("re-mount resets currentIdx to 0 (in-instance state only — D-530)", () => {
 		const { actions } = makeActions();
 		const { unmount } = render(<SplitButton actions={actions} />);

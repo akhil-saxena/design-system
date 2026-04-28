@@ -1,16 +1,28 @@
 import { ChevronDown } from "lucide-react";
 import { type ReactNode, forwardRef, useRef, useState } from "react";
+import type { ButtonVariant } from "./Button";
 import { Popover } from "./Popover";
 
 export interface SplitButtonAction {
 	label: string;
 	icon?: ReactNode;
 	onClick: () => void;
+	/**
+	 * Per-action variant override (v0.5.1 patch). When set, this action's
+	 * appearance — both as the primary face when selected AND in the menu —
+	 * uses this variant instead of the SplitButton-level default.
+	 * Defaults to the SplitButton-level `variant`.
+	 */
+	variant?: ButtonVariant;
 }
 
 export interface SplitButtonProps {
 	actions: [SplitButtonAction, ...SplitButtonAction[]];
-	variant?: "primary" | "secondary";
+	/**
+	 * Default variant for actions that don't specify their own. Expanded in
+	 * v0.5.1 from `'primary' | 'secondary'` to the full Button variant set.
+	 */
+	variant?: ButtonVariant;
 	size?: "sm" | "md" | "lg";
 	className?: string;
 }
@@ -20,6 +32,11 @@ export interface SplitButtonProps {
  * exposing a Popover menu of alternative actions. Selecting an alternative
  * makes it the primary face for this instance — re-mount resets to actions[0]
  * (in-instance state only; persistence deferred to v2.1).
+ *
+ * v0.5.1 patch — full Button variant set (primary | secondary | ghost |
+ * danger) on the SplitButton level AND per-action. The currently-selected
+ * action's variant drives the primary face's appearance; menu items render
+ * with their own variants as visual hints.
  *
  * Composes Popover (Wave 3) — NOT DSDropdown — because SplitButton's menu is
  * a 2–5 item action menu, not a listbox semantic.
@@ -32,6 +49,11 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
 	const [open, setOpen] = useState(false);
 	const chevronRef = useRef<HTMLButtonElement | null>(null);
 	const current = actions[currentIdx] ?? actions[0];
+
+	// Effective variant for the primary face = current action's variant, else
+	// SplitButton-level default. Per-action variants drive both primary face
+	// and menu-item color hints.
+	const primaryVariant: ButtonVariant = current.variant ?? variant;
 
 	function handlePrimary() {
 		current.onClick();
@@ -49,14 +71,14 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
 		<div
 			ref={ref}
 			className={`ds-atom-split${className ? ` ${className}` : ""}`}
-			data-variant={variant}
+			data-variant={primaryVariant}
 			data-size={size}
 		>
 			<button
 				type="button"
 				className="ds-atom-split-primary"
 				data-part="primary"
-				data-variant={variant}
+				data-variant={primaryVariant}
 				data-size={size}
 				onClick={handlePrimary}
 			>
@@ -67,7 +89,7 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
 				type="button"
 				ref={chevronRef}
 				className="ds-atom-split-chevron"
-				data-variant={variant}
+				data-variant={primaryVariant}
 				data-size={size}
 				aria-label="More actions"
 				aria-haspopup="menu"
@@ -78,18 +100,22 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
 			</button>
 			<Popover anchorRef={chevronRef} open={open} onOpenChange={setOpen} placement="bottom-end">
 				<div role="menu" className="ds-atom-split-menu">
-					{actions.map((a, i) => (
-						<button
-							key={a.label}
-							type="button"
-							role="menuitem"
-							className={`ds-atom-split-menuitem${i === currentIdx ? " is-current" : ""}`}
-							onClick={() => handleSelect(i)}
-						>
-							{a.icon ? <span className="ds-atom-split-icon">{a.icon}</span> : null}
-							<span>{a.label}</span>
-						</button>
-					))}
+					{actions.map((a, i) => {
+						const itemVariant: ButtonVariant = a.variant ?? variant;
+						return (
+							<button
+								key={a.label}
+								type="button"
+								role="menuitem"
+								className={`ds-atom-split-menuitem${i === currentIdx ? " is-current" : ""}`}
+								data-action-variant={itemVariant}
+								onClick={() => handleSelect(i)}
+							>
+								{a.icon ? <span className="ds-atom-split-icon">{a.icon}</span> : null}
+								<span>{a.label}</span>
+							</button>
+						);
+					})}
 				</div>
 			</Popover>
 		</div>
