@@ -1608,8 +1608,11 @@
 }
 .ds-atom-datepicker-cell.is-selected {
 	background: var(--amber);
-	color: var(--ink);
+	/* Always dark ink on amber bg — handoff invariant; --ink would flip to
+	   cream in dark mode and lose contrast against the amber surface. */
+	color: #1c1917;
 	border-radius: 6px;
+	font-weight: 600;
 }
 .ds-atom-datepicker-cell.is-in-range {
 	background: var(--amber-l);
@@ -1648,6 +1651,42 @@
 	font-family: var(--mono);
 	font-size: 12px;
 	text-align: center;
+	background: var(--surf-1);
+	color: var(--ink);
+}
+
+/* Dark-mode overrides (v0.5.1 patch) — most tokens auto-flip via :root.dark
+   in tokens.css; the entries below are the ones that don't have a dark-mode
+   value baked into the token (--amber-l) or need surface-specific tuning
+   (cell hover, in-range bg, today dot visibility, time inputs). */
+:root.dark .ds-atom-datepicker {
+	background: rgba(255, 255, 255, 0.04);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+:root.dark .ds-atom-datepicker-cell:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.08);
+}
+:root.dark .ds-atom-datepicker-cell.is-in-range {
+	/* var(--amber-l) is light cream-yellow; in dark mode use a translucent
+	   amber wash so the between-state remains legible against dark bg. */
+	background: rgba(245, 158, 11, 0.18);
+}
+:root.dark .ds-atom-datepicker-cell.is-today::after {
+	/* Amber dot already auto-flips, but bump opacity for contrast on dark surface. */
+	background: var(--amber);
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+:root.dark .ds-atom-datepicker-nav {
+	border-color: rgba(255, 255, 255, 0.12);
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-datepicker-nav:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+:root.dark .ds-atom-datepicker-time input {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.12);
+	color: var(--ink);
 }
 
 /* ─── DS atom: SplitButton ────────────────────────────────────────────
