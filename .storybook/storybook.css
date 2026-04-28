@@ -1,0 +1,20 @@
+/* Storybook canvas styles — DEV ONLY (not shipped in dist).
+   Wires the preview iframe body to the design tokens so primitives
+   render against the intended cream-light / cream-dark surface
+   instead of Storybook's default plain white. */
+
+body {
+	background: var(--cream);
+	color: var(--ink);
+	font-family: var(--font);
+	-webkit-font-smoothing: antialiased;
+	min-height: 100vh;
+}
+
+/* Storybook's centered layout wraps stories in `.sb-show-main` —
+   transparent so the body cream shows through. */
+.sb-show-main,
+#storybook-root {
+	background: transparent;
+	color: inherit;
+}
