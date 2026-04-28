@@ -14,7 +14,7 @@ const baseStyle: CSSProperties = {
 	fontSize: 12,
 	padding: "7px 14px",
 	borderRadius: 7,
-	fontWeight: 600,
+	fontWeight: 500,
 	border: "1px solid var(--rule)",
 	display: "inline-flex",
 	alignItems: "center",
@@ -32,7 +32,7 @@ const variantStyles: Record<ButtonVariant, CSSProperties> = {
 		background: "var(--amber)",
 		color: "#1c1917",
 		borderColor: "var(--amber-d)",
-		fontWeight: 700,
+		fontWeight: 600,
 	},
 	// Secondary = outlined cream surface. Use for second-priority actions.
 	secondary: {
@@ -54,7 +54,7 @@ const variantStyles: Record<ButtonVariant, CSSProperties> = {
 		background: "var(--red)",
 		color: "#fff",
 		borderColor: "var(--red)",
-		fontWeight: 700,
+		fontWeight: 600,
 	},
 };
 
