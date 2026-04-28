@@ -1,0 +1,216 @@
+/**
+ * # Usage Audit — Toast (DS-87, DS-40, D-400, D-401)
+ *
+ * Consumers (post v2.1):
+ * - root/main.tsx — `<ToastProvider>` mounted ONCE at app root, wrapping
+ *   the router/page tree
+ * - kanban/useUpdateApplication — `toast.success("Saved")` on mutation
+ *   resolve; `toast.error(err.message)` on reject
+ * - settings/PreferencesPanel — `toast.success("Preferences updated")`
+ *   on save
+ * - auth/LogoutButton — `toast.info("Signed out")` after logout
+ * - dashboard/StaleAppNudge — `toast.warning("3 stale applications")`
+ *   on first session of the day
+ *
+ * API (D-400):
+ * - `<ToastProvider>` accepts `children`. Mounts once at app root.
+ * - `useToast()` returns `{ success, error, info, warning, dismiss }`.
+ *   - Each tone method takes `(message: ReactNode, opts?: { duration?: number })`
+ *   - Returns the toast `id` (number) for manual dismiss
+ * - `dismiss(id)` removes a specific toast immediately
+ * - Calling `useToast()` outside `<ToastProvider>` throws a clear error
+ *
+ * Behavior (D-401):
+ * - Position: fixed top-right at `var(--space-4)` inset, z-1100
+ * - Stacking: max 3 concurrent; 4th added → oldest FIFO drops
+ * - Auto-dismiss: 3s default; pass `duration: Infinity` to disable
+ * - Animation: slide-in from right 0.2s ease-out; reverse on dismiss
+ * - A11y: `role="status"` (success/info) or `role="alert"` (error/warning);
+ *   does NOT steal focus
+ *
+ * vs AlertBanner (DS-41): Toast = ephemeral feedback ("Saved"). AlertBanner
+ * = persistent contextual messaging ("Trial ends in 3 days"). Toasts are
+ * overlaid + auto-dismissed; AlertBanners are inline + manual-close-only.
+ *
+ * Implementation:
+ * - DSPortal-mounted region (`<DSPortal>` from 14-01)
+ * - Callback-ref-as-state for stack DOM (Tooltip line 79 + Popover line 73)
+ * - Module-scoped `nextToastId` counter for deterministic ids
+ * - Each toast node: lucide tone-icon + message + dismiss-X button
+ * - Tone-keyed CSS via `[data-tone]` (Card pattern)
+ */
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useEffect, useRef } from "react";
+import { Button } from "./Button";
+import { ToastProvider, useToast } from "./Toast";
+
+const meta: Meta = {
+	title: "Feedback/Toast",
+	parameters: { layout: "fullscreen" },
+	decorators: [
+		(Story) => (
+			<ToastProvider>
+				<div style={{ padding: 32, minHeight: 320 }}>
+					<Story />
+				</div>
+			</ToastProvider>
+		),
+	],
+};
+
+export default meta;
+type Story = StoryObj;
+
+function ToneTriggers() {
+	const toast = useToast();
+	return (
+		<div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+			<Button onClick={() => toast.success("Application saved successfully")}>Success</Button>
+			<Button variant="danger" onClick={() => toast.error("Failed to save — please retry")}>
+				Error
+			</Button>
+			<Button variant="secondary" onClick={() => toast.info("New feature available")}>
+				Info
+			</Button>
+			<Button variant="ghost" onClick={() => toast.warning("Almost out of free tier")}>
+				Warning
+			</Button>
+		</div>
+	);
+}
+
+export const Default: Story = {
+	render: () => <ToneTriggers />,
+};
+
+function FireOnMount({
+	tone,
+	message,
+	duration,
+}: {
+	tone: "success" | "error" | "info" | "warning";
+	message: string;
+	duration?: number;
+}) {
+	const toast = useToast();
+	const fired = useRef(false);
+	useEffect(() => {
+		if (fired.current) return;
+		fired.current = true;
+		toast[tone](message, duration !== undefined ? { duration } : undefined);
+	}, [toast, tone, message, duration]);
+	return null;
+}
+
+export const Tones: Story = {
+	render: () => (
+		<>
+			<FireOnMount
+				tone="success"
+				message="Saved successfully"
+				duration={Number.POSITIVE_INFINITY}
+			/>
+			<FireOnMount
+				tone="error"
+				message="Failed to save — please retry"
+				duration={Number.POSITIVE_INFINITY}
+			/>
+			<FireOnMount
+				tone="info"
+				message="New feature available"
+				duration={Number.POSITIVE_INFINITY}
+			/>
+			<FireOnMount
+				tone="warning"
+				message="Almost out of free tier"
+				duration={Number.POSITIVE_INFINITY}
+			/>
+			<div style={{ color: "var(--ink-2)", fontSize: 13 }}>
+				Four tones rendered above (top-right of viewport). Click X on any to dismiss.
+			</div>
+		</>
+	),
+};
+
+function StackingDemo() {
+	const toast = useToast();
+	return (
+		<div
+			style={{
+				display: "flex",
+				gap: 8,
+				flexDirection: "column",
+				alignItems: "flex-start",
+			}}
+		>
+			<Button
+				onClick={() => {
+					toast.info("First — will be dropped when 4th arrives", {
+						duration: Number.POSITIVE_INFINITY,
+					});
+					toast.success("Second", { duration: Number.POSITIVE_INFINITY });
+					toast.warning("Third", { duration: Number.POSITIVE_INFINITY });
+				}}
+			>
+				Fire 3 toasts
+			</Button>
+			<Button
+				variant="danger"
+				onClick={() =>
+					toast.error("Fourth — drops oldest (info)", { duration: Number.POSITIVE_INFINITY })
+				}
+			>
+				Fire 4th (drops oldest)
+			</Button>
+		</div>
+	);
+}
+
+export const Stacking: Story = {
+	render: () => <StackingDemo />,
+};
+
+function AutoTrigger() {
+	const toast = useToast();
+	return (
+		<Button onClick={() => toast.success("Auto-dismisses in 3s (default)")}>Show 3s toast</Button>
+	);
+}
+
+export const AutoDismiss: Story = {
+	render: () => <AutoTrigger />,
+};
+
+function PersistTrigger() {
+	const toast = useToast();
+	return (
+		<Button
+			onClick={() =>
+				toast.warning("Persistent — manual dismiss only", {
+					duration: Number.POSITIVE_INFINITY,
+				})
+			}
+		>
+			Show persistent toast
+		</Button>
+	);
+}
+
+export const Persistent: Story = {
+	render: () => <PersistTrigger />,
+};
+
+export const DarkMode: Story = {
+	globals: { theme: "dark" },
+	render: () => (
+		<>
+			<FireOnMount tone="success" message="Saved (dark)" duration={Number.POSITIVE_INFINITY} />
+			<FireOnMount tone="error" message="Failed (dark)" duration={Number.POSITIVE_INFINITY} />
+			<FireOnMount tone="info" message="Info (dark)" duration={Number.POSITIVE_INFINITY} />
+			<FireOnMount tone="warning" message="Warning (dark)" duration={Number.POSITIVE_INFINITY} />
+			<div style={{ color: "var(--ink-2)", fontSize: 13 }}>
+				Tone backgrounds lift saturation in dark mode.
+			</div>
+		</>
+	),
+};
