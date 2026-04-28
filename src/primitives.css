@@ -1744,3 +1744,418 @@
 	background: var(--cream-2);
 	font-weight: 600;
 }
+
+/* ─── DS atom: Autocomplete ───────────────────────────────────────────
+   Generic combobox primitive (DS-52). Native <input> trigger + recents
+   header + create-as-new button. Reuses .ds-atom-dropdown chrome from
+   16-01 — this block only ships input + list + recents + create styling. */
+.ds-atom-autocomplete {
+	width: 100%;
+	min-width: 220px;
+	height: 36px;
+	padding: 0 10px;
+	background: var(--surf-1);
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	font-family: var(--font);
+	font-size: 13px;
+	color: var(--ink);
+	outline: none;
+	box-sizing: border-box;
+}
+.ds-atom-autocomplete:focus {
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+.ds-atom-autocomplete::placeholder {
+	color: var(--ink-3);
+}
+:root.dark .ds-atom-autocomplete {
+	background: rgba(255, 255, 255, 0.06);
+	color: var(--ink);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+:root.dark .ds-atom-autocomplete::placeholder {
+	color: var(--ink-3);
+}
+.ds-atom-autocomplete-section-header {
+	font-family: var(--mono);
+	font-size: 9.5px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--ink-3);
+	padding: 8px 10px 4px;
+}
+.ds-atom-autocomplete-list {
+	list-style: none;
+	margin: 0;
+	padding: 4px;
+}
+.ds-atom-autocomplete-option {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-autocomplete-option.is-active {
+	background: var(--cream);
+}
+:root.dark .ds-atom-autocomplete-option.is-active {
+	background: rgba(255, 255, 255, 0.08);
+}
+.ds-atom-autocomplete-clock {
+	color: var(--ink-3);
+	flex-shrink: 0;
+}
+.ds-atom-autocomplete-create {
+	width: 100%;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 8px 10px;
+	border-radius: 6px;
+	text-align: left;
+	font-family: var(--font);
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-autocomplete-create:hover {
+	background: var(--cream);
+}
+:root.dark .ds-atom-autocomplete-create:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+.ds-atom-autocomplete-empty {
+	padding: 16px;
+	text-align: center;
+	color: var(--ink-3);
+	font-size: 12px;
+}
+
+/* ─── DS atom: Select ─────────────────────────────────────────────────
+   Single-select trigger + listbox panel (DS-50). Composes DSDropdown,
+   inheriting .ds-atom-dropdown chrome from 16-01 — this block adds only
+   the trigger surface + per-option visuals + search/empty rows. */
+.ds-atom-select {
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	width: 100%;
+	min-width: 180px;
+	height: 36px;
+	padding: 0 10px;
+	background: var(--surf-1);
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	font-family: var(--font);
+	font-size: 13px;
+	color: var(--ink);
+	cursor: pointer;
+	text-align: left;
+}
+.ds-atom-select:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-select[data-state="open"] {
+	border-color: var(--amber);
+}
+.ds-atom-select:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+.ds-atom-select-value {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.ds-atom-select-placeholder {
+	color: var(--ink-3);
+}
+.ds-atom-select-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+.ds-atom-select-chevron {
+	transition: transform 0.15s;
+	color: var(--ink-2);
+}
+.ds-atom-select-chevron.is-open {
+	transform: rotate(180deg);
+}
+.ds-atom-select-search {
+	padding: 6px;
+	border-bottom: 1px solid var(--rule);
+	background: var(--surf-1);
+	position: sticky;
+	top: 0;
+}
+.ds-atom-select-search input {
+	width: 100%;
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	padding: 6px 8px;
+	font-family: var(--font);
+	font-size: 13px;
+	background: var(--surf-1);
+	color: var(--ink);
+	outline: none;
+}
+.ds-atom-select-search input:focus {
+	border-color: var(--amber);
+}
+.ds-atom-select-list {
+	list-style: none;
+	margin: 0;
+	padding: 4px;
+	background: var(--surf-1);
+}
+.ds-atom-select-option {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-select-option.is-active {
+	background: var(--cream);
+}
+.ds-atom-select-option.is-selected {
+	font-weight: 600;
+}
+.ds-atom-select-option-label {
+	flex: 1;
+}
+.ds-atom-select-check {
+	color: var(--amber);
+}
+.ds-atom-select-empty {
+	padding: 16px;
+	text-align: center;
+	color: var(--ink-3);
+	font-size: 12px;
+	background: var(--surf-1);
+}
+:root.dark .ds-atom-select {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+:root.dark .ds-atom-select-option.is-active {
+	background: rgba(255, 255, 255, 0.08);
+}
+:root.dark .ds-atom-select-search input {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ─── DS atom: DateRangePicker ──────────────────────────────────────────
+   2-calendars-side-by-side range picker (DS-54, D-512). Wraps two
+   .ds-atom-datepicker children — outer wrapper owns the surface chrome
+   (border, padding, background) and inner DatePickers shed theirs so
+   the visual reads as one continuous panel.
+   Mobile (<640px): collapses to single calendar via @media — the second
+   DatePicker is hidden; user navigates via DatePicker's built-in
+   prev/next stepper. NO time picker for v2.0.
+   Between-state cells (.ds-atom-datepicker-cell.is-in-range) ship via
+   16-05 DatePicker — NOT redefined here. */
+.ds-atom-daterangepicker {
+	display: inline-flex;
+	gap: 12px;
+	background: var(--surf-1);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-lg);
+	padding: 12px;
+	font-family: var(--font);
+}
+.ds-atom-daterangepicker > .ds-atom-datepicker {
+	border: none;
+	padding: 0;
+	background: transparent;
+}
+@media (max-width: 640px) {
+	.ds-atom-daterangepicker {
+		flex-direction: column;
+	}
+	.ds-atom-daterangepicker > .ds-atom-datepicker:nth-child(2) {
+		display: none;
+	}
+}
+
+/* ─── DS atom: MultiSelect ────────────────────────────────────────────
+   Multi-select trigger (chips-in-trigger D-520) + listbox panel with
+   aria-multiselectable. Reuses .ds-atom-dropdown chrome from 16-01. */
+.ds-atom-multiselect {
+	display: inline-flex;
+	align-items: flex-start;
+	gap: 6px;
+	width: 100%;
+	min-width: 220px;
+	min-height: 36px;
+	max-height: 108px;
+	padding: 4px 10px;
+	background: var(--surf-1);
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	cursor: pointer;
+	font-family: var(--font);
+	font-size: 13px;
+	color: var(--ink);
+	text-align: left;
+	overflow: hidden;
+}
+.ds-atom-multiselect[data-state="open"] {
+	border-color: var(--amber);
+}
+.ds-atom-multiselect:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-multiselect:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+.ds-atom-multiselect-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	flex: 1;
+	align-items: center;
+	min-height: 26px;
+}
+.ds-atom-multiselect-placeholder {
+	color: var(--ink-3);
+}
+.ds-atom-multiselect-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 6px 2px 8px;
+	background: var(--cream);
+	border: 1px solid var(--rule);
+	border-radius: 12px;
+	font-size: 12px;
+	color: var(--ink);
+}
+.ds-atom-multiselect-chip-more {
+	background: var(--cream-2);
+	border: 1px dashed var(--rule);
+	cursor: pointer;
+	padding: 2px 8px;
+	font-family: var(--font);
+}
+.ds-atom-multiselect-chip-x {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--ink-2);
+	padding: 0 0 0 2px;
+	display: inline-flex;
+	align-items: center;
+}
+.ds-atom-multiselect-chip-x:hover {
+	color: var(--ink);
+}
+.ds-atom-multiselect-chevron {
+	transition: transform 0.15s;
+	color: var(--ink-2);
+	flex-shrink: 0;
+	margin-top: 6px;
+}
+.ds-atom-multiselect-chevron.is-open {
+	transform: rotate(180deg);
+}
+.ds-atom-multiselect-list {
+	list-style: none;
+	margin: 0;
+	padding: 4px;
+}
+.ds-atom-multiselect-option {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-multiselect-option.is-active {
+	background: var(--cream);
+}
+:root.dark .ds-atom-multiselect-option.is-active {
+	background: rgba(255, 255, 255, 0.08);
+}
+.ds-atom-multiselect-checkbox {
+	width: 16px;
+	height: 16px;
+	border: 1.5px solid var(--rule);
+	border-radius: 4px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	background: var(--surf-1);
+	color: var(--ink);
+}
+.ds-atom-multiselect-checkbox.is-checked {
+	background: var(--amber);
+	border-color: var(--amber);
+}
+.ds-atom-multiselect-option-label {
+	flex: 1;
+}
+:root.dark .ds-atom-multiselect {
+	background: rgba(255, 255, 255, 0.06);
+	color: var(--ink);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+:root.dark .ds-atom-multiselect-chip {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+:root.dark .ds-atom-multiselect-chip-more {
+	background: transparent;
+	border-color: rgba(255, 255, 255, 0.18);
+}
+.ds-atom-multiselect-more-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 4px;
+	min-width: 200px;
+}
+.ds-atom-multiselect-more-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: 6px 8px;
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-multiselect-more-item button {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--ink-2);
+	display: inline-flex;
+	align-items: center;
+	padding: 2px;
+}
+.ds-atom-multiselect-more-item button:hover {
+	color: var(--ink);
+}
