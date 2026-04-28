@@ -58,6 +58,11 @@ describe("AlertBanner", () => {
 		expect(screen.queryByLabelText("Dismiss")).toBeNull();
 	});
 
+	it("shows dismiss X when dismissible={true} even without onDismiss", () => {
+		render(<AlertBanner open title="T" dismissible={true} />);
+		expect(screen.getByLabelText("Dismiss")).toBeInTheDocument();
+	});
+
 	it("calls onDismiss when X is clicked", () => {
 		const onDismiss = vi.fn();
 		render(<AlertBanner open title="T" onDismiss={onDismiss} />);
