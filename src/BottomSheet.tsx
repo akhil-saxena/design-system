@@ -2,6 +2,7 @@ import {
 	type CSSProperties,
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
+	type PointerEvent as ReactPointerEvent,
 	useEffect,
 	useId,
 	useRef,
@@ -33,13 +34,17 @@ export interface BottomSheetProps {
  * geometry is bottom-anchored with top-rounded corners and a purely-visual
  * drag-handle indicator at the top.
  *
- * Per D-340:
+ * Per D-340 (with v0.5.1 swipe-to-close upgrade):
  * - Two height variants: 'half' (default, max-height 60vh) and 'full'
  *   (height 100vh, no top corners) - switched via [data-height] +
  *   sibling-CSS selectors (Phase 12 D-130 pattern).
- * - Drag handle (.ds-atom-bottomsheet-handle, 32x4 ink-5 pill) is purely
- *   visual; swipe-to-close gesture is deferred to v2.1 per D-332. The
- *   handle has NO event handlers attached.
+ * - Drag handle (.ds-atom-bottomsheet-handle, 32x4 ink-5 pill) supports
+ *   swipe-to-close via Pointer Events (v0.5.1 patch — resolves D-340 v2.1
+ *   deferral). pointerdown captures the pointer; pointermove translates
+ *   the panel by positive Y delta only (drag-down); pointerup closes if
+ *   delta > 120px OR > 40% of panel height, else snaps back via CSS
+ *   transition. data-dragging="true" disables the transition during drag
+ *   so the panel follows the finger directly.
  * - role="dialog" + aria-modal="true"; aria-labelledby auto-wired via
  *   useId() when a title is provided.
  * - closeOnBackdropClick defaults to true; pass false for destructive
@@ -78,6 +83,56 @@ export function BottomSheet({
 
 	useFocusTrap(panelRef, open && portalMounted);
 
+	// Swipe-to-close gesture (v0.5.1 patch). Tracks pointerdown Y and current
+	// translateY delta; on pointerup, closes if delta exceeds threshold else
+	// snaps back. Pointer Events handle touch + mouse uniformly.
+	const dragStateRef = useRef<{ startY: number; pointerId: number; panelH: number } | null>(null);
+	const [dragOffset, setDragOffset] = useState(0);
+	const [dragging, setDragging] = useState(false);
+
+	function handleHandlePointerDown(e: ReactPointerEvent<HTMLDivElement>) {
+		const panel = panelRef.current;
+		if (!panel) return;
+		dragStateRef.current = {
+			startY: e.clientY,
+			pointerId: e.pointerId,
+			panelH: panel.getBoundingClientRect().height,
+		};
+		setDragging(true);
+		try {
+			(e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+		} catch {
+			// jsdom test envs and some older browsers may throw; safe to ignore.
+		}
+	}
+
+	function handleHandlePointerMove(e: ReactPointerEvent<HTMLDivElement>) {
+		const s = dragStateRef.current;
+		if (!s || s.pointerId !== e.pointerId) return;
+		const delta = Math.max(0, e.clientY - s.startY);
+		setDragOffset(delta);
+	}
+
+	function handleHandlePointerUp(e: ReactPointerEvent<HTMLDivElement>) {
+		const s = dragStateRef.current;
+		if (!s || s.pointerId !== e.pointerId) return;
+		const delta = Math.max(0, e.clientY - s.startY);
+		const threshold = Math.min(120, s.panelH * 0.4);
+		try {
+			(e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
+		} catch {
+			// pointer may already be released; ignore
+		}
+		dragStateRef.current = null;
+		setDragging(false);
+		if (delta > threshold) {
+			setDragOffset(0);
+			onClose();
+		} else {
+			setDragOffset(0);
+		}
+	}
+
 	// Escape closes (useFocusTrap from Wave 0 only handles Tab).
 	useEffect(() => {
 		if (!open) return;
@@ -108,13 +163,24 @@ export function BottomSheet({
 					ref={panelRef}
 					className={`ds-atom-bottomsheet${className ? ` ${className}` : ""}`}
 					data-height={height}
+					data-dragging={dragging ? "true" : undefined}
 					role={dialogRole}
 					aria-modal="true"
 					aria-labelledby={titleId}
-					style={style}
+					style={{
+						...style,
+						transform: dragOffset > 0 ? `translateY(${dragOffset}px)` : undefined,
+					}}
 					tabIndex={-1}
 				>
-					<div className="ds-atom-bottomsheet-handle" aria-hidden="true" />
+					<div
+						className="ds-atom-bottomsheet-handle"
+						aria-hidden="true"
+						onPointerDown={handleHandlePointerDown}
+						onPointerMove={handleHandlePointerMove}
+						onPointerUp={handleHandlePointerUp}
+						onPointerCancel={handleHandlePointerUp}
+					/>
 					{title ? (
 						<header id={titleId} className="ds-atom-bottomsheet-hd">
 							{title}

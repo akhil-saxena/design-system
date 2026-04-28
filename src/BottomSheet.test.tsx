@@ -2,6 +2,19 @@ import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { BottomSheet } from "./BottomSheet";
 
+// Helper: dispatch a pointer event with clientY + pointerId populated. jsdom
+// doesn't natively support PointerEvent so we synthesize one as a MouseEvent
+// and manually pin the pointer-specific fields React reads off the event.
+function firePointer(
+	type: "pointerdown" | "pointermove" | "pointerup",
+	target: HTMLElement,
+	init: { clientY: number; pointerId?: number },
+) {
+	const evt = new MouseEvent(type, { bubbles: true, cancelable: true, clientY: init.clientY });
+	Object.defineProperty(evt, "pointerId", { value: init.pointerId ?? 1, configurable: true });
+	target.dispatchEvent(evt);
+}
+
 describe("BottomSheet", () => {
 	it("renders portaled to document.body when open=true", () => {
 		const { baseElement } = render(
@@ -84,7 +97,18 @@ describe("BottomSheet", () => {
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
-	it("drag handle is purely visual - touchstart does NOT close (D-340)", () => {
+	it("drag handle exists and is decorative for screen readers (aria-hidden)", () => {
+		const { baseElement } = render(
+			<BottomSheet open onClose={() => {}}>
+				x
+			</BottomSheet>,
+		);
+		const handle = baseElement.querySelector(".ds-atom-bottomsheet-handle") as HTMLElement;
+		expect(handle).toBeInTheDocument();
+		expect(handle.getAttribute("aria-hidden")).toBe("true");
+	});
+
+	it("v0.5.1 swipe-to-close: drag down past threshold closes the sheet", () => {
 		const onClose = vi.fn();
 		const { baseElement } = render(
 			<BottomSheet open onClose={onClose}>
@@ -92,12 +116,29 @@ describe("BottomSheet", () => {
 			</BottomSheet>,
 		);
 		const handle = baseElement.querySelector(".ds-atom-bottomsheet-handle") as HTMLElement;
-		expect(handle).toBeInTheDocument();
-		fireEvent.touchStart(handle);
-		fireEvent.touchEnd(handle);
-		fireEvent.mouseDown(handle);
-		fireEvent.pointerDown(handle);
+		// jsdom panel.getBoundingClientRect().height = 0 → threshold = min(120, 0) = 0
+		// so any positive delta triggers close.
+		firePointer("pointerdown", handle, { clientY: 100 });
+		firePointer("pointermove", handle, { clientY: 250 });
+		firePointer("pointerup", handle, { clientY: 250 });
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("v0.5.1 swipe-to-close: zero-delta release does NOT close + no lingering transform", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(
+			<BottomSheet open onClose={onClose}>
+				x
+			</BottomSheet>,
+		);
+		const handle = baseElement.querySelector(".ds-atom-bottomsheet-handle") as HTMLElement;
+		const panel = baseElement.querySelector(".ds-atom-bottomsheet") as HTMLElement;
+		// pointerDown then pointerUp at the same Y — delta = 0, threshold = 0,
+		// so 0 > 0 is false → snap-back path.
+		firePointer("pointerdown", handle, { clientY: 100 });
+		firePointer("pointerup", handle, { clientY: 100 });
 		expect(onClose).not.toHaveBeenCalled();
+		expect(panel.style.transform).toBe("");
 	});
 
 	it("title prop renders in header slot with aria-labelledby wired", () => {

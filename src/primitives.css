@@ -938,6 +938,14 @@
 	padding-top: env(safe-area-inset-top, 0);
 	border-radius: 0;
 }
+/* v0.5.1 patch — swipe-to-close: snap-back transition by default; disabled
+   while dragging via [data-dragging] so the panel follows the finger. */
+.ds-atom-bottomsheet {
+	transition: transform 0.2s ease-out;
+}
+.ds-atom-bottomsheet[data-dragging="true"] {
+	transition: none;
+}
 .ds-atom-bottomsheet-handle {
 	width: 32px;
 	height: 4px;
@@ -945,6 +953,15 @@
 	border-radius: 2px;
 	margin: var(--space-2) auto;
 	flex-shrink: 0;
+	/* Bigger touch target than the visual pill (32×4 too small for finger). */
+	padding: 8px 24px;
+	box-sizing: content-box;
+	background-clip: content-box;
+	cursor: grab;
+	touch-action: none;
+}
+.ds-atom-bottomsheet-handle:active {
+	cursor: grabbing;
 }
 .ds-atom-bottomsheet-hd {
 	padding: var(--space-3) var(--space-4) 0;

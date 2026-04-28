@@ -226,6 +226,25 @@ function MobileFiltersDemo() {
 }
 export const MobileFilters: Story = { render: () => <MobileFiltersDemo /> };
 
+function SwipeToCloseDemo() {
+	const [open, setOpen] = useState(true);
+	return (
+		<PreviewFrame>
+			<Button onClick={() => setOpen(true)}>Open swipe-to-close</Button>
+			<BottomSheet open={open} onClose={() => setOpen(false)} title="Drag the handle to close">
+				<p style={{ marginBottom: 12 }}>
+					v0.5.1 — drag the handle at the top down by more than ~120px (or 40% of panel height) to
+					close. Smaller drags snap back.
+				</p>
+				<p style={{ color: "var(--ink-3)", fontSize: 12 }}>
+					Try it on touch or click-and-drag the pill at the top.
+				</p>
+			</BottomSheet>
+		</PreviewFrame>
+	);
+}
+export const SwipeToClose: Story = { render: () => <SwipeToCloseDemo /> };
+
 export const DarkMode: Story = {
 	globals: { theme: "dark" },
 	render: () => <HalfDemo />,
