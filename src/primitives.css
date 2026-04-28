@@ -19,38 +19,37 @@
 	outline: none;
 	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
 }
+/* Primary = brand amber. Hover darkens to amber-d. */
 .ds-atom-btn[data-variant="primary"]:hover:not(:disabled) {
-	background: #1c1917;
+	background: var(--amber-d);
+	color: #fff;
 }
 .ds-atom-btn[data-variant="secondary"]:hover:not(:disabled) {
 	background: var(--cream-2);
 	border-color: rgba(0, 0, 0, 0.12);
 }
-.ds-atom-btn[data-variant="amber"]:hover:not(:disabled) {
-	background: #e8940a;
-}
 .ds-atom-btn[data-variant="ghost"]:hover:not(:disabled) {
 	background: rgba(0, 0, 0, 0.04);
 }
+/* Danger hover: stay on the --red token, just darken via filter so the
+   color stays semantically tied to the system token rather than a one-off hex. */
 .ds-atom-btn[data-variant="danger"]:hover:not(:disabled) {
-	background: var(--red);
-	color: #ffffff;
-	border-color: var(--red);
+	filter: brightness(0.88);
 }
 .ds-atom-btn[data-loading="true"] {
 	pointer-events: none;
 	opacity: 0.8;
 }
-:root.dark .ds-atom-btn[data-variant="primary"] {
-	background: var(--cream-3);
+/* Dark-mode tweaks: ghost text flips to cream so it reads on dark surfaces;
+   primary amber stays the same hue (amber doesn't flip per handoff). */
+:root.dark .ds-atom-btn[data-variant="ghost"] {
 	color: var(--ink);
-	border-color: var(--cream-3);
-}
-:root.dark .ds-atom-btn[data-variant="amber"] {
-	color: #1c1917;
 }
 :root.dark .ds-atom-btn[data-variant="ghost"]:hover:not(:disabled) {
 	background: rgba(255, 255, 255, 0.06);
+}
+:root.dark .ds-atom-btn[data-variant="secondary"] {
+	color: var(--ink);
 }
 
 /* ─── DS atom: TextInput ─────────────────────────────────────────────────
@@ -70,6 +69,11 @@
 }
 :root.dark .ds-atom-input {
 	background: rgba(255, 255, 255, 0.06);
+	color: var(--ink);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+:root.dark .ds-atom-input::placeholder {
+	color: var(--ink-3);
 }
 .ds-atom-input-wrap:focus-within {
 	border-color: var(--amber);
@@ -81,6 +85,14 @@
 }
 :root.dark .ds-atom-input-wrap {
 	background: rgba(255, 255, 255, 0.06);
+	color: var(--ink);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+:root.dark .ds-atom-input-wrap input {
+	color: var(--ink);
+}
+:root.dark .ds-atom-input-wrap input::placeholder {
+	color: var(--ink-3);
 }
 
 /* ─── DS atom: Textarea ──────────────────────────────────────────────────
@@ -99,13 +111,25 @@
 }
 :root.dark .ds-atom-textarea {
 	background: rgba(255, 255, 255, 0.06);
+	color: var(--ink);
+	border-color: rgba(255, 255, 255, 0.12);
+}
+:root.dark .ds-atom-textarea::placeholder {
+	color: var(--ink-3);
 }
 
 /* ─── DS atom: Chip ──────────────────────────────────────────────────────
    Source: handoff .ds-chip rule. × hover turns red. */
 :root.dark .ds-atom-chip {
-	background: rgba(255, 255, 255, 0.08);
-	border-color: rgba(255, 255, 255, 0.06);
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.18);
+	color: var(--ink);
+}
+.ds-atom-chip-x {
+	color: var(--ink-3);
+}
+:root.dark .ds-atom-chip-x {
+	color: var(--ink-2);
 }
 .ds-atom-chip-x:hover {
 	color: var(--red);
@@ -488,12 +512,17 @@
 	backdrop-filter: blur(6px);
 }
 .ds-atom-card[data-variant="amber"] {
-	background: linear-gradient(145deg, rgba(254, 243, 199, 0.5), var(--surf-1));
-	border: 1px solid rgba(245, 158, 11, 0.25);
+	background: linear-gradient(145deg, var(--amber-l), rgba(254, 243, 199, 0.5));
+	border: 1px solid rgba(245, 158, 11, 0.2);
 	border-radius: var(--radius-lg);
 	padding: 20px 22px;
-	-webkit-backdrop-filter: blur(6px);
-	backdrop-filter: blur(6px);
+}
+/* Dark mode: drop the amber-on-cream gradient (reads muddy on dark cream-2);
+   replace with a solid amber-tinted surface that maintains visual identity
+   without the awkward gradient or amber border. */
+:root.dark .ds-atom-card[data-variant="amber"] {
+	background: rgba(245, 158, 11, 0.1);
+	border: 1px solid rgba(245, 158, 11, 0.18);
 }
 .ds-atom-card[data-variant="dark"] {
 	background: #1c1917;
@@ -539,11 +568,16 @@
 	font-family: var(--font);
 	font-size: 12px;
 	line-height: 1.4;
-	white-space: nowrap;
+	/* Long-text wrap: was `white-space: nowrap` which clipped beyond max-width.
+	   Now: max-width caps width, normal whitespace allows multi-line wrap,
+	   word-break handles unbreakable strings (URLs, mono identifiers). */
+	white-space: normal;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 	pointer-events: none;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 	box-sizing: border-box;
-	max-width: 240px;
+	max-width: 280px;
 	opacity: 0;
 	animation: ds-atom-tooltip-fade 180ms ease-out forwards;
 }
@@ -658,9 +692,9 @@
 	animation: ds-atom-modal-fadein 0.15s ease-out;
 }
 .ds-atom-modal {
-	background: var(--g-bg);
-	-webkit-backdrop-filter: blur(14px);
-	backdrop-filter: blur(14px);
+	/* Solid white panel in light mode for legibility — translucent reads as
+	   grey over body backgrounds (D-322 fix). Dark mode flips to cream-2. */
+	background: #ffffff;
 	border: 1px solid var(--rule);
 	border-radius: var(--radius-lg);
 	padding: 0;
@@ -672,6 +706,9 @@
 	animation: ds-atom-modal-in 0.2s ease-out;
 	font-family: var(--font);
 	color: var(--ink);
+}
+:root.dark .ds-atom-modal {
+	background: var(--cream-2);
 }
 .ds-atom-modal-hd {
 	padding: var(--space-4) var(--space-5);
@@ -742,15 +779,16 @@
 	bottom: 0;
 	height: 100vh;
 	width: 400px;
-	background: var(--g-bg);
-	-webkit-backdrop-filter: blur(14px);
-	backdrop-filter: blur(14px);
+	background: #ffffff;
 	box-shadow: var(--shadow-3);
 	display: flex;
 	flex-direction: column;
 	font-family: var(--font);
 	color: var(--ink);
 	z-index: 1001;
+}
+:root.dark .ds-atom-sheet {
+	background: var(--cream-2);
 }
 .ds-atom-sheet[data-side="right"] {
 	right: 0;
@@ -877,9 +915,7 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
-	background: var(--g-bg);
-	-webkit-backdrop-filter: blur(14px);
-	backdrop-filter: blur(14px);
+	background: #ffffff;
 	border-top: 1px solid var(--rule);
 	box-shadow: var(--shadow-3);
 	border-radius: 16px 16px 0 0;
@@ -890,6 +926,9 @@
 	font-family: var(--font);
 	color: var(--ink);
 	z-index: 1001;
+}
+:root.dark .ds-atom-bottomsheet {
+	background: var(--cream-2);
 }
 .ds-atom-bottomsheet[data-height="half"] {
 	max-height: 60vh;

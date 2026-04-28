@@ -121,7 +121,7 @@ function WithFooterDemo() {
 						<Button variant="ghost" onClick={() => setOpen(false)}>
 							Cancel
 						</Button>
-						<Button variant="amber" onClick={() => setOpen(false)}>
+						<Button variant="primary" onClick={() => setOpen(false)}>
 							Save
 						</Button>
 					</>
@@ -133,6 +133,98 @@ function WithFooterDemo() {
 	);
 }
 export const WithFooter: Story = { render: () => <WithFooterDemo /> };
+
+function MobileFiltersDemo() {
+	const [open, setOpen] = useState(true);
+	const [salary, setSalary] = useState(120);
+	const [remote, setRemote] = useState(true);
+	return (
+		<PreviewFrame>
+			<BottomSheet
+				open={open}
+				onClose={() => setOpen(false)}
+				title="Filter applications"
+				height="half"
+				footer={
+					<>
+						<Button variant="ghost" onClick={() => setOpen(false)}>
+							Reset
+						</Button>
+						<Button variant="primary" onClick={() => setOpen(false)}>
+							Apply filters
+						</Button>
+					</>
+				}
+			>
+				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+					<div>
+						<div
+							style={{
+								fontFamily: "var(--mono)",
+								fontSize: 9.5,
+								letterSpacing: "0.08em",
+								textTransform: "uppercase",
+								color: "var(--ink-3)",
+								marginBottom: 6,
+							}}
+						>
+							Min salary
+						</div>
+						<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+							<input
+								type="range"
+								min={50}
+								max={300}
+								value={salary}
+								onChange={(e) => setSalary(Number(e.target.value))}
+								style={{ flex: 1 }}
+							/>
+							<span style={{ fontFamily: "var(--mono)", fontWeight: 700 }}>${salary}k</span>
+						</div>
+					</div>
+					<label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}>
+						<input type="checkbox" checked={remote} onChange={(e) => setRemote(e.target.checked)} />
+						Remote-friendly only
+					</label>
+					<div>
+						<div
+							style={{
+								fontFamily: "var(--mono)",
+								fontSize: 9.5,
+								letterSpacing: "0.08em",
+								textTransform: "uppercase",
+								color: "var(--ink-3)",
+								marginBottom: 6,
+							}}
+						>
+							Status
+						</div>
+						<div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+							{["Wishlist", "Applied", "Screening", "Interview", "Offer", "Rejected"].map((s) => (
+								<button
+									key={s}
+									type="button"
+									style={{
+										padding: "5px 11px",
+										borderRadius: 999,
+										border: "1px solid var(--rule)",
+										background: "transparent",
+										fontSize: 11,
+										color: "var(--ink-2)",
+										cursor: "pointer",
+									}}
+								>
+									{s}
+								</button>
+							))}
+						</div>
+					</div>
+				</div>
+			</BottomSheet>
+		</PreviewFrame>
+	);
+}
+export const MobileFilters: Story = { render: () => <MobileFiltersDemo /> };
 
 export const DarkMode: Story = {
 	globals: { theme: "dark" },

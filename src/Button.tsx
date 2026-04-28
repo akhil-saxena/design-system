@@ -1,6 +1,6 @@
 import { type ButtonHTMLAttributes, type CSSProperties, type ReactNode, forwardRef } from "react";
 
-export type ButtonVariant = "primary" | "amber" | "secondary" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -27,31 +27,34 @@ const baseStyle: CSSProperties = {
 };
 
 const variantStyles: Record<ButtonVariant, CSSProperties> = {
+	// Primary = brand amber CTA. Use for the most-prominent action in any context.
 	primary: {
-		background: "var(--ink)",
-		color: "var(--cream)",
-		borderColor: "var(--ink)",
-	},
-	amber: {
-		background: "var(--amber-vivid)",
-		color: "#292524",
+		background: "var(--amber)",
+		color: "#1c1917",
 		borderColor: "var(--amber-d)",
 		fontWeight: 700,
 	},
+	// Secondary = outlined cream surface. Use for second-priority actions.
 	secondary: {
 		background: "var(--g-bg)",
 		backdropFilter: "blur(6px)",
 		WebkitBackdropFilter: "blur(6px)",
 		color: "var(--ink-2)",
 	},
+	// Ghost = transparent, text-only. Use for tertiary / icon-only / cancel-in-modal.
+	// Color flips via `:root.dark .ds-atom-btn[data-variant="ghost"]` in primitives.css.
 	ghost: {
 		background: "transparent",
 		borderColor: "transparent",
+		color: "var(--ink-2)",
 	},
+	// Danger = red destructive. Use for Delete, Remove, Archive — anything irreversible.
+	// In ConfirmDialog: `<ConfirmDialog danger />` swaps the confirm button to this variant.
 	danger: {
-		background: "rgba(239,68,68,.1)",
-		color: "#dc2626",
-		borderColor: "rgba(239,68,68,.25)",
+		background: "var(--red)",
+		color: "#fff",
+		borderColor: "var(--red)",
+		fontWeight: 700,
 	},
 };
 

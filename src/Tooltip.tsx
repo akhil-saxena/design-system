@@ -17,7 +17,7 @@ import {
 } from "react";
 import { DSPortal } from "./_internals/DSPortal";
 
-export type TooltipPlacement = "top" | "right" | "bottom" | "left";
+export type TooltipPlacement = "auto" | "top" | "right" | "bottom" | "left";
 
 export interface TooltipProps {
 	content: ReactNode;
@@ -56,7 +56,7 @@ const GAP = 6;
  *   within a frame anyway). Re-opens recompute fresh.
  * - No exit animation — surface hard-unmounts on close.
  */
-export function Tooltip({ content, placement = "top", delay = 150, children }: TooltipProps) {
+export function Tooltip({ content, placement = "auto", delay = 150, children }: TooltipProps) {
 	// React.Children.only runs synchronously and THROWS on misuse — this is
 	// the tested error path (single-child enforcement, see Tooltip.test.tsx).
 	const childAsElement = Children.only(children);
@@ -119,13 +119,47 @@ export function Tooltip({ content, placement = "top", delay = 150, children }: T
 	// Position calc — read trigger rect after open + on placement change.
 	// useLayoutEffect fires synchronously before paint, so the surface never
 	// visibly "jumps" from (0,0) to its computed position.
+	// Resolve "auto" placement based on viewport space around the trigger.
+	// Picks the side with the most room. Priority order: top → bottom → right → left.
+	const [autoPlacement, setAutoPlacement] = useState<Exclude<TooltipPlacement, "auto">>("top");
+
 	useLayoutEffect(() => {
 		if (!isOpen || !triggerRef.current || !surfaceEl) return;
 		const tRect = triggerRef.current.getBoundingClientRect();
 		const sRect = surfaceEl.getBoundingClientRect();
+
+		// Resolve placement: if "auto", pick the side with most space that fits the surface.
+		let resolved: Exclude<TooltipPlacement, "auto"> = placement === "auto" ? "top" : placement;
+		if (placement === "auto") {
+			const vw = window.innerWidth;
+			const vh = window.innerHeight;
+			const spaceTop = tRect.top;
+			const spaceBottom = vh - tRect.bottom;
+			const spaceRight = vw - tRect.right;
+			const spaceLeft = tRect.left;
+			const fitsTop = spaceTop >= sRect.height + GAP;
+			const fitsBottom = spaceBottom >= sRect.height + GAP;
+			const fitsRight = spaceRight >= sRect.width + GAP;
+			const fitsLeft = spaceLeft >= sRect.width + GAP;
+			// Prefer top → bottom → right → left where the surface fits.
+			if (fitsTop) resolved = "top";
+			else if (fitsBottom) resolved = "bottom";
+			else if (fitsRight) resolved = "right";
+			else if (fitsLeft) resolved = "left";
+			else {
+				// Nothing fits cleanly; choose side with maximum space.
+				const max = Math.max(spaceTop, spaceBottom, spaceRight, spaceLeft);
+				if (max === spaceBottom) resolved = "bottom";
+				else if (max === spaceTop) resolved = "top";
+				else if (max === spaceRight) resolved = "right";
+				else resolved = "left";
+			}
+			setAutoPlacement(resolved);
+		}
+
 		let top = 0;
 		let left = 0;
-		switch (placement) {
+		switch (resolved) {
 			case "top":
 				top = window.scrollY + tRect.top - sRect.height - GAP;
 				left = window.scrollX + tRect.left + tRect.width / 2 - sRect.width / 2;
@@ -145,6 +179,10 @@ export function Tooltip({ content, placement = "top", delay = 150, children }: T
 		}
 		setPos({ top, left });
 	}, [isOpen, placement, surfaceEl]);
+
+	// Render `data-placement` reflects the resolved value (auto → concrete) so
+	// CSS arrow / styling hooks always have a usable value.
+	const renderedPlacement = placement === "auto" ? autoPlacement : placement;
 
 	// Cleanup any pending open-timer on unmount.
 	useEffect(() => () => clearTimer(), [clearTimer]);
@@ -182,7 +220,7 @@ export function Tooltip({ content, placement = "top", delay = 150, children }: T
 						id={tooltipId}
 						role="tooltip"
 						className="ds-atom-tooltip"
-						data-placement={placement}
+						data-placement={renderedPlacement}
 						data-state="open"
 						style={surfaceStyle}
 					>

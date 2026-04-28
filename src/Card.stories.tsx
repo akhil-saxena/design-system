@@ -27,7 +27,11 @@
  *           composition (logo + role + age + chips) ships in Wave 7 / DragDropList (D-302)
  */
 import type { Meta, StoryObj } from "@storybook/react";
+import { Briefcase, Check, MapPin, Star } from "lucide-react";
+import { Badge } from "./Badge";
+import { Button } from "./Button";
 import { Card } from "./Card";
+import { RollingNumber } from "./RollingNumber";
 
 const meta: Meta<typeof Card> = {
 	title: "Surfaces/Card",
@@ -200,6 +204,119 @@ export const KanbanCard: Story = {
 				<div style={{ fontSize: 11.5, color: "var(--ink-2)", marginTop: 1 }}>
 					Full Stack Engineer
 				</div>
+			</Card>
+		</div>
+	),
+};
+
+export const ApplicationCard: Story = {
+	render: () => (
+		<Card variant="glass" style={{ maxWidth: 360, padding: 20 }}>
+			<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+				<div
+					style={{
+						width: 40,
+						height: 40,
+						borderRadius: 8,
+						background: "linear-gradient(135deg, #635bff, #4338ca)",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						color: "#fff",
+						fontFamily: "var(--display)",
+						fontWeight: 800,
+					}}
+				>
+					S
+				</div>
+				<div style={{ flex: 1 }}>
+					<div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 15 }}>Stripe</div>
+					<div style={{ fontSize: 12, color: "var(--ink-3)" }}>Staff Engineer</div>
+				</div>
+				<Badge tone="amber">Applied</Badge>
+			</div>
+
+			<div
+				style={{ display: "flex", gap: 14, fontSize: 12, color: "var(--ink-2)", marginBottom: 14 }}
+			>
+				<span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+					<MapPin size={13} /> Remote · SF
+				</span>
+				<span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+					<Briefcase size={13} /> 5-10 yrs
+				</span>
+			</div>
+
+			<div style={{ display: "flex", gap: 8 }}>
+				<Button variant="primary" size="sm" icon={<Check size={13} />}>
+					Mark Interviewing
+				</Button>
+				<Button variant="ghost" size="sm" icon={<Star size={13} />}>
+					Pin
+				</Button>
+			</div>
+		</Card>
+	),
+};
+
+export const StatCard: Story = {
+	render: () => (
+		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 12 }}>
+			<Card variant="glass">
+				<div
+					style={{
+						fontFamily: "var(--mono)",
+						fontSize: 9.5,
+						letterSpacing: "0.08em",
+						textTransform: "uppercase",
+						color: "var(--ink-3)",
+						marginBottom: 6,
+					}}
+				>
+					Total Applications
+				</div>
+				<div style={{ fontFamily: "var(--display)", fontWeight: 800, fontSize: 32 }}>
+					<RollingNumber value={42} />
+				</div>
+				<div style={{ fontSize: 11, color: "var(--green)", marginTop: 4 }}>+8 this week</div>
+			</Card>
+			<Card variant="amber">
+				<div
+					style={{
+						fontFamily: "var(--mono)",
+						fontSize: 9.5,
+						letterSpacing: "0.08em",
+						textTransform: "uppercase",
+						color: "var(--ink-3)",
+						marginBottom: 6,
+					}}
+				>
+					Interviews
+				</div>
+				<div style={{ fontFamily: "var(--display)", fontWeight: 800, fontSize: 32 }}>
+					<RollingNumber value={7} />
+				</div>
+				<div style={{ fontSize: 11, color: "var(--ink-2)", marginTop: 4 }}>3 scheduled</div>
+			</Card>
+			<Card variant="dark">
+				<div
+					style={{
+						fontFamily: "var(--mono)",
+						fontSize: 9.5,
+						letterSpacing: "0.08em",
+						textTransform: "uppercase",
+						color: "#aaa39e",
+						marginBottom: 6,
+					}}
+				>
+					Offers
+				</div>
+				<div
+					style={{ fontFamily: "var(--display)", fontWeight: 800, fontSize: 32, color: "#f5f3f0" }}
+				>
+					<RollingNumber value={2} />
+				</div>
+				<div style={{ fontSize: 11, color: "var(--amber)", marginTop: 4 }}>1 active</div>
 			</Card>
 		</div>
 	),

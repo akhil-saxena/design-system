@@ -81,7 +81,7 @@ describe("Button", () => {
 	});
 
 	it("data-variant attribute reflects the variant prop", () => {
-		const { getByRole } = render(<Button variant="amber">Click</Button>);
-		expect(getByRole("button")).toHaveAttribute("data-variant", "amber");
+		const { getByRole } = render(<Button variant="danger">Delete</Button>);
+		expect(getByRole("button")).toHaveAttribute("data-variant", "danger");
 	});
 });

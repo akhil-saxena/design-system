@@ -74,7 +74,7 @@ function WithFooterDemo() {
 						<Button variant="ghost" onClick={() => setOpen(false)}>
 							Cancel
 						</Button>
-						<Button variant="amber" onClick={() => setOpen(false)}>
+						<Button variant="primary" onClick={() => setOpen(false)}>
 							Advance →
 						</Button>
 					</>
