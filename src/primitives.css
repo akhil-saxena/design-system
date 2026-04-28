@@ -1991,9 +1991,12 @@
 	background: var(--surf-1);
 	position: sticky;
 	top: 0;
+	box-sizing: border-box;
 }
 .ds-atom-select-search input {
+	display: block;
 	width: 100%;
+	box-sizing: border-box;
 	border: 1px solid var(--rule);
 	border-radius: 6px;
 	padding: 6px 8px;
