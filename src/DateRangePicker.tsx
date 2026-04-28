@@ -1,16 +1,15 @@
 // DS-54 — DateRangePicker primitive (Phase 16 Wave 2 / plan 16-06).
-// Composes 2 DatePicker instances with shared range state per D-512.
-// Click flow: 1st = start (clear end); 2nd = end (auto-swap if before
-// start); 3rd = reset to new start. Between-state cells use the inRange
-// predicate prop on inner DatePicker → cells get .is-in-range class
-// (var(--amber-l) bg) — that CSS rule + the inRange/defaultMonth props
-// shipped via 16-05 (commit e875555); 16-06 PURELY consumes them.
-// Mobile <640px collapses to single calendar via CSS @media. NO time
-// picker for v2.0 per D-512 (deferred to v2.1).
-// Source: design-handoff/design-system/ds-pickers.jsx.
+// v0.5.1 patch — single-calendar redesign per user feedback.
+// Composes ONE DatePicker instance; click flow stays identical:
+// 1st = start (clear end); 2nd = end (auto-swap if before start);
+// 3rd = reset to new start. Hover preview between selected start and
+// current hover via inRange prop on the inner DatePicker (between-state
+// cells get .is-in-range class). Overrides the original D-512 two-cal
+// layout — see .planning/phases/16-wave-5-compound-inputs/v0.5.1-feedback.md.
+// Source: design-handoff/design-system/ds-pickers.jsx (single-cal range).
 import { type CSSProperties, forwardRef, useState } from "react";
 import { DatePicker } from "./DatePicker";
-import { addMonths, isSameDay, isWithinRange } from "./_internals/dateUtils";
+import { isSameDay, isWithinRange } from "./_internals/dateUtils";
 
 export interface DateRange {
 	start: Date | null;
@@ -27,11 +26,14 @@ export interface DateRangePickerProps {
 }
 
 /**
- * Date-range picker (DS-54, D-512). Composes 2 DatePicker instances
- * side-by-side; mobile <640px collapses to single calendar via CSS.
- * Click flow: 1st = start (clear end); 2nd = end (auto-swap if before
- * start); 3rd = reset. Between-state cells styled via DatePicker's
- * inRange predicate prop. NO time picker for v2.0.
+ * Date-range picker (DS-54). Single calendar with click-twice flow:
+ * 1st click = start (end cleared); 2nd click = end (auto-swap if before
+ * start); 3rd click = reset to new start. Hover preview between selected
+ * start and current hover styled via DatePicker's inRange predicate prop.
+ * NO time picker for v2.0 (deferred to v2.1).
+ *
+ * Single-calendar redesign (v0.5.1) overrides the original D-512 two-cal
+ * layout — matches handoff `ds-pickers.jsx` and user preference.
  */
 export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
 	function DateRangePicker(
@@ -39,7 +41,6 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
 		ref,
 	) {
 		const [hoverDate, setHoverDate] = useState<Date | null>(null);
-		const [leftMonth, setLeftMonth] = useState<Date>(() => value.start ?? new Date());
 
 		function handleSelect(d: Date) {
 			const { start, end } = value;
@@ -77,7 +78,10 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
 			return false;
 		}
 
-		const rightMonth = addMonths(leftMonth, 1);
+		// Drive controlled value to whichever endpoint is "active" — when end is
+		// set, show end; otherwise show start (or null). The single calendar
+		// renders all interaction.
+		const activeValue = value.end ?? value.start;
 
 		return (
 			<div
@@ -87,21 +91,11 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
 				onMouseLeave={() => setHoverDate(null)}
 			>
 				<DatePicker
-					value={value.start}
-					onChange={handleSelect}
-					onMonthChange={setLeftMonth}
-					disablePast={disablePast}
-					disableFuture={disableFuture}
-					inRange={inRange}
-				/>
-				<DatePicker
-					key={`right-${rightMonth.getFullYear()}-${rightMonth.getMonth()}`}
-					value={value.end}
+					value={activeValue}
 					onChange={handleSelect}
 					disablePast={disablePast}
 					disableFuture={disableFuture}
 					inRange={inRange}
-					defaultMonth={rightMonth}
 				/>
 			</div>
 		);

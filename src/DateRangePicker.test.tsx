@@ -2,44 +2,33 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DateRangePicker } from "./DateRangePicker";
 
-// Helper: pick the in-month cell with given day text from the LEFT calendar
-// (the first DatePicker in the wrapper). Uses className filter to skip
-// out-of-month padding cells (which would otherwise duplicate the day text).
-function leftCellByDay(day: string): HTMLElement {
+// Helper: pick the in-month cell with given day text from the single calendar.
+// Uses className filter to skip out-of-month padding cells (which would
+// otherwise duplicate the day text).
+function cellByDay(day: string): HTMLElement {
 	const cells = screen.getAllByRole("gridcell");
-	// Two calendars × 42 cells = 84; first 42 belong to the left calendar.
-	const leftCells = cells.slice(0, 42);
-	const target = leftCells.find(
+	const target = cells.find(
 		(c) => c.textContent?.trim().startsWith(day) && !c.className.includes("is-out"),
 	);
-	if (!target) throw new Error(`No in-month left cell for day ${day}`);
+	if (!target) throw new Error(`No in-month cell for day ${day}`);
 	return target;
 }
 
 describe("DateRangePicker", () => {
-	it("renders 2 DatePicker instances (84 gridcells total)", () => {
+	it("renders a single DatePicker (42 gridcells)", () => {
 		render(
 			<DateRangePicker value={{ start: new Date(2026, 3, 1), end: null }} onChange={() => {}} />,
 		);
 		const cells = screen.getAllByRole("gridcell");
-		// 7×6 grid per calendar × 2 calendars = 84.
-		expect(cells.length).toBe(84);
+		// 7×6 grid × 1 calendar = 42 (v0.5.1 single-cal redesign).
+		expect(cells.length).toBe(42);
 	});
 
 	it("first click sets start, leaves end null", () => {
 		const onChange = vi.fn();
-		render(
-			<DateRangePicker
-				value={{ start: null, end: null }}
-				onChange={onChange}
-				// Force April 2026 view by seeding via a non-null start? value=null/null
-				// uses `new Date()` for left month. To make day '10' deterministic we
-				// instead test by relying on whatever is_in_month for the current month;
-				// any in-month cell exercises the same branch.
-			/>,
-		);
+		render(<DateRangePicker value={{ start: null, end: null }} onChange={onChange} />);
 		const cells = screen.getAllByRole("gridcell");
-		const target = cells.slice(0, 42).find((c) => !c.className.includes("is-out"));
+		const target = cells.find((c) => !c.className.includes("is-out"));
 		expect(target).toBeTruthy();
 		fireEvent.click(target!);
 		expect(onChange).toHaveBeenCalledTimes(1);
@@ -53,8 +42,8 @@ describe("DateRangePicker", () => {
 		render(
 			<DateRangePicker value={{ start: new Date(2026, 3, 10), end: null }} onChange={onChange} />,
 		);
-		// Click cell "20" in the left calendar (April 2026 view because start drives leftMonth init).
-		fireEvent.click(leftCellByDay("20"));
+		// Click cell "20" in the calendar (April 2026 view because start drives the view).
+		fireEvent.click(cellByDay("20"));
 		expect(onChange).toHaveBeenCalledTimes(1);
 		const arg = onChange.mock.calls[0][0] as { start: Date; end: Date };
 		expect(arg.start.getDate()).toBe(10);
@@ -68,7 +57,7 @@ describe("DateRangePicker", () => {
 		render(
 			<DateRangePicker value={{ start: new Date(2026, 3, 15), end: null }} onChange={onChange} />,
 		);
-		fireEvent.click(leftCellByDay("10"));
+		fireEvent.click(cellByDay("10"));
 		expect(onChange).toHaveBeenCalledTimes(1);
 		const arg = onChange.mock.calls[0][0] as { start: Date; end: Date };
 		// New start became the earlier date; old start became end.
@@ -84,14 +73,14 @@ describe("DateRangePicker", () => {
 				onChange={onChange}
 			/>,
 		);
-		fireEvent.click(leftCellByDay("12"));
+		fireEvent.click(cellByDay("12"));
 		expect(onChange).toHaveBeenCalledTimes(1);
 		const arg = onChange.mock.calls[0][0] as { start: Date; end: Date | null };
 		expect(arg.start.getDate()).toBe(12);
 		expect(arg.end).toBeNull();
 	});
 
-	it("between-state cells in left calendar carry .is-in-range class", () => {
+	it("between-state cells carry .is-in-range class", () => {
 		const { container } = render(
 			<DateRangePicker
 				value={{ start: new Date(2026, 3, 10), end: new Date(2026, 3, 15) }}
@@ -99,11 +88,7 @@ describe("DateRangePicker", () => {
 			/>,
 		);
 		const inRangeCells = container.querySelectorAll(".ds-atom-datepicker-cell.is-in-range");
-		// Days 11, 12, 13, 14 = 4 between-state cells per calendar. Both
-		// calendars show April 2026 in this scenario: left calendar's
-		// value=start syncs to April; right calendar's value=end (April 15)
-		// also syncs to April via DatePicker's controlled value. So the
-		// between-state cells appear in BOTH calendars → 4 × 2 = 8.
-		expect(inRangeCells.length).toBe(8);
+		// Days 11, 12, 13, 14 = 4 between-state cells (single calendar).
+		expect(inRangeCells.length).toBe(4);
 	});
 });

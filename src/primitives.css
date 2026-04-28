@@ -1963,36 +1963,15 @@
 }
 
 /* ─── DS atom: DateRangePicker ──────────────────────────────────────────
-   2-calendars-side-by-side range picker (DS-54, D-512). Wraps two
-   .ds-atom-datepicker children — outer wrapper owns the surface chrome
-   (border, padding, background) and inner DatePickers shed theirs so
-   the visual reads as one continuous panel.
-   Mobile (<640px): collapses to single calendar via @media — the second
-   DatePicker is hidden; user navigates via DatePicker's built-in
-   prev/next stepper. NO time picker for v2.0.
+   Single-calendar range picker (DS-54). v0.5.1 patch: collapsed from the
+   original 2-cal layout (D-512) to a single .ds-atom-datepicker per user
+   feedback + handoff `ds-pickers.jsx`. Wrapper is a thin pass-through —
+   the inner DatePicker owns its own surface chrome.
    Between-state cells (.ds-atom-datepicker-cell.is-in-range) ship via
    16-05 DatePicker — NOT redefined here. */
 .ds-atom-daterangepicker {
-	display: inline-flex;
-	gap: 12px;
-	background: var(--surf-1);
-	border: 1px solid var(--rule);
-	border-radius: var(--radius-lg);
-	padding: 12px;
+	display: inline-block;
 	font-family: var(--font);
-}
-.ds-atom-daterangepicker > .ds-atom-datepicker {
-	border: none;
-	padding: 0;
-	background: transparent;
-}
-@media (max-width: 640px) {
-	.ds-atom-daterangepicker {
-		flex-direction: column;
-	}
-	.ds-atom-daterangepicker > .ds-atom-datepicker:nth-child(2) {
-		display: none;
-	}
 }
 
 /* ─── DS atom: MultiSelect ────────────────────────────────────────────

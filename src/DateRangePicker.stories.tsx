@@ -27,21 +27,18 @@
  * Hover preview: while picking `end`, hovering a cell shows the would-be
  * range bg via state-tracked `hoverDate`.
  *
- * Layout (D-512):
- * - ≥640px: 2 calendars side-by-side (current month + month+1)
- * - <640px: single calendar; right calendar is hidden via CSS @media — user
- *   navigates with the prev/next stepper that ships from DatePicker itself
+ * Layout (v0.5.1 single-cal redesign):
+ * - Single calendar at all viewports — overrides original D-512 two-cal layout
+ *   per user feedback + handoff `ds-pickers.jsx`. User navigates between months
+ *   with DatePicker's built-in prev/next stepper.
  *
  * NO time picker for v2.0 (deferred to v2.1 — typical use cases are
  * deadline-window scheduling where day granularity is sufficient).
  *
  * Implementation: PURELY consumes DatePicker (DS-53, plan 16-05). Does not
  * modify DatePicker.tsx or its CSS — the `inRange?: (d: Date) => boolean`
- * predicate prop, the `defaultMonth?: Date` initial-month prop, and the
- * `.ds-atom-datepicker-cell.is-in-range` CSS rule all shipped via 16-05 as
- * backward-compatible API additions.
- *
- * Visual baselines deferred to 16-09 closeout (D-489 cumulative pattern).
+ * predicate prop and the `.ds-atom-datepicker-cell.is-in-range` CSS rule
+ * shipped via 16-05 as backward-compatible API additions.
  */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
@@ -100,25 +97,6 @@ export const DisablePast: Story = {
 			end: null,
 		});
 		return <DateRangePicker value={value} onChange={setValue} disablePast />;
-	},
-};
-
-export const MobileStepper: Story = {
-	parameters: {
-		viewport: { defaultViewport: "mobile1" },
-	},
-	render: () => {
-		const [value, setValue] = useState<{ start: Date | null; end: Date | null }>({
-			start: new Date(2026, 3, 8),
-			end: new Date(2026, 3, 18),
-		});
-		// At <640px the right calendar is hidden via CSS — navigate the left
-		// calendar via its built-in prev/next stepper to reach later months.
-		return (
-			<div style={{ maxWidth: 320 }}>
-				<DateRangePicker value={value} onChange={setValue} />
-			</div>
-		);
 	},
 };
 
