@@ -66,3 +66,4 @@ export {
 	type ToastProviderProps,
 	type ToastTone,
 } from "./Toast";
+export { CopyToClipboard, type CopyToClipboardProps } from "./CopyToClipboard";
