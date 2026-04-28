@@ -8,6 +8,16 @@ export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
 	height?: number | string;
 }
 
+/**
+ * Resolve the shape-aware default height when the consumer omits `height`.
+ *
+ * - text  → "1.2em" (matches surrounding line-height; consumer doesn't
+ *           need to compute pixel heights for inline placeholders)
+ * - pill  → "1.5em" (badge/chip-sized)
+ * - circle → falls back to `width` so the resulting square renders as
+ *            a true circle (e.g., `<Skeleton shape="circle" width={40} />`
+ *            yields a 40×40 disc)
+ */
 function shapeDefaultHeight(
 	shape: SkeletonShape,
 	width: number | string | undefined,
