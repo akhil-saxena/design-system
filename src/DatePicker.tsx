@@ -1,3 +1,8 @@
+// DS-53 — DatePicker primitive (Phase 16 Wave 1 / plan 16-05).
+// 7×6 calendar grid with controlled value, optional time picker, event dots.
+// Composed by DateRangePicker (16-06) via inRange + defaultMonth backward-
+// compatible API additions. NO date-fns dep — uses pure helpers from
+// ./_internals/dateUtils (D-510). See design-handoff/design-system/ds-pickers.jsx.
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type HTMLAttributes, forwardRef, useEffect, useMemo, useState } from "react";
 import { addMonths, daysInMonth, isSameDay, isToday, startOfMonth } from "./_internals/dateUtils";
