@@ -1060,3 +1060,354 @@
 		opacity: 1;
 	}
 }
+
+/* ─── DS atom: ProgressBar ──────────────────────────────────────────
+   Determinate (track + amber gradient fill, 500ms width transition) +
+   loading (3-dot pulse) variants. (DS-42) */
+.ds-atom-progress {
+	box-sizing: border-box;
+	display: block;
+	width: 100%;
+	font-family: var(--font);
+}
+.ds-atom-progress-track {
+	height: 6px;
+	background: var(--cream-2);
+	border-radius: var(--radius-pill);
+	overflow: hidden;
+	position: relative;
+}
+.ds-atom-progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, var(--amber), var(--amber-d));
+	border-radius: var(--radius-pill);
+	transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Loading variant — hide track, render 3-dot pulse instead. */
+.ds-atom-progress[data-loading="true"] .ds-atom-progress-track {
+	display: none;
+}
+.ds-atom-progress-dots {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 16px;
+}
+.ds-atom-progress-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--ink-3);
+	opacity: 0.3;
+	animation: ds-atom-progress-pulse 1.2s ease-in-out infinite;
+}
+.ds-atom-progress-dot:nth-child(1) {
+	animation-delay: 0s;
+}
+.ds-atom-progress-dot:nth-child(2) {
+	animation-delay: 0.15s;
+}
+.ds-atom-progress-dot:nth-child(3) {
+	animation-delay: 0.3s;
+}
+@keyframes ds-atom-progress-pulse {
+	0%,
+	100% {
+		opacity: 0.3;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.15);
+	}
+}
+/* Dark mode: lift track contrast against cream-2 dark surface. */
+:root.dark .ds-atom-progress-track {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+/* ─── DS atom: AlertBanner ──────────────────────────────────────────
+   Inline-flow tone banner with [data-variant] tone keying (Card pattern).
+   NO auto-dismiss (manual close via X when dismissible). Layout:
+   [icon] [title + description] [dismiss-X]. Source:
+   design-handoff/design-system/ds-status.jsx. */
+.ds-atom-banner {
+	box-sizing: border-box;
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 12px 14px;
+	border-radius: var(--radius-md);
+	border: 1px solid var(--rule);
+	font-family: var(--font);
+	color: var(--ink);
+}
+.ds-atom-banner-icon {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 1px;
+}
+.ds-atom-banner-body {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+.ds-atom-banner-title {
+	font-family: var(--display);
+	font-weight: 600;
+	font-size: 14px;
+	color: var(--ink);
+	line-height: 1.3;
+}
+.ds-atom-banner-desc {
+	font-family: var(--font);
+	font-weight: 400;
+	font-size: 12.5px;
+	color: var(--ink-2);
+	line-height: 1.45;
+}
+.ds-atom-banner-close {
+	flex: 0 0 auto;
+	width: 24px;
+	height: 24px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: 0;
+	color: var(--ink-3);
+	cursor: pointer;
+	border-radius: 4px;
+	padding: 0;
+	transition: background-color 0.12s, color 0.12s;
+}
+.ds-atom-banner-close:hover {
+	background: rgba(0, 0, 0, 0.05);
+	color: var(--ink);
+}
+.ds-atom-banner-close:focus-visible {
+	outline: 2px solid var(--amber-d);
+	outline-offset: 2px;
+}
+/* Tone-keyed bg + border + icon-color (mirrors Card data-variant). */
+.ds-atom-banner[data-variant="info"] {
+	background: rgba(94, 184, 251, 0.10);
+	border-color: var(--blue);
+}
+.ds-atom-banner[data-variant="info"] .ds-atom-banner-icon {
+	color: var(--blue);
+}
+.ds-atom-banner[data-variant="success"] {
+	background: rgba(74, 222, 128, 0.12);
+	border-color: var(--green);
+}
+.ds-atom-banner[data-variant="success"] .ds-atom-banner-icon {
+	color: var(--green);
+}
+.ds-atom-banner[data-variant="warning"] {
+	background: var(--amber-l);
+	border-color: var(--amber-d);
+}
+.ds-atom-banner[data-variant="warning"] .ds-atom-banner-icon {
+	color: var(--amber-d);
+}
+.ds-atom-banner[data-variant="error"] {
+	background: rgba(239, 68, 68, 0.10);
+	border-color: var(--red);
+}
+.ds-atom-banner[data-variant="error"] .ds-atom-banner-icon {
+	color: var(--red);
+}
+/* Dark mode: lift saturation 0.10 → 0.16 so tone bgs read on cream-2 surfaces. */
+:root.dark .ds-atom-banner[data-variant="info"] {
+	background: rgba(94, 184, 251, 0.16);
+}
+:root.dark .ds-atom-banner[data-variant="success"] {
+	background: rgba(74, 222, 128, 0.18);
+}
+:root.dark .ds-atom-banner[data-variant="error"] {
+	background: rgba(239, 68, 68, 0.16);
+}
+
+/* ─── DS atom: Skeleton ─────────────────────────────────────────────
+   Single primitive with shape prop (text/circle/pill) + cream-2 pulse
+   animation. Decorative — aria-hidden is set by the component. (DS-43, D-420) */
+.ds-atom-skeleton {
+	display: block;
+	background: var(--cream-2);
+	animation: ds-atom-skeleton-pulse 1.2s ease-in-out infinite;
+	box-sizing: border-box;
+}
+.ds-atom-skeleton[data-shape="text"] {
+	border-radius: var(--radius-sm);
+}
+.ds-atom-skeleton[data-shape="circle"] {
+	border-radius: 50%;
+}
+.ds-atom-skeleton[data-shape="pill"] {
+	border-radius: var(--radius-pill);
+}
+@keyframes ds-atom-skeleton-pulse {
+	0%,
+	100% {
+		opacity: 0.6;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+/* Dark mode: cream-2 is too bright; switch to white-low-alpha. */
+:root.dark .ds-atom-skeleton {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+/* ─── DS atom: Toast ─────────────────────────────────────────────────
+   DSPortal-mounted top-right region (z-1100) + per-tone toast nodes.
+   Slide-in/out 0.2s ease-out. Max 3 concurrent (FIFO drop); managed
+   by ToastProvider state machine. (DS-40, D-400, D-401) */
+.ds-atom-toast-region {
+	position: fixed;
+	top: var(--space-4);
+	right: var(--space-4);
+	z-index: 1100;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	pointer-events: none;
+}
+.ds-atom-toast {
+	pointer-events: auto;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 280px;
+	max-width: 420px;
+	padding: 10px 14px;
+	border-radius: var(--radius-md);
+	border: 1px solid var(--rule);
+	background: var(--surf-1);
+	box-shadow: var(--shadow-2);
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+	font-family: var(--font);
+	font-size: 13px;
+	color: var(--ink);
+	animation: ds-atom-toast-slidein 0.2s ease-out;
+}
+.ds-atom-toast[data-dismissing="true"] {
+	animation: ds-atom-toast-slideout 0.2s ease-out forwards;
+}
+.ds-atom-toast-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+}
+.ds-atom-toast-msg {
+	flex: 1 1 auto;
+	line-height: 1.45;
+	min-width: 0;
+	word-break: break-word;
+}
+.ds-atom-toast-close {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	background: transparent;
+	border: 0;
+	color: var(--ink-3);
+	cursor: pointer;
+	border-radius: 4px;
+	padding: 0;
+	transition: background-color 0.12s, color 0.12s;
+}
+.ds-atom-toast-close:hover {
+	background: rgba(0, 0, 0, 0.05);
+	color: var(--ink);
+}
+.ds-atom-toast-close:focus-visible {
+	outline: 2px solid var(--amber-d);
+	outline-offset: 2px;
+}
+/* Tone-keyed bg + border + icon-color (sibling-CSS, mirrors Card data-variant). */
+.ds-atom-toast[data-tone="success"] {
+	background: rgba(74, 222, 128, 0.1);
+	border-color: var(--green);
+}
+.ds-atom-toast[data-tone="success"] .ds-atom-toast-icon {
+	color: var(--green);
+}
+.ds-atom-toast[data-tone="error"] {
+	background: rgba(239, 68, 68, 0.1);
+	border-color: var(--red);
+}
+.ds-atom-toast[data-tone="error"] .ds-atom-toast-icon {
+	color: var(--red);
+}
+.ds-atom-toast[data-tone="warning"] {
+	background: var(--amber-l);
+	border-color: var(--amber-d);
+}
+.ds-atom-toast[data-tone="warning"] .ds-atom-toast-icon {
+	color: var(--amber-d);
+}
+.ds-atom-toast[data-tone="info"] {
+	background: rgba(94, 184, 251, 0.1);
+	border-color: var(--blue);
+}
+.ds-atom-toast[data-tone="info"] .ds-atom-toast-icon {
+	color: var(--blue);
+}
+/* Dark mode: lift saturation 0.10 → 0.16 so tone bgs read on cream-2 surfaces. */
+:root.dark .ds-atom-toast[data-tone="success"] {
+	background: rgba(74, 222, 128, 0.16);
+}
+:root.dark .ds-atom-toast[data-tone="error"] {
+	background: rgba(239, 68, 68, 0.16);
+}
+:root.dark .ds-atom-toast[data-tone="info"] {
+	background: rgba(94, 184, 251, 0.16);
+}
+@keyframes ds-atom-toast-slidein {
+	from {
+		transform: translateX(110%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+@keyframes ds-atom-toast-slideout {
+	from {
+		transform: translateX(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateX(110%);
+		opacity: 0;
+	}
+}
+
+/* ─── DS atom: InlineConfirm ────────────────────────────────────────
+   Render-prop trigger replacement: idle = consumer's trigger; pending =
+   inline prompt row [text] [No] [Yes]. Same container — zero layout
+   shift. (DS-45, D-430) */
+.ds-atom-confirm {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	font-family: var(--font);
+}
+.ds-atom-confirm-text {
+	font-size: 12.5px;
+	color: var(--ink);
+	line-height: 1.3;
+}
