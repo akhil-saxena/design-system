@@ -1195,7 +1195,7 @@
 }
 /* Tone-keyed bg + border + icon-color (mirrors Card data-variant). */
 .ds-atom-banner[data-variant="info"] {
-	background: rgba(94, 184, 251, 0.10);
+	background: rgba(94, 184, 251, 0.1);
 	border-color: var(--blue);
 }
 .ds-atom-banner[data-variant="info"] .ds-atom-banner-icon {
@@ -1216,7 +1216,7 @@
 	color: var(--amber-d);
 }
 .ds-atom-banner[data-variant="error"] {
-	background: rgba(239, 68, 68, 0.10);
+	background: rgba(239, 68, 68, 0.1);
 	border-color: var(--red);
 }
 .ds-atom-banner[data-variant="error"] .ds-atom-banner-icon {
