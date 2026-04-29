@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 17-09 — Tabs primitive (DS-62), 503 tests green.
-last_updated: "2026-04-29T18:26:59.533Z"
+stopped_at: Completed 17-11 — Table selection + resize + pagination (DS-61 part 2), 598 tests green.
+last_updated: "2026-04-30T00:10:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 15
-  completed_plans: 11
-  percent: 73
+  completed_plans: 12
+  percent: 80
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -24,13 +24,13 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 ## Current Position
 
 Phase: 17 (wave-6-icons-data-display) — EXECUTING
-Plan: 12 of 15
-**Phase:** Phase 17 — Wave 2 plans 17-02..17-09 complete
+Plan: 13 of 15
+**Phase:** Phase 17 — Wave 3 plans 17-10..17-11 complete
 **Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
-**Last anchor commit:** `4d05a9d chore(release): v0.5.6 — dark-mode hover specificity fix` on `main`
+**Last anchor commit:** `7e52e58 feat(17-11-02): Table compound complete — selection + resize + pagination` on `main`
 **Working tree:** clean
 
-**Progress:** [███████░░░] 73%
+**Progress:** [████████░░] 80%
 
 ## Recovery Notes (2026-04-29)
 
@@ -124,13 +124,20 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 - ResizeObserver mock uses `vi.fn(function(cb){...})` constructor pattern — `vi.fn().mockImplementation()` does not produce a constructable mock in jsdom
 - All 21 tests (core ARIA + overflow) in single TDD cycle; Tasks 1 and 2 share one GREEN commit
 
+## Key Decisions (17-11)
+
+- `role="separator"` omitted from resize handle — biome S6819 requires `<hr>` for separator role; visual drag affordance uses `aria-hidden="true"` only
+- `fakePointerEvent()` helper in resize tests — jsdom PointerEvent does not set `clientX` from init dict; `startResize` called directly via `harnessRef` with plain-object cast
+- `Table.Pagination` must be sibling of `Table.Root` (not nested) — `<nav>` inside `<table>` is invalid HTML; enforced via doc comment + `PaginationOutsideTable` story
+- `paginationRange()` 4-branch algorithm: ≤7 pages (all), current≤4 (near-start), current≥total-3 (near-end), else (both ellipses)
+
 ## Blockers / Concerns
 
-- None currently. Working tree clean, 503 tests green after 17-09.
+- None currently. Working tree clean, 598 tests green after 17-11.
 
 ## Session Continuity
 
-**Last session:** 2026-04-29T18:26:59.529Z
-**Stopped at:** Completed 17-09 — Tabs primitive (DS-62), 503 tests green.
+**Last session:** 2026-04-30T00:10:00.000Z
+**Stopped at:** Completed 17-11 — Table DS-61 part 2 (selection + resize + pagination), 598 tests green.
 **Resume file:** None
-**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-10 onward)
+**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-12 onward)
