@@ -10,16 +10,20 @@ beforeEach(() => {
 	observerCallback = null;
 	observeMock = vi.fn();
 	disconnectMock = vi.fn();
-	// @ts-expect-error mock — must use `function` keyword so it is newable
-	globalThis.IntersectionObserver = (cb: (entries: { isIntersecting: boolean }[]) => void) => {
-		observerCallback = cb;
-		return {
-			observe: observeMock,
-			disconnect: disconnectMock,
-			unobserve: vi.fn(),
-			takeRecords: vi.fn(),
-		};
-	};
+	// Class mock — arrow functions are not newable; biome rewrites `function` expressions
+	// to arrows during formatting, so we use a class to keep `new IntersectionObserver()`
+	// working correctly across linting passes.
+	class MockIntersectionObserver {
+		constructor(cb: (entries: { isIntersecting: boolean }[]) => void) {
+			observerCallback = cb;
+		}
+		observe = observeMock;
+		disconnect = disconnectMock;
+		unobserve = vi.fn();
+		takeRecords = vi.fn();
+	}
+	// @ts-expect-error mock
+	globalThis.IntersectionObserver = MockIntersectionObserver;
 });
 
 describe("InfiniteList", () => {
