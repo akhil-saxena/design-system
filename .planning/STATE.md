@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 17-11 — Table selection + resize + pagination (DS-61 part 2), 598 tests green.
-last_updated: "2026-04-30T00:10:00.000Z"
+stopped_at: Completed 17-12 — Calendar DS-68 (month/week/day views + event chips + Agenda slot), 624 tests green.
+last_updated: "2026-04-29T19:00:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 15
-  completed_plans: 12
-  percent: 80
+  completed_plans: 13
+  percent: 87
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -24,13 +24,13 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 ## Current Position
 
 Phase: 17 (wave-6-icons-data-display) — EXECUTING
-Plan: 13 of 15
-**Phase:** Phase 17 — Wave 3 plans 17-10..17-11 complete
+Plan: 14 of 15
+**Phase:** Phase 17 — Wave 3 plans 17-10..17-12 complete
 **Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
-**Last anchor commit:** `7e52e58 feat(17-11-02): Table compound complete — selection + resize + pagination` on `main`
+**Last anchor commit:** `f140053 feat(17-12): Calendar primitive DS-68 — month/week/day views + event chips` on `main`
 **Working tree:** clean
 
-**Progress:** [████████░░] 80%
+**Progress:** [█████████░] 87%
 
 ## Recovery Notes (2026-04-29)
 
@@ -131,13 +131,21 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 - `Table.Pagination` must be sibling of `Table.Root` (not nested) — `<nav>` inside `<table>` is invalid HTML; enforced via doc comment + `PaginationOutsideTable` story
 - `paginationRange()` 4-branch algorithm: ≤7 pages (all), current≤4 (near-start), current≥total-3 (near-end), else (both ellipses)
 
+## Key Decisions (17-12)
+
+- Month cells are `<button role="gridcell">` (matching DatePicker) + overflow `+N more` is `<span role="button" tabIndex={0}>` to avoid nested button HTML violation
+- Week view uses plain divs without ARIA grid roles — inner `<button>` per day provides keyboard accessibility; avoids biome `useSemanticElements` conflicts
+- biome-ignore for `role="gridcell"` on `<button>` must be an inline prop comment (before the `role=` attribute line), not a line comment before the tag — matches Carousel.tsx pattern per Key Decisions 17-08
+- `useMatchMedia("(max-width: 640px)")` used reactively (not `window.matchMedia.matches` directly) — SSR-safe, subscribes to change events
+- Multi-day events render per-day chips only (no spanning bars) — deferred per RESEARCH
+
 ## Blockers / Concerns
 
-- None currently. Working tree clean, 598 tests green after 17-11.
+- None currently. Working tree clean, 624 tests green after 17-12.
 
 ## Session Continuity
 
-**Last session:** 2026-04-30T00:10:00.000Z
-**Stopped at:** Completed 17-11 — Table DS-61 part 2 (selection + resize + pagination), 598 tests green.
+**Last session:** 2026-04-29T19:00:00.000Z
+**Stopped at:** Completed 17-12 — Calendar DS-68 (month/week/day views + event chips + Agenda slot), 624 tests green.
 **Resume file:** None
-**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-12 onward)
+**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-13 onward)

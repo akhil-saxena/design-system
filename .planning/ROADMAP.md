@@ -138,7 +138,7 @@ Plans:
 - [x] 17-09-PLAN.md — DS-62 Tabs (underline + pill variants + ResizeObserver overflow menu)
 - [x] 17-10-PLAN.md — DS-61 Table chrome + sort + density + sticky header (part 1)
 - [x] 17-11-PLAN.md — DS-61 Table selection + resize + pagination (part 2)
-- [ ] 17-12-PLAN.md — DS-68 Calendar (month/week/day views + event chips + Calendar.Agenda)
+- [x] 17-12-PLAN.md — DS-68 Calendar (month/week/day views + event chips + Calendar.Agenda) ✅ 624 tests
 - [ ] 17-13-PLAN.md — DS-70 RichText (TipTap with controlled-sync three-layer guard)
 - [ ] 17-14-PLAN.md — Wave 6 release: v0.6.0 version bump + cumulative visual baselines + CHANGELOG
 
