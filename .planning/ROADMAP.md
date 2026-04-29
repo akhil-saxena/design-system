@@ -123,7 +123,7 @@ Ship v1.0.0 of `@akhil-saxena/design-system` — covering all 53 sections of the
 7. RichText: keyboard shortcuts (Cmd/Ctrl+B/I/U), markdown shortcuts (`**bold**`, `## h2`), focus ring on toolbar, dark-mode tuned editor surface
 8. All previously-shipped primitives that contained inline SVG icons are refactored to import from `/icons` (no orphan inline SVGs in `src/*.tsx`)
 
-**Plans:** 6/15 plans executed
+**Plans:** 7/15 plans executed
 
 Plans:
 - [x] 17-00-PLAN.md — Wave 0 infrastructure (tsup multi-entry + exports stanza + visual runner + tree-shake harness + Checkbox indeterminate + useReducedMotion + lucide bump + TipTap install)
@@ -132,7 +132,7 @@ Plans:
 - [x] 17-03-PLAN.md — DS-63 SegmentedControl (radiogroup, Calendar dependency)
 - [x] 17-04-PLAN.md — DS-69 Breadcrumbs (truncation via DSDropdown)
 - [x] 17-05-PLAN.md — DS-66 Timeline (read-only ordered list)
-- [ ] 17-06-PLAN.md — DS-67 InfiniteList (IntersectionObserver sentinel)
+- [x] 17-06-PLAN.md — DS-67 InfiniteList (IntersectionObserver sentinel)
 - [ ] 17-07-PLAN.md — DS-64 Accordion (disclosure pattern, single + multi modes)
 - [ ] 17-08-PLAN.md — DS-65 Carousel (touch swipe + autoplay + reduced-motion gate)
 - [ ] 17-09-PLAN.md — DS-62 Tabs (underline + pill variants + ResizeObserver overflow menu)

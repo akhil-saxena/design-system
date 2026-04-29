@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 17-05 — Timeline display primitive (DS-66), 429 tests green.
-last_updated: "2026-04-29T17:44:52Z"
+stopped_at: Completed 17-06 — InfiniteList IntersectionObserver sentinel (DS-67), 440 tests green.
+last_updated: "2026-04-29T23:21:00Z"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 15
-  completed_plans: 6
-  percent: 40
+  completed_plans: 7
+  percent: 47
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -24,13 +24,13 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 ## Current Position
 
 Phase: 17 (wave-6-icons-data-display) — EXECUTING
-Plan: 7 of 15
-**Phase:** Phase 17 — Wave 2 in progress (17-05 complete)
+Plan: 8 of 15
+**Phase:** Phase 17 — Wave 2 in progress (17-06 complete)
 **Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
 **Last anchor commit:** `4d05a9d chore(release): v0.5.6 — dark-mode hover specificity fix` on `main`
 **Working tree:** clean
 
-**Progress:** [████░░░░░░] 40%
+**Progress:** [████░░░░░░] 47%
 
 ## Recovery Notes (2026-04-29)
 
@@ -88,6 +88,13 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 - `data-active="true"` string value (not boolean) for reliable DOM attribute matching in tests
 - Generic `<T extends string>` preserved via `forwardRef` cast — standard TS+React HOC limitation
 
+## Key Decisions (17-06)
+
+- `<ul>`/`<li>` semantic HTML used (not div+role) — biome a11y/useSemanticElements enforcement
+- Class-based IntersectionObserver mock in tests — biome reformats bare function expressions to arrow functions, breaking newable mocks
+- Consumer `loading` prop is the StrictMode double-effect guard (simpler than a loadingRef)
+- `rootMargin: "200px"` default pre-fetches before sentinel reaches viewport edge
+
 ## Key Decisions (17-05)
 
 - Connector line between events implemented as CSS `::after` pseudo-element on each `li` (not an extra DOM span) to keep markup clean
@@ -96,11 +103,11 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 
 ## Blockers / Concerns
 
-- None currently. Working tree clean, 429 tests green after 17-05.
+- None currently. Working tree clean, 440 tests green after 17-06.
 
 ## Session Continuity
 
-**Last session:** 2026-04-29T17:44:52Z
-**Stopped at:** Completed 17-05 — Timeline display primitive (DS-66), 429 tests green.
+**Last session:** 2026-04-29T23:21:00Z
+**Stopped at:** Completed 17-06 — InfiniteList IntersectionObserver sentinel (DS-67), 440 tests green.
 **Resume file:** None
-**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-06 onward)
+**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-07 onward)
