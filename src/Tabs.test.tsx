@@ -9,6 +9,22 @@ import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { type TabItem, Tabs } from "./Tabs";
 
+// ── ResizeObserver global stub (required for all tests — jsdom has no ResizeObserver) ──
+
+let resizeCallback: ResizeObserverCallback | null = null;
+
+// Must be set up before any Tabs render. Using module-scope beforeEach so every test
+// gets a fresh mock and the callback reference is captured.
+beforeEach(() => {
+	resizeCallback = null;
+	const MockRO = vi.fn(function (this: unknown, cb: ResizeObserverCallback) {
+		resizeCallback = cb;
+		return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() };
+	});
+	// @ts-expect-error assigning mock class to global
+	globalThis.ResizeObserver = MockRO;
+});
+
 // ── Test fixture ──────────────────────────────────────────────────────────────
 
 const baseTabs: TabItem[] = [
@@ -63,7 +79,7 @@ describe("Tabs — ARIA structure", () => {
 	it("tab aria-controls matches panel id", () => {
 		render(<ControlledTabs />);
 		const [alpha] = screen.getAllByRole("tab");
-		const panelId = alpha.getAttribute("aria-controls")!;
+		const panelId = alpha!.getAttribute("aria-controls")!;
 		expect(document.getElementById(panelId)).toBeInTheDocument();
 	});
 });
@@ -192,17 +208,6 @@ describe("Tabs — variants", () => {
 
 // ── Task 2: ResizeObserver overflow menu ─────────────────────────────────────
 
-let resizeCallback: ResizeObserverCallback | null = null;
-
-beforeEach(() => {
-	resizeCallback = null;
-	// @ts-expect-error mock
-	global.ResizeObserver = vi.fn().mockImplementation((cb: ResizeObserverCallback) => {
-		resizeCallback = cb;
-		return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() };
-	});
-});
-
 const manyTabs: TabItem[] = [
 	{ id: "1", label: "Tab One", content: <div>One</div> },
 	{ id: "2", label: "Tab Two", content: <div>Two</div> },
@@ -211,6 +216,22 @@ const manyTabs: TabItem[] = [
 	{ id: "5", label: "Tab Five", content: <div>Five</div> },
 	{ id: "6", label: "Tab Six", content: <div>Six</div> },
 ];
+
+/** Helper — simulate a narrow container so tabs overflow */
+function simulateOverflow() {
+	const tablist = document.querySelector("[role='tablist']")!;
+	Object.defineProperty(tablist, "clientWidth", { value: 200, configurable: true });
+	const tabButtons = tablist.querySelectorAll<HTMLButtonElement>("[role='tab']");
+	for (const btn of tabButtons) {
+		Object.defineProperty(btn, "offsetWidth", { value: 60, configurable: true });
+	}
+	act(() => {
+		resizeCallback?.(
+			[{ contentRect: { width: 200 } } as ResizeObserverEntry],
+			{} as ResizeObserver,
+		);
+	});
+}
 
 describe("Tabs — overflow menu (ResizeObserver)", () => {
 	it("does NOT render More button when all tabs fit", () => {
@@ -221,73 +242,30 @@ describe("Tabs — overflow menu (ResizeObserver)", () => {
 
 	it("renders More button when tabs overflow (simulated via ResizeObserver)", () => {
 		render(<Tabs tabs={manyTabs} value="1" onChange={vi.fn()} ariaLabel="T" />);
-
-		// Simulate narrow container: mock tab widths and trigger resize
-		const tablist = document.querySelector("[role='tablist']")!;
-		Object.defineProperty(tablist, "clientWidth", { value: 200, configurable: true });
-
-		// Mock each tab button offsetWidth to 60px each → cumulative exceeds 200 - 40 = 160
-		const tabButtons = tablist.querySelectorAll<HTMLButtonElement>("[role='tab']");
-		for (const btn of tabButtons) {
-			Object.defineProperty(btn, "offsetWidth", { value: 60, configurable: true });
-		}
-
-		act(() => {
-			resizeCallback?.(
-				[{ contentRect: { width: 200 } } as ResizeObserverEntry],
-				{} as ResizeObserver,
-			);
-		});
-
+		simulateOverflow();
 		expect(screen.getByRole("button", { name: /more tabs/i })).toBeInTheDocument();
 	});
 
 	it("clicking More button opens the overflow dropdown", () => {
 		render(<Tabs tabs={manyTabs} value="1" onChange={vi.fn()} ariaLabel="T" />);
-
-		const tablist = document.querySelector("[role='tablist']")!;
-		Object.defineProperty(tablist, "clientWidth", { value: 200, configurable: true });
-		const tabButtons = tablist.querySelectorAll<HTMLButtonElement>("[role='tab']");
-		for (const btn of tabButtons) {
-			Object.defineProperty(btn, "offsetWidth", { value: 60, configurable: true });
-		}
-
-		act(() => {
-			resizeCallback?.(
-				[{ contentRect: { width: 200 } } as ResizeObserverEntry],
-				{} as ResizeObserver,
-			);
-		});
+		simulateOverflow();
 
 		const moreBtn = screen.getByRole("button", { name: /more tabs/i });
 		fireEvent.click(moreBtn);
 
-		// DSDropdown content should appear (hidden tabs' labels)
+		// DSDropdown content should appear (hidden tabs via menu role)
 		expect(screen.getByRole("menu")).toBeInTheDocument();
 	});
 
 	it("clicking a hidden tab in the menu fires onChange and closes menu", () => {
 		const onChange = vi.fn();
 		render(<Tabs tabs={manyTabs} value="1" onChange={onChange} ariaLabel="T" />);
-
-		const tablist = document.querySelector("[role='tablist']")!;
-		Object.defineProperty(tablist, "clientWidth", { value: 200, configurable: true });
-		const tabButtons = tablist.querySelectorAll<HTMLButtonElement>("[role='tab']");
-		for (const btn of tabButtons) {
-			Object.defineProperty(btn, "offsetWidth", { value: 60, configurable: true });
-		}
-
-		act(() => {
-			resizeCallback?.(
-				[{ contentRect: { width: 200 } } as ResizeObserverEntry],
-				{} as ResizeObserver,
-			);
-		});
+		simulateOverflow();
 
 		const moreBtn = screen.getByRole("button", { name: /more tabs/i });
 		fireEvent.click(moreBtn);
 
-		// Find and click the first hidden tab menuitem button
+		// Find and click the first hidden tab's button inside menuitem
 		const menuItems = screen.getAllByRole("menuitem");
 		const firstHiddenBtn = menuItems[0]!.querySelector("button")!;
 		fireEvent.click(firstHiddenBtn);

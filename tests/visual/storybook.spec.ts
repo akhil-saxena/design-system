@@ -17,7 +17,9 @@ test.describe("Storybook visual baselines", () => {
 		expect(stories.length).toBeGreaterThan(0);
 		for (const story of stories) {
 			await page.goto(`http://localhost:6006/iframe.html?id=${story.id}&viewMode=story`);
-			await page.waitForSelector("#storybook-root", { timeout: 5000 });
+			// Use 'attached' state so Lightbox stories (which auto-open a dialog that hides
+			// #storybook-root from the accessibility tree) don't time out.
+			await page.waitForSelector("#storybook-root", { state: "attached", timeout: 5000 });
 			await expect(page).toHaveScreenshot(`${story.id}.png`, {
 				fullPage: true,
 			});

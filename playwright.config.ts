@@ -6,6 +6,7 @@ export default defineConfig({
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
 	workers: process.env.CI ? 1 : undefined,
+	timeout: 300_000, // 5 min per test — single test iterates all stories (v0.6.0: ~145+ stories)
 	reporter: [["html", { outputFolder: "playwright-report", open: "never" }]],
 	use: {
 		baseURL: "http://localhost:6006",
