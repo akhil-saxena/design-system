@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: design-system v1.0
 status: planning
-stopped_at: Phase 17 context gathered — ready for /gsd-plan-phase 17
+stopped_at: Phase 17 plans created — ready for /gsd-execute-phase 17
 last_updated: 2026-04-29
-last_activity: 2026-04-29 — Phase 17 context captured (icons/Table/RichText/Calendar decisions locked)
-resume_file: .planning/phases/17-wave-6-icons-data-display/17-CONTEXT.md
+last_activity: 2026-04-29 — Phase 17 plan set complete (15 plans across 6 waves)
+resume_file: .planning/phases/17-wave-6-icons-data-display/17-00-PLAN.md
 progress:
   total_phases: 6
   completed_phases: 4
@@ -63,7 +63,7 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 
 ## Pending Work
 
-**Immediate:** Decide Phase 17 scope (data display primitives) via `/gsd-discuss-phase 17`.
+**Immediate:** Execute Phase 17 plan set via `/gsd-execute-phase 17`. Wave 0 (17-00) is the gate — every other wave depends on its infra changes.
 
 **Resolved 2026-04-29 (see PROJECT.md "Resolved Scope Decisions"):**
 1. ✅ Icons → tree-shakeable `/icons` subpath export (DS-60, Phase 17)
@@ -79,7 +79,7 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 
 ## Session Continuity
 
-**Last session:** 2026-04-29 — Phase 17 context gathering complete
-**Stopped at:** Phase 17 CONTEXT.md and DISCUSSION-LOG.md committed (1c22eb7). Four gray areas discussed and locked: icon strategy reconciliation (lucide + brand-lock wrapper), Table API (composable + full Data Grid feature set), RichText scope (TipTap StarterKit + Link, no mentions/slash), Calendar architecture (full month/week/day with extracted shared month-grid utility).
-**Resume file:** `.planning/phases/17-wave-6-icons-data-display/17-CONTEXT.md`
-**Next command:** `/gsd-plan-phase 17`
+**Last session:** 2026-04-29 — Phase 17 plan set written (15 plans, 6 waves)
+**Stopped at:** Phase 17 plans 00..14 committed. Wave 0 infra unblocks Wave 1 icons + refactor; independent primitives (SegmentedControl, Breadcrumbs, Timeline, InfiniteList, Accordion, Carousel) + calendarGrid extract run parallel in Wave 2; Tabs + Table chrome in Wave 3; Table selection/resize/pagination + Calendar in Wave 4; RichText + v0.6.0 release in Wave 5.
+**Resume file:** `.planning/phases/17-wave-6-icons-data-display/17-00-PLAN.md`
+**Next command:** `/gsd-execute-phase 17`

@@ -141,7 +141,7 @@ The following are NOT explicit user decisions — Claude/planner is empowered to
 - **Subpath barrel** (NEW — `src/icons/index.ts`): every wrapped lucide icon re-export.
 - **tsup.config.ts**: add a second/third entry for `src/hooks/index.ts` (already there) and `src/icons/index.ts` (new). Verify type emit produces `dist/icons/index.d.ts`.
 - **package.json `exports`**: add the new `./icons` subpath alongside existing `./hooks`. Keep ESM-only.
-- **Existing 14 primitives importing from lucide-react directly:** AlertBanner, Autocomplete, Checkbox, Chip, CopyToClipboard, DatePicker, Lightbox, MultiSelect, NumberStepper, Select, SplitButton, StarRating, Toast — and any others that grep for `lucide-react` finds. Refactor sweep is part of D-17-04.
+- **Existing 13 primitives importing from lucide-react directly** (verified by grep 2026-04-29; the original "14" count erroneously included DateRangePicker which has no lucide import): AlertBanner, Autocomplete, Checkbox, Chip, CopyToClipboard, DatePicker, Lightbox, MultiSelect, NumberStepper, Select, SplitButton, StarRating, Toast. Refactor sweep is part of D-17-04 (Plan 17-01). DateRangePicker is touched in Plan 17-02 (calendarGrid extract) instead.
 
 </code_context>
 
