@@ -2566,3 +2566,116 @@
 :root.dark .ds-atom-breadcrumbs-more:hover {
 	background: var(--surface-2);
 }
+
+/* ─── DS atom: Timeline (DS-66) ─────────────────────────────────────────────
+   Read-only event sequence. Horizontal (default) or vertical orientation.
+   Dot + connector line via CSS ::after pseudo-elements (no extra DOM). */
+.ds-atom-timeline {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	gap: 24px;
+}
+.ds-atom-timeline[data-orientation="horizontal"] {
+	flex-direction: row;
+	align-items: flex-start;
+}
+.ds-atom-timeline[data-orientation="vertical"] {
+	flex-direction: column;
+	align-items: flex-start;
+}
+.ds-atom-timeline-event {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	flex: 1;
+	min-width: 80px;
+}
+.ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-event {
+	flex-direction: row;
+	align-items: flex-start;
+	flex: none;
+	width: 100%;
+}
+.ds-atom-timeline-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--amber);
+	flex-shrink: 0;
+	z-index: 1;
+}
+/* Connector line — horizontal */
+.ds-atom-timeline[data-orientation="horizontal"] .ds-atom-timeline-event:not(:last-child)::after {
+	content: "";
+	position: absolute;
+	top: 4px;
+	left: 12px;
+	right: -24px;
+	height: 2px;
+	background: var(--rule);
+	z-index: 0;
+}
+/* Connector line — vertical */
+.ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-event:not(:last-child)::after {
+	content: "";
+	position: absolute;
+	top: 12px;
+	bottom: -24px;
+	left: 4px;
+	width: 2px;
+	background: var(--rule);
+	z-index: 0;
+}
+.ds-atom-timeline-date {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	color: var(--ink-2);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+.ds-atom-timeline-label {
+	font-family: var(--font-display);
+	font-size: 14px;
+	color: var(--ink);
+	font-weight: 600;
+}
+.ds-atom-timeline-desc {
+	font-family: var(--font-body);
+	font-size: 13px;
+	color: var(--ink-2);
+}
+.ds-atom-timeline-trigger {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	text-align: left;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	width: 100%;
+	color: inherit;
+	font: inherit;
+}
+.ds-atom-timeline-trigger:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+/* Dark mode */
+:root.dark .ds-atom-timeline-date {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-timeline-label {
+	color: var(--ink);
+}
+:root.dark .ds-atom-timeline-desc {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-timeline-event::after {
+	background: var(--rule);
+}
