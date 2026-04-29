@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 17-07 — Accordion compound primitive (DS-64), 455 tests green.
-last_updated: "2026-04-29T23:30:00Z"
+stopped_at: Completed 17-08 — Carousel primitive (DS-65), 482 tests green.
+last_updated: "2026-04-29T18:08:21Z"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 15
-  completed_plans: 8
-  percent: 53
+  completed_plans: 9
+  percent: 60
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -24,13 +24,13 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 ## Current Position
 
 Phase: 17 (wave-6-icons-data-display) — EXECUTING
-Plan: 9 of 15
-**Phase:** Phase 17 — Wave 2 in progress (17-07 complete)
+Plan: 10 of 15
+**Phase:** Phase 17 — Wave 2 complete (17-08 complete)
 **Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
 **Last anchor commit:** `4d05a9d chore(release): v0.5.6 — dark-mode hover specificity fix` on `main`
 **Working tree:** clean
 
-**Progress:** [█████░░░░░] 53%
+**Progress:** [██████░░░░] 60%
 
 ## Recovery Notes (2026-04-29)
 
@@ -108,13 +108,22 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 - `matchMedia` stub added to `test-setup.ts` (Rule 3) — jsdom lacks matchMedia; all future hooks (useColorScheme etc.) benefit automatically
 - `fireEvent` used in place of `@testing-library/user-event` — latter not installed; fireEvent sufficient for synchronous click toggle tests
 
+## Key Decisions (17-08)
+
+- touch-only swipe filter: `e.pointerType === "touch"` — mouse drags do not trigger slide advances
+- autoplay timer NOT created at all when reducedMotion=true (W3C spec: not just paused)
+- Non-active slides get `aria-hidden=true`; tests use `getAllByRole("group", { hidden: true })` to find all slides
+- biome-ignore lint/a11y/useSemanticElements placed inline as JSX attribute comment (before the role attr), not before the element opening tag
+- Touch pointer events simulated via `MouseEvent + Object.defineProperty` (jsdom PointerEvent init dict limitation)
+- No `loop` prop in v0.6 — bounds-clamped only per DS-65 spec
+
 ## Blockers / Concerns
 
-- None currently. Working tree clean, 455 tests green after 17-07.
+- None currently. Working tree clean, 482 tests green after 17-08.
 
 ## Session Continuity
 
-**Last session:** 2026-04-29T23:30:00Z
-**Stopped at:** Completed 17-07 — Accordion compound primitive (DS-64), 455 tests green.
+**Last session:** 2026-04-29T18:08:21Z
+**Stopped at:** Completed 17-08 — Carousel primitive (DS-65), 482 tests green.
 **Resume file:** None
-**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-08 onward)
+**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-09 onward)
