@@ -1,5 +1,5 @@
-import { Minus, Plus } from "lucide-react";
 import { type CSSProperties, type ReactNode, forwardRef, useEffect, useState } from "react";
+import { Minus, Plus } from "./icons";
 
 export interface NumberStepperProps {
 	value: number;

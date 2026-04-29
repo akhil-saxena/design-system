@@ -1,5 +1,5 @@
-import { Star } from "lucide-react";
 import { type CSSProperties, useState } from "react";
+import { Star } from "./icons";
 
 export type StarRatingSize = "default" | "compact";
 
