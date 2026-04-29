@@ -2895,3 +2895,181 @@
 :root.dark .ds-atom-carousel-dot[data-active] {
 	background: var(--amber);
 }
+
+/* ─── DS atom: Tabs (DS-62) ─────────────────────────────────────────────────
+   WAI-ARIA tab pattern. Variants: underline (default), pill. */
+.ds-atom-tabs {
+	display: flex;
+	flex-direction: column;
+}
+.ds-atom-tabs-list {
+	display: flex;
+	gap: 4px;
+	align-items: stretch;
+	border-bottom: 1px solid var(--rule);
+	flex-wrap: nowrap;
+	overflow: hidden;
+}
+.ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-list {
+	border-bottom: 0;
+	padding: 4px;
+	background: var(--surface-2);
+	border-radius: 999px;
+	gap: 2px;
+}
+.ds-atom-tabs-trigger {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	padding: 10px 14px;
+	color: var(--ink-2);
+	font-family: var(--font-body);
+	font-weight: 500;
+	font-size: 13px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	position: relative;
+	white-space: nowrap;
+	transition: color 120ms ease, background-color 120ms ease;
+}
+.ds-atom-tabs-trigger:hover:not(:disabled):not([data-active]) {
+	color: var(--ink);
+}
+.ds-atom-tabs-trigger:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-tabs-trigger:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+/* Underline variant: animated underline */
+.ds-atom-tabs[data-variant="underline"] .ds-atom-tabs-trigger[data-active] {
+	color: var(--ink);
+}
+.ds-atom-tabs[data-variant="underline"] .ds-atom-tabs-trigger[data-active]::after {
+	content: "";
+	position: absolute;
+	bottom: -1px;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: var(--amber);
+}
+/* Pill variant */
+.ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-trigger {
+	border-radius: 999px;
+	padding: 6px 14px;
+}
+.ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-trigger[data-active] {
+	background: var(--amber);
+	color: var(--ink-inverse, #000);
+}
+.ds-atom-tabs-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 6px;
+	border-radius: 999px;
+	background: var(--surface-2);
+	color: var(--ink-2);
+	font-family: var(--font-mono);
+	font-size: 11px;
+	font-weight: 600;
+}
+.ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-trigger[data-active] .ds-atom-tabs-count {
+	background: rgba(0, 0, 0, 0.15);
+	color: var(--ink-inverse, #000);
+}
+.ds-atom-tabs-panel {
+	padding: 16px 0;
+	outline: none;
+}
+.ds-atom-tabs-panel:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+/* Overflow — More button */
+.ds-atom-tabs-more {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	padding: 8px;
+	cursor: pointer;
+	color: var(--ink-2);
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	border-radius: 4px;
+}
+.ds-atom-tabs-more:hover {
+	background: var(--surface-2);
+	color: var(--ink);
+}
+.ds-atom-tabs-more:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+/* Overflow dropdown menu */
+.ds-atom-tabs-overflow-menu {
+	list-style: none;
+	margin: 0;
+	padding: 4px;
+	min-width: 160px;
+}
+.ds-atom-tabs-overflow-item button {
+	display: flex;
+	width: 100%;
+	text-align: left;
+	padding: 6px 10px;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	color: var(--ink);
+	font-family: inherit;
+	font-size: 13px;
+	border-radius: 4px;
+	justify-content: space-between;
+	gap: 12px;
+	align-items: center;
+}
+.ds-atom-tabs-overflow-item[data-active] button,
+.ds-atom-tabs-overflow-item button:hover {
+	background: var(--surface-2);
+}
+/* Dark mode */
+:root.dark .ds-atom-tabs-list {
+	border-bottom-color: var(--rule);
+}
+:root.dark .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-list {
+	background: var(--surface-2);
+}
+:root.dark .ds-atom-tabs-trigger {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-tabs-trigger:hover:not(:disabled):not([data-active]) {
+	color: var(--ink);
+}
+:root.dark .ds-atom-tabs[data-variant="underline"] .ds-atom-tabs-trigger[data-active] {
+	color: var(--ink);
+}
+:root.dark .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-trigger[data-active] {
+	background: var(--amber);
+	color: var(--ink-inverse, #000);
+}
+:root.dark .ds-atom-tabs-count {
+	background: var(--surface-2);
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-tabs-more:hover {
+	background: var(--surface-2);
+}
+:root.dark .ds-atom-tabs-overflow-item[data-active] button,
+:root.dark .ds-atom-tabs-overflow-item button:hover {
+	background: var(--surface-2);
+}
