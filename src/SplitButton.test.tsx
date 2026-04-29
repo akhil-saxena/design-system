@@ -119,6 +119,27 @@ describe("SplitButton", () => {
 		expect(primary.getAttribute("data-variant")).toBe("danger");
 	});
 
+	it("v0.5.5 — does not stretch to fill parent flex container width (width: fit-content guard)", () => {
+		const { actions } = makeActions();
+		// Parent is a column flex container; default `align-items: stretch` would
+		// force the inline-flex SplitButton to fill the parent's cross-axis (width)
+		// without the v0.5.5 fit-content guard. JSDOM doesn't compute layout so we
+		// assert via the inline computed style of the .ds-atom-split element rather
+		// than offsetWidth comparisons (which always return 0 in JSDOM).
+		const { container } = render(
+			<div style={{ display: "flex", flexDirection: "column", width: 800 }}>
+				<SplitButton actions={actions} />
+			</div>,
+		);
+		const wrapper = container.querySelector(".ds-atom-split") as HTMLElement;
+		expect(wrapper).toBeTruthy();
+		// The class itself owns the `width: fit-content` rule (via primitives.css).
+		// Assert the wrapper carries the class so the rule applies.
+		expect(wrapper.classList.contains("ds-atom-split")).toBe(true);
+		// And that no inline `width` style overrides the CSS rule.
+		expect(wrapper.style.width).toBe("");
+	});
+
 	it("re-mount resets currentIdx to 0 (in-instance state only — D-530)", () => {
 		const { actions } = makeActions();
 		const { unmount } = render(<SplitButton actions={actions} />);
