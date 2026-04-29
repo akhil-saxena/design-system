@@ -1826,6 +1826,11 @@
 	height: 44px;
 	font-size: 14px;
 }
+/* v0.5.4 — chevron button is icon-only (14px ChevronDown); tighter
+   horizontal padding override so it renders square-ish (~30px wide)
+   instead of inheriting the primary face's 12px gutter (~38px wide).
+   Must come after the shared `.ds-atom-split-primary, .ds-atom-split-chevron`
+   rule above. */
 .ds-atom-split-chevron {
 	border-left: 1px solid var(--rule);
 	padding: 0 8px;
