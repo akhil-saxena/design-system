@@ -2679,3 +2679,36 @@
 :root.dark .ds-atom-timeline-event::after {
 	background: var(--rule);
 }
+
+/* ─── DS atom: InfiniteList (DS-67) ─────────────────────────────────────
+   Loading sentinel + end-state. No virtualization (consumer's responsibility). */
+.ds-atom-infinitelist {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.ds-atom-infinitelist-item {
+	display: block;
+}
+.ds-atom-infinitelist-loading {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px 0;
+}
+.ds-atom-infinitelist-sentinel {
+	height: 1px;
+	width: 100%;
+}
+.ds-atom-infinitelist-end {
+	padding: 16px;
+	text-align: center;
+	color: var(--ink-2);
+	font-family: var(--font-mono);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+:root.dark .ds-atom-infinitelist-end {
+	color: var(--ink-2);
+}

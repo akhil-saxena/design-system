@@ -94,3 +94,4 @@ export { Icon, type IconProps } from "./_internals/Icon";
 
 export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from "./Breadcrumbs";
 export { Timeline, type TimelineProps, type TimelineEvent } from "./Timeline";
+export { InfiniteList, type InfiniteListProps } from "./InfiniteList";

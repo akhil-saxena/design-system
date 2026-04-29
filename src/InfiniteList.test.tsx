@@ -10,18 +10,16 @@ beforeEach(() => {
 	observerCallback = null;
 	observeMock = vi.fn();
 	disconnectMock = vi.fn();
-	// @ts-expect-error mock
-	global.IntersectionObserver = vi
-		.fn()
-		.mockImplementation((cb: (entries: { isIntersecting: boolean }[]) => void) => {
-			observerCallback = cb;
-			return {
-				observe: observeMock,
-				disconnect: disconnectMock,
-				unobserve: vi.fn(),
-				takeRecords: vi.fn(),
-			};
-		});
+	// @ts-expect-error mock — must use `function` keyword so it is newable
+	globalThis.IntersectionObserver = (cb: (entries: { isIntersecting: boolean }[]) => void) => {
+		observerCallback = cb;
+		return {
+			observe: observeMock,
+			disconnect: disconnectMock,
+			unobserve: vi.fn(),
+			takeRecords: vi.fn(),
+		};
+	};
 });
 
 describe("InfiniteList", () => {
