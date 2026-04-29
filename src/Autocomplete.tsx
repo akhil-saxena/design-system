@@ -1,6 +1,6 @@
-import { Clock } from "lucide-react";
 import { type CSSProperties, type ReactNode, useId, useRef, useState } from "react";
 import { DSDropdown } from "./_internals/DSDropdown";
+import { Clock } from "./icons";
 
 export interface AutocompleteProps<T> {
 	value: string;

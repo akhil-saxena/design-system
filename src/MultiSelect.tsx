@@ -1,7 +1,7 @@
-import { Check, ChevronDown, X } from "lucide-react";
 import { type CSSProperties, forwardRef, useId, useMemo, useRef, useState } from "react";
 import { Popover } from "./Popover";
 import { DSDropdown } from "./_internals/DSDropdown";
+import { Check, ChevronDown, X } from "./icons";
 
 export interface MultiSelectOption {
 	value: string;

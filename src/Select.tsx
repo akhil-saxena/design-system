@@ -1,4 +1,3 @@
-import { Check, ChevronDown } from "lucide-react";
 import {
 	type CSSProperties,
 	type MutableRefObject,
@@ -9,6 +8,7 @@ import {
 	useState,
 } from "react";
 import { DSDropdown } from "./_internals/DSDropdown";
+import { Check, ChevronDown } from "./icons";
 
 export interface SelectOption {
 	value: string;
