@@ -47,4 +47,20 @@ describe("Checkbox", () => {
 		rerender(<Checkbox label="x" checked={true} onChange={() => {}} />);
 		expect((getByRole("checkbox") as HTMLInputElement).checked).toBe(true);
 	});
+
+	it("sets DOM indeterminate=true when indeterminate prop is true", () => {
+		const { container } = render(
+			<Checkbox checked={false} onChange={() => {}} indeterminate aria-label="Test" />,
+		);
+		const input = container.querySelector("input[type=checkbox]") as HTMLInputElement;
+		expect(input.indeterminate).toBe(true);
+	});
+
+	it("sets DOM indeterminate=false when indeterminate prop is false", () => {
+		const { container } = render(
+			<Checkbox checked={false} onChange={() => {}} indeterminate={false} aria-label="Test" />,
+		);
+		const input = container.querySelector("input[type=checkbox]") as HTMLInputElement;
+		expect(input.indeterminate).toBe(false);
+	});
 });

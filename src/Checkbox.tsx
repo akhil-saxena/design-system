@@ -1,8 +1,14 @@
 import { Check } from "lucide-react";
-import { type CSSProperties, type InputHTMLAttributes, forwardRef } from "react";
+import { type CSSProperties, type InputHTMLAttributes, forwardRef, useEffect, useRef } from "react";
+import { useComposedRefs } from "./hooks/useComposedRefs";
 
 export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
 	label?: string;
+	/** When true, sets the native DOM `indeterminate` property on the underlying
+	 *  `<input type="checkbox">`. Required by Table.SelectAllCell (Plan 17-11)
+	 *  for the "some rows selected" state. Cannot be expressed as a JSX attribute
+	 *  (HTML spec: indeterminate is a DOM property only). */
+	indeterminate?: boolean;
 }
 
 const labelStyle: CSSProperties = {
@@ -42,9 +48,21 @@ const boxStyle: CSSProperties = {
 };
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
-	{ label, className, disabled, style, ...rest },
+	{ label, className, disabled, style, indeterminate, ...rest },
 	ref,
 ) {
+	const innerRef = useRef<HTMLInputElement>(null);
+	const composedRef = useComposedRefs(innerRef, ref);
+
+	// `indeterminate` is a DOM property (not an HTML attribute), so it cannot be
+	// set via JSX. We imperatively set it via a ref-based useEffect whenever the
+	// prop changes.
+	useEffect(() => {
+		if (innerRef.current) {
+			innerRef.current.indeterminate = !!indeterminate;
+		}
+	}, [indeterminate]);
+
 	return (
 		<label
 			className={`ds-atom-checkbox-label${disabled ? " is-disabled" : ""}${className ? ` ${className}` : ""}`}
@@ -54,7 +72,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
 			}}
 		>
 			<input
-				ref={ref}
+				ref={composedRef}
 				type="checkbox"
 				className="ds-atom-checkbox-input"
 				disabled={disabled}
