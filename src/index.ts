@@ -96,3 +96,4 @@ export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from "./Bread
 export { Timeline, type TimelineProps, type TimelineEvent } from "./Timeline";
 export { InfiniteList, type InfiniteListProps } from "./InfiniteList";
 export { Accordion, type AccordionProps, type AccordionItemProps } from "./Accordion";
+export { Carousel, type CarouselProps, type CarouselSlide } from "./Carousel";

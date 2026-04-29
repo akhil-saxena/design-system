@@ -11,6 +11,28 @@ const makeSlides = (n = 3): CarouselSlide[] =>
 		content: <div data-testid={`slide-content-${i + 1}`}>Slide {i + 1}</div>,
 	}));
 
+// Helper: dispatch a pointer event with clientX + pointerType + pointerId populated.
+// jsdom does not fully implement PointerEvent constructor init — we synthesize via
+// MouseEvent (which supports clientX) and pin pointer-specific fields manually.
+// Pattern lifted from BottomSheet.test.tsx's firePointer helper.
+function firePointerX(
+	type: "pointerdown" | "pointermove" | "pointerup" | "pointercancel",
+	target: Element,
+	init: { clientX: number; pointerId?: number; pointerType?: string },
+) {
+	const evt = new MouseEvent(type, {
+		bubbles: true,
+		cancelable: true,
+		clientX: init.clientX,
+	});
+	Object.defineProperty(evt, "pointerId", { value: init.pointerId ?? 1, configurable: true });
+	Object.defineProperty(evt, "pointerType", {
+		value: init.pointerType ?? "touch",
+		configurable: true,
+	});
+	target.dispatchEvent(evt);
+}
+
 // Helper to mock matchMedia so prefers-reduced-motion: reduce returns given value
 function mockReducedMotion(matches: boolean) {
 	Object.defineProperty(globalThis, "matchMedia", {
@@ -42,7 +64,8 @@ describe("Carousel", () => {
 
 	it("renders N slides each with role=group, aria-roledescription=slide, and aria-label 'i of N'", () => {
 		render(<Carousel slides={makeSlides(3)} ariaLabel="Demo" />);
-		const groups = screen.getAllByRole("group");
+		// non-active slides have aria-hidden=true; use { hidden: true } to find all
+		const groups = screen.getAllByRole("group", { hidden: true });
 		expect(groups).toHaveLength(3);
 		expect(groups[0]).toHaveAttribute("aria-roledescription", "slide");
 		expect(groups[0]).toHaveAttribute("aria-label", "1 of 3");
@@ -250,15 +273,13 @@ describe("Carousel", () => {
 		render(<Carousel slides={makeSlides(3)} ariaLabel="Demo" />);
 		const viewport = document.querySelector(".ds-atom-carousel-viewport")!;
 
-		fireEvent.pointerDown(viewport, {
-			pointerType: "touch",
-			clientX: 200,
-			pointerId: 1,
-		});
-		fireEvent.pointerUp(viewport, {
-			pointerType: "touch",
-			clientX: 140, // delta = -60 → next
-			pointerId: 1,
+		// Use firePointerX helper: jsdom PointerEvent constructor doesn't propagate
+		// init props (clientX, pointerType, pointerId) reliably — we pin them via
+		// Object.defineProperty on a MouseEvent (same pattern as BottomSheet.test.tsx).
+		// Wrap in act() so React flushes state updates synchronously.
+		act(() => {
+			firePointerX("pointerdown", viewport, { clientX: 200, pointerId: 1, pointerType: "touch" });
+			firePointerX("pointerup", viewport, { clientX: 140, pointerId: 1, pointerType: "touch" }); // delta = -60 → next
 		});
 
 		const prev = screen.getByRole("button", { name: "Previous slide" });
@@ -269,15 +290,9 @@ describe("Carousel", () => {
 		render(<Carousel slides={makeSlides(3)} ariaLabel="Demo" defaultIndex={2} />);
 		const viewport = document.querySelector(".ds-atom-carousel-viewport")!;
 
-		fireEvent.pointerDown(viewport, {
-			pointerType: "touch",
-			clientX: 100,
-			pointerId: 1,
-		});
-		fireEvent.pointerUp(viewport, {
-			pointerType: "touch",
-			clientX: 160, // delta = +60 → prev
-			pointerId: 1,
+		act(() => {
+			firePointerX("pointerdown", viewport, { clientX: 100, pointerId: 1, pointerType: "touch" });
+			firePointerX("pointerup", viewport, { clientX: 160, pointerId: 1, pointerType: "touch" }); // delta = +60 → prev
 		});
 
 		const next = screen.getByRole("button", { name: "Next slide" });
@@ -288,15 +303,9 @@ describe("Carousel", () => {
 		render(<Carousel slides={makeSlides(3)} ariaLabel="Demo" />);
 		const viewport = document.querySelector(".ds-atom-carousel-viewport")!;
 
-		fireEvent.pointerDown(viewport, {
-			pointerType: "mouse",
-			clientX: 200,
-			pointerId: 1,
-		});
-		fireEvent.pointerUp(viewport, {
-			pointerType: "mouse",
-			clientX: 100, // delta = -100 but mouse → no swipe
-			pointerId: 1,
+		act(() => {
+			firePointerX("pointerdown", viewport, { clientX: 200, pointerId: 1, pointerType: "mouse" });
+			firePointerX("pointerup", viewport, { clientX: 100, pointerId: 1, pointerType: "mouse" }); // delta = -100 but mouse → no swipe
 		});
 
 		// Should still be on slide 0 (Prev still disabled)
@@ -312,7 +321,8 @@ describe("Carousel", () => {
 			{ id: 2, content: <div>B</div> },
 		];
 		render(<Carousel slides={slides} ariaLabel="Photos" />);
-		const groups = screen.getAllByRole("group");
+		// non-active slides have aria-hidden=true; use { hidden: true } to find all
+		const groups = screen.getAllByRole("group", { hidden: true });
 		expect(groups[0]).toHaveAttribute("aria-label", "Brevo HQ photo");
 		expect(groups[1]).toHaveAttribute("aria-label", "2 of 2");
 	});

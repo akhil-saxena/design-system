@@ -2795,3 +2795,103 @@
 :root.dark .ds-atom-accordion-panel {
 	color: var(--ink);
 }
+
+/* ─── DS atom: Carousel (DS-65) ─────────────────────────────────────────────
+   WAI-ARIA carousel. Track translateX'd; reduced-motion skips transition. */
+.ds-atom-carousel {
+	position: relative;
+	overflow: hidden;
+	border-radius: 8px;
+}
+.ds-atom-carousel:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-carousel-viewport {
+	overflow: hidden;
+	touch-action: pan-y;
+}
+.ds-atom-carousel-track {
+	display: flex;
+	transition: transform 320ms ease;
+	will-change: transform;
+}
+.ds-atom-carousel-track[data-reduced-motion="true"] {
+	transition: none;
+}
+.ds-atom-carousel-slide {
+	flex: 0 0 100%;
+	min-width: 100%;
+}
+.ds-atom-carousel-arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--surface);
+	border: 1px solid var(--rule);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--ink);
+	transition: background-color 120ms ease;
+}
+.ds-atom-carousel-arrow:hover:not(:disabled) {
+	background: var(--surface-2);
+}
+.ds-atom-carousel-arrow:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-carousel-arrow:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+.ds-atom-carousel-arrow-prev {
+	left: 12px;
+}
+.ds-atom-carousel-arrow-next {
+	right: 12px;
+}
+.ds-atom-carousel-dots {
+	display: flex;
+	gap: 6px;
+	justify-content: center;
+	padding: 12px 0;
+}
+.ds-atom-carousel-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--rule);
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	transition: background-color 120ms ease, transform 120ms ease;
+}
+.ds-atom-carousel-dot[data-active] {
+	background: var(--amber);
+	transform: scale(1.2);
+}
+.ds-atom-carousel-dot:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+/* Dark mode */
+:root.dark .ds-atom-carousel-arrow {
+	background: var(--surface);
+	border-color: var(--rule);
+	color: var(--ink);
+}
+:root.dark .ds-atom-carousel-arrow:hover:not(:disabled) {
+	background: var(--surface-2);
+}
+:root.dark .ds-atom-carousel-dot {
+	background: var(--rule);
+}
+:root.dark .ds-atom-carousel-dot[data-active] {
+	background: var(--amber);
+}
