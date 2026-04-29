@@ -1,18 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0.0
-milestone_name: design-system v1.0
-status: planning
-stopped_at: Phase 17 plans created — ready for /gsd-execute-phase 17
-last_updated: 2026-04-29
-last_activity: 2026-04-29 — Phase 17 plan set complete (15 plans across 6 waves)
-resume_file: .planning/phases/17-wave-6-icons-data-display/17-00-PLAN.md
+milestone_name: milestone
+status: Executing Phase 17
+stopped_at: Phase 17 plans 00..14 committed. Wave 0 infra unblocks Wave 1 icons + refactor; independent primitives (SegmentedControl, Breadcrumbs, Timeline, InfiniteList, Accordion, Carousel) + calendarGrid extract run parallel in Wave 2; Tabs + Table chrome in Wave 3; Table selection/resize/pagination + Calendar in Wave 4; RichText + v0.6.0 release in Wave 5.
+last_updated: "2026-04-29T16:59:15.891Z"
 progress:
   total_phases: 6
-  completed_phases: 4
-  total_plans: ~38
-  completed_plans: ~25
-  percent: ~66
+  completed_phases: 0
+  total_plans: 15
+  completed_plans: 1
+  percent: 7
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -25,6 +23,8 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 
 ## Current Position
 
+Phase: 17 (wave-6-icons-data-display) — EXECUTING
+Plan: 2 of 15
 **Phase:** Between Phase 16 and Phase 17
 **Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
 **Last anchor commit:** `4d05a9d chore(release): v0.5.6 — dark-mode hover specificity fix` on `main`
@@ -66,6 +66,7 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 **Immediate:** Execute Phase 17 plan set via `/gsd-execute-phase 17`. Wave 0 (17-00) is the gate — every other wave depends on its infra changes.
 
 **Resolved 2026-04-29 (see PROJECT.md "Resolved Scope Decisions"):**
+
 1. ✅ Icons → tree-shakeable `/icons` subpath export (DS-60, Phase 17)
 2. ✅ Illustrations → `/illustrations` subpath in same repo (DS-81, Phase 18)
 3. ✅ RichText → in Phase 17 on TipTap (DS-70)
@@ -79,7 +80,7 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 
 ## Session Continuity
 
-**Last session:** 2026-04-29 — Phase 17 plan set written (15 plans, 6 waves)
-**Stopped at:** Phase 17 plans 00..14 committed. Wave 0 infra unblocks Wave 1 icons + refactor; independent primitives (SegmentedControl, Breadcrumbs, Timeline, InfiniteList, Accordion, Carousel) + calendarGrid extract run parallel in Wave 2; Tabs + Table chrome in Wave 3; Table selection/resize/pagination + Calendar in Wave 4; RichText + v0.6.0 release in Wave 5.
-**Resume file:** `.planning/phases/17-wave-6-icons-data-display/17-00-PLAN.md`
-**Next command:** `/gsd-execute-phase 17`
+**Last session:** 2026-04-29 — Phase 17 Plan 00 (Wave 0 infra) executed and complete
+**Stopped at:** Checkpoint after Plan 17-00 Tasks 1+2. Awaiting human verification of build + tests before proceeding to Plan 17-01.
+**Resume file:** `.planning/phases/17-wave-6-icons-data-display/17-01-PLAN.md`
+**Next command:** `/gsd-execute-phase 17` (after approving checkpoint)
