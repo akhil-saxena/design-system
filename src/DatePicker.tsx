@@ -3,6 +3,8 @@
 // Composed by DateRangePicker (16-06) via inRange + defaultMonth backward-
 // compatible API additions. NO date-fns dep — uses pure helpers from
 // ./_internals/dateUtils (D-510). See design-handoff/design-system/ds-pickers.jsx.
+// v0.5.2 — isCellSelected override prop added so DateRangePicker can mark
+// BOTH endpoints (start + end) with the amber selected marker.
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type HTMLAttributes, forwardRef, useEffect, useMemo, useState } from "react";
 import { addMonths, daysInMonth, isSameDay, isToday, startOfMonth } from "./_internals/dateUtils";
@@ -27,6 +29,12 @@ export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "o
 	 * Consumed by DateRangePicker (16-06) right calendar to default to month+1.
 	 */
 	defaultMonth?: Date;
+	/**
+	 * Optional override for cell-selected detection. When provided, replaces
+	 * the default `value && isSameDay(date, value)` logic. Use case:
+	 * DateRangePicker marks BOTH start AND end as selected. v0.5.2.
+	 */
+	isCellSelected?: (d: Date) => boolean;
 }
 
 const WEEKDAY_HEADERS = ["S", "M", "T", "W", "T", "F", "S"]; // Sunday-first per D-510
@@ -61,6 +69,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 		showTime = false,
 		inRange,
 		defaultMonth,
+		isCellSelected,
 		className,
 		style,
 		...rest
@@ -228,7 +237,9 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 			{/* biome-ignore lint/a11y/useSemanticElements: <table> is form-tabular semantic; ARIA grid role on a div is the standard pattern for interactive calendars where each cell is a focusable button (matches react-aria + Radix Calendar) */}
 			<div className="ds-atom-datepicker-grid" role="grid">
 				{cells.map(({ date, inMonth }) => {
-					const selected = !!(value && isSameDay(date, value));
+					const selected = isCellSelected
+						? isCellSelected(date)
+						: !!(value && isSameDay(date, value));
 					const todayCell = isToday(date);
 					const isDisabled = !!disabled?.(date) || isPastDisabled(date) || isFutureDisabled(date);
 					const inRangeMatch = !!inRange?.(date);

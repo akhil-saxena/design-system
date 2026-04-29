@@ -108,6 +108,16 @@ describe("DatePicker", () => {
 		expect(dots.length).toBe(2);
 	});
 
+	it("isCellSelected override marks all cells where predicate returns true (v0.5.2)", () => {
+		render(
+			<DatePicker value={new Date(2026, 3, 1)} onChange={() => {}} isCellSelected={() => true} />,
+		);
+		const cells = screen.getAllByRole("gridcell");
+		const selectedCells = cells.filter((c) => c.className.includes("is-selected"));
+		// Predicate `() => true` → ALL 42 cells (in-month + out-of-month padding) marked selected.
+		expect(selectedCells.length).toBe(42);
+	});
+
 	it("showTime renders HH (12-hour) and MM inputs + AM/PM toggle (v0.5.1)", () => {
 		render(<DatePicker value={new Date(2026, 3, 15, 14, 30)} onChange={() => {}} showTime />);
 		// 14:30 → 2:30 PM in 12-hour mode
