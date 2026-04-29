@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 17-13 — RichText DS-70 (TipTap StarterKit + Link + Underline, three-layer sync guard, 20 tests, 644 tests total green).
-last_updated: "2026-04-29T19:09:52Z"
+status: Phase 17 complete — awaiting v0.6.0 release checkpoint approval
+stopped_at: Completed 17-14 — v0.6.0 release preflight (version bump, CHANGELOG, 337 visual baselines, all 644 tests green). Awaiting human checkpoint approval for release commit + tag.
+last_updated: "2026-04-29T20:07:00Z"
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 5
   total_plans: 15
-  completed_plans: 14
-  percent: 93
+  completed_plans: 15
+  percent: 100
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -23,14 +23,14 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 
 ## Current Position
 
-Phase: 17 (wave-6-icons-data-display) — EXECUTING
-Plan: 15 of 15
-**Phase:** Phase 17 — Wave 5 plan 17-13 complete (all plans done)
-**Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
-**Last anchor commit:** `845f523 feat(17-13-01): DS-70 RichText editor` on `main`
+Phase: 17 (wave-6-icons-data-display) — COMPLETE (awaiting checkpoint approval)
+Plan: 15 of 15 (ALL DONE)
+**Phase:** Phase 17 — All 15 plans complete; v0.6.0 release preflight done
+**Last shipped:** v0.5.6 → **v0.6.0 pending release commit** (awaiting human checkpoint)
+**Last anchor commit:** `6bf800c chore(17-14-01): v0.6.0 preflight` on `main`
 **Working tree:** clean
 
-**Progress:** [█████████▉] 93%
+**Progress:** [██████████] 100%
 
 ## Recovery Notes (2026-04-29)
 
@@ -50,6 +50,7 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 
 | Version | Date | Summary |
 |---|---|---|
+| 0.6.0 | 2026-04-29 | Wave 6: 11 data display primitives (DS-60..70) + /icons subpath + lucide refactor + calendarGrid extract — PENDING RELEASE COMMIT |
 | 0.5.6 | recent | Dark-mode hover specificity fix for DatePicker cells |
 | 0.5.5 | recent | SplitButton width + DatePicker hover state preservation |
 | 0.5.4 | recent | SplitButton chevron width + accent cleanup |
@@ -146,13 +147,20 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 - `useMatchMedia("(max-width: 640px)")` used reactively (not `window.matchMedia.matches` directly) — SSR-safe, subscribes to change events
 - Multi-day events render per-day chips only (no spanning bars) — deferred per RESEARCH
 
+## Key Decisions (17-14)
+
+- Playwright test timeout set to 300s — single all-stories test iterates 145+ stories; default 30s was too short for full baseline regen
+- `waitForSelector` uses `state: "attached"` — Lightbox stories auto-open a dialog which aria-hides `#storybook-root`; "attached" resolves immediately once in DOM
+- Tree-shake fixture with `--external:lucide-react` yields 1.2KB (correct consumer experience); without external yields ~9.4KB (all 31 wrapped icons bundled). Fixture threshold is consumer-context dependent
+- Visual baselines now in `tests/visual/storybook.spec.ts-snapshots/` (Playwright default adjacent to spec); `tests/visual-baselines/` is separate directory with sample PNGs from planning phase
+
 ## Blockers / Concerns
 
-- None. Working tree clean, 644 tests green after 17-13.
+- None. Release commit pending human checkpoint approval (visual smoke check + RichText paste test).
 
 ## Session Continuity
 
-**Last session:** 2026-04-29T19:09:52Z
-**Stopped at:** Completed 17-13 — RichText DS-70 (TipTap StarterKit + Link + Underline, 20 tests, 644 tests total green).
+**Last session:** 2026-04-29T20:07:00Z
+**Stopped at:** Completed 17-14 — v0.6.0 preflight (version bump, CHANGELOG, 337 baselines, 644 tests green). Human checkpoint: type "approved" to make release commit.
 **Resume file:** None
-**Next command:** Phase 17 all plans complete — proceed to v0.6.0 release commit or Phase 18 planning.
+**Next command:** After checkpoint approval — release commit `chore(release): v0.6.0 — 11 data display primitives + icons subpath + cumulative visual baselines`, then `git tag v0.6.0`, then Phase 18 planning.
