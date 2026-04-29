@@ -2468,3 +2468,101 @@
 	background: var(--amber);
 	color: #000;
 }
+
+/* ─── DS atom: Breadcrumbs (DS-69) ──────────────────────────────────────
+   Hierarchical nav. Last item is current page (ink); others are ink-2
+   links. ChevronRight separator. Truncates via DSDropdown when deep. */
+.ds-atom-breadcrumbs {
+	font-family: var(--font-body);
+	font-size: 13px;
+}
+.ds-atom-breadcrumbs-list {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.ds-atom-breadcrumbs-li {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+.ds-atom-breadcrumbs-link {
+	color: var(--ink-2);
+	text-decoration: none;
+	transition: color 100ms ease;
+}
+.ds-atom-breadcrumbs-link:hover {
+	color: var(--ink);
+	text-decoration: underline;
+}
+.ds-atom-breadcrumbs-current,
+.ds-atom-breadcrumbs-text {
+	color: var(--ink);
+	font-weight: 500;
+}
+.ds-atom-breadcrumbs-sep {
+	color: var(--ink-3, var(--ink-2));
+	flex-shrink: 0;
+}
+.ds-atom-breadcrumbs-more {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	padding: 2px 6px;
+	border-radius: 4px;
+	color: var(--ink-2);
+	display: inline-flex;
+	align-items: center;
+}
+.ds-atom-breadcrumbs-more:hover {
+	background: var(--surface-2);
+	color: var(--ink);
+}
+.ds-atom-breadcrumbs-more:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-breadcrumbs-menu {
+	list-style: none;
+	margin: 0;
+	padding: 4px;
+	min-width: 160px;
+}
+.ds-atom-breadcrumbs-menuitem a,
+.ds-atom-breadcrumbs-menuitem button {
+	display: block;
+	width: 100%;
+	padding: 6px 10px;
+	color: var(--ink);
+	text-decoration: none;
+	background: transparent;
+	border: 0;
+	border-radius: 4px;
+	text-align: left;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: inherit;
+}
+.ds-atom-breadcrumbs-menuitem a:hover,
+.ds-atom-breadcrumbs-menuitem button:hover {
+	background: var(--surface-2);
+}
+/* Dark mode */
+:root.dark .ds-atom-breadcrumbs-link {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-breadcrumbs-link:hover {
+	color: var(--ink);
+}
+:root.dark .ds-atom-breadcrumbs-current,
+:root.dark .ds-atom-breadcrumbs-text {
+	color: var(--ink);
+}
+:root.dark .ds-atom-breadcrumbs-more:hover {
+	background: var(--surface-2);
+}
