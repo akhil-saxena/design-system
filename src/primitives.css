@@ -1635,6 +1635,34 @@
 	background: var(--amber-l);
 	border-radius: 0;
 }
+/* v0.5.3 — half-cell light-amber bg behind start/end pills extends the
+   in-range bg under the rounded selected pill, eliminating the notch
+   artifact at range endpoints. Applies only on real ranges (start !== end);
+   1-day ranges render as standalone selected. */
+.ds-atom-datepicker-cell.is-range-start,
+.ds-atom-datepicker-cell.is-range-end {
+	position: relative;
+}
+.ds-atom-datepicker-cell.is-range-start::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	width: 50%;
+	background: var(--amber-l);
+	z-index: -1;
+}
+.ds-atom-datepicker-cell.is-range-end::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 50%;
+	background: var(--amber-l);
+	z-index: -1;
+}
 .ds-atom-datepicker-cell.is-disabled {
 	opacity: 0.45;
 	cursor: not-allowed;
