@@ -80,6 +80,48 @@ describe("DateRangePicker", () => {
 		expect(arg.end).toBeNull();
 	});
 
+	it("v0.5.2 — start cell carries is-selected class when only start is set", () => {
+		render(
+			<DateRangePicker value={{ start: new Date(2026, 3, 10), end: null }} onChange={() => {}} />,
+		);
+		const startCell = cellByDay("10");
+		expect(startCell.className).toContain("is-selected");
+	});
+
+	it("v0.5.2 — both start AND end cells carry is-selected class when range is complete", () => {
+		const { container } = render(
+			<DateRangePicker
+				value={{ start: new Date(2026, 3, 10), end: new Date(2026, 3, 15) }}
+				onChange={() => {}}
+			/>,
+		);
+		const startCell = cellByDay("10");
+		const endCell = cellByDay("15");
+		expect(startCell.className).toContain("is-selected");
+		expect(endCell.className).toContain("is-selected");
+		// Exactly 2 in-month selected cells (excluding any out-of-month padding overlap).
+		const selectedInMonth = Array.from(
+			container.querySelectorAll(".ds-atom-datepicker-cell.is-selected"),
+		).filter((c) => !c.className.includes("is-out"));
+		expect(selectedInMonth.length).toBe(2);
+	});
+
+	it("v0.5.2 — 1-day range (start === end) renders as single is-selected cell", () => {
+		const sameDay = new Date(2026, 3, 12);
+		const { container } = render(
+			<DateRangePicker value={{ start: sameDay, end: sameDay }} onChange={() => {}} />,
+		);
+		const cell = cellByDay("12");
+		expect(cell.className).toContain("is-selected");
+		const selectedInMonth = Array.from(
+			container.querySelectorAll(".ds-atom-datepicker-cell.is-selected"),
+		).filter((c) => !c.className.includes("is-out"));
+		expect(selectedInMonth.length).toBe(1);
+		// No is-in-range cells (predicate excludes endpoints).
+		const inRangeCells = container.querySelectorAll(".ds-atom-datepicker-cell.is-in-range");
+		expect(inRangeCells.length).toBe(0);
+	});
+
 	it("between-state cells carry .is-in-range class", () => {
 		const { container } = render(
 			<DateRangePicker

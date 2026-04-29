@@ -7,6 +7,10 @@
 // cells get .is-in-range class). Overrides the original D-512 two-cal
 // layout — see .planning/phases/16-wave-5-compound-inputs/v0.5.1-feedback.md.
 // Source: design-handoff/design-system/ds-pickers.jsx (single-cal range).
+// v0.5.2 — both range endpoints (start + end) now render with the amber
+// selected marker via DatePicker.isCellSelected; previously only `end`
+// was marked, leaving start visually identical to in-range cells. Also
+// makes 1-day range (start === end) visually obvious as a single amber cell.
 import { type CSSProperties, forwardRef, useState } from "react";
 import { DatePicker } from "./DatePicker";
 import { isSameDay, isWithinRange } from "./_internals/dateUtils";
@@ -96,6 +100,12 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
 					disablePast={disablePast}
 					disableFuture={disableFuture}
 					inRange={inRange}
+					isCellSelected={(d) => {
+						const { start, end } = value;
+						if (start && isSameDay(d, start)) return true;
+						if (end && isSameDay(d, end)) return true;
+						return false;
+					}}
 				/>
 			</div>
 		);
