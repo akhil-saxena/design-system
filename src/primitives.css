@@ -3625,3 +3625,229 @@
 :root.dark .ds-atom-calendar-dayview-hour {
 	border-bottom-color: var(--rule);
 }
+
+/* ─── DS atom: RichText (DS-70) ─────────────────────────────────────────────
+   TipTap-powered rich text editor. Toolbar uses Button ghost variant + canonical
+   Icon components from ./icons. Editor surface is .ProseMirror — TipTap renders
+   into it; we style prose inside it without overriding ProseMirror internals.
+   Controlled-sync three-layer guard documented in src/RichText.tsx file header.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Wrapper ──────────────────────────────────────────────────────────────── */
+.ds-atom-richtext {
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	background: var(--surface);
+	overflow: hidden;
+}
+.ds-atom-richtext:focus-within {
+	border-color: var(--amber);
+	outline: none;
+}
+.ds-atom-richtext--loading {
+	min-height: 160px;
+}
+
+/* ── Toolbar ──────────────────────────────────────────────────────────────── */
+.ds-atom-richtext-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 6px;
+	border-bottom: 1px solid var(--rule);
+	background: var(--surface-2);
+	flex-wrap: wrap;
+}
+.ds-atom-richtext-toolbar-divider {
+	width: 1px;
+	height: 20px;
+	background: var(--rule);
+	margin: 0 4px;
+	flex-shrink: 0;
+	display: inline-block;
+}
+.ds-atom-richtext-toolbar [data-active] {
+	background: color-mix(in srgb, var(--amber) 12%, transparent);
+	color: var(--amber);
+}
+
+/* ── Heading dropdown menu ────────────────────────────────────────────────── */
+.ds-atom-richtext-headingmenu {
+	list-style: none;
+	margin: 0;
+	padding: 4px;
+	min-width: 140px;
+}
+.ds-atom-richtext-headingmenu li button {
+	display: block;
+	width: 100%;
+	text-align: left;
+	padding: 6px 10px;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	color: var(--ink);
+	font: inherit;
+	font-size: 13px;
+	border-radius: 4px;
+	transition: background 0.1s;
+}
+.ds-atom-richtext-headingmenu li[data-active] button,
+.ds-atom-richtext-headingmenu li button:hover {
+	background: var(--surface-2);
+}
+
+/* ── Editor surface ───────────────────────────────────────────────────────── */
+.ds-atom-richtext-surface {
+	padding: 12px 16px;
+	min-height: 160px;
+	color: var(--ink);
+	font-family: var(--font-body, var(--font));
+	font-size: 14px;
+	line-height: 1.6;
+}
+.ds-atom-richtext-surface .ProseMirror {
+	outline: none;
+	min-height: 140px;
+}
+
+/* Prose typography inside ProseMirror */
+.ds-atom-richtext-surface .ProseMirror p {
+	margin: 0 0 8px 0;
+}
+.ds-atom-richtext-surface .ProseMirror p:last-child {
+	margin-bottom: 0;
+}
+.ds-atom-richtext-surface .ProseMirror h2 {
+	font-family: var(--font-display, var(--font));
+	font-size: 20px;
+	font-weight: 700;
+	margin: 16px 0 8px 0;
+	line-height: 1.3;
+}
+.ds-atom-richtext-surface .ProseMirror h3 {
+	font-family: var(--font-display, var(--font));
+	font-size: 16px;
+	font-weight: 600;
+	margin: 14px 0 6px 0;
+	line-height: 1.4;
+}
+.ds-atom-richtext-surface .ProseMirror code {
+	background: var(--surface-2);
+	padding: 1px 6px;
+	border-radius: 3px;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	color: var(--ink);
+}
+.ds-atom-richtext-surface .ProseMirror blockquote {
+	border-left: 3px solid var(--amber);
+	padding-left: 12px;
+	margin: 8px 0;
+	color: var(--ink-2);
+}
+.ds-atom-richtext-surface .ProseMirror ul,
+.ds-atom-richtext-surface .ProseMirror ol {
+	padding-left: 24px;
+	margin: 8px 0;
+}
+.ds-atom-richtext-surface .ProseMirror li + li {
+	margin-top: 2px;
+}
+.ds-atom-richtext-surface .ProseMirror hr {
+	border: 0;
+	border-top: 1px solid var(--rule);
+	margin: 12px 0;
+}
+.ds-atom-richtext-surface .ProseMirror a {
+	color: var(--amber-d, var(--amber));
+	text-decoration: underline;
+}
+.ds-atom-richtext-surface .ProseMirror a:hover {
+	color: var(--amber);
+}
+
+/* Placeholder — TipTap Placeholder extension uses data-placeholder + .is-editor-empty */
+.ds-atom-richtext-surface .ProseMirror p.is-editor-empty:first-child::before {
+	content: attr(data-placeholder);
+	float: left;
+	color: var(--ink-3, var(--ink-2));
+	pointer-events: none;
+	height: 0;
+}
+
+/* ── Link popover ─────────────────────────────────────────────────────────── */
+.ds-atom-richtext-linkpopover {
+	background: var(--surface);
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	padding: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 280px;
+	z-index: 1050;
+}
+.ds-atom-richtext-linkinput {
+	appearance: none;
+	width: 100%;
+	padding: 6px 8px;
+	border: 1px solid var(--rule);
+	border-radius: 4px;
+	background: var(--surface);
+	color: var(--ink);
+	font-family: inherit;
+	font-size: 13px;
+	box-sizing: border-box;
+}
+.ds-atom-richtext-linkinput:focus {
+	outline: 2px solid var(--amber);
+	outline-offset: -1px;
+}
+.ds-atom-richtext-linkactions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 6px;
+}
+
+/* ── Dark mode ────────────────────────────────────────────────────────────── */
+:root.dark .ds-atom-richtext {
+	background: var(--surface);
+	border-color: var(--rule);
+}
+:root.dark .ds-atom-richtext-toolbar {
+	background: var(--surface-2);
+	border-bottom-color: var(--rule);
+}
+:root.dark .ds-atom-richtext-toolbar-divider {
+	background: var(--rule);
+}
+:root.dark .ds-atom-richtext-surface {
+	color: var(--ink);
+}
+:root.dark .ds-atom-richtext-surface .ProseMirror code {
+	background: var(--surface-2);
+	color: var(--ink);
+}
+:root.dark .ds-atom-richtext-surface .ProseMirror blockquote {
+	border-left-color: var(--amber);
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-richtext-headingmenu li button {
+	color: var(--ink);
+}
+:root.dark .ds-atom-richtext-headingmenu li[data-active] button,
+:root.dark .ds-atom-richtext-headingmenu li button:hover {
+	background: var(--surface-2);
+}
+:root.dark .ds-atom-richtext-linkpopover {
+	background: var(--surface);
+	border-color: var(--rule);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+:root.dark .ds-atom-richtext-linkinput {
+	background: var(--surface);
+	color: var(--ink);
+	border-color: var(--rule);
+}
