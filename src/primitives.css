@@ -2712,3 +2712,86 @@
 :root.dark .ds-atom-infinitelist-end {
 	color: var(--ink-2);
 }
+
+/* ─── DS atom: Accordion (DS-64) ────────────────────────────────────────
+   WAI-ARIA disclosure pattern. <h><button></h> + <div role="region">.
+   Chevron rotates on expand; reduced-motion skips transition. */
+.ds-atom-accordion {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	overflow: hidden;
+	background: var(--surface);
+}
+.ds-atom-accordion-item + .ds-atom-accordion-item {
+	border-top: 1px solid var(--rule);
+}
+.ds-atom-accordion-heading {
+	margin: 0;
+	padding: 0;
+	font-family: var(--font-display);
+}
+.ds-atom-accordion-trigger {
+	appearance: none;
+	width: 100%;
+	background: transparent;
+	border: 0;
+	padding: 14px 16px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	color: var(--ink);
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	text-align: left;
+}
+.ds-atom-accordion-trigger:hover:not(:disabled) {
+	background: var(--surface-2);
+}
+.ds-atom-accordion-trigger:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: -2px;
+}
+.ds-atom-accordion-trigger:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+.ds-atom-accordion-title {
+	flex: 1;
+}
+.ds-atom-accordion-chev {
+	transition: transform 200ms ease;
+	flex-shrink: 0;
+}
+.ds-atom-accordion-chev[data-open] {
+	transform: rotate(180deg);
+}
+.ds-atom-accordion-panel {
+	padding: 0 16px 16px;
+	color: var(--ink);
+	font-family: var(--font-body);
+	font-size: 13px;
+	line-height: 1.6;
+}
+/* Reduced-motion: skip chevron transition */
+.ds-atom-accordion[data-reduced-motion="true"] .ds-atom-accordion-chev {
+	transition: none;
+}
+/* Dark mode */
+:root.dark .ds-atom-accordion {
+	background: var(--surface);
+	border-color: var(--rule);
+}
+:root.dark .ds-atom-accordion-trigger:hover:not(:disabled) {
+	background: var(--surface-2);
+}
+:root.dark .ds-atom-accordion-trigger {
+	color: var(--ink);
+}
+:root.dark .ds-atom-accordion-panel {
+	color: var(--ink);
+}
