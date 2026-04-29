@@ -99,3 +99,4 @@ export { Accordion, type AccordionProps, type AccordionItemProps } from "./Accor
 export { Carousel, type CarouselProps, type CarouselSlide } from "./Carousel";
 export { Tabs, type TabsProps, type TabItem } from "./Tabs";
 export { Table, type TableRootProps, type TableHeaderCellProps } from "./Table";
+export { Calendar, type CalendarProps, type CalendarEvent } from "./Calendar";

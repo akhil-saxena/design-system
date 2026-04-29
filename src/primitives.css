@@ -3234,3 +3234,394 @@
 :root.dark .ds-atom-table-pagination-summary {
 	color: var(--ink-2);
 }
+
+/* ─── DS atom: Calendar (DS-68) ─────────────────────────────────────────
+   Three views: month (default 6×7 grid), week, day.
+   Today highlight in amber per DatePicker tokens (D-17-25). */
+.ds-atom-calendar {
+	font-family: var(--font-body);
+	background: var(--surface);
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	padding: 16px;
+}
+.ds-atom-calendar-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+.ds-atom-calendar-nav {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.ds-atom-calendar-navbtn {
+	appearance: none;
+	background: transparent;
+	border: 1px solid var(--rule);
+	border-radius: 4px;
+	cursor: pointer;
+	padding: 4px;
+	color: var(--ink-2);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+.ds-atom-calendar-navbtn:hover {
+	background: var(--surface-2);
+	color: var(--ink);
+}
+.ds-atom-calendar-navbtn:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-calendar-label {
+	font-family: var(--font-display);
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--ink);
+	min-width: 160px;
+	text-align: center;
+}
+.ds-atom-calendar-month {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+.ds-atom-calendar-weekdays,
+.ds-atom-calendar-week {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+}
+.ds-atom-calendar-weekday {
+	padding: 6px 0;
+	text-align: center;
+	font-family: var(--font-mono);
+	font-size: 11px;
+	color: var(--ink-2);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-weight: 600;
+}
+.ds-atom-calendar-cell {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	border-top: 1px solid var(--rule);
+	border-right: 1px solid var(--rule);
+	cursor: pointer;
+	padding: 8px;
+	min-height: 80px;
+	color: var(--ink);
+	font-family: inherit;
+	text-align: left;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
+	position: relative;
+	transition: background-color 100ms ease;
+}
+.ds-atom-calendar-week:last-child .ds-atom-calendar-cell {
+	border-bottom: 1px solid var(--rule);
+}
+.ds-atom-calendar-cell:nth-child(7n + 1) {
+	border-left: 1px solid var(--rule);
+}
+.ds-atom-calendar-cell:hover {
+	background: var(--surface-2);
+}
+.ds-atom-calendar-cell:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: -2px;
+	z-index: 1;
+}
+.ds-atom-calendar-cell[data-out-of-month] {
+	color: var(--ink-3, var(--ink-2));
+	opacity: 0.5;
+}
+.ds-atom-calendar-cell[data-today] .ds-atom-calendar-cell-num {
+	background: var(--amber);
+	color: var(--ink-inverse, #000);
+	border-radius: 4px;
+	padding: 2px 6px;
+	font-weight: 600;
+	align-self: flex-start;
+}
+.ds-atom-calendar-cell[data-selected]:not([data-today]) {
+	background: color-mix(in srgb, var(--amber) 18%, transparent);
+}
+.ds-atom-calendar-cell-num {
+	font-family: var(--font-display);
+	font-size: 13px;
+	font-weight: 500;
+	align-self: flex-start;
+}
+/* Event chips in month cells */
+.ds-atom-calendar-cell-events {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-top: 2px;
+}
+.ds-atom-calendar-chip {
+	display: block;
+	background: var(--amber);
+	color: var(--ink-inverse, #000);
+	font-size: 10px;
+	font-weight: 500;
+	padding: 1px 6px;
+	border-radius: 3px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.ds-atom-calendar-chip-more {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	font-family: var(--font-mono);
+	font-size: 10px;
+	color: var(--ink-2);
+	text-align: left;
+	padding: 0;
+}
+.ds-atom-calendar-chip-more:hover {
+	color: var(--ink);
+	text-decoration: underline;
+}
+/* Overflow events popover */
+.ds-atom-calendar-events-popover {
+	padding: 12px;
+	min-width: 240px;
+	background: var(--surface);
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+}
+.ds-atom-calendar-events-header {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	color: var(--ink-2);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 8px;
+}
+.ds-atom-calendar-events-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.ds-atom-calendar-events-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-calendar-events-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--amber);
+	flex-shrink: 0;
+}
+/* Agenda slot */
+.ds-atom-calendar-agenda {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.ds-atom-calendar-agenda-item {
+	display: grid;
+	grid-template-columns: 12px 100px 1fr;
+	gap: 12px;
+	padding: 8px;
+	align-items: center;
+}
+.ds-atom-calendar-agenda-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--amber);
+}
+.ds-atom-calendar-agenda-time {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	color: var(--ink-2);
+}
+.ds-atom-calendar-agenda-label {
+	font-size: 13px;
+	color: var(--ink);
+}
+/* Week view */
+.ds-atom-calendar-weekview {
+	padding-top: 8px;
+}
+.ds-atom-calendar-week-row {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 4px;
+}
+.ds-atom-calendar-weekcell {
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	padding: 8px;
+	min-height: 200px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.ds-atom-calendar-weekcell[data-today] {
+	border-color: var(--amber);
+}
+.ds-atom-calendar-weekcell[data-selected] {
+	background: color-mix(in srgb, var(--amber) 14%, transparent);
+}
+.ds-atom-calendar-weekcell-header {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	color: inherit;
+	font: inherit;
+}
+.ds-atom-calendar-weekcell-name {
+	font-family: var(--font-mono);
+	font-size: 10px;
+	color: var(--ink-2);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+.ds-atom-calendar-weekcell-date {
+	font-family: var(--font-display);
+	font-size: 18px;
+	font-weight: 600;
+}
+.ds-atom-calendar-weekcell-events {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex: 1;
+}
+/* Day view */
+.ds-atom-calendar-dayview {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.ds-atom-calendar-dayview-allday {
+	display: grid;
+	grid-template-columns: 60px 1fr;
+	gap: 8px;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--rule);
+}
+.ds-atom-calendar-dayview-alldaylabel {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	color: var(--ink-2);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding-top: 2px;
+}
+.ds-atom-calendar-dayview-alldayevents {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.ds-atom-calendar-dayview-grid {
+	display: flex;
+	flex-direction: column;
+}
+.ds-atom-calendar-dayview-hour {
+	display: grid;
+	grid-template-columns: 60px 1fr;
+	gap: 8px;
+	min-height: 40px;
+	border-bottom: 1px solid var(--rule);
+	padding: 4px 0;
+}
+.ds-atom-calendar-dayview-hourlabel {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	color: var(--ink-2);
+}
+.ds-atom-calendar-dayview-hourslot {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+/* Dark mode */
+:root.dark .ds-atom-calendar {
+	background: var(--surface);
+	border-color: var(--rule);
+}
+:root.dark .ds-atom-calendar-cell {
+	color: var(--ink);
+	border-color: var(--rule);
+}
+:root.dark .ds-atom-calendar-cell:hover {
+	background: var(--surface-2);
+}
+:root.dark .ds-atom-calendar-cell[data-today] .ds-atom-calendar-cell-num {
+	background: var(--amber);
+	color: var(--ink-inverse, #000);
+}
+:root.dark .ds-atom-calendar-cell[data-out-of-month] {
+	color: var(--ink-2);
+	opacity: 0.5;
+}
+:root.dark .ds-atom-calendar-weekday {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-calendar-navbtn {
+	border-color: var(--rule);
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-calendar-navbtn:hover {
+	background: var(--surface-2);
+	color: var(--ink);
+}
+:root.dark .ds-atom-calendar-chip-more {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-calendar-events-popover {
+	background: var(--surface);
+	border-color: var(--rule);
+}
+:root.dark .ds-atom-calendar-events-item {
+	color: var(--ink);
+}
+:root.dark .ds-atom-calendar-weekcell {
+	border-color: var(--rule);
+}
+:root.dark .ds-atom-calendar-weekcell-name {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-calendar-dayview-alldaylabel,
+:root.dark .ds-atom-calendar-dayview-hourlabel {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-calendar-dayview-allday,
+:root.dark .ds-atom-calendar-dayview-hour {
+	border-bottom-color: var(--rule);
+}
