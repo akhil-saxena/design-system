@@ -51,6 +51,14 @@
 :root.dark .ds-atom-btn[data-variant="secondary"] {
 	color: var(--ink);
 }
+/* v0.5.5 — secondary hover in dark mode: keep bg translucent-light over the
+   dark surface so text stays readable. The light-mode rule uses var(--cream-2)
+   which flips to a near-black in dark mode, causing text-on-bg contrast loss. */
+:root.dark .ds-atom-btn[data-variant="secondary"]:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.18);
+	color: var(--ink);
+}
 
 /* ─── DS atom: TextInput ─────────────────────────────────────────────────
    Source: handoff .ds-input + .ds-input-wrap rules. focus-within applies
