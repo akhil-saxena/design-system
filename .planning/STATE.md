@@ -2,10 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: design-system v1.0
-status: between-phases
-stopped_at: Phase 16 complete (v0.5.0 + 6 patch releases through v0.5.6)
+status: planning
+stopped_at: Phase 17 context gathered — ready for /gsd-plan-phase 17
 last_updated: 2026-04-29
-last_activity: 2026-04-29 — .planning/ reconstructed after loss; ready to plan Phase 17
+last_activity: 2026-04-29 — Phase 17 context captured (icons/Table/RichText/Calendar decisions locked)
+resume_file: .planning/phases/17-wave-6-icons-data-display/17-CONTEXT.md
 progress:
   total_phases: 6
   completed_phases: 4
@@ -78,6 +79,7 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 
 ## Session Continuity
 
-**Last session:** 2026-04-29 — .planning/ reconstruction
-**Stopped at:** Bootstrap complete. Awaiting user direction on whether to proceed with `/gsd-discuss-phase 17` immediately or batch-plan both Phase 17 and 18 first.
-**Resume file:** None — this is the resume point.
+**Last session:** 2026-04-29 — Phase 17 context gathering complete
+**Stopped at:** Phase 17 CONTEXT.md and DISCUSSION-LOG.md committed (1c22eb7). Four gray areas discussed and locked: icon strategy reconciliation (lucide + brand-lock wrapper), Table API (composable + full Data Grid feature set), RichText scope (TipTap StarterKit + Link, no mentions/slash), Calendar architecture (full month/week/day with extracted shared month-grid utility).
+**Resume file:** `.planning/phases/17-wave-6-icons-data-display/17-CONTEXT.md`
+**Next command:** `/gsd-plan-phase 17`
