@@ -1,5 +1,6 @@
 import { type HTMLAttributes, forwardRef, useEffect, useMemo, useState } from "react";
-import { addMonths, daysInMonth, isSameDay, isToday, startOfMonth } from "./_internals/dateUtils";
+import { buildMonthGrid } from "./_internals/calendarGrid";
+import { addMonths, isSameDay, isToday, startOfMonth } from "./_internals/dateUtils";
 // DS-53 — DatePicker primitive (Phase 16 Wave 1 / plan 16-05).
 // 7×6 calendar grid with controlled value, optional time picker, event dots.
 // Composed by DateRangePicker (16-06) via inRange + defaultMonth backward-
@@ -110,35 +111,10 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 
 	const today = new Date();
 
-	const cells = useMemo(() => {
-		const first = startOfMonth(viewMonth);
-		const firstWeekday = first.getDay(); // 0=Sun
-		const dim = daysInMonth(viewMonth);
-		const out: { date: Date; inMonth: boolean }[] = [];
-		// Prev-month tail padding
-		for (let i = firstWeekday - 1; i >= 0; i--) {
-			out.push({
-				date: new Date(first.getFullYear(), first.getMonth(), -i),
-				inMonth: false,
-			});
-		}
-		// Current month
-		for (let d = 1; d <= dim; d++) {
-			out.push({
-				date: new Date(first.getFullYear(), first.getMonth(), d),
-				inMonth: true,
-			});
-		}
-		// Pad to 42 cells (6 rows × 7 cols)
-		while (out.length < 42) {
-			const last = out[out.length - 1]!.date;
-			out.push({
-				date: new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1),
-				inMonth: false,
-			});
-		}
-		return out;
-	}, [viewMonth]);
+	const { cells } = useMemo(
+		() => buildMonthGrid(viewMonth.getFullYear(), viewMonth.getMonth(), 0),
+		[viewMonth],
+	);
 
 	function step(n: number) {
 		const next = addMonths(viewMonth, n);
