@@ -1,6 +1,6 @@
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { type ReactNode, useEffect, useRef } from "react";
 import { DSPortal } from "./_internals/DSPortal";
+import { ChevronLeft, ChevronRight, X } from "./icons";
 
 export interface LightboxItem {
 	src: string;
