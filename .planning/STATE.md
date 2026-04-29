@@ -9,8 +9,8 @@ progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 15
-  completed_plans: 1
-  percent: 7
+  completed_plans: 2
+  percent: 13
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -24,7 +24,7 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 ## Current Position
 
 Phase: 17 (wave-6-icons-data-display) — EXECUTING
-Plan: 2 of 15
+Plan: 3 of 15
 **Phase:** Between Phase 16 and Phase 17
 **Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
 **Last anchor commit:** `4d05a9d chore(release): v0.5.6 — dark-mode hover specificity fix` on `main`
@@ -74,13 +74,20 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 
 **Phase 17 commit ordering:** Icons (DS-60) lands first within the phase so DS-61..70 primitives can import canonical components instead of inline SVGs, and previously-shipped primitives can be refactored to use them in the same wave-completion sweep.
 
+## Key Decisions (17-01)
+
+- Brand-lock defaults: size=20, strokeWidth=1.5, color=currentColor applied via spread BEFORE rest props (consumer overrides win)
+- 31 icons in barrel (18 current-use + 13 future-Phase-17); stories/*.stories.tsx deferred per D-17-04
+- DateRangePicker confirmed zero lucide imports — deferred to 17-02 as designed
+- Per-primitive import path: `from "./icons"` (relative from src/ root)
+
 ## Blockers / Concerns
 
-- None currently. Working tree clean, all tests green at v0.5.6.
+- None currently. Working tree clean, 365 tests green after 17-01.
 
 ## Session Continuity
 
-**Last session:** 2026-04-29 — Phase 17 Plan 00 (Wave 0 infra) executed and complete
-**Stopped at:** Checkpoint after Plan 17-00 Tasks 1+2. Awaiting human verification of build + tests before proceeding to Plan 17-01.
-**Resume file:** `.planning/phases/17-wave-6-icons-data-display/17-01-PLAN.md`
-**Next command:** `/gsd-execute-phase 17` (after approving checkpoint)
+**Last session:** 2026-04-29 — Phase 17 Plan 01 (DS-60 Icon wrapper + lucide refactor sweep) executed and complete
+**Stopped at:** Completed 17-01 — Icon wrapper, 31-icon barrel, 13-primitive sweep. Zero direct lucide-react imports in src/*.tsx.
+**Resume file:** `.planning/phases/17-wave-6-icons-data-display/17-02-PLAN.md`
+**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-02 calendarGrid extract + DateRangePicker refactor)
