@@ -1793,14 +1793,33 @@
 	   amber wash so the between-state remains legible against dark bg. */
 	background: rgba(245, 158, 11, 0.18);
 }
-/* v0.5.5 — dark-mode preservation: lock the translucent-amber in-range bg on
-   hover so the default `:root.dark .ds-atom-datepicker-cell:hover` rule
-   (rgba(255,255,255,0.06)) doesn't clash with the brown/amber wash mid-row.
-   Restate the bg explicitly so this hover rule wins specificity-wise; add a
-   slight brightness lift for hover feedback on dark surfaces. */
+/* v0.5.6 — dark-mode state-preserving hover rules. The light-mode v0.5.5
+   hover rules have specificity 0,4,0 (e.g. .is-range-end:hover:not(:disabled)),
+   but the existing :root.dark .ds-atom-datepicker-cell:hover:not(:disabled)
+   rule is 0,4,1 (the :root.dark ancestor adds a class). In dark mode the
+   :root.dark plain-hover wins, blowing away the amber pill / brown range bg
+   on hover. These :root.dark.is-state:hover rules at 0,5,1 win cleanly. */
+:root.dark .ds-atom-datepicker-cell.is-selected:hover:not(:disabled) {
+	/* Keep amber pill in dark mode; brightness lift for hover feedback. */
+	background: var(--amber);
+	filter: brightness(1.08);
+}
 :root.dark .ds-atom-datepicker-cell.is-in-range:hover:not(:disabled) {
+	/* Keep translucent-amber in-range bg in dark mode; subtle lift. */
 	background: rgba(245, 158, 11, 0.18);
 	filter: brightness(1.08);
+}
+:root.dark .ds-atom-datepicker-cell.is-range-start:hover:not(:disabled),
+:root.dark .ds-atom-datepicker-cell.is-range-end:hover:not(:disabled) {
+	/* Endpoint cells: keep amber pill on hover; the v0.5.3 ::before half-cell
+	   pseudo continues to paint the in-range bg behind the inner edge. */
+	background: var(--amber);
+	filter: brightness(1.08);
+}
+:root.dark
+	.ds-atom-datepicker-cell.is-today:not(.is-selected):not(.is-in-range):not(.is-range-start):not(.is-range-end):hover:not(:disabled) {
+	/* Today cell hover (when not also a range cell): keep light-amber wash. */
+	background: var(--amber-l);
 }
 :root.dark .ds-atom-datepicker-cell.is-today::after {
 	/* Amber dot already auto-flips, but bump opacity for contrast on dark surface. */
