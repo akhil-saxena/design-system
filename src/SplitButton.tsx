@@ -1,7 +1,7 @@
-import { ChevronDown } from "lucide-react";
 import { type ReactNode, forwardRef, useRef, useState } from "react";
 import type { ButtonVariant } from "./Button";
 import { Popover } from "./Popover";
+import { ChevronDown } from "./icons";
 
 export interface SplitButtonAction {
 	label: string;

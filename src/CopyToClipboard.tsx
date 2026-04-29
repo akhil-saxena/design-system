@@ -1,5 +1,5 @@
-import { Check, Copy } from "lucide-react";
 import { type HTMLAttributes, forwardRef, useCallback, useEffect, useRef, useState } from "react";
+import { Check, Copy } from "./icons";
 
 export interface CopyToClipboardProps
 	extends Omit<HTMLAttributes<HTMLButtonElement>, "onCopy" | "onError"> {
