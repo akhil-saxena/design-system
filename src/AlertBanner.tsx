@@ -1,5 +1,5 @@
-import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
 import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } from "react";
+import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "./icons";
 
 export type AlertBannerTone = "info" | "success" | "warning" | "error";
 

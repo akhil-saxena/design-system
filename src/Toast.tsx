@@ -1,4 +1,3 @@
-import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
 import {
 	type ReactNode,
 	createContext,
@@ -10,6 +9,7 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "./_internals/DSPortal";
+import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "./icons";
 
 export type ToastTone = "success" | "error" | "info" | "warning";
 
