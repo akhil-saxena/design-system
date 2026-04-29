@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 17-08 — Carousel primitive (DS-65), 482 tests green.
-last_updated: "2026-04-29T18:08:21Z"
+stopped_at: Completed 17-09 — Tabs primitive (DS-62), 503 tests green.
+last_updated: "2026-04-29T23:50:00Z"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 15
-  completed_plans: 9
-  percent: 60
+  completed_plans: 10
+  percent: 67
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -24,8 +24,8 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 ## Current Position
 
 Phase: 17 (wave-6-icons-data-display) — EXECUTING
-Plan: 10 of 15
-**Phase:** Phase 17 — Wave 2 complete (17-08 complete)
+Plan: 11 of 15
+**Phase:** Phase 17 — Wave 2 plans 17-02..17-09 complete
 **Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
 **Last anchor commit:** `4d05a9d chore(release): v0.5.6 — dark-mode hover specificity fix` on `main`
 **Working tree:** clean
@@ -117,13 +117,20 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 - Touch pointer events simulated via `MouseEvent + Object.defineProperty` (jsdom PointerEvent init dict limitation)
 - No `loop` prop in v0.6 — bounds-clamped only per DS-65 spec
 
+## Key Decisions (17-09)
+
+- `div[role=menuitem]` instead of `li[role=menuitem]` in overflow menu — Biome lint/a11y/noNoninteractiveElementToInteractiveRole rejects li+menuitem; div is semantically equivalent when button is the focusable child
+- `biome-ignore lint/a11y/noNoninteractiveTabindex` on tabpanel — WAI-ARIA APG requires tabIndex=0 on tabpanel; placed as inline JSX attribute comment (matching Carousel.tsx pattern)
+- ResizeObserver mock uses `vi.fn(function(cb){...})` constructor pattern — `vi.fn().mockImplementation()` does not produce a constructable mock in jsdom
+- All 21 tests (core ARIA + overflow) in single TDD cycle; Tasks 1 and 2 share one GREEN commit
+
 ## Blockers / Concerns
 
-- None currently. Working tree clean, 482 tests green after 17-08.
+- None currently. Working tree clean, 503 tests green after 17-09.
 
 ## Session Continuity
 
-**Last session:** 2026-04-29T18:08:21Z
-**Stopped at:** Completed 17-08 — Carousel primitive (DS-65), 482 tests green.
+**Last session:** 2026-04-29T23:50:00Z
+**Stopped at:** Completed 17-09 — Tabs primitive (DS-62), 503 tests green.
 **Resume file:** None
-**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-09 onward)
+**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-10 onward)
