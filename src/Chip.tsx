@@ -1,5 +1,5 @@
-import { X } from "lucide-react";
 import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } from "react";
+import { X } from "./icons";
 
 export type ChipTone = "default" | "match" | "miss" | "learning" | "tag";
 

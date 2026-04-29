@@ -1,6 +1,6 @@
-import { Check } from "lucide-react";
 import { type CSSProperties, type InputHTMLAttributes, forwardRef, useEffect, useRef } from "react";
 import { useComposedRefs } from "./hooks/useComposedRefs";
+import { Check } from "./icons";
 
 export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
 	label?: string;
