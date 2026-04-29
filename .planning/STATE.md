@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 17-06 — InfiniteList IntersectionObserver sentinel (DS-67), 440 tests green.
-last_updated: "2026-04-29T23:21:00Z"
+stopped_at: Completed 17-07 — Accordion compound primitive (DS-64), 455 tests green.
+last_updated: "2026-04-29T23:30:00Z"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 15
-  completed_plans: 7
-  percent: 47
+  completed_plans: 8
+  percent: 53
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -24,13 +24,13 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 ## Current Position
 
 Phase: 17 (wave-6-icons-data-display) — EXECUTING
-Plan: 8 of 15
-**Phase:** Phase 17 — Wave 2 in progress (17-06 complete)
+Plan: 9 of 15
+**Phase:** Phase 17 — Wave 2 in progress (17-07 complete)
 **Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
 **Last anchor commit:** `4d05a9d chore(release): v0.5.6 — dark-mode hover specificity fix` on `main`
 **Working tree:** clean
 
-**Progress:** [████░░░░░░] 47%
+**Progress:** [█████░░░░░] 53%
 
 ## Recovery Notes (2026-04-29)
 
@@ -101,13 +101,20 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 - Date formatting via `Intl.DateTimeFormat` — no external date library required
 - Event `onClick` wraps inner content in `<button class="ds-atom-timeline-trigger">` — read-only events are bare `li` children
 
+## Key Decisions (17-07)
+
+- `<section aria-labelledby>` used for panels instead of `<div role="region">` — semantic HTML per S6819 lint; identical ARIA role, better device support
+- `HEADING_TAGS` lookup table for dynamic heading levels — avoids template-literal cast and nested-template lint warning (S4624)
+- `matchMedia` stub added to `test-setup.ts` (Rule 3) — jsdom lacks matchMedia; all future hooks (useColorScheme etc.) benefit automatically
+- `fireEvent` used in place of `@testing-library/user-event` — latter not installed; fireEvent sufficient for synchronous click toggle tests
+
 ## Blockers / Concerns
 
-- None currently. Working tree clean, 440 tests green after 17-06.
+- None currently. Working tree clean, 455 tests green after 17-07.
 
 ## Session Continuity
 
-**Last session:** 2026-04-29T23:21:00Z
-**Stopped at:** Completed 17-06 — InfiniteList IntersectionObserver sentinel (DS-67), 440 tests green.
+**Last session:** 2026-04-29T23:30:00Z
+**Stopped at:** Completed 17-07 — Accordion compound primitive (DS-64), 455 tests green.
 **Resume file:** None
-**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-07 onward)
+**Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-08 onward)
