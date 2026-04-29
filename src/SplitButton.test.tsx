@@ -63,7 +63,9 @@ describe("SplitButton", () => {
 		expect(a0).not.toHaveBeenCalled();
 	});
 
-	it("per-action variant renders data-action-variant on the menu item (v0.5.1)", () => {
+	it("per-action variant renders data-action-variant on the menu item only when it differs from SplitButton-level default (v0.5.4)", () => {
+		// SplitButton variant defaults to "primary". Action 0 ("primary") matches
+		// the default → no attr. Actions 1 + 2 explicitly differ → attr set.
 		const actions: [SplitButtonAction, SplitButtonAction, SplitButtonAction] = [
 			{ label: "Save", onClick: () => {}, variant: "primary" },
 			{ label: "Save as draft", onClick: () => {}, variant: "secondary" },
@@ -72,8 +74,32 @@ describe("SplitButton", () => {
 		render(<SplitButton actions={actions} />);
 		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
 		const items = screen.getAllByRole("menuitem");
-		expect(items[0].getAttribute("data-action-variant")).toBe("primary");
+		expect(items[0].hasAttribute("data-action-variant")).toBe(false);
 		expect(items[1].getAttribute("data-action-variant")).toBe("secondary");
+		expect(items[2].getAttribute("data-action-variant")).toBe("danger");
+	});
+
+	it("v0.5.4 — when all actions inherit (no explicit variant), no menu item carries data-action-variant", () => {
+		const { actions } = makeActions();
+		render(<SplitButton actions={actions} />);
+		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
+		const items = screen.getAllByRole("menuitem");
+		for (const item of items) {
+			expect(item.hasAttribute("data-action-variant")).toBe(false);
+		}
+	});
+
+	it("v0.5.4 — only the action with an explicit differing variant carries data-action-variant; inheriting siblings do not", () => {
+		const actions: [SplitButtonAction, SplitButtonAction, SplitButtonAction] = [
+			{ label: "Save", onClick: () => {} },
+			{ label: "Save as draft", onClick: () => {} },
+			{ label: "Discard", onClick: () => {}, variant: "danger" },
+		];
+		render(<SplitButton actions={actions} />);
+		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
+		const items = screen.getAllByRole("menuitem");
+		expect(items[0].hasAttribute("data-action-variant")).toBe(false);
+		expect(items[1].hasAttribute("data-action-variant")).toBe(false);
 		expect(items[2].getAttribute("data-action-variant")).toBe("danger");
 	});
 

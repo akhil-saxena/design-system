@@ -38,6 +38,11 @@ export interface SplitButtonProps {
  * action's variant drives the primary face's appearance; menu items render
  * with their own variants as visual hints.
  *
+ * v0.5.4 — menu item accent only renders for explicit per-action variant
+ * overrides; inherited variants show no left-border accent (cleans the
+ * default-only case where every item was getting an amber edge via the
+ * primary fallback, defeating the differentiation intent).
+ *
  * Composes Popover (Wave 3) — NOT DSDropdown — because SplitButton's menu is
  * a 2–5 item action menu, not a listbox semantic.
  */
@@ -101,14 +106,21 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
 			<Popover anchorRef={chevronRef} open={open} onOpenChange={setOpen} placement="bottom-end">
 				<div role="menu" className="ds-atom-split-menu">
 					{actions.map((a, i) => {
-						const itemVariant: ButtonVariant = a.variant ?? variant;
+						// v0.5.4 — only set data-action-variant when the action has an
+						// EXPLICIT per-action override that differs from the SplitButton-
+						// level default. Items that inherit (a.variant === undefined) get
+						// NO accent — keeps the menu clean when all actions share the same
+						// variant. When undefined, React omits the attribute entirely so
+						// the [data-action-variant=...] CSS rules don't fire.
+						const explicitVariant: ButtonVariant | undefined =
+							a.variant && a.variant !== variant ? a.variant : undefined;
 						return (
 							<button
 								key={a.label}
 								type="button"
 								role="menuitem"
 								className={`ds-atom-split-menuitem${i === currentIdx ? " is-current" : ""}`}
-								data-action-variant={itemVariant}
+								data-action-variant={explicitVariant}
 								onClick={() => handleSelect(i)}
 							>
 								{a.icon ? <span className="ds-atom-split-icon">{a.icon}</span> : null}
