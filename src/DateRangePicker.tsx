@@ -11,6 +11,8 @@
 // selected marker via DatePicker.isCellSelected; previously only `end`
 // was marked, leaving start visually identical to in-range cells. Also
 // makes 1-day range (start === end) visually obvious as a single amber cell.
+// v0.5.3 — light-amber range bg now wraps under start/end pills via
+// isRangeStart/isRangeEnd modifier props (resolves notch artifact at endpoints).
 import { type CSSProperties, forwardRef, useState } from "react";
 import { DatePicker } from "./DatePicker";
 import { isSameDay, isWithinRange } from "./_internals/dateUtils";
@@ -105,6 +107,18 @@ export const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
 						if (start && isSameDay(d, start)) return true;
 						if (end && isSameDay(d, end)) return true;
 						return false;
+					}}
+					isRangeStart={(d) => {
+						const { start, end } = value;
+						if (!start || !end) return false;
+						if (isSameDay(start, end)) return false; // 1-day range — no edge polish needed
+						return isSameDay(d, start);
+					}}
+					isRangeEnd={(d) => {
+						const { start, end } = value;
+						if (!start || !end) return false;
+						if (isSameDay(start, end)) return false;
+						return isSameDay(d, end);
 					}}
 				/>
 			</div>

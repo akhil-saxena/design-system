@@ -118,6 +118,22 @@ describe("DatePicker", () => {
 		expect(selectedCells.length).toBe(42);
 	});
 
+	it("isRangeStart predicate adds is-range-start class to matching cell (v0.5.3)", () => {
+		render(
+			<DatePicker
+				value={new Date(2026, 3, 1)}
+				onChange={() => {}}
+				isRangeStart={(d) => d.getMonth() === 3 && d.getDate() === 5}
+			/>,
+		);
+		const cells = screen.getAllByRole("gridcell");
+		const target = cells.find(
+			(c) => c.textContent?.trim() === "5" && !c.className.includes("is-out"),
+		);
+		expect(target).toBeTruthy();
+		expect(target!.className).toContain("is-range-start");
+	});
+
 	it("showTime renders HH (12-hour) and MM inputs + AM/PM toggle (v0.5.1)", () => {
 		render(<DatePicker value={new Date(2026, 3, 15, 14, 30)} onChange={() => {}} showTime />);
 		// 14:30 → 2:30 PM in 12-hour mode

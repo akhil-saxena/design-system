@@ -122,6 +122,33 @@ describe("DateRangePicker", () => {
 		expect(inRangeCells.length).toBe(0);
 	});
 
+	it("v0.5.3 — real range marks start with is-range-start and end with is-range-end", () => {
+		render(
+			<DateRangePicker
+				value={{ start: new Date(2026, 3, 5), end: new Date(2026, 3, 10) }}
+				onChange={() => {}}
+			/>,
+		);
+		const startCell = cellByDay("5");
+		const endCell = cellByDay("10");
+		expect(startCell.className).toContain("is-range-start");
+		expect(startCell.className).toContain("is-selected");
+		expect(endCell.className).toContain("is-range-end");
+		expect(endCell.className).toContain("is-selected");
+		// Between cell sanity check
+		const betweenCell = cellByDay("7");
+		expect(betweenCell.className).toContain("is-in-range");
+	});
+
+	it("v0.5.3 — 1-day range (start === end) does NOT add is-range-start/is-range-end", () => {
+		const sameDay = new Date(2026, 3, 5);
+		render(<DateRangePicker value={{ start: sameDay, end: sameDay }} onChange={() => {}} />);
+		const cell = cellByDay("5");
+		expect(cell.className).toContain("is-selected");
+		expect(cell.className).not.toContain("is-range-start");
+		expect(cell.className).not.toContain("is-range-end");
+	});
+
 	it("between-state cells carry .is-in-range class", () => {
 		const { container } = render(
 			<DateRangePicker

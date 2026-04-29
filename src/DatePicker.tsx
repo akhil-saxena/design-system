@@ -5,6 +5,7 @@
 // ./_internals/dateUtils (D-510). See design-handoff/design-system/ds-pickers.jsx.
 // v0.5.2 — isCellSelected override prop added so DateRangePicker can mark
 // BOTH endpoints (start + end) with the amber selected marker.
+// v0.5.3 — added isRangeStart/isRangeEnd modifier props for range-edge bg polish.
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { type HTMLAttributes, forwardRef, useEffect, useMemo, useState } from "react";
 import { addMonths, daysInMonth, isSameDay, isToday, startOfMonth } from "./_internals/dateUtils";
@@ -35,6 +36,17 @@ export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "o
 	 * DateRangePicker marks BOTH start AND end as selected. v0.5.2.
 	 */
 	isCellSelected?: (d: Date) => boolean;
+	/**
+	 * Optional predicates marking a cell as the START or END of a range.
+	 * When true, adds `.is-range-start` / `.is-range-end` modifier class for
+	 * the half-cell light-amber pseudo-element that visually extends the
+	 * in-range bg under the rounded selected pill. v0.5.3 patch.
+	 *
+	 * Used by DateRangePicker. Apply only for REAL ranges (start !== end).
+	 * 1-day ranges render as standalone selected — neither flag fires.
+	 */
+	isRangeStart?: (d: Date) => boolean;
+	isRangeEnd?: (d: Date) => boolean;
 }
 
 const WEEKDAY_HEADERS = ["S", "M", "T", "W", "T", "F", "S"]; // Sunday-first per D-510
@@ -70,6 +82,8 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 		inRange,
 		defaultMonth,
 		isCellSelected,
+		isRangeStart,
+		isRangeEnd,
 		className,
 		style,
 		...rest
@@ -243,11 +257,15 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 					const todayCell = isToday(date);
 					const isDisabled = !!disabled?.(date) || isPastDisabled(date) || isFutureDisabled(date);
 					const inRangeMatch = !!inRange?.(date);
+					const isRangeStartCell = !!isRangeStart?.(date);
+					const isRangeEndCell = !!isRangeEnd?.(date);
 					const hasEvent = eventSet.has(dayKey(date));
 					const cls = [
 						"ds-atom-datepicker-cell",
 						!inMonth && "is-out",
 						selected && "is-selected",
+						isRangeStartCell && "is-range-start",
+						isRangeEndCell && "is-range-end",
 						todayCell && "is-today",
 						isDisabled && "is-disabled",
 						inRangeMatch && "is-in-range",
