@@ -134,6 +134,31 @@ describe("DatePicker", () => {
 		expect(target!.className).toContain("is-range-start");
 	});
 
+	it("v0.5.5 — selected cell retains is-selected class after hover (state preserved)", () => {
+		render(<DatePicker value={new Date(2026, 3, 15)} onChange={() => {}} />);
+		const cells = screen.getAllByRole("gridcell");
+		const selected = cells.find(
+			(c) => c.textContent?.trim() === "15" && c.className.includes("is-selected"),
+		);
+		expect(selected).toBeTruthy();
+		fireEvent.mouseEnter(selected!);
+		// Hover must not strip the state class — the v0.5.5 explicit hover rules
+		// preserve the amber pill instead of allowing the generic :hover to win.
+		expect(selected!.className).toContain("is-selected");
+	});
+
+	it("v0.5.5 — in-range cell retains is-in-range class after hover (state preserved)", () => {
+		const inRange = (d: Date) => d.getMonth() === 3 && d.getDate() >= 10 && d.getDate() <= 15;
+		render(<DatePicker value={new Date(2026, 3, 1)} onChange={() => {}} inRange={inRange} />);
+		const cells = screen.getAllByRole("gridcell");
+		const inRangeCell = cells.find(
+			(c) => c.textContent?.trim() === "12" && c.className.includes("is-in-range"),
+		);
+		expect(inRangeCell).toBeTruthy();
+		fireEvent.mouseEnter(inRangeCell!);
+		expect(inRangeCell!.className).toContain("is-in-range");
+	});
+
 	it("showTime renders HH (12-hour) and MM inputs + AM/PM toggle (v0.5.1)", () => {
 		render(<DatePicker value={new Date(2026, 3, 15, 14, 30)} onChange={() => {}} showTime />);
 		// 14:30 → 2:30 PM in 12-hour mode

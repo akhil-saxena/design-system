@@ -1671,6 +1671,31 @@
 	background: var(--amber-l);
 	z-index: -1;
 }
+/* v0.5.5 — hover state preservation for cells with state modifiers.
+   Without these explicit overrides, the generic .ds-atom-datepicker-cell:hover
+   rule wins on source order (equal specificity) and destroys the amber pill,
+   in-range bg, and v0.5.3 half-cell pseudo-elements. Each rule preserves the
+   state visual + adds a subtle hover feedback (filter brightness). */
+.ds-atom-datepicker-cell.is-selected:hover:not(:disabled) {
+	background: var(--amber);
+	filter: brightness(0.92);
+}
+.ds-atom-datepicker-cell.is-in-range:hover:not(:disabled) {
+	background: var(--amber-l);
+	filter: brightness(0.97);
+}
+.ds-atom-datepicker-cell.is-range-start:hover:not(:disabled),
+.ds-atom-datepicker-cell.is-range-end:hover:not(:disabled) {
+	background: var(--amber);
+	filter: brightness(0.92);
+}
+/* Today cell hover (only when not also selected/in-range/endpoint) — preserve
+   amber dot indicator (rendered via ::after); use amber-l wash for hover feedback. */
+.ds-atom-datepicker-cell.is-today:not(.is-selected):not(.is-in-range):not(.is-range-start):not(
+		.is-range-end
+	):hover:not(:disabled) {
+	background: var(--amber-l);
+}
 .ds-atom-datepicker-cell.is-disabled {
 	opacity: 0.45;
 	cursor: not-allowed;
@@ -1767,6 +1792,15 @@
 	/* var(--amber-l) is light cream-yellow; in dark mode use a translucent
 	   amber wash so the between-state remains legible against dark bg. */
 	background: rgba(245, 158, 11, 0.18);
+}
+/* v0.5.5 — dark-mode preservation: lock the translucent-amber in-range bg on
+   hover so the default `:root.dark .ds-atom-datepicker-cell:hover` rule
+   (rgba(255,255,255,0.06)) doesn't clash with the brown/amber wash mid-row.
+   Restate the bg explicitly so this hover rule wins specificity-wise; add a
+   slight brightness lift for hover feedback on dark surfaces. */
+:root.dark .ds-atom-datepicker-cell.is-in-range:hover:not(:disabled) {
+	background: rgba(245, 158, 11, 0.18);
+	filter: brightness(1.08);
 }
 :root.dark .ds-atom-datepicker-cell.is-today::after {
 	/* Amber dot already auto-flips, but bump opacity for contrast on dark surface. */
