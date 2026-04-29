@@ -3177,3 +3177,60 @@
 :root.dark .ds-atom-table-row:hover {
 	background: var(--surface-2);
 }
+
+/* DS-61 part 2 — Selection, resize, pagination (Plan 17-11) */
+.ds-atom-table-selectcell {
+	width: 40px;
+	padding: 0 8px;
+	vertical-align: middle;
+}
+.ds-atom-table-row[data-selected="true"] {
+	background: color-mix(in srgb, var(--amber) 14%, transparent);
+}
+.ds-atom-table-resize-handle {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 6px;
+	height: 100%;
+	cursor: col-resize;
+	user-select: none;
+	touch-action: none;
+}
+.ds-atom-table-resize-handle:hover,
+.ds-atom-table-resize-handle:active {
+	background: var(--amber);
+	opacity: 0.5;
+}
+.ds-atom-table-headercell-sortable,
+.ds-atom-table-headercell {
+	position: relative; /* anchor for resize handle */
+}
+.ds-atom-table-pagination {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 12px 0;
+	flex-wrap: wrap;
+}
+.ds-atom-table-pagination-ellipsis {
+	padding: 0 8px;
+	color: var(--ink-2);
+	font-family: var(--font-mono);
+}
+.ds-atom-table-pagination-summary {
+	margin-left: auto;
+	color: var(--ink-2);
+	font-family: var(--font-mono);
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+/* Dark mode */
+:root.dark .ds-atom-table-row[data-selected="true"] {
+	background: color-mix(in srgb, var(--amber) 18%, transparent);
+}
+:root.dark .ds-atom-table-pagination-ellipsis,
+:root.dark .ds-atom-table-pagination-summary {
+	color: var(--ink-2);
+}
