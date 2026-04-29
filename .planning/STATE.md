@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0.0
-milestone_name: milestone
+milestone_name: "**Goal:** Lift 13 primitives + 4 hooks + token system out of JobDash into a publishable package."
 status: Executing Phase 17
-stopped_at: Phase 17 plans 00..14 committed. Wave 0 infra unblocks Wave 1 icons + refactor; independent primitives (SegmentedControl, Breadcrumbs, Timeline, InfiniteList, Accordion, Carousel) + calendarGrid extract run parallel in Wave 2; Tabs + Table chrome in Wave 3; Table selection/resize/pagination + Calendar in Wave 4; RichText + v0.6.0 release in Wave 5.
-last_updated: "2026-04-29T16:59:15.891Z"
+stopped_at: Completed 17-01 — Icon wrapper, 31-icon barrel, 13-primitive sweep. Zero direct lucide-react imports in src/*.tsx.
+last_updated: "2026-04-29T17:28:25.387Z"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 15
-  completed_plans: 2
-  percent: 13
+  completed_plans: 3
+  percent: 20
 ---
 
 # Project State — @akhil-saxena/design-system
@@ -24,13 +24,13 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 ## Current Position
 
 Phase: 17 (wave-6-icons-data-display) — EXECUTING
-Plan: 3 of 15
+Plan: 4 of 15
 **Phase:** Between Phase 16 and Phase 17
 **Last shipped:** v0.5.6 (DatePicker dark-mode hover specificity fix)
 **Last anchor commit:** `4d05a9d chore(release): v0.5.6 — dark-mode hover specificity fix` on `main`
 **Working tree:** clean
 
-**Progress:** [============······] ~66% (35 of ~53 primitives shipped)
+**Progress:** [██░░░░░░░░] 20%
 
 ## Recovery Notes (2026-04-29)
 
@@ -87,7 +87,7 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 
 ## Session Continuity
 
-**Last session:** 2026-04-29 — Phase 17 Plan 01 (DS-60 Icon wrapper + lucide refactor sweep) executed and complete
+**Last session:** 2026-04-29T17:28:25.380Z
 **Stopped at:** Completed 17-01 — Icon wrapper, 31-icon barrel, 13-primitive sweep. Zero direct lucide-react imports in src/*.tsx.
-**Resume file:** `.planning/phases/17-wave-6-icons-data-display/17-02-PLAN.md`
+**Resume file:** None
 **Next command:** `/gsd-execute-phase 17` (proceed to Plan 17-02 calendarGrid extract + DateRangePicker refactor)
