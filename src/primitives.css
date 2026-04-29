@@ -1817,7 +1817,9 @@
 	filter: brightness(1.08);
 }
 :root.dark
-	.ds-atom-datepicker-cell.is-today:not(.is-selected):not(.is-in-range):not(.is-range-start):not(.is-range-end):hover:not(:disabled) {
+	.ds-atom-datepicker-cell.is-today:not(.is-selected):not(.is-in-range):not(.is-range-start):not(
+		.is-range-end
+	):hover:not(:disabled) {
 	/* Today cell hover (when not also a range cell): keep light-amber wash. */
 	background: var(--amber-l);
 }
