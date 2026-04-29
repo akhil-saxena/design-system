@@ -1,3 +1,5 @@
+import { type HTMLAttributes, forwardRef, useEffect, useMemo, useState } from "react";
+import { addMonths, daysInMonth, isSameDay, isToday, startOfMonth } from "./_internals/dateUtils";
 // DS-53 — DatePicker primitive (Phase 16 Wave 1 / plan 16-05).
 // 7×6 calendar grid with controlled value, optional time picker, event dots.
 // Composed by DateRangePicker (16-06) via inRange + defaultMonth backward-
@@ -6,9 +8,7 @@
 // v0.5.2 — isCellSelected override prop added so DateRangePicker can mark
 // BOTH endpoints (start + end) with the amber selected marker.
 // v0.5.3 — added isRangeStart/isRangeEnd modifier props for range-edge bg polish.
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { type HTMLAttributes, forwardRef, useEffect, useMemo, useState } from "react";
-import { addMonths, daysInMonth, isSameDay, isToday, startOfMonth } from "./_internals/dateUtils";
+import { ChevronLeft, ChevronRight } from "./icons";
 
 export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
 	value: Date | null;
