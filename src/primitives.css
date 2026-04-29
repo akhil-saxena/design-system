@@ -3073,3 +3073,107 @@
 :root.dark .ds-atom-tabs-overflow-item button:hover {
 	background: var(--surface-2);
 }
+
+/* ─── DS atom: Table (DS-61, part 1) ────────────────────────────────────
+   Compound table chrome with density modes + sticky header.
+   Selection, resize, pagination ship in DS-61 part 2 (Plan 17-11). */
+.ds-atom-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-family: var(--font-body);
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-table-header {
+	border-bottom: 1px solid var(--rule);
+	background: var(--surface-2);
+}
+.ds-atom-table[data-sticky="true"] .ds-atom-table-header {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+.ds-atom-table-headercell {
+	text-align: left;
+	font-family: var(--font-mono);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--ink-2);
+	padding: 8px 12px;
+	vertical-align: middle;
+}
+.ds-atom-table-headercell-sortable {
+	cursor: pointer;
+	user-select: none;
+}
+.ds-atom-table-headercell-sortable:hover {
+	color: var(--ink);
+}
+.ds-atom-table-headercell-sortable:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: -2px;
+}
+.ds-atom-table-headercell-label {
+	display: inline-block;
+	vertical-align: middle;
+}
+.ds-atom-table-sort-indicator {
+	font-family: var(--font-mono);
+	font-size: 9px;
+	margin-left: 6px;
+	color: var(--amber);
+	vertical-align: middle;
+}
+.ds-atom-table-row {
+	border-bottom: 1px solid var(--rule);
+}
+.ds-atom-table-row:last-child {
+	border-bottom: 0;
+}
+.ds-atom-table-row:hover {
+	background: var(--surface-2);
+}
+.ds-atom-table-cell {
+	padding: 8px 12px;
+	vertical-align: middle;
+}
+/* Density modes */
+.ds-atom-table[data-density="cozy"] .ds-atom-table-headercell,
+.ds-atom-table[data-density="cozy"] .ds-atom-table-cell {
+	padding: 4px 12px;
+}
+.ds-atom-table[data-density="cozy"] .ds-atom-table-row {
+	height: 32px;
+}
+.ds-atom-table[data-density="comfortable"] .ds-atom-table-row {
+	height: 40px;
+}
+.ds-atom-table[data-density="spacious"] .ds-atom-table-headercell,
+.ds-atom-table[data-density="spacious"] .ds-atom-table-cell {
+	padding: 12px 14px;
+}
+.ds-atom-table[data-density="spacious"] .ds-atom-table-row {
+	height: 48px;
+}
+/* Dark mode */
+:root.dark .ds-atom-table {
+	color: var(--ink);
+}
+:root.dark .ds-atom-table-header {
+	background: var(--surface-2);
+	border-bottom-color: var(--rule);
+}
+:root.dark .ds-atom-table-headercell {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-table-headercell-sortable:hover {
+	color: var(--ink);
+}
+:root.dark .ds-atom-table-row {
+	border-bottom-color: var(--rule);
+}
+:root.dark .ds-atom-table-row:hover {
+	background: var(--surface-2);
+}

@@ -98,3 +98,4 @@ export { InfiniteList, type InfiniteListProps } from "./InfiniteList";
 export { Accordion, type AccordionProps, type AccordionItemProps } from "./Accordion";
 export { Carousel, type CarouselProps, type CarouselSlide } from "./Carousel";
 export { Tabs, type TabsProps, type TabItem } from "./Tabs";
+export { Table, type TableRootProps, type TableHeaderCellProps } from "./Table";
