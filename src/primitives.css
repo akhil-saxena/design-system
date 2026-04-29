@@ -2396,3 +2396,75 @@
 .ds-atom-multiselect-more-item button:hover {
 	color: var(--ink);
 }
+
+/* ─── DS atom: SegmentedControl (DS-63) ─────────────────────────────────
+   Pill-shaped radiogroup. Cream-2 wrapper, amber active option.
+   Sizes via data-size; disabled state via data-disabled. */
+.ds-atom-segmented {
+	display: inline-flex;
+	align-items: stretch;
+	gap: 2px;
+	padding: 2px;
+	background: var(--cream-2);
+	border: 1px solid var(--rule);
+	border-radius: 999px;
+}
+.ds-atom-segmented[data-disabled="true"] {
+	opacity: 0.5;
+	pointer-events: none;
+}
+.ds-atom-segmented-btn {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: var(--ink-2);
+	cursor: pointer;
+	padding: 0 14px;
+	border-radius: 999px;
+	font-family: var(--font-body);
+	font-weight: 500;
+	transition: background-color 120ms ease, color 120ms ease;
+}
+.ds-atom-segmented-btn:hover:not([data-active]):not(:disabled) {
+	color: var(--ink);
+}
+.ds-atom-segmented-btn:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-segmented-btn[data-active] {
+	background: var(--amber);
+	color: #000;
+}
+.ds-atom-segmented-btn:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+/* Sizes */
+.ds-atom-segmented[data-size="sm"] .ds-atom-segmented-btn {
+	height: 28px;
+	font-size: 12px;
+	padding: 0 10px;
+}
+.ds-atom-segmented[data-size="md"] .ds-atom-segmented-btn {
+	height: 32px;
+	font-size: 13px;
+	padding: 0 14px;
+}
+.ds-atom-segmented[data-size="lg"] .ds-atom-segmented-btn {
+	height: 40px;
+	font-size: 14px;
+	padding: 0 18px;
+}
+/* Dark mode */
+:root.dark .ds-atom-segmented {
+	background: var(--cream-2);
+	border-color: var(--rule);
+}
+:root.dark .ds-atom-segmented-btn {
+	color: var(--ink-2);
+}
+:root.dark .ds-atom-segmented-btn[data-active] {
+	background: var(--amber);
+	color: #000;
+}

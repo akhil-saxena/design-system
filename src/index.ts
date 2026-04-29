@@ -82,6 +82,12 @@ export {
 } from "./DateRangePicker";
 export { Autocomplete, type AutocompleteProps } from "./Autocomplete";
 
+export {
+	SegmentedControl,
+	type SegmentedControlProps,
+	type SegmentedOption,
+} from "./SegmentedControl";
+
 // Internal Icon wrapper, exposed publicly so consumers can wrap arbitrary lucide icons.
 // Pre-wrapped common icons live in @akhil-saxena/design-system/icons subpath.
 export { Icon, type IconProps } from "./_internals/Icon";
