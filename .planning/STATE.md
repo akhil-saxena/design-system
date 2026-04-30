@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
 status: Phase 17 complete — awaiting v0.6.0 release checkpoint approval
-stopped_at: Completed 17-14 — v0.6.0 release preflight (version bump, CHANGELOG, 337 visual baselines, all 644 tests green). Awaiting human checkpoint approval for release commit + tag.
-last_updated: "2026-04-29T20:07:00Z"
+stopped_at: Phase 17 complete (v0.6.0 shipped, 11 primitives, 644 tests)
+last_updated: "2026-04-30T03:52:03.826Z"
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 1
   total_plans: 15
   completed_plans: 15
   percent: 100
@@ -160,7 +160,7 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 
 ## Session Continuity
 
-**Last session:** 2026-04-29T20:07:00Z
-**Stopped at:** Completed 17-14 — v0.6.0 preflight (version bump, CHANGELOG, 337 baselines, 644 tests green). Human checkpoint: type "approved" to make release commit.
+**Last session:** 2026-04-30T03:52:03.821Z
+**Stopped at:** Phase 17 complete (v0.6.0 shipped, 11 primitives, 644 tests)
 **Resume file:** None
 **Next command:** After checkpoint approval — release commit `chore(release): v0.6.0 — 11 data display primitives + icons subpath + cumulative visual baselines`, then `git tag v0.6.0`, then Phase 18 planning.
