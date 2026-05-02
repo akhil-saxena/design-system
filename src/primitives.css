@@ -4436,3 +4436,260 @@
 .dark {
 	--ds-illust-shadow: rgba(255, 255, 255, 0.06);
 }
+
+/* ─── DS atom: Wizard (DS-74) ──────────────────────────────────────── */
+.ds-atom-wizard {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	font-family: var(--font);
+}
+.ds-atom-wizard-stepper {
+	display: flex;
+	align-items: center;
+}
+.ds-atom-wizard[data-orientation="vertical"] .ds-atom-wizard-stepper {
+	flex-direction: column;
+	align-items: flex-start;
+}
+.ds-atom-wizard-connector {
+	flex: 1;
+	height: 1px;
+	background: var(--rule);
+	margin: 0 8px;
+}
+.ds-atom-wizard[data-orientation="vertical"] .ds-atom-wizard-connector {
+	width: 1px;
+	height: 20px;
+	flex: none;
+	margin: 4px 13px;
+}
+.ds-atom-wizard-step {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-shrink: 0;
+}
+.ds-atom-wizard-step-text {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+.ds-atom-wizard-dot {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: var(--mono);
+	font-size: 11px;
+	font-weight: 700;
+	transition: all 0.25s ease;
+	flex-shrink: 0;
+}
+.ds-atom-wizard-step[data-status="done"] .ds-atom-wizard-dot {
+	background: var(--green-vivid);
+	color: var(--cream);
+}
+.ds-atom-wizard-step[data-status="active"] .ds-atom-wizard-dot {
+	background: var(--amber);
+	color: var(--cream);
+}
+.ds-atom-wizard-step[data-status="pending"] .ds-atom-wizard-dot {
+	background: var(--cream-2);
+	color: var(--ink-4);
+	border: 2px solid var(--ink-5);
+}
+.ds-atom-wizard-label {
+	font-family: var(--display);
+	font-weight: 700;
+	font-size: 12.5px;
+	color: var(--ink);
+	transition: color 0.15s;
+}
+.ds-atom-wizard-step[data-status="pending"] .ds-atom-wizard-label {
+	color: var(--ink-4);
+	font-weight: 500;
+}
+.ds-atom-wizard-desc {
+	font-size: 11px;
+	color: var(--ink-4);
+}
+.ds-atom-wizard-content {
+	min-height: 40px;
+}
+.ds-atom-wizard-error {
+	font-size: 12px;
+	color: var(--red);
+	padding: 8px 12px;
+	background: rgba(239, 68, 68, 0.08);
+	border-radius: 6px;
+	border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.ds-atom-wizard-nav {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+}
+.ds-atom-wizard-cancel,
+.ds-atom-wizard-back,
+.ds-atom-wizard-next {
+	padding: 6px 16px;
+	border-radius: 7px;
+	font-family: var(--font);
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.15s;
+	border: 1px solid transparent;
+}
+.ds-atom-wizard-cancel {
+	background: none;
+	color: var(--ink-3);
+	border-color: var(--rule);
+	margin-right: auto;
+}
+.ds-atom-wizard-cancel:hover:not(:disabled) {
+	background: var(--cream-2);
+	color: var(--ink);
+}
+.ds-atom-wizard-back {
+	background: none;
+	color: var(--ink-3);
+	border-color: var(--rule);
+}
+.ds-atom-wizard-back:hover:not(:disabled) {
+	background: var(--cream-2);
+	color: var(--ink);
+}
+.ds-atom-wizard-back:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
+}
+.ds-atom-wizard-next {
+	background: var(--amber);
+	color: #fff;
+	border-color: var(--amber);
+}
+.ds-atom-wizard-next:hover:not(:disabled) {
+	background: var(--amber-d);
+	border-color: var(--amber-d);
+}
+.ds-atom-wizard-cancel:focus-visible,
+.ds-atom-wizard-back:focus-visible,
+.ds-atom-wizard-next:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+/* Dark mode */
+.dark .ds-atom-wizard-cancel,
+.dark .ds-atom-wizard-back {
+	border-color: var(--rule);
+	color: var(--ink-3);
+}
+.dark .ds-atom-wizard-cancel:hover:not(:disabled),
+.dark .ds-atom-wizard-back:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.06);
+	color: var(--ink);
+}
+.dark .ds-atom-wizard-step[data-status="pending"] .ds-atom-wizard-dot {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: var(--ink-5);
+}
+
+/* ─── DS atom: FormValidation (DS-75) ──────────────────────────────── */
+.ds-atom-pwstrength {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.ds-atom-pwstrength-segs {
+	display: flex;
+	gap: 4px;
+}
+.ds-atom-pwstrength-seg {
+	flex: 1;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--ink-5);
+	transition: background 0.2s ease;
+}
+.ds-atom-pwstrength-label {
+	font-size: 11px;
+	font-family: var(--font);
+	font-weight: 600;
+}
+.ds-atom-field-error {
+	font-size: 12px;
+	color: var(--red);
+	font-family: var(--font);
+	display: block;
+	margin-top: 4px;
+}
+.ds-atom-form-error-summary {
+	background: rgba(239, 68, 68, 0.08);
+	border: 1px solid rgba(239, 68, 68, 0.2);
+	border-radius: 8px;
+	padding: 12px 16px;
+	font-family: var(--font);
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-form-error-summary ul {
+	margin: 6px 0 0 0;
+	padding-left: 16px;
+	color: var(--red);
+	font-size: 12px;
+}
+
+/* ─── DS atom: Coachmark (DS-76) ───────────────────────────────────── */
+.ds-atom-coachmark {
+	padding: 14px 16px;
+	max-width: 260px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.ds-atom-coachmark-step {
+	font-family: var(--mono);
+	font-size: 10px;
+	font-weight: 700;
+	color: var(--amber);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+.ds-atom-coachmark-title {
+	font-family: var(--display);
+	font-weight: 700;
+	font-size: 13px;
+	color: var(--ink);
+}
+.ds-atom-coachmark-desc {
+	font-size: 12px;
+	color: var(--ink-3);
+	line-height: 1.5;
+}
+.ds-atom-coachmark-dots {
+	display: flex;
+	gap: 5px;
+}
+.ds-atom-coachmark-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--ink-5);
+	transition: background 0.2s ease;
+}
+.ds-atom-coachmark-dot[data-active="true"] {
+	background: var(--amber);
+}
+.ds-atom-coachmark-actions {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 4px;
+}
+.dark .ds-atom-coachmark-title {
+	color: var(--ink);
+}
