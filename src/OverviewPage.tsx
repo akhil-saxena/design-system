@@ -210,6 +210,17 @@ export function OverviewPage() {
 		codeComment: isDark ? "#57534e" : "#a8a29e",
 	};
 
+	const card = {
+		bg: isDark ? "#292524" : "#f5f3f0",
+		border: isDark ? "1px solid #44403c" : "1px solid #e7e2dc",
+		label: isDark ? "#a8a29e" : "#78716c",
+		pillBg: isDark ? "#44403c" : "#e7e2dc",
+		pillFg: isDark ? "#a8a29e" : "#78716c",
+		linkFg: isDark ? "#d6d3d1" : "#57534e",
+		linkHoverBg: isDark ? "#44403c" : "#e7e2dc",
+		linkHoverFg: isDark ? "#f5f3f0" : "#1c1917",
+	};
+
 	return (
 		<div
 			style={{
@@ -329,8 +340,9 @@ export function OverviewPage() {
 						style={{
 							padding: "18px 20px 20px",
 							borderRadius: 10,
-							background: "#f5f3f0",
-							border: "1px solid #e7e2dc",
+							background: card.bg,
+							border: card.border,
+							transition: "background 0.2s, border-color 0.2s",
 						}}
 					>
 						<div
@@ -340,7 +352,7 @@ export function OverviewPage() {
 								fontWeight: 600,
 								letterSpacing: "0.08em",
 								textTransform: "uppercase",
-								color: "#78716c",
+								color: card.label,
 								marginBottom: 14,
 								display: "flex",
 								alignItems: "center",
@@ -350,8 +362,8 @@ export function OverviewPage() {
 							{name}
 							<span
 								style={{
-									background: "#e7e2dc",
-									color: "#78716c",
+									background: card.pillBg,
+									color: card.pillFg,
 									borderRadius: 99,
 									padding: "1px 6px",
 									fontSize: 9,
@@ -377,19 +389,19 @@ export function OverviewPage() {
 										style={{
 											display: "block",
 											fontSize: 13,
-											color: "#57534e",
+											color: card.linkFg,
 											textDecoration: "none",
 											padding: "3px 6px",
 											borderRadius: 5,
 											margin: "0 -6px",
 										}}
 										onMouseEnter={(e) => {
-											e.currentTarget.style.background = "#e7e2dc";
-											e.currentTarget.style.color = "#1c1917";
+											e.currentTarget.style.background = card.linkHoverBg;
+											e.currentTarget.style.color = card.linkHoverFg;
 										}}
 										onMouseLeave={(e) => {
 											e.currentTarget.style.background = "transparent";
-											e.currentTarget.style.color = "#57534e";
+											e.currentTarget.style.color = card.linkFg;
 										}}
 									>
 										{label}
