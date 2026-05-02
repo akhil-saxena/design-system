@@ -31,10 +31,6 @@
 			"types": "./dist/icons/index.d.ts",
 			"import": "./dist/icons/index.js"
 		},
-		"./illustrations": {
-			"types": "./dist/illustrations/index.d.ts",
-			"import": "./dist/illustrations/index.js"
-		},
 		"./tokens.css": "./dist/tokens.css",
 		"./primitives.css": "./dist/primitives.css",
 		"./utilities.css": "./dist/utilities.css"

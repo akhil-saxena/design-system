@@ -1,8 +1,8 @@
 # @akhil-saxena/design-system
 
-Accessible React primitive library — 58 primitives, full dark mode, cream+ink+amber design language.
+Accessible React primitive library — 57 primitives, full dark mode, cream+ink+amber design language.
 
-Status: **v1.0.0 — 58 primitives across 7 waves.**
+Status: **v1.0.0 — 57 primitives across 7 waves.**
 
 Published to **GitHub Packages** (private registry, free under personal account quota). Requires auth to install — see below.
 
@@ -54,7 +54,7 @@ Toggle dark mode by adding `class="dark"` on `<html>` (NOT body — `.dark` sele
 ## Subpath imports
 
 ```ts
-// Main primitives (58 total)
+// Main primitives (57 total)
 import { Button, Modal, Table, AppShell, Sortable } from '@akhil-saxena/design-system';
 
 // Hooks
@@ -63,16 +63,13 @@ import { useFocusTrap, useClickOutside, useReducedMotion, useTokens } from '@akh
 // Icons (tree-shakeable lucide wrappers, 1.5px stroke, 20x20)
 import { ChevronDown, Search, Check } from '@akhil-saxena/design-system/icons';
 
-// Illustrations (24 spot SVGs, 120x120 default) — new in v1.0.0
-import { EmptyBox, MailSent, Rocket, IllustrationSearch } from '@akhil-saxena/design-system/illustrations';
-
 // CSS layers
 import "@akhil-saxena/design-system/tokens.css";
 import "@akhil-saxena/design-system/primitives.css";
 import "@akhil-saxena/design-system/utilities.css";
 ```
 
-## Primitives (58 total at v1.0.0)
+## Primitives (57 total at v1.0.0)
 
 **Wave 1 — Atoms (9):** Button, TextInput, Textarea, Badge, Chip, Avatar (+ AvatarStack), Checkbox, Radio (+ RadioGroup), Toggle.
 
@@ -86,12 +83,11 @@ import "@akhil-saxena/design-system/utilities.css";
 
 **Wave 6 — Data Display (11, DS-60..70):** Icon, Table, Tabs, SegmentedControl, Accordion, Carousel, Timeline, InfiniteList, Calendar, Breadcrumbs, RichText.
 
-**Wave 7 — Layout, Patterns, Interaction + Illustrations (12, DS-71..81):**
+**Wave 7 — Layout, Patterns, Interaction (11, DS-71..80):**
 - *Layout Shell:* AppShell, AppBar, Footer
 - *Patterns:* Wizard, PasswordStrength / FieldError / FormErrorSummary (FormValidation), Coachmark
 - *Interaction:* InlineEdit, SearchAndFilters, Presence (Avatar extension)
 - *Drag and Drop:* Sortable (+ SortableItem, SortableDndContext)
-- *Illustrations subpath:* 24 named SVG components via `@akhil-saxena/design-system/illustrations`
 
 **Internal (not exported):** DSDropdown, DSPortal, calendarGrid utility.
 
@@ -156,8 +152,6 @@ import "@akhil-saxena/design-system/utilities.css";
 | DS-78 | SearchAndFilters  | Interaction   | Search + autocomplete + chip filter tokens |
 | DS-79 | Presence          | Interaction   | Avatar presencePosition 4-corner extension |
 | DS-80 | Sortable          | Interaction   | @dnd-kit list + cross-list drag and drop |
-| DS-81 | Illustrations     | Illustrations | 24 spot SVGs via /illustrations subpath |
-
 ## Hooks
 
 From `@akhil-saxena/design-system/hooks`:
@@ -173,21 +167,6 @@ From `@akhil-saxena/design-system/hooks`:
 - `useSortableTable(data, options)` — pure-derivation sort state (column + direction)
 - `useTableSelection(data, options)` — single + multi-select state with indeterminate
 - `useResizableColumns(initialWidths)` — Pointer Events column-resize with consumer persistence
-
-## Illustrations
-
-From `@akhil-saxena/design-system/illustrations` (new in v1.0.0):
-
-24 named SVG React components. All accept `width`, `height`, `className`, `style` props. Default size `120×120`. Use CSS custom properties for dark-mode-aware colour.
-
-```tsx
-import { EmptyBox, MailSent, Rocket } from '@akhil-saxena/design-system/illustrations';
-
-<EmptyBox width={160} height={160} />
-<MailSent className="my-illustration" />
-```
-
-Full list: `MailSent`, `Documents`, `Rocket`, `Celebrate`, `Lightbulb`, `Idea`, `IllustrationSearch`, `Plant`, `Cloud`, `EmptyBox`, `ConnectionLost`, `IllustrationError`, `Inbox`, `GraphUp`, `Chart`, `CalendarEvent`, `Team`, `Thinking`, `Lock`, `Puzzle`, `Workflow`, `Travel`, `IllustrationSuccess`, `PhoneScreen`.
 
 ## Tokens
 
