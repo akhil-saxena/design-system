@@ -1,21 +1,37 @@
+import { addons } from "@storybook/preview-api";
 import { useEffect, useState } from "react";
 
 const MONO = "'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace";
 const DISPLAY = "'Archivo', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
 
+const DARK_BG = "#1c1917";
+
+type GlobalsPayload = { globals: Record<string, unknown> };
+
+function isDarkGlobals(globals: Record<string, unknown>) {
+	return (
+		globals.theme === "dark" ||
+		(globals.backgrounds as { value?: string } | undefined)?.value === DARK_BG
+	);
+}
+
 function useDarkMode() {
 	const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+
 	useEffect(() => {
-		const observer = new MutationObserver(() => {
-			setIsDark(document.documentElement.classList.contains("dark"));
-		});
-		observer.observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ["class"],
-		});
-		return () => observer.disconnect();
+		// On a docs-only page the decorator never runs, so we listen to the
+		// Storybook channel directly and apply the dark class ourselves.
+		const channel = addons.getChannel();
+		const onGlobalsUpdated = ({ globals }: GlobalsPayload) => {
+			const dark = isDarkGlobals(globals);
+			document.documentElement.classList.toggle("dark", dark);
+			setIsDark(dark);
+		};
+		channel.on("globalsUpdated", onGlobalsUpdated);
+		return () => channel.off("globalsUpdated", onGlobalsUpdated);
 	}, []);
+
 	return isDark;
 }
 
