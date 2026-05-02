@@ -15,7 +15,7 @@ export interface SplitButtonAction {
 	 */
 	variant?: ButtonVariant;
 	/**
-	 * Semantic tone applied to this menu item. Overrides the variant color in the dropdown only —
+	 * Semantic tone applied to this menu item. Overrides the variant color in the dropdown only -
 	 * does not affect the primary face. Use for signalling intent (e.g. `"danger"` for Delete).
 	 * - `"danger"` → red text
 	 * - `"warning"` → amber text
@@ -42,20 +42,20 @@ export interface SplitButtonProps {
 /**
  * Split-action button (DS-56, D-530). Primary face + chevron-divider button
  * exposing a Popover menu of alternative actions. Selecting an alternative
- * makes it the primary face for this instance — re-mount resets to actions[0]
+ * makes it the primary face for this instance - re-mount resets to actions[0]
  * (in-instance state only; persistence deferred to v2.1).
  *
- * v0.5.1 patch — full Button variant set (primary | secondary | ghost |
+ * v0.5.1 patch - full Button variant set (primary | secondary | ghost |
  * danger) on the SplitButton level AND per-action. The currently-selected
  * action's variant drives the primary face's appearance; menu items render
  * with their own variants as visual hints.
  *
- * v0.5.4 — menu item accent only renders for explicit per-action variant
+ * v0.5.4 - menu item accent only renders for explicit per-action variant
  * overrides; inherited variants show no left-border accent (cleans the
  * default-only case where every item was getting an amber edge via the
  * primary fallback, defeating the differentiation intent).
  *
- * Composes Popover (Wave 3) — NOT DSDropdown — because SplitButton's menu is
+ * Composes Popover (Wave 3) - NOT DSDropdown - because SplitButton's menu is
  * a 2–5 item action menu, not a listbox semantic.
  */
 export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function SplitButton(
@@ -126,10 +126,10 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
 			<Popover anchorRef={chevronRef} open={open} onOpenChange={setOpen} placement="bottom-end">
 				<div role="menu" className="ds-atom-split-menu">
 					{actions.map((a, i) => {
-						// v0.5.4 — only set data-action-variant when the action has an
+						// v0.5.4 - only set data-action-variant when the action has an
 						// EXPLICIT per-action override that differs from the SplitButton-
 						// level default. Items that inherit (a.variant === undefined) get
-						// NO accent — keeps the menu clean when all actions share the same
+						// NO accent - keeps the menu clean when all actions share the same
 						// variant. When undefined, React omits the attribute entirely so
 						// the [data-action-variant=...] CSS rules don't fire.
 						const explicitVariant: ButtonVariant | undefined =

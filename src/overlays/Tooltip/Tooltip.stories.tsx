@@ -25,16 +25,16 @@ const SRC = {
 <Tooltip content="Delete item">
   <button type="button" aria-label="Delete">🗑</button>
 </Tooltip>`,
-	LongContent: `<Tooltip content="A longer tooltip with more text — wraps if max-width reached, otherwise stays single-line." placement="top">
+	LongContent: `<Tooltip content="A longer tooltip with more text - wraps if max-width reached, otherwise stays single-line." placement="top">
   <button type="button">top</button>
 </Tooltip>`,
 	Playground: `<Tooltip content="Playground tooltip" placement="top" delay={150}>
   <button type="button">Hover me</button>
 </Tooltip>`,
-	DarkMode: `<Tooltip content="Top — dark mode" placement="top">
+	DarkMode: `<Tooltip content="Top - dark mode" placement="top">
   <button type="button">top</button>
 </Tooltip>
-<Tooltip content="Right — dark mode" placement="right">
+<Tooltip content="Right - dark mode" placement="right">
   <button type="button">right</button>
 </Tooltip>`,
 };
@@ -182,7 +182,7 @@ export const LongContent: Story = {
 	render: () => (
 		<div style={{ padding: 80, display: "inline-block" }}>
 			<AlwaysOpenTooltip
-				content="A longer tooltip with more text — wraps if max-width reached, otherwise stays single-line."
+				content="A longer tooltip with more text - wraps if max-width reached, otherwise stays single-line."
 				placement="top"
 			/>
 		</div>
@@ -216,7 +216,7 @@ export const Playground: Story = {
 
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
-	// Storybook v8 preview decorator reads context.globals.theme — must be
+	// Storybook v8 preview decorator reads context.globals.theme - must be
 	// top-level globals (NOT parameters.globals). Matches Wave 1 atom pattern
 	// (Card.stories.tsx, StickyNote.stories.tsx) that fixed this in commit 5c1f8ec.
 	decorators: [
@@ -235,10 +235,10 @@ export const DarkMode: Story = {
 				padding: 80,
 			}}
 		>
-			<AlwaysOpenTooltip content="Top — dark mode" placement="top" />
-			<AlwaysOpenTooltip content="Right — dark mode" placement="right" />
-			<AlwaysOpenTooltip content="Bottom — dark mode" placement="bottom" />
-			<AlwaysOpenTooltip content="Left — dark mode" placement="left" />
+			<AlwaysOpenTooltip content="Top - dark mode" placement="top" />
+			<AlwaysOpenTooltip content="Right - dark mode" placement="right" />
+			<AlwaysOpenTooltip content="Bottom - dark mode" placement="bottom" />
+			<AlwaysOpenTooltip content="Left - dark mode" placement="left" />
 		</div>
 	),
 };

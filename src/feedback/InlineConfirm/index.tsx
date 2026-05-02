@@ -18,7 +18,7 @@ export interface InlineConfirmProps {
 	trigger: (triggerProps: InlineConfirmTriggerProps) => ReactNode;
 	/** Called when the user clicks the confirm button. */
 	onConfirm: () => void;
-	/** Called when the user cancels — via No button, Escape, click-outside, or auto-cancel timeout. */
+	/** Called when the user cancels - via No button, Escape, click-outside, or auto-cancel timeout. */
 	onCancel?: () => void;
 	/**
 	 * Label for the confirm button.
@@ -52,7 +52,7 @@ export interface InlineConfirmProps {
 const DEFAULT_AUTO_CANCEL_MS = 4000;
 
 /**
- * InlineConfirm — render-prop trigger replacement for inline destructives (DS-45, D-430).
+ * InlineConfirm - render-prop trigger replacement for inline destructives (DS-45, D-430).
  *
  *   <InlineConfirm
  *     trigger={(p) => <Button variant="danger" {...p}>Delete</Button>}
@@ -62,7 +62,7 @@ const DEFAULT_AUTO_CANCEL_MS = 4000;
  *
  * Idle: renders the trigger function's returned element with `onClick` wired
  * to enter pending state. Pending: replaces trigger with inline-row
- * `[promptText] [No] [Yes]` in the same container — zero layout shift.
+ * `[promptText] [No] [Yes]` in the same container - zero layout shift.
  *
  * 4s auto-cancel timer (configurable via `autoCancelMs`; pass Infinity to
  * disable). Mouse-enter prompt OR focus-within pauses timer; un-hover AND
@@ -70,10 +70,10 @@ const DEFAULT_AUTO_CANCEL_MS = 4000;
  * all dismiss immediately.
  *
  * For HIGH-stakes destructives (delete account, mass-delete, irreversible)
- * use ConfirmDialog (Modal variant) instead — InlineConfirm is for LOW-stakes
+ * use ConfirmDialog (Modal variant) instead - InlineConfirm is for LOW-stakes
  * inline confirms in dense lists (D-431).
  *
- * Uncontrolled — manages internal `pending` state. No ref forwarding (the
+ * Uncontrolled - manages internal `pending` state. No ref forwarding (the
  * component switches between two different DOM trees).
  */
 export function InlineConfirm({
@@ -149,7 +149,7 @@ export function InlineConfirm({
 		onConfirm();
 	}, [clearTimer, onConfirm]);
 
-	// Escape key handler — only active when pending
+	// Escape key handler - only active when pending
 	useEffect(() => {
 		if (!pending) return;
 		function onKey(e: KeyboardEvent) {
@@ -161,7 +161,7 @@ export function InlineConfirm({
 		return () => document.removeEventListener("keydown", onKey);
 	}, [pending, cancel]);
 
-	// Click-outside dismissal — uses the canonical useClickOutside hook
+	// Click-outside dismissal - uses the canonical useClickOutside hook
 	// (Popover line 95 pattern). Third arg `pending` gates the listener so
 	// it only fires while the prompt is visible.
 	useClickOutside(rowRef, () => cancel(), pending);
@@ -197,7 +197,7 @@ export function InlineConfirm({
 				pauseTimer();
 			}}
 			onBlur={(e) => {
-				// blur fires when focus moves to a child too — only treat focus as lost when
+				// blur fires when focus moves to a child too - only treat focus as lost when
 				// the new focus is OUTSIDE the row (relatedTarget is null OR not in row)
 				const next = e.relatedTarget as Node | null;
 				if (!next || !rowRef.current?.contains(next)) {

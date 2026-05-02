@@ -4,9 +4,9 @@ export type SkeletonShape = "text" | "circle" | "pill";
 
 export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
 	/** Shape of the skeleton placeholder.
-	 * - `text` — full-width line at `1.2em` height (default).
-	 * - `circle` — disc sized to `width`; use for avatar placeholders.
-	 * - `pill` — rounded badge/chip-sized shape at `1.5em` height.
+	 * - `text` - full-width line at `1.2em` height (default).
+	 * - `circle` - disc sized to `width`; use for avatar placeholders.
+	 * - `pill` - rounded badge/chip-sized shape at `1.5em` height.
 	 * @default "text"
 	 */
 	shape?: SkeletonShape;
@@ -41,22 +41,22 @@ function shapeDefaultHeight(
 }
 
 /**
- * Skeleton — placeholder shape for loading states (DS-43, D-420).
+ * Skeleton - placeholder shape for loading states (DS-43, D-420).
  *
  *   <Skeleton />                                 // default text line, full width
  *   <Skeleton width={120} />                     // 120px text line
  *   <Skeleton shape="circle" width={40} />       // 40x40 circle (avatar placeholder)
  *   <Skeleton shape="pill" width={80} />         // pill (badge / chip placeholder)
  *
- * Single primitive with `shape` prop instead of three separate primitives —
+ * Single primitive with `shape` prop instead of three separate primitives -
  * keeps barrel small (D-420). Compose multi-line / avatar+name / card
  * placeholders by rendering MULTIPLE Skeletons inside a consumer-controlled
- * flex/grid container — the primitive itself renders ONE node only.
+ * flex/grid container - the primitive itself renders ONE node only.
  *
  * Visual: cream-2 background with pulse animation (opacity 0.6 ↔ 1 at
  * 1.2s ease-in-out infinite). Dark mode: rgba(255,255,255,0.06).
  *
- * `aria-hidden="true"` is hard-coded — Skeleton is decorative. Consumers
+ * `aria-hidden="true"` is hard-coded - Skeleton is decorative. Consumers
  * wrap the surrounding region with their own `aria-busy={loading}` or
  * similar to communicate the loading state to assistive tech.
  */

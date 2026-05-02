@@ -224,7 +224,7 @@ describe("Accordion", () => {
 			</Accordion>,
 		);
 		const btn = screen.getByRole("button", { name: /Item A/i });
-		// Before click — no data-open on chev
+		// Before click - no data-open on chev
 		const chevBefore = btn.querySelector(".ds-atom-accordion-chev");
 		expect(chevBefore).not.toHaveAttribute("data-open");
 

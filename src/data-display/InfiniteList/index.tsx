@@ -1,9 +1,9 @@
 /**
- * # Usage Audit — InfiniteList (DS-67)
+ * # Usage Audit - InfiniteList (DS-67)
  *
  * Consumers (post v0.6):
- * - Job listings, search results, message threads — any paginated feed
- * - NOT a virtualization wrapper — bring TanStack Virtual if needed
+ * - Job listings, search results, message threads - any paginated feed
+ * - NOT a virtualization wrapper - bring TanStack Virtual if needed
  *
  * API:
  * - items: T[] (consumer-managed; we don't slice or paginate internally)
@@ -11,13 +11,13 @@
  * - hasMore: boolean (consumer says "fetch more available")
  * - loading: boolean (consumer says "fetch in flight")
  * - onLoadMore: () => void (fires when sentinel intersects viewport)
- * - rootMargin: string (default "200px" — pre-fetch margin)
+ * - rootMargin: string (default "200px" - pre-fetch margin)
  * - loadingSlot, endSlot: optional consumer overrides
  *
  * Implementation:
  * - IntersectionObserver on a sentinel div at list bottom
  * - Observer only created when hasMore && !loading
- * - React 19 strict-mode safe — disconnect on cleanup
+ * - React 19 strict-mode safe - disconnect on cleanup
  *
  * Virtualization: NOT included. Consumer brings TanStack Virtual or similar.
  */

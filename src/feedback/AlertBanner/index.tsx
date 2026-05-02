@@ -15,7 +15,7 @@ export interface AlertBannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "
 	title: ReactNode;
 	/** Optional secondary body text beneath the title. */
 	description?: ReactNode;
-	/** Overrides `description` when present — use for advanced layouts with embedded buttons. */
+	/** Overrides `description` when present - use for advanced layouts with embedded buttons. */
 	children?: ReactNode;
 	/** Whether to show the dismiss X button. Defaults to `!!onDismiss`. Pass `false` to suppress it. */
 	dismissible?: boolean;
@@ -34,7 +34,7 @@ const baseStyle: CSSProperties = {
 };
 
 /**
- * AlertBanner — inline-flow controlled tone banner (D-410, D-411).
+ * AlertBanner - inline-flow controlled tone banner (D-410, D-411).
  *
  *   <AlertBanner
  *     open={showTrialBanner}
@@ -46,14 +46,14 @@ const baseStyle: CSSProperties = {
  *
  *   <AlertBanner open tone="success" title="Saved as draft" />   // non-dismissible
  *
- * Controlled — caller manages `open`. Returns `null` when `open === false`.
+ * Controlled - caller manages `open`. Returns `null` when `open === false`.
  * NO auto-dismiss (different from Toast). For ephemeral feedback use Toast (DS-40).
  *
  * Layout: `[icon] [title + description-or-children] [dismiss-X-when-dismissible]`.
  * Tone via `data-variant` (Card pattern); CSS attribute selectors in primitives.css
  * apply tone-tinted bg + border + icon-color.
  *
- * `dismissible` defaults to `!!onDismiss` — passing `onDismiss` shows the X by default.
+ * `dismissible` defaults to `!!onDismiss` - passing `onDismiss` shows the X by default.
  * Force-hide with `dismissible={false}` (consumer wants to control close another way).
  */
 export const AlertBanner = forwardRef<HTMLDivElement, AlertBannerProps>(function AlertBanner(

@@ -11,7 +11,7 @@ const makeSlides = (n = 3): CarouselSlide[] =>
 	}));
 
 // Helper: dispatch a pointer event with clientX + pointerType + pointerId populated.
-// jsdom does not fully implement PointerEvent constructor init — we synthesize via
+// jsdom does not fully implement PointerEvent constructor init - we synthesize via
 // MouseEvent (which supports clientX) and pin pointer-specific fields manually.
 // Pattern lifted from BottomSheet.test.tsx's firePointer helper.
 function firePointerX(
@@ -249,7 +249,7 @@ describe("Carousel", () => {
 			const section = screen.getByRole("region", { name: "Demo" });
 			const dots = screen.getAllByRole("tab");
 
-			// Hover — pauses autoplay
+			// Hover - pauses autoplay
 			fireEvent.mouseEnter(section);
 			act(() => {
 				vi.advanceTimersByTime(4000);
@@ -257,7 +257,7 @@ describe("Carousel", () => {
 			// Still on slide 0
 			expect(dots[0]).toHaveAttribute("aria-selected", "true");
 
-			// Leave — resumes
+			// Leave - resumes
 			fireEvent.mouseLeave(section);
 			act(() => {
 				vi.advanceTimersByTime(2000);
@@ -273,7 +273,7 @@ describe("Carousel", () => {
 		const viewport = document.querySelector(".ds-atom-carousel-viewport")!;
 
 		// Use firePointerX helper: jsdom PointerEvent constructor doesn't propagate
-		// init props (clientX, pointerType, pointerId) reliably — we pin them via
+		// init props (clientX, pointerType, pointerId) reliably - we pin them via
 		// Object.defineProperty on a MouseEvent (same pattern as BottomSheet.test.tsx).
 		// Wrap in act() so React flushes state updates synchronously.
 		act(() => {

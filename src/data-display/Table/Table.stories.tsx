@@ -242,7 +242,7 @@ function PaginationManyPagesDemo() {
 			<p
 				style={{ marginBottom: 12, fontFamily: "var(--font)", fontSize: 13, color: "var(--ink-2)" }}
 			>
-				20 pages — middle page shows both ellipses
+				20 pages - middle page shows both ellipses
 			</p>
 			<Table.Pagination page={page} pageCount={20} onPageChange={setPage} />
 		</div>
@@ -374,7 +374,7 @@ function PlaygroundTable({
 // ── Source snippets ───────────────────────────────────────────────────────────
 
 const SRC = {
-	default: `// Sortable table — click any header to sort
+	default: `// Sortable table - click any header to sort
 const { sorted, sortCol, sortDir, toggleSort } = useSortableTable(users, { defaultCol: "name" });
 
 <div style={{ border: "1px solid var(--rule)", borderRadius: 8, overflow: "auto" }}>
@@ -465,7 +465,7 @@ const { isAllSelected, isIndeterminate, isSelected, toggle, toggleAll } = useTab
   </Table.Root>
 </div>`,
 
-	pagination: `// Table.Pagination must be a SIBLING of Table.Root — not nested inside.
+	pagination: `// Table.Pagination must be a SIBLING of Table.Root - not nested inside.
 // <nav> inside <table> is invalid HTML.
 const [page, setPage] = useState(1);
 const pageRows = allRows.slice((page - 1) * 5, page * 5);
@@ -531,7 +531,7 @@ const meta: Meta<typeof Table.Root> = {
 		docs: {
 			description: {
 				component:
-					"Compound-API data table. `Table.Root` wraps a `<table>`. Always wrap it in a `<div>` with `border` + `borderRadius` for the container chrome. `Table.Pagination` must be a **sibling** of `Table.Root`, never nested inside — `<nav>` inside `<table>` is invalid HTML.",
+					"Compound-API data table. `Table.Root` wraps a `<table>`. Always wrap it in a `<div>` with `border` + `borderRadius` for the container chrome. `Table.Pagination` must be a **sibling** of `Table.Root`, never nested inside - `<nav>` inside `<table>` is invalid HTML.",
 			},
 		},
 	},
@@ -565,7 +565,7 @@ export const Default: Story = {
 };
 
 export const DensityCozy: Story = {
-	name: "Density — Cozy",
+	name: "Density - Cozy",
 	parameters: {
 		docs: {
 			description: { story: "32 px row height, tight padding." },
@@ -576,7 +576,7 @@ export const DensityCozy: Story = {
 };
 
 export const DensityComfortable: Story = {
-	name: "Density — Comfortable",
+	name: "Density - Comfortable",
 	parameters: {
 		docs: { description: { story: "40 px row height (default)." }, source: { code: SRC.default } },
 	},
@@ -584,7 +584,7 @@ export const DensityComfortable: Story = {
 };
 
 export const DensitySpacious: Story = {
-	name: "Density — Spacious",
+	name: "Density - Spacious",
 	parameters: {
 		docs: {
 			description: { story: "48 px row height, generous padding." },
@@ -600,7 +600,7 @@ export const StickyHeader: Story = {
 		docs: {
 			description: {
 				story:
-					"Scroll the container — header stays pinned. Requires a max-height overflow wrapper.",
+					"Scroll the container - header stays pinned. Requires a max-height overflow wrapper.",
 			},
 			source: { code: SRC.sticky },
 		},
@@ -679,7 +679,7 @@ export const Pagination: Story = {
 		docs: {
 			description: {
 				story:
-					"23-row dataset paged 5 at a time. `Table.Pagination` is a sibling of `Table.Root` — never nested inside.",
+					"23-row dataset paged 5 at a time. `Table.Pagination` is a sibling of `Table.Root` - never nested inside.",
 			},
 			source: { code: SRC.pagination },
 		},
@@ -688,11 +688,11 @@ export const Pagination: Story = {
 };
 
 export const PaginationManyPages: Story = {
-	name: "Pagination — many pages",
+	name: "Pagination - many pages",
 	parameters: {
 		docs: {
 			description: {
-				story: "pageCount=20 at page 10 — demonstrates the both-ellipses truncation pattern.",
+				story: "pageCount=20 at page 10 - demonstrates the both-ellipses truncation pattern.",
 			},
 			source: { code: SRC.pagination },
 		},
@@ -715,7 +715,7 @@ export const PaginationOutsideTable: Story = {
 };
 
 export const Combined: Story = {
-	name: "Combined — selection + resizable + pagination",
+	name: "Combined - selection + resizable + pagination",
 	parameters: {
 		docs: {
 			description: {
@@ -739,7 +739,7 @@ export const DarkMode: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: "Table tokens follow dark surface — header, row hover, sort indicator.",
+				story: "Table tokens follow dark surface - header, row hover, sort indicator.",
 			},
 			source: { code: SRC.default },
 		},

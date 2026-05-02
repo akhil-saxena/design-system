@@ -182,7 +182,7 @@ export const PerActionVariant: Story = {
 		docs: {
 			description: {
 				story:
-					"Each action can override the variant. Selecting an action re-binds the primary face to that variant — try clicking different items.",
+					"Each action can override the variant. Selecting an action re-binds the primary face to that variant - try clicking different items.",
 			},
 			source: { code: SRC.perAction },
 		},
@@ -252,7 +252,7 @@ export const DarkMode: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: "All variants on dark surface — amber primary, ghost/secondary with dark-mode ink.",
+				story: "All variants on dark surface - amber primary, ghost/secondary with dark-mode ink.",
 			},
 			source: { code: SRC.variants },
 		},

@@ -303,7 +303,7 @@ export const MonthWithEvents: Story = {
 };
 
 export const MonthOverflowChips: Story = {
-	name: "Month — Overflow Chips (+N more)",
+	name: "Month - Overflow Chips (+N more)",
 	parameters: { docs: { source: { code: SRC.MonthOverflowChips } } },
 	render: () => {
 		const [selected, setSelected] = useState<Date>(APRIL_2026);
@@ -319,7 +319,7 @@ export const MonthOverflowChips: Story = {
 };
 
 export const MultiDayEvent: Story = {
-	name: "Month — Multi-day events",
+	name: "Month - Multi-day events",
 	parameters: { docs: { source: { code: SRC.MultiDayEvent } } },
 	render: () => {
 		const [selected, setSelected] = useState<Date>(APRIL_2026);
@@ -355,7 +355,7 @@ export const DayView: Story = {
 		docs: {
 			description: {
 				story:
-					"Day view with a fixed-height scrollable time grid (`dayViewHeight={480}`). An amber line marks the current time — visible when viewing today.",
+					"Day view with a fixed-height scrollable time grid (`dayViewHeight={480}`). An amber line marks the current time - visible when viewing today.",
 			},
 			source: { code: SRC.DayView },
 		},
@@ -392,7 +392,7 @@ export const AgendaSlot: Story = {
 };
 
 export const SundayFirst: Story = {
-	name: "Week Start — Sunday",
+	name: "Week Start - Sunday",
 	args: {
 		selectedDate: APRIL_2026,
 		onSelectedDateChange: () => {},

@@ -6,10 +6,10 @@ const SRC = {
 	Default: `<AlertBanner
   open
   tone="info"
-  title="Heads up — verify your email"
+  title="Heads up - verify your email"
   description="We sent a link to your inbox. Verify to enable backups."
 />`,
-	Tones: `<AlertBanner open tone="info" title="Heads up" description="Informational message — calm and clear." />
+	Tones: `<AlertBanner open tone="info" title="Heads up" description="Informational message - calm and clear." />
 <AlertBanner open tone="success" title="Saved as draft" description="Your changes are safe." />
 <AlertBanner open tone="warning" title="Trial ends in 3 days" description="Upgrade now to keep your data." />
 <AlertBanner open tone="error" title="Payment failed" description="Action required to maintain service." />`,
@@ -101,7 +101,7 @@ type Story = StoryObj<typeof AlertBanner>;
 export const Default: Story = {
 	args: {
 		tone: "info",
-		title: "Heads up — verify your email",
+		title: "Heads up - verify your email",
 		description: "We sent a link to your inbox. Verify to enable backups.",
 	},
 	parameters: { docs: { source: { code: SRC.Default } } },
@@ -115,7 +115,7 @@ export const Tones: Story = {
 				open
 				tone="info"
 				title="Heads up"
-				description="Informational message — calm and clear."
+				description="Informational message - calm and clear."
 			/>
 			<AlertBanner
 				open

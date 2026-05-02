@@ -1,5 +1,5 @@
 /**
- * Tabs (DS-62) — unit tests
+ * Tabs (DS-62) - unit tests
  *
  * Task 1: ARIA, keyboard navigation, variants, count badges, manual activation
  * Task 2: ResizeObserver overflow menu via DSDropdown
@@ -8,7 +8,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { type TabItem, Tabs } from ".";
-// ── ResizeObserver global stub (required for all tests — jsdom has no ResizeObserver) ──
+// ── ResizeObserver global stub (required for all tests - jsdom has no ResizeObserver) ──
 
 let resizeCallback: ResizeObserverCallback | null = null;
 
@@ -41,7 +41,7 @@ function ControlledTabs(props: Partial<React.ComponentProps<typeof Tabs>>) {
 
 // ── Task 1: ARIA structure ────────────────────────────────────────────────────
 
-describe("Tabs — ARIA structure", () => {
+describe("Tabs - ARIA structure", () => {
 	it("renders role=tablist with aria-orientation=horizontal", () => {
 		render(<ControlledTabs />);
 		const tablist = screen.getByRole("tablist");
@@ -85,7 +85,7 @@ describe("Tabs — ARIA structure", () => {
 
 // ── Task 1: Click activation ──────────────────────────────────────────────────
 
-describe("Tabs — click activation", () => {
+describe("Tabs - click activation", () => {
 	it("clicking a tab fires onChange with that tab id", () => {
 		const onChange = vi.fn();
 		render(<Tabs tabs={baseTabs} value="a" onChange={onChange} ariaLabel="T" />);
@@ -107,7 +107,7 @@ describe("Tabs — click activation", () => {
 
 // ── Task 1: Keyboard navigation (automatic mode) ──────────────────────────────
 
-describe("Tabs — keyboard navigation (automatic)", () => {
+describe("Tabs - keyboard navigation (automatic)", () => {
 	it("ArrowRight cycles to next tab and calls onChange", () => {
 		const onChange = vi.fn();
 		render(<Tabs tabs={baseTabs} value="a" onChange={onChange} ariaLabel="T" />);
@@ -157,7 +157,7 @@ describe("Tabs — keyboard navigation (automatic)", () => {
 
 // ── Task 1: Manual activation mode ───────────────────────────────────────────
 
-describe("Tabs — manual activation mode", () => {
+describe("Tabs - manual activation mode", () => {
 	it("ArrowRight moves focus but does NOT call onChange in manual mode", () => {
 		const onChange = vi.fn();
 		render(
@@ -171,7 +171,7 @@ describe("Tabs — manual activation mode", () => {
 
 // ── Task 1: Count badge ───────────────────────────────────────────────────────
 
-describe("Tabs — count badge", () => {
+describe("Tabs - count badge", () => {
 	it("renders count badge when count is set", () => {
 		const tabs: TabItem[] = [
 			{ id: "a", label: "Alpha", count: 42, content: null },
@@ -191,7 +191,7 @@ describe("Tabs — count badge", () => {
 
 // ── Task 1: Visual variants ───────────────────────────────────────────────────
 
-describe("Tabs — variants", () => {
+describe("Tabs - variants", () => {
 	it("defaults to underline variant (data-variant=underline on root)", () => {
 		render(<ControlledTabs />);
 		const root = document.querySelector(".ds-atom-tabs");
@@ -216,7 +216,7 @@ const manyTabs: TabItem[] = [
 	{ id: "6", label: "Tab Six", content: <div>Six</div> },
 ];
 
-/** Helper — simulate a narrow container so tabs overflow */
+/** Helper - simulate a narrow container so tabs overflow */
 function simulateOverflow() {
 	const tablist = document.querySelector("[role='tablist']")!;
 	Object.defineProperty(tablist, "clientWidth", { value: 200, configurable: true });
@@ -232,7 +232,7 @@ function simulateOverflow() {
 	});
 }
 
-describe("Tabs — overflow menu (ResizeObserver)", () => {
+describe("Tabs - overflow menu (ResizeObserver)", () => {
 	it("does NOT render More button when all tabs fit", () => {
 		render(<Tabs tabs={manyTabs} value="1" onChange={vi.fn()} ariaLabel="T" />);
 		// Default: visibleCount = tabs.length, no more button

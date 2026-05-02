@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 /**
  * Returns the `matches` boolean for an arbitrary CSS media query, reactive
  * to viewport changes (resize, rotation, prefers-* toggles at runtime).
- * SSR-safe — returns false on the server.
+ * SSR-safe - returns false on the server.
  * Used by Calendar (DS-68) for the mobile breakpoint switch between Popover
  * and BottomSheet at `(max-width: 640px)`. Generic over any media query string.
  */

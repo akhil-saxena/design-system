@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 /**
  * Returns true when the user has set OS-level "Reduce Motion" preference.
  * Watches matchMedia for changes (e.g., user toggles preference at runtime).
- * SSR-safe — returns false on the server.
+ * SSR-safe - returns false on the server.
  * Used by Carousel (DS-65) autoplay gating, Accordion expand transition, etc.
  */
 export function useReducedMotion(): boolean {

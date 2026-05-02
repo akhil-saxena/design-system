@@ -12,7 +12,7 @@ const meta: Meta<typeof Wizard> = {
 		docs: {
 			description: {
 				component:
-					"Multi-step form scaffold (DS-74). Composes ProgressBar and useFocusTrap. Renders a stepper header, step content area, and Back/Next navigation — all inside a single focus-trapped container. Per-step `validate()` blocks advance and displays the error inline.",
+					"Multi-step form scaffold (DS-74). Composes ProgressBar and useFocusTrap. Renders a stepper header, step content area, and Back/Next navigation - all inside a single focus-trapped container. Per-step `validate()` blocks advance and displays the error inline.",
 			},
 		},
 	},
@@ -39,7 +39,7 @@ const meta: Meta<typeof Wizard> = {
 		orientation: {
 			control: { type: "select" },
 			options: ["horizontal", "vertical"],
-			description: "Layout direction of the stepper header — horizontal (default) or vertical.",
+			description: "Layout direction of the stepper header - horizontal (default) or vertical.",
 			table: { type: { summary: '"horizontal" | "vertical"' } },
 		},
 		children: {
@@ -93,7 +93,7 @@ export const ThreeStepForm: Story = {
 					}}
 				>
 					<div style={{ fontSize: 32, marginBottom: 8 }}>Done</div>
-					<p style={{ color: "var(--ink-3)", fontSize: 13 }}>onComplete fired — form submitted.</p>
+					<p style={{ color: "var(--ink-3)", fontSize: 13 }}>onComplete fired - form submitted.</p>
 					<Button
 						variant="primary"
 						size="sm"
@@ -203,7 +203,7 @@ export const TwoStepNoValidation: Story = {
 									color: "var(--ink-3)",
 								}}
 							>
-								Step {step + 1} content — no validation on any step.
+								Step {step + 1} content - no validation on any step.
 							</div>
 						)}
 					</Wizard>
@@ -279,7 +279,7 @@ export const Dark: Story = {
 								color: "var(--ink-3)",
 							}}
 						>
-							Dark mode — Step {step + 1} content
+							Dark mode - Step {step + 1} content
 						</div>
 					)}
 				</Wizard>

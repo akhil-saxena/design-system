@@ -35,11 +35,11 @@ export interface DSDropdownProps {
  * Internal dropdown infrastructure (D-500). Owns:
  * - DSPortal mount to document.body
  * - Anchor-rect positioning (callback-ref-as-state per Popover.tsx line 73)
- * - Outside-click via useClickOutside(panelRef, onClose, open) — 3-arg form
+ * - Outside-click via useClickOutside(panelRef, onClose, open) - 3-arg form
  * - Keyboard model: ArrowUp/Down/Home/End/Enter/Escape on document while open
  * - Type-ahead buffer (single-char rolling, 500ms reset) when typeAheadGetText provided
  *
- * Does NOT inject ARIA attributes — consumer wires role="listbox"/option per D-501.
+ * Does NOT inject ARIA attributes - consumer wires role="listbox"/option per D-501.
  *
  * NOT exported from the barrel. Consumers (Select, MultiSelect, Autocomplete)
  * import directly from this path.
@@ -68,13 +68,13 @@ export function DSDropdown({
 	};
 	const [pos, setPos] = useState<{ top: number; left: number; width?: number } | null>(null);
 
-	// Position computation — uses smartAnchorPos for auto-flip + viewport clamping.
+	// Position computation - uses smartAnchorPos for auto-flip + viewport clamping.
 	// Closes automatically when the anchor scrolls fully out of the viewport.
 	const computePos = useCallback(() => {
 		const anchor = anchorRef.current;
 		if (!anchor || !panel) return;
 		const a = anchor.getBoundingClientRect();
-		// Anchor fully outside viewport — close.
+		// Anchor fully outside viewport - close.
 		if (a.bottom < 0 || a.top > window.innerHeight || a.right < 0 || a.left > window.innerWidth) {
 			onOpenChange(false);
 			return;
@@ -106,10 +106,10 @@ export function DSDropdown({
 		};
 	}, [open, computePos]);
 
-	// Outside-click — close (Popover.tsx line 95 pattern).
+	// Outside-click - close (Popover.tsx line 95 pattern).
 	useClickOutside(panelRef, () => onOpenChange(false), open);
 
-	// Keyboard model — listener installed only while open.
+	// Keyboard model - listener installed only while open.
 	const typeAheadBufferRef = useRef<string>("");
 	const typeAheadTimerRef = useRef<number | null>(null);
 	useEffect(() => {

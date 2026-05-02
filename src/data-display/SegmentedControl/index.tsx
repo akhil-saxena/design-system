@@ -1,9 +1,9 @@
 /**
- * # Usage Audit — SegmentedControl (DS-63, D-17-20)
+ * # Usage Audit - SegmentedControl (DS-63, D-17-20)
  *
  * Consumers (post v0.6):
- * - Calendar (DS-68) — view-mode toggle (month/week/day)
- * - Consumer apps — 2-5 way visual toggles (filter, mode, view)
+ * - Calendar (DS-68) - view-mode toggle (month/week/day)
+ * - Consumer apps - 2-5 way visual toggles (filter, mode, view)
  *
  * API:
  * - options: SegmentedOption[] (2-5 typical; 6+ should use Select)
@@ -11,7 +11,7 @@
  * - onChange: (value) => void
  * - size: "sm" | "md" | "lg" (default md)
  * - disabled: boolean (group-level)
- * - ariaLabel: string (REQUIRED — radiogroup needs accessible name)
+ * - ariaLabel: string (REQUIRED - radiogroup needs accessible name)
  *
  * Implementation:
  * - WAI-ARIA radiogroup pattern with automatic activation
@@ -38,7 +38,7 @@ export interface SegmentedControlProps<T extends string = string> {
 	style?: React.CSSProperties;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: forwardRef+generics requires this cast — TS cannot infer generic T through forwardRef's HOC boundary; cast is safe because inner function is fully typed.
+// biome-ignore lint/suspicious/noExplicitAny: forwardRef+generics requires this cast - TS cannot infer generic T through forwardRef's HOC boundary; cast is safe because inner function is fully typed.
 function SegmentedControlInner<T extends string>(
 	{
 		options,
@@ -125,7 +125,7 @@ function SegmentedControlInner<T extends string>(
 					<button
 						key={opt.value}
 						type="button"
-						// biome-ignore lint/a11y/useSemanticElements: WAI-ARIA radiogroup pattern — buttons-in-radiogroup required for styled pill segments with data-active state; native <input type="radio"> cannot be pill-shaped without hacks
+						// biome-ignore lint/a11y/useSemanticElements: WAI-ARIA radiogroup pattern - buttons-in-radiogroup required for styled pill segments with data-active state; native <input type="radio"> cannot be pill-shaped without hacks
 						role="radio"
 						aria-checked={isActive}
 						tabIndex={tabIndex}

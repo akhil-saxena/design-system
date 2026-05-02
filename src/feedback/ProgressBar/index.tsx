@@ -25,7 +25,7 @@ const baseStyle: CSSProperties = {
 };
 
 /**
- * ProgressBar — determinate progress indicator + loading variant (DS-42).
+ * ProgressBar - determinate progress indicator + loading variant (DS-42).
  *
  *   <ProgressBar value={50} />                          // determinate, 50%
  *   <ProgressBar value={3} max={10} label="Upload" />   // 3 of 10 (30%)

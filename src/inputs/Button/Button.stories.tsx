@@ -20,7 +20,7 @@ const meta: Meta<typeof Button> = {
 			control: "select",
 			options: ["primary", "secondary", "ghost", "danger"],
 			description:
-				"Visual variant — primary for main CTA, secondary for second-priority, ghost for tertiary, danger for destructive actions.",
+				"Visual variant - primary for main CTA, secondary for second-priority, ghost for tertiary, danger for destructive actions.",
 		},
 		size: {
 			control: "select",
@@ -47,7 +47,7 @@ export const Default: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: "Default state — `primary` variant at `md` size with text-only label.",
+				story: "Default state - `primary` variant at `md` size with text-only label.",
 			},
 		},
 	},

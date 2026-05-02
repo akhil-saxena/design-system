@@ -1,5 +1,5 @@
 /**
- * Table (DS-61, Part 1) — unit tests
+ * Table (DS-61, Part 1) - unit tests
  *
  * Chrome: Root, Header, HeaderCell, Body, Row, Cell
  * Sort: sortable HeaderCell with aria-sort, chevron indicator, click + keyboard
@@ -152,7 +152,7 @@ describe("Table subcomponents", () => {
 
 // ── HeaderCell: non-sortable ──────────────────────────────────────────────────
 
-describe("Table.HeaderCell — non-sortable", () => {
+describe("Table.HeaderCell - non-sortable", () => {
 	it("renders a plain <th> without sortable prop", () => {
 		render(
 			<table>
@@ -172,7 +172,7 @@ describe("Table.HeaderCell — non-sortable", () => {
 
 // ── HeaderCell: sortable ──────────────────────────────────────────────────────
 
-describe("Table.HeaderCell — sortable", () => {
+describe("Table.HeaderCell - sortable", () => {
 	function SortableHeader({
 		sortDir = null,
 		onToggleSort = vi.fn(),
@@ -360,7 +360,7 @@ describe("Table.HeaderCell resizable", () => {
 		);
 		const handle = document.querySelector(".ds-atom-table-resize-handle");
 		expect(handle).toHaveAttribute("aria-hidden", "true");
-		// No role — biome a11y/useSemanticElements forbids role="separator" on <span>;
+		// No role - biome a11y/useSemanticElements forbids role="separator" on <span>;
 		// the handle is a purely visual drag affordance, not a semantic separator.
 		expect(handle).not.toHaveAttribute("role");
 	});

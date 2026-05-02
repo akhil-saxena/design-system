@@ -89,7 +89,7 @@ export const SingleList: StoryObj<typeof Sortable> = {
 };
 
 // ─── Story: CrossList ─────────────────────────────────────────────────────────
-// Two side-by-side lists sharing a SortableDndContext — drag items between lists.
+// Two side-by-side lists sharing a SortableDndContext - drag items between lists.
 
 const TODO_ITEMS: SortableItemData[] = [
 	{ id: "t1", label: "Write tests" },
@@ -206,7 +206,7 @@ export const CrossList: StoryObj<typeof Sortable> = {
 };
 
 // ─── Story: ReducedMotion ─────────────────────────────────────────────────────
-// Items appear in stable positions — no transform spring on drag.
+// Items appear in stable positions - no transform spring on drag.
 
 function ReducedMotionDemo() {
 	const [items, setItems] = useState<SortableItemData[]>([

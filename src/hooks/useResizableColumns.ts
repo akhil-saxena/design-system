@@ -7,7 +7,7 @@ import type React from "react";
  * Attach `startResize(col, event)` to a drag handle element's onPointerDown.
  * Pointer is captured via setPointerCapture for reliable tracking on fast drags.
  * onWidthsChange fires on pointerup with the final widths snapshot.
- * Consumer owns persistence (e.g. localStorage) — this hook only emits the event.
+ * Consumer owns persistence (e.g. localStorage) - this hook only emits the event.
  *
  * @example
  *   const { widths, startResize } = useResizableColumns({ name: 120, role: 100 });

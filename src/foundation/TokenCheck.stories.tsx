@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import type { CSSProperties, FC } from "react";
 
 // Every token from Plan 01's index.css regen, grouped into 10 visible sections.
-// This is the formal regression net for token correctness — if a hex value
+// This is the formal regression net for token correctness - if a hex value
 // drifted during transcription, a swatch will look wrong here AND a baseline
 // PNG diff will surface it.
 
@@ -204,7 +204,7 @@ const TokenCheck: FC = () => (
 					marginTop: 8,
 				}}
 			>
-				Heading 1 — 28 Archivo 700
+				Heading 1 - 28 Archivo 700
 			</div>
 			<div
 				style={{
@@ -215,7 +215,7 @@ const TokenCheck: FC = () => (
 					marginTop: 8,
 				}}
 			>
-				Heading 2 — 20 Archivo 700
+				Heading 2 - 20 Archivo 700
 			</div>
 			<div
 				style={{
@@ -226,7 +226,7 @@ const TokenCheck: FC = () => (
 					marginTop: 8,
 				}}
 			>
-				Heading 3 — 15 Archivo 700
+				Heading 3 - 15 Archivo 700
 			</div>
 			<div
 				style={{
@@ -236,7 +236,7 @@ const TokenCheck: FC = () => (
 					marginTop: 8,
 				}}
 			>
-				Body — 14 system sans 400. The quick brown fox jumps over the lazy dog.
+				Body - 14 system sans 400. The quick brown fox jumps over the lazy dog.
 			</div>
 			<div
 				style={{
@@ -247,7 +247,7 @@ const TokenCheck: FC = () => (
 					color: "var(--ink-3)",
 				}}
 			>
-				Small — 12 system sans 500
+				Small - 12 system sans 500
 			</div>
 			<div
 				style={{
@@ -260,7 +260,7 @@ const TokenCheck: FC = () => (
 					color: "var(--ink-3)",
 				}}
 			>
-				Mono Label — 10 JetBrains Mono 600
+				Mono Label - 10 JetBrains Mono 600
 			</div>
 			<div
 				style={{
@@ -272,7 +272,7 @@ const TokenCheck: FC = () => (
 					color: "var(--ink-2)",
 				}}
 			>
-				Mono Data — 13 JetBrains Mono 500 — 12345.67
+				Mono Data - 13 JetBrains Mono 500 - 12345.67
 			</div>
 		</section>
 

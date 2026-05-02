@@ -114,7 +114,7 @@ describe("AppShell", () => {
 
 	// ─── Test 5: storageKey=null disables persistence ─────────────────────────
 
-	it("storageKey={null} — toggling does not write to localStorage", () => {
+	it("storageKey={null} - toggling does not write to localStorage", () => {
 		render(
 			<AppShell
 				sidebar={<MockSidebar />}

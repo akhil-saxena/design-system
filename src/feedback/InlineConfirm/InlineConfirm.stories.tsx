@@ -122,7 +122,7 @@ export const Default: Story = {
 };
 
 export const DangerVariant: Story = {
-	name: "Confirm variant — danger",
+	name: "Confirm variant - danger",
 	parameters: {
 		docs: {
 			description: {
@@ -146,7 +146,7 @@ export const DangerVariant: Story = {
 };
 
 export const PrimaryVariant: Story = {
-	name: "Confirm variant — primary",
+	name: "Confirm variant - primary",
 	parameters: {
 		docs: {
 			description: {
@@ -220,7 +220,7 @@ export const DisabledAutoCancel: Story = {
 		docs: {
 			description: {
 				story:
-					"Pass `autoCancelMs={Infinity}` to disable the timer — prompt stays until explicitly resolved.",
+					"Pass `autoCancelMs={Infinity}` to disable the timer - prompt stays until explicitly resolved.",
 			},
 			source: { code: SRC.noAutoCancel },
 		},
@@ -241,7 +241,7 @@ export const InListContext: Story = {
 		docs: {
 			description: {
 				story:
-					"Typical usage — one InlineConfirm per row. The prompt expands in-place with zero layout shift.",
+					"Typical usage - one InlineConfirm per row. The prompt expands in-place with zero layout shift.",
 			},
 			source: { code: SRC.inList },
 		},

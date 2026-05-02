@@ -35,7 +35,7 @@ export interface AutocompleteProps<T> {
  * optional recents + optional create-as-new. Composes DSDropdown helper.
  *
  * Filtering is consumer-controlled: caller filters `items` prop before
- * passing — Autocomplete never filters internally. Recents are also
+ * passing - Autocomplete never filters internally. Recents are also
  * consumer-provided (no internal localStorage) per D-521.
  *
  * Behavior:
@@ -44,7 +44,7 @@ export interface AutocompleteProps<T> {
  * - Empty input + empty/absent `recentItems` → dropdown stays closed.
  * - Non-empty input + items=[] + `onCreate` provided → dropdown shows
  *   a single `+ Add "{query}" as new` button outside the listbox
- *   (plain `<button>`, NOT `role=option` — listbox semantic preserved).
+ *   (plain `<button>`, NOT `role=option` - listbox semantic preserved).
  * - Non-empty input + items=[] + no `onCreate` → "No results" empty state.
  *
  * ARIA per D-501: native `<input>` trigger with `role="combobox"`,

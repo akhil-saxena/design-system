@@ -5,7 +5,7 @@ export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement
 	/** Visible text label rendered beside the checkbox. */
 	label?: string;
 	/** When true, sets the native DOM `indeterminate` property (the "some selected" tri-state).
-	 * Cannot be expressed as a JSX attribute — set imperatively via a DOM property. */
+	 * Cannot be expressed as a JSX attribute - set imperatively via a DOM property. */
 	indeterminate?: boolean;
 }
 

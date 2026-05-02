@@ -1,4 +1,4 @@
-/* @akhil-saxena/design-system v0.1.0 — cross-cutting utility classes.
+/* @akhil-saxena/design-system v0.1.0 - cross-cutting utility classes.
    Imported via:
      import "@akhil-saxena/design-system/utilities.css";
    Requires tokens.css to be imported first.
@@ -55,7 +55,7 @@
 
 /* ─── Amber focus-ring utility ──────────────────────────────────────────
    Handoff input :focus state (line 85 of the source `<style>` block).
-   Apply to any interactive element — focus and focus-within both fire,
+   Apply to any interactive element - focus and focus-within both fire,
    so it works on wrapping containers like .ds-input-wrap. */
 .ds-focus-ring:focus,
 .ds-focus-ring:focus-within {

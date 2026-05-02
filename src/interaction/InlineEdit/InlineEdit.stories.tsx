@@ -10,7 +10,7 @@ const meta: Meta<typeof InlineEdit> = {
 		docs: {
 			description: {
 				component:
-					"Click-to-edit text field with optimistic save and error recovery (DS-77). Click or press Space/Enter to enter edit mode. Enter commits, Escape cancels. Blur always reverts. Supports async `onSave` — a rejected Promise surfaces an inline error.",
+					"Click-to-edit text field with optimistic save and error recovery (DS-77). Click or press Space/Enter to enter edit mode. Enter commits, Escape cancels. Blur always reverts. Supports async `onSave` - a rejected Promise surfaces an inline error.",
 			},
 		},
 	},
@@ -48,7 +48,7 @@ export const Multiline: Story = {
 };
 
 function AsyncSaveDemo() {
-	const [value, setValue] = useState("Async save — takes 1s");
+	const [value, setValue] = useState("Async save - takes 1s");
 	return (
 		<InlineEdit
 			value={value}
@@ -70,13 +70,13 @@ export const AsyncSave: Story = {
 };
 
 function ErrorDemo() {
-	const [value, setValue] = useState("Try saving — it will fail");
+	const [value, setValue] = useState("Try saving - it will fail");
 	return (
 		<InlineEdit
 			value={value}
 			onSave={() =>
 				new Promise((_, reject) => {
-					setTimeout(() => reject(new Error("Network error — save failed")), 800);
+					setTimeout(() => reject(new Error("Network error - save failed")), 800);
 				})
 			}
 			placeholder="Enter value…"

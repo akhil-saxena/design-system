@@ -9,7 +9,7 @@ beforeEach(() => {
 	observerCallback = null;
 	observeMock = vi.fn();
 	disconnectMock = vi.fn();
-	// Class mock — arrow functions are not newable; biome rewrites `function` expressions
+	// Class mock - arrow functions are not newable; biome rewrites `function` expressions
 	// to arrows during formatting, so we use a class to keep `new IntersectionObserver()`
 	// working correctly across linting passes.
 	class MockIntersectionObserver {

@@ -1,5 +1,5 @@
 /**
- * useTableSelection (DS-61, D-17-09) — unit tests
+ * useTableSelection (DS-61, D-17-09) - unit tests
  *
  * Hook: returns { selectedIds, isAllSelected, isIndeterminate, isSelected, toggle, toggleAll, clear }
  * Tests: modes, indeterminate, controlled/uncontrolled, edge cases

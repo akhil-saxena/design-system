@@ -132,7 +132,7 @@ describe("BottomSheet", () => {
 		);
 		const handle = baseElement.querySelector(".ds-atom-bottomsheet-handle") as HTMLElement;
 		const panel = baseElement.querySelector(".ds-atom-bottomsheet") as HTMLElement;
-		// pointerDown then pointerUp at the same Y — delta = 0, threshold = 0,
+		// pointerDown then pointerUp at the same Y - delta = 0, threshold = 0,
 		// so 0 > 0 is false → snap-back path.
 		firePointer("pointerdown", handle, { clientY: 100 });
 		firePointer("pointerup", handle, { clientY: 100 });

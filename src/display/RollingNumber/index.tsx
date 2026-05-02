@@ -13,9 +13,9 @@ export interface RollingNumberProps {
 	suffix?: string;
 	/**
 	 * Visual background treatment.
-	 * - `"default"` — no background, inherits from parent (current behaviour).
-	 * - `"dark"` — black background per digit cell with white text; ideal for counters and clocks.
-	 * - `"light"` — cream background per digit cell with dark text; for use on dark surfaces.
+	 * - `"default"` - no background, inherits from parent (current behaviour).
+	 * - `"dark"` - black background per digit cell with white text; ideal for counters and clocks.
+	 * - `"light"` - cream background per digit cell with dark text; for use on dark surfaces.
 	 * @default "default"
 	 */
 	variant?: RollingNumberVariant;

@@ -9,7 +9,7 @@ describe("buildMonthGrid", () => {
 		for (const w of g.weeks) expect(w.length).toBe(7);
 	});
 
-	it("Feb 2026 (Sunday=Feb 1) — Sunday-first: 0 leading pad", () => {
+	it("Feb 2026 (Sunday=Feb 1) - Sunday-first: 0 leading pad", () => {
 		const g = buildMonthGrid(2026, 1, 0);
 		// Feb 1, 2026 is a Sunday. With weekStart=0, leadingPad = 0.
 		expect(g.cells[0]!.date.getDate()).toBe(1);
@@ -17,7 +17,7 @@ describe("buildMonthGrid", () => {
 		expect(g.cells[0]!.inMonth).toBe(true);
 	});
 
-	it("Feb 2026 (Sunday=Feb 1) — Monday-first: 6 leading pad days", () => {
+	it("Feb 2026 (Sunday=Feb 1) - Monday-first: 6 leading pad days", () => {
 		const g = buildMonthGrid(2026, 1, 1);
 		// weekStart=1, firstWeekday=0 (Sun). leadingPad = (0 - 1 + 7) % 7 = 6.
 		expect(g.cells[0]!.inMonth).toBe(false);
@@ -37,7 +37,7 @@ describe("buildMonthGrid", () => {
 		expect(inMonthCount).toBe(28);
 	});
 
-	it("April 2026 (Wed=Apr 1) — Sunday-first: 3 leading pad", () => {
+	it("April 2026 (Wed=Apr 1) - Sunday-first: 3 leading pad", () => {
 		const g = buildMonthGrid(2026, 3, 0);
 		// Apr 1, 2026 is a Wednesday (day 3). leadingPad = 3.
 		expect(g.cells[2]!.inMonth).toBe(false);

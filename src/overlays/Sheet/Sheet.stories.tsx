@@ -255,7 +255,7 @@ export const DarkMode: Story = {
 	name: "Dark mode",
 	parameters: {
 		docs: {
-			description: { story: "Sheet on a dark surface — panel follows dark tokens." },
+			description: { story: "Sheet on a dark surface - panel follows dark tokens." },
 			source: { code: SRC.DarkMode },
 		},
 	},

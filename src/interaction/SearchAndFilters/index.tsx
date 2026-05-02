@@ -41,7 +41,7 @@ export interface SearchAndFiltersProps {
 }
 
 /**
- * SearchAndFilters (DS-78) — search input with DSDropdown autocomplete + Chip filter tokens.
+ * SearchAndFilters (DS-78) - search input with DSDropdown autocomplete + Chip filter tokens.
  *
  * Composes:
  * - DSDropdown (_internals/DSDropdown) for the suggestions overlay

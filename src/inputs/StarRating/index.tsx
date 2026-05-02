@@ -72,7 +72,7 @@ export function StarRating({
 					<button
 						key={n}
 						type="button"
-						// biome-ignore lint/a11y/useSemanticElements: D-240 — buttons-in-radiogroup needed for click-to-select-N + hover-preview-1..N semantics; native <input type="radio"> can't render Lucide icons or support the hover preview cleanly
+						// biome-ignore lint/a11y/useSemanticElements: D-240 - buttons-in-radiogroup needed for click-to-select-N + hover-preview-1..N semantics; native <input type="radio"> can't render Lucide icons or support the hover preview cleanly
 						role="radio"
 						aria-checked={n === value}
 						aria-label={`${n} star${n === 1 ? "" : "s"}`}

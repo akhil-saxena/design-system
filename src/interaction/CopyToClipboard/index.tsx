@@ -64,7 +64,7 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 				// Fall through to execCommand fallback below.
 			}
 
-			// execCommand fallback — works in iframes (e.g. Storybook docs) where
+			// execCommand fallback - works in iframes (e.g. Storybook docs) where
 			// navigator.clipboard is blocked by the clipboard-write permission policy.
 			try {
 				const ta = document.createElement("textarea");

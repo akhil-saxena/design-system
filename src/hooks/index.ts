@@ -1,4 +1,4 @@
-// @akhil-saxena/design-system/hooks — public hooks barrel.
+// @akhil-saxena/design-system/hooks - public hooks barrel.
 // Consumed via:
 //   import { useFocusTrap } from "@akhil-saxena/design-system/hooks";
 

@@ -22,12 +22,12 @@ describe("NumberStepper", () => {
 		expect(fn).toHaveBeenCalledWith(4);
 	});
 
-	it("clamps at min — − button disabled when value <= min", () => {
+	it("clamps at min - − button disabled when value <= min", () => {
 		render(<NumberStepper value={0} onChange={() => {}} min={0} step={1} />);
 		expect(screen.getByLabelText("Decrement")).toBeDisabled();
 	});
 
-	it("clamps at max — + button disabled when value >= max", () => {
+	it("clamps at max - + button disabled when value >= max", () => {
 		render(<NumberStepper value={100} onChange={() => {}} max={100} step={1} />);
 		expect(screen.getByLabelText("Increment")).toBeDisabled();
 	});

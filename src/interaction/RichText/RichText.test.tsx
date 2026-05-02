@@ -2,7 +2,7 @@
  * RichText unit tests (DS-70)
  *
  * jsdom does NOT fully support ProseMirror's contenteditable model. Tests that
- * depend on real typing / selection are not reliably testable in jsdom — those
+ * depend on real typing / selection are not reliably testable in jsdom - those
  * are verified via Storybook stories (MarkdownShortcuts, Underline story) and
  * Playwright E2E.
  *
@@ -37,7 +37,7 @@ async function waitForEditor() {
 
 // ─── Smoke tests ──────────────────────────────────────────────────────────
 
-describe("RichText — render", () => {
+describe("RichText - render", () => {
 	it("renders without throwing", () => {
 		expect(() => render(<RichText value="" onChange={() => {}} />)).not.toThrow();
 	});
@@ -57,7 +57,7 @@ describe("RichText — render", () => {
 
 // ─── Toolbar ARIA ─────────────────────────────────────────────────────────
 
-describe("RichText — default toolbar", () => {
+describe("RichText - default toolbar", () => {
 	it("toolbar has role=toolbar", async () => {
 		render(<RichText value="" onChange={() => {}} />);
 		await waitForEditor();
@@ -98,7 +98,7 @@ describe("RichText — default toolbar", () => {
 
 // ─── ReadOnly mode ────────────────────────────────────────────────────────
 
-describe("RichText — readOnly", () => {
+describe("RichText - readOnly", () => {
 	it("does NOT render toolbar when readOnly=true", async () => {
 		render(<RichText value="<p>Read only text</p>" onChange={() => {}} readOnly />);
 		await waitForEditor();
@@ -114,7 +114,7 @@ describe("RichText — readOnly", () => {
 
 // ─── Placeholder ──────────────────────────────────────────────────────────
 
-describe("RichText — placeholder", () => {
+describe("RichText - placeholder", () => {
 	it("placeholder prop is forwarded to Placeholder extension via data-placeholder attribute", async () => {
 		const { container } = render(
 			<RichText value="" onChange={() => {}} placeholder="Write something amazing…" />,
@@ -129,7 +129,7 @@ describe("RichText — placeholder", () => {
 
 // ─── Link popover ─────────────────────────────────────────────────────────
 
-describe("RichText — link popover", () => {
+describe("RichText - link popover", () => {
 	it("clicking Link button opens the link popover dialog", async () => {
 		render(<RichText value="" onChange={() => {}} />);
 		await waitForEditor();
@@ -166,7 +166,7 @@ describe("RichText — link popover", () => {
 
 // ─── Controlled value sync (three-layer guard) ────────────────────────────
 
-describe("RichText — controlled value sync", () => {
+describe("RichText - controlled value sync", () => {
 	it("onChange receives a string when outputFormat is 'html' (default)", async () => {
 		const onChange = vi.fn();
 		render(<RichText value="<p>initial</p>" onChange={onChange} />);
@@ -186,7 +186,7 @@ describe("RichText — controlled value sync", () => {
 
 	it("no-loop: controlled value echo back does NOT cause infinite updates", async () => {
 		// Simulate a parent that echoes onChange value back as value prop.
-		// setContent count should stay bounded — we use a counter to detect the loop.
+		// setContent count should stay bounded - we use a counter to detect the loop.
 		let changeCount = 0;
 		function Harness() {
 			const [v, setV] = useState("<p>initial</p>");
@@ -206,7 +206,7 @@ describe("RichText — controlled value sync", () => {
 		await act(async () => {
 			await new Promise((r) => setTimeout(r, 100));
 		});
-		// No typing happened — onChange should not have fired at all (no spurious loop)
+		// No typing happened - onChange should not have fired at all (no spurious loop)
 		expect(changeCount).toBe(0);
 	});
 
@@ -239,7 +239,7 @@ describe("RichText — controlled value sync", () => {
 
 // ─── Custom toolbar ───────────────────────────────────────────────────────
 
-describe("RichText — custom toolbar", () => {
+describe("RichText - custom toolbar", () => {
 	it("renders custom toolbar node when toolbar prop is provided", async () => {
 		const customToolbar = <div data-testid="custom-tb">My toolbar</div>;
 		render(<RichText value="" onChange={() => {}} toolbar={customToolbar} />);

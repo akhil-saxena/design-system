@@ -57,7 +57,7 @@ const meta: Meta<typeof Skeleton> = {
 			control: "select",
 			options: ["text", "circle", "pill"],
 			description:
-				"Shape of the skeleton placeholder — text, circle (disc), or pill (badge/chip-sized).",
+				"Shape of the skeleton placeholder - text, circle (disc), or pill (badge/chip-sized).",
 		},
 		width: {
 			control: "text",

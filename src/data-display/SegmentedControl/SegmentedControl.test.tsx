@@ -126,7 +126,7 @@ describe("SegmentedControl", () => {
 				ariaLabel="Letters"
 			/>,
 		);
-		// B is disabled — should jump to C
+		// B is disabled - should jump to C
 		fireEvent.keyDown(screen.getByRole("radiogroup"), { key: "ArrowRight" });
 		expect(onChange).toHaveBeenCalledWith("c");
 	});

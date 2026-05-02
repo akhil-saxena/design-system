@@ -1,4 +1,4 @@
-// Pure month-grid helpers — no React imports. Consumed by DatePicker (16-05)
+// Pure month-grid helpers - no React imports. Consumed by DatePicker (16-05)
 // refactor and Calendar (DS-68). Lifted from DatePicker.tsx lines 113-141 in
 // Phase 17 (D-17-21). Same no-dep policy as dateUtils.ts.
 

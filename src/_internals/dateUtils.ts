@@ -1,5 +1,5 @@
-// Pure date helpers — no React imports. Consumed by DatePicker (16-05)
-// and DateRangePicker (16-06). D-510: NO date-fns / Temporal dep — these
+// Pure date helpers - no React imports. Consumed by DatePicker (16-05)
+// and DateRangePicker (16-06). D-510: NO date-fns / Temporal dep - these
 // ~7 helpers cover every Wave 5 + Phase 18 timeline use case.
 
 export function startOfMonth(d: Date): Date {

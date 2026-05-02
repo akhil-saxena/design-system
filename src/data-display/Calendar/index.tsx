@@ -1,5 +1,5 @@
 /**
- * # Usage Audit — Calendar (DS-68, D-17-20..D-17-25)
+ * # Usage Audit - Calendar (DS-68, D-17-20..D-17-25)
  *
  * Three views: month (default), week, day.
  * Built on extracted calendarGrid utility (shared with DatePicker after Plan 02 refactor).
@@ -146,7 +146,7 @@ function eventHour(ev: CalendarEvent): number | null {
 	return h;
 }
 
-// ─── CalendarChip — event chip with HoverCard ────────────────────────────
+// ─── CalendarChip - event chip with HoverCard ────────────────────────────
 
 function CalendarChip({ ev, date }: { ev: CalendarEvent; date: Date }) {
 	const anchorRef = useRef<HTMLSpanElement>(null);
@@ -244,7 +244,7 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 
 	const today = useMemo(() => new Date(), []);
 
-	// ── Mobile breakpoint — reactive via useMatchMedia hook (SSR-safe, subscribes to change events) ──
+	// ── Mobile breakpoint - reactive via useMatchMedia hook (SSR-safe, subscribes to change events) ──
 	const isMobile = useMatchMedia("(max-width: 640px)");
 
 	// ── Overflow popover state ──
@@ -256,7 +256,7 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 	const overflowAnchorRef = useRef<HTMLButtonElement | null>(null);
 	const dayGridRef = useRef<HTMLDivElement | null>(null);
 
-	// Live current time — updates every minute so the "now" line stays accurate.
+	// Live current time - updates every minute so the "now" line stays accurate.
 	const [now, setNow] = useState(() => new Date());
 	useEffect(() => {
 		const id = window.setInterval(() => setNow(new Date()), 60_000);
@@ -370,22 +370,22 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 			<div className="ds-atom-calendar-body">
 				{/* ── Month view ── */}
 				{view === "month" && (
-					// biome-ignore lint/a11y/useSemanticElements: ARIA grid role on <div> is the standard interactive-calendar pattern (APG, react-aria, Radix) — <table> implies static tabular data, not keyboard-navigable grid
+					// biome-ignore lint/a11y/useSemanticElements: ARIA grid role on <div> is the standard interactive-calendar pattern (APG, react-aria, Radix) - <table> implies static tabular data, not keyboard-navigable grid
 					<div role="grid" className="ds-atom-calendar-month">
 						{/* biome-ignore lint/a11y/useSemanticElements: role="row" on <div> groups the column-header cells into a logical grid row per APG */}
-						{/* biome-ignore lint/a11y/useFocusableInteractive: header row is a grouping element — individual <th>-equivalent cells are not keyboard targets */}
+						{/* biome-ignore lint/a11y/useFocusableInteractive: header row is a grouping element - individual <th>-equivalent cells are not keyboard targets */}
 						<div role="row" className="ds-atom-calendar-weekdays">
 							{weekdayLabels.map((d, i) => (
-								// biome-ignore lint/suspicious/noArrayIndexKey: weekday headers are a static 7-element array — index is stable
-								// biome-ignore lint/a11y/useSemanticElements: role="columnheader" on <div> within an ARIA grid pattern — semantic <th> belongs to <table>, not an ARIA-role grid
+								// biome-ignore lint/suspicious/noArrayIndexKey: weekday headers are a static 7-element array - index is stable
+								// biome-ignore lint/a11y/useSemanticElements: role="columnheader" on <div> within an ARIA grid pattern - semantic <th> belongs to <table>, not an ARIA-role grid
 								<div key={i} role="columnheader" className="ds-atom-calendar-weekday">
 									{d}
 								</div>
 							))}
 						</div>
 						{grid.weeks.map((week, wi) => (
-							// biome-ignore lint/suspicious/noArrayIndexKey: week rows are a stable 6-element array — index maps directly to week position
-							// biome-ignore lint/a11y/useSemanticElements: role="row" on <div> required by ARIA grid pattern — see outer grid biome-ignore
+							// biome-ignore lint/suspicious/noArrayIndexKey: week rows are a stable 6-element array - index maps directly to week position
+							// biome-ignore lint/a11y/useSemanticElements: role="row" on <div> required by ARIA grid pattern - see outer grid biome-ignore
 							// biome-ignore lint/a11y/useFocusableInteractive: row is a grouping container; the gridcell buttons inside carry focusability
 							<div key={wi} role="row" className="ds-atom-calendar-week">
 								{week.map((cell) => {
@@ -533,7 +533,7 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 									className="ds-atom-calendar-dayview-grid"
 									style={{ height: dayViewHeight, overflowY: "auto" }}
 								>
-									{/* Current-time indicator — amber line with dot, only for today */}
+									{/* Current-time indicator - amber line with dot, only for today */}
 									{isToday_dayView && (
 										<div
 											aria-hidden="true"

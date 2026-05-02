@@ -40,7 +40,7 @@ const MAX_CONCURRENT = 3;
 const SLIDE_OUT_MS = 200; // matches @keyframes ds-atom-toast-slideout
 
 /**
- * useToast — imperative toast API hook (D-400).
+ * useToast - imperative toast API hook (D-400).
  *
  * Must be called inside a `<ToastProvider>`. Throws otherwise.
  *
@@ -67,7 +67,7 @@ export interface ToastProviderProps {
 }
 
 /**
- * ToastProvider — context provider + DSPortal-mounted region (D-400, D-401).
+ * ToastProvider - context provider + DSPortal-mounted region (D-400, D-401).
  *
  *   <ToastProvider>
  *     <App />
@@ -89,7 +89,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
 	// Callback-ref-as-state (Tooltip line 79 + Popover line 73 pattern). Tracks
 	// the portaled stack-container DOM element as state. Any portal-dependent
 	// effect lists `stackEl` in deps so it re-runs once DSPortal commits the
-	// node. NOT the Modal mount-tick boolean flag — that pattern is wrong here.
+	// node. NOT the Modal mount-tick boolean flag - that pattern is wrong here.
 	const [, setStackEl] = useState<HTMLDivElement | null>(null);
 
 	// Schedule full removal of a dismissing toast after slide-out animation.
@@ -173,7 +173,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
 
 	// Render the portal whenever there are active toasts. The callback ref
 	// `setStackEl` will fire once DSPortal commits the inner div; downstream
-	// effects (none required for Toast — no measurement) would gate on stackEl.
+	// effects (none required for Toast - no measurement) would gate on stackEl.
 	const showRegion = toasts.length > 0;
 
 	return (

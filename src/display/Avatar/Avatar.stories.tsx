@@ -4,7 +4,7 @@ const SRC = {
 	Default: `// Solid colour derived from name by default
 <Avatar name="Alex Morgan" />`,
 
-	Image: `// Pass src to show a photo — initials/bg are hidden
+	Image: `// Pass src to show a photo - initials/bg are hidden
 <Avatar name="Alex Morgan" src="https://i.pravatar.cc/80?u=akhil" size={40} />
 <Avatar name="Sam Chen"   src="https://i.pravatar.cc/80?u=maya"  size={40} />`,
 
@@ -60,7 +60,7 @@ const meta: Meta<typeof Avatar> = {
 	},
 	args: { name: "Alex Morgan" },
 	argTypes: {
-		name: { control: "text", description: "Full name — drives initials and background colour." },
+		name: { control: "text", description: "Full name - drives initials and background colour." },
 		initials: {
 			control: "text",
 			description: "Override auto-derived initials (1–2 uppercase letters).",
@@ -273,7 +273,7 @@ const PRESENCE_POSITIONS: AvatarPresencePosition[] = [
 ];
 
 export const PresencePositions: Story = {
-	name: "Presence — 4 corners (DS-79)",
+	name: "Presence - 4 corners (DS-79)",
 	parameters: {
 		docs: {
 			description: {
@@ -295,7 +295,7 @@ export const PresencePositions: Story = {
 };
 
 export const PresenceAllStatuses: Story = {
-	name: "Presence — all statuses",
+	name: "Presence - all statuses",
 	parameters: {
 		docs: {
 			description: {
@@ -317,7 +317,7 @@ export const PresenceAllStatuses: Story = {
 };
 
 export const PresenceDark: Story = {
-	name: "Presence — dark mode corners",
+	name: "Presence - dark mode corners",
 	parameters: {
 		docs: {
 			description: {

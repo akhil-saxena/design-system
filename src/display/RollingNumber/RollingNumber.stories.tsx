@@ -166,7 +166,7 @@ useEffect(() => {
   return () => clearInterval(id);
 }, []);
 return <RollingNumber value={v} />;`,
-	CounterDark: `// variant="dark" — recessed black tiles, white digits
+	CounterDark: `// variant="dark" - recessed black tiles, white digits
 <RollingNumber value={score} variant="dark" suffix=" pts" />
 <RollingNumber value={price} variant="dark" prefix="$" format={(n) => n.toLocaleString()} />`,
 	ClockDark: `const pad = (n) => String(n).padStart(2, "0");
@@ -178,7 +178,7 @@ return <RollingNumber value={v} />;`,
   <span style={{ color: "#6b6057", fontWeight: 700 }}>:</span>
   <RollingNumber value={seconds} variant="dark" format={pad} />
 </div>`,
-	CounterLight: `// variant="light" — raised white tiles for dark surfaces
+	CounterLight: `// variant="light" - raised white tiles for dark surfaces
 const pad = (n) => String(n).padStart(2, "0");
 
 <RollingNumber value={score} variant="light" suffix=" pts" />
@@ -203,20 +203,20 @@ const meta: Meta<typeof RollingNumber> = {
 		docs: {
 			description: {
 				component:
-					"Animated numeric display — each digit rolls vertically when the value changes. No JS animation library required.\n\n**Variants:** `default` (no background), `dark` (recessed black tiles — scoreboard/clock), `light` (raised white tiles — for dark surfaces).",
+					"Animated numeric display - each digit rolls vertically when the value changes. No JS animation library required.\n\n**Variants:** `default` (no background), `dark` (recessed black tiles - scoreboard/clock), `light` (raised white tiles - for dark surfaces).",
 			},
 		},
 	},
 	argTypes: {
 		value: {
 			control: { type: "range", min: 0, max: 9999, step: 1 },
-			description: "Numeric value — triggers rolling animation on change.",
+			description: "Numeric value - triggers rolling animation on change.",
 		},
 		variant: {
 			control: "select",
 			options: ["default", "dark", "light"],
 			description:
-				"`default` — transparent. `dark` — recessed black tiles + white digits. `light` — raised white tiles + dark digits (for dark surfaces).",
+				"`default` - transparent. `dark` - recessed black tiles + white digits. `light` - raised white tiles + dark digits (for dark surfaces).",
 		},
 		prefix: { control: "text", description: "Static text prepended (e.g. `'$'`)." },
 		suffix: { control: "text", description: "Static text appended (e.g. `' pts'`)." },
@@ -265,7 +265,7 @@ export const Percentage: Story = {
 	args: { value: 78, suffix: "%" },
 	parameters: {
 		docs: {
-			description: { story: "`%` suffix — use for progress, scores, fill rates." },
+			description: { story: "`%` suffix - use for progress, scores, fill rates." },
 			source: { code: SRC.Percentage },
 		},
 	},
@@ -282,12 +282,12 @@ export const AnimatedCounter: Story = {
 };
 
 export const CounterDark: Story = {
-	name: "Variant — dark",
+	name: "Variant - dark",
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'`variant="dark"` — recessed black digit tiles on a near-black shell. Ideal for scoreboards, counters, live prices.',
+					'`variant="dark"` - recessed black digit tiles on a near-black shell. Ideal for scoreboards, counters, live prices.',
 			},
 			source: { code: SRC.CounterDark },
 		},
@@ -296,7 +296,7 @@ export const CounterDark: Story = {
 };
 
 export const ClockDark: Story = {
-	name: "Clock — dark tiles",
+	name: "Clock - dark tiles",
 	parameters: {
 		docs: {
 			description: {
@@ -310,12 +310,12 @@ export const ClockDark: Story = {
 };
 
 export const CounterLight: Story = {
-	name: "Variant — light (on dark surface)",
+	name: "Variant - light (on dark surface)",
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'`variant="light"` — raised white tiles with dark digits. Use when the surrounding surface is dark.',
+					'`variant="light"` - raised white tiles with dark digits. Use when the surrounding surface is dark.',
 			},
 			source: { code: SRC.CounterLight },
 		},
@@ -331,12 +331,12 @@ export const CounterLight: Story = {
 };
 
 export const DarkMode: Story = {
-	name: "Dark mode — default variant",
+	name: "Dark mode - default variant",
 	parameters: {
 		docs: {
 			description: {
 				story:
-					"Default transparent variant on a dark surface — `--ink` flips to near-white automatically.",
+					"Default transparent variant on a dark surface - `--ink` flips to near-white automatically.",
 			},
 			source: { code: SRC.Default },
 		},

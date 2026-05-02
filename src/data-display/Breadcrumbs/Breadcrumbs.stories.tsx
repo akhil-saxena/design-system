@@ -133,19 +133,19 @@ const MIXED_ITEMS: BreadcrumbItem[] = [
 
 // ─── Stories ───────────────────────────────────────────────────────────────
 
-/** Default 3-item path — Home / Section / Current Page */
+/** Default 3-item path - Home / Section / Current Page */
 export const Default: Story = {
 	parameters: { docs: { source: { code: SRC.Default } } },
 	render: () => <Breadcrumbs items={THREE_ITEMS} />,
 };
 
-/** Short 2-item path — Home / Current Page */
+/** Short 2-item path - Home / Current Page */
 export const ShortPath: Story = {
 	parameters: { docs: { source: { code: SRC.ShortPath } } },
 	render: () => <Breadcrumbs items={TWO_ITEMS} />,
 };
 
-/** 7-item deep path with maxVisible=4 — first + ellipsis + last 2 visible */
+/** 7-item deep path with maxVisible=4 - first + ellipsis + last 2 visible */
 export const DeepPath: Story = {
 	parameters: { docs: { source: { code: SRC.DeepPath } } },
 	render: () => (
@@ -168,7 +168,7 @@ export const DeepPath: Story = {
 	),
 };
 
-/** 7-item path with maxVisible=3 — tighter truncation */
+/** 7-item path with maxVisible=3 - tighter truncation */
 export const DeepPathMaxVisible3: Story = {
 	parameters: { docs: { source: { code: SRC.DeepPathMaxVisible3 } } },
 	render: () => (
@@ -182,20 +182,20 @@ export const DeepPathMaxVisible3: Story = {
 					marginBottom: 8,
 				}}
 			>
-				maxVisible=3 — first + ellipsis + last 1
+				maxVisible=3 - first + ellipsis + last 1
 			</p>
 			<Breadcrumbs items={SEVEN_ITEMS} maxVisible={3} />
 		</div>
 	),
 };
 
-/** All items have href — fully-linked path */
+/** All items have href - fully-linked path */
 export const AllLinks: Story = {
 	parameters: { docs: { source: { code: SRC.AllLinks } } },
 	render: () => <Breadcrumbs items={ALL_LINKS} />,
 };
 
-/** Mixed — first and last are spans, middle items have hrefs */
+/** Mixed - first and last are spans, middle items have hrefs */
 export const MixedLinkPlain: Story = {
 	parameters: { docs: { source: { code: SRC.MixedLinkPlain } } },
 	render: () => <Breadcrumbs items={MIXED_ITEMS} />,
@@ -219,7 +219,7 @@ export const DarkMode: Story = {
 	),
 };
 
-/** Interactive playground — use controls to adjust props */
+/** Interactive playground - use controls to adjust props */
 export const Playground: Story = {
 	parameters: { docs: { source: { code: SRC.Playground } } },
 	args: {

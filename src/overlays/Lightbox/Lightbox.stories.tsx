@@ -40,7 +40,7 @@ return (
   items={[{
     src: diagramUrl,
     alt: "Architecture diagram",
-    caption: "System architecture — payments service v2",
+    caption: "System architecture - payments service v2",
   }]}
   activeIndex={0}
 />`,
@@ -155,7 +155,7 @@ function WithCaptionDemo() {
 					{
 						src: placeholder("#7c3aed", "Diagram"),
 						alt: "Architecture diagram",
-						caption: "System architecture — payments service v2",
+						caption: "System architecture - payments service v2",
 					},
 				]}
 				activeIndex={0}
@@ -190,7 +190,7 @@ function DarkModeDemo() {
 export const SingleImage: Story = {
 	parameters: {
 		docs: {
-			description: { story: "Single image — close button, no navigation arrows." },
+			description: { story: "Single image - close button, no navigation arrows." },
 			source: { code: SRC.SingleImage },
 		},
 	},
@@ -201,7 +201,7 @@ export const Gallery: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: "Multi-image gallery — arrow navigation, keyboard ArrowLeft/Right, wrap-around.",
+				story: "Multi-image gallery - arrow navigation, keyboard ArrowLeft/Right, wrap-around.",
 			},
 			source: { code: SRC.Gallery },
 		},
@@ -224,7 +224,7 @@ export const DarkMode: Story = {
 		docs: {
 			description: {
 				story:
-					"Lightbox is always-dark (handoff invariant) — backdrop and chrome do not flip with the page theme.",
+					"Lightbox is always-dark (handoff invariant) - backdrop and chrome do not flip with the page theme.",
 			},
 			source: { code: SRC.DarkMode },
 		},

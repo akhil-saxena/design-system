@@ -1,4 +1,4 @@
-/* Storybook canvas styles — DEV ONLY, not shipped in dist.
+/* Storybook canvas styles - DEV ONLY, not shipped in dist.
    Wires the preview to design tokens so primitives render against the
    intended cream surface instead of Storybook's plain white. */
 
@@ -30,7 +30,7 @@ body {
 	color: var(--ink) !important;
 }
 
-/* Dark story wrappers inside Docs — override the !important ink colour above
+/* Dark story wrappers inside Docs - override the !important ink colour above
    so scoped dark sections resolve var(--ink) to the dark-mode value (#f5f3f0). */
 .dark {
 	color: var(--ink) !important;
@@ -52,7 +52,7 @@ body {
 	color: var(--ink) !important;
 }
 
-/* ── ArgsTable — scoped to Storybook's own docs tables only.
+/* ── ArgsTable - scoped to Storybook's own docs tables only.
    :not([class*="ds-atom"]) prevents these rules from touching the
    Table component's own <table> element which uses .ds-atom-table. */
 
@@ -99,7 +99,7 @@ pre[class*="language-"] code {
 	line-height: 1.6 !important;
 }
 
-/* Syntax token colors — LIGHT MODE (dark tokens on cream) */
+/* Syntax token colors - LIGHT MODE (dark tokens on cream) */
 .token.keyword,
 .token.tag {
 	color: #7c3aed !important;
@@ -162,7 +162,7 @@ pre[class*="language-"] code {
 	color: var(--ink) !important;
 }
 
-/* Syntax token colors — DARK MODE (light tokens on dark surface) */
+/* Syntax token colors - DARK MODE (light tokens on dark surface) */
 :root.dark .token.keyword,
 :root.dark .token.tag {
 	color: #c084fc !important;

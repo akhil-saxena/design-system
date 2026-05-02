@@ -1,5 +1,5 @@
 /**
- * # Usage Audit — Accordion (DS-64)
+ * # Usage Audit - Accordion (DS-64)
  *
  * Consumers (post v0.6):
  * - FAQ pages, settings sections, doc accordions
@@ -10,7 +10,7 @@
  *   </Accordion>
  * - Controlled: openIds + onOpenIdsChange
  * - Uncontrolled: defaultOpenIds
- * - headingLevel per Item (2-6, default 3) — important for document outline
+ * - headingLevel per Item (2-6, default 3) - important for document outline
  *
  * Implementation:
  * - WAI-ARIA disclosure pattern (NOT tablist accordion antipattern)

@@ -55,7 +55,7 @@ const DefaultLogo = () => (
 );
 
 /**
- * AppBar — DS-72
+ * AppBar - DS-72
  *
  * Standalone sticky topbar primitive. Pass as the `topbar` slot to AppShell (DS-71).
  * Provides 4 variants: minimal, withSearch, default, centered.
@@ -158,7 +158,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 			);
 		}
 
-		// default variant — nav links + right actions
+		// default variant - nav links + right actions
 		return (
 			<header
 				ref={ref}

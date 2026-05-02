@@ -2,7 +2,7 @@
  * Timeline (DS-66)
  *
  * API:
- * - events: TimelineEvent[] — { id, date, label, description?, color?, onClick? }
+ * - events: TimelineEvent[] - { id, date, label, description?, color?, onClick? }
  * - orientation: "horizontal" | "vertical" (default horizontal)
  * - ariaLabel: string (default "Timeline")
  * - className / style passthrough
@@ -11,7 +11,7 @@
  * - <ol> + <li> + <time dateTime=...> per WAI-ARIA time-sequence display
  * - Amber dot + connector line between events via CSS ::after pseudo-element (no extra DOM)
  * - Read-only by default; focusable + keyboard-activatable when event.onClick provided
- * - Dark-mode tokens applied — dot is amber, line is rule, label is ink
+ * - Dark-mode tokens applied - dot is amber, line is rule, label is ink
  */
 import { type CSSProperties, forwardRef } from "react";
 

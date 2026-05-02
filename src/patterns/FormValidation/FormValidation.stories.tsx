@@ -10,7 +10,7 @@ const meta: Meta = {
 		docs: {
 			description: {
 				component:
-					"Composable form validation helpers (DS-75): `PasswordStrength` — 4-segment score bar; `FieldError` — inline field error message; `FormErrorSummary` — grouped error list for submit-time validation.",
+					"Composable form validation helpers (DS-75): `PasswordStrength` - 4-segment score bar; `FieldError` - inline field error message; `FormErrorSummary` - grouped error list for submit-time validation.",
 			},
 		},
 	},
@@ -46,7 +46,7 @@ export default meta;
 type Story = StoryObj;
 
 export const PasswordStrengthAll: Story = {
-	name: "PasswordStrength — all scores",
+	name: "PasswordStrength - all scores",
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 16, width: 220 }}>
 			{([0, 1, 2, 3, 4] as const).map((score) => (
@@ -83,7 +83,7 @@ function PasswordDemo() {
 }
 
 export const PasswordStrengthLive: Story = {
-	name: "PasswordStrength — live input",
+	name: "PasswordStrength - live input",
 	render: () => <PasswordDemo />,
 };
 

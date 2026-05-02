@@ -42,7 +42,7 @@ export interface PopoverProps {
 	style?: CSSProperties;
 }
 
-// computePosition replaced by smartAnchorPos from floatingPos — auto-flips + clamps.
+// computePosition replaced by smartAnchorPos from floatingPos - auto-flips + clamps.
 
 /**
  * Anchor-positioned overlay primitive (D-330). DSPortal-mounted to body;
@@ -81,7 +81,7 @@ export function Popover({
 		const anchor = anchorRef.current;
 		if (!anchor || !panel) return;
 		const a = anchor.getBoundingClientRect();
-		// Anchor is fully outside the viewport — close.
+		// Anchor is fully outside the viewport - close.
 		if (a.bottom < 0 || a.top > window.innerHeight || a.right < 0 || a.left > window.innerWidth) {
 			onOpenChange(false);
 			return;
@@ -107,7 +107,7 @@ export function Popover({
 		recompute();
 	}, [open, recompute]);
 
-	// Track scroll/resize — recomputes position or closes if anchor left viewport.
+	// Track scroll/resize - recomputes position or closes if anchor left viewport.
 	useEffect(() => {
 		if (!open) return;
 		window.addEventListener("scroll", recompute, true);
@@ -118,10 +118,10 @@ export function Popover({
 		};
 	}, [open, recompute]);
 
-	// Outside-click dismissal (panelRef only — clicks on anchor handled by consumer).
+	// Outside-click dismissal (panelRef only - clicks on anchor handled by consumer).
 	useClickOutside(panelRef, () => onOpenChange(false), open);
 
-	// Escape dismissal — listener installed only while open.
+	// Escape dismissal - listener installed only while open.
 	useEffect(() => {
 		if (!open) return;
 		function onKey(e: KeyboardEvent) {
@@ -157,7 +157,7 @@ export function Popover({
 	return <DSPortal>{isDarkCtx ? <div className="dark">{popoverEl}</div> : popoverEl}</DSPortal>;
 }
 
-// ─── ContextMenu — same-file styled variant (D-331) ─────────────────────
+// ─── ContextMenu - same-file styled variant (D-331) ─────────────────────
 
 export interface ContextMenuItem {
 	label: string;

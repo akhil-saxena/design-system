@@ -158,8 +158,8 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 				onSelect={toggle}
 				typeAheadGetText={(i) => options[i]?.label ?? ""}
 			>
-				{/* biome-ignore lint/a11y/useFocusableInteractive: listbox is not focusable — the combobox trigger owns focus and uses aria-activedescendant per WAI-ARIA combobox 1.2 */}
-				{/* biome-ignore lint/a11y/useSemanticElements: D-501 mandates <ul role="listbox" aria-multiselectable> for the combobox panel — keyboard handled via aria-activedescendant on the trigger */}
+				{/* biome-ignore lint/a11y/useFocusableInteractive: listbox is not focusable - the combobox trigger owns focus and uses aria-activedescendant per WAI-ARIA combobox 1.2 */}
+				{/* biome-ignore lint/a11y/useSemanticElements: D-501 mandates <ul role="listbox" aria-multiselectable> for the combobox panel - keyboard handled via aria-activedescendant on the trigger */}
 				<ul
 					// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: listbox role on a <ul> is the canonical combobox-popup pattern (react-aria, Radix MultiSelect)
 					role="listbox"
@@ -171,9 +171,9 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 						const sel = selectedSet.has(opt.value);
 						return (
 							// biome-ignore lint/a11y/useSemanticElements: D-501 mandates role="option" per WAI-ARIA combobox; <li> is canonical container inside <ul role="listbox">
-							// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: option role on <li> is the WAI-ARIA combobox pattern; activation happens via Enter on the combobox (forwarded to onSelect) — onClick is a mouse-equivalent affordance
+							// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: option role on <li> is the WAI-ARIA combobox pattern; activation happens via Enter on the combobox (forwarded to onSelect) - onClick is a mouse-equivalent affordance
 							// biome-ignore lint/a11y/useFocusableInteractive: option is reached via aria-activedescendant from the focused combobox; per WAI-ARIA pattern individual options must NOT be in the tab order
-							// biome-ignore lint/a11y/useKeyWithClickEvents: keyboard activation lives on the combobox (Enter→onSelect via DSDropdown), not on each option — the option's onClick is a redundant mouse-only affordance
+							// biome-ignore lint/a11y/useKeyWithClickEvents: keyboard activation lives on the combobox (Enter→onSelect via DSDropdown), not on each option - the option's onClick is a redundant mouse-only affordance
 							<li
 								key={opt.value}
 								id={optionId(i)}

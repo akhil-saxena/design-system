@@ -21,7 +21,7 @@ const APRIL_2026 = new Date(2026, 3, 1);
 
 // ─── Task 1: Month view structure ─────────────────────────────────────────
 
-describe("Calendar — month view", () => {
+describe("Calendar - month view", () => {
 	it("renders month grid with 6 rows of 7 cells", () => {
 		const { container } = render(
 			<Calendar selectedDate={APRIL_2026} onSelectedDateChange={() => {}} />,
@@ -133,7 +133,7 @@ describe("Calendar — month view", () => {
 
 // ─── Task 2: Event chips ──────────────────────────────────────────────────
 
-describe("Calendar — event chips (month view)", () => {
+describe("Calendar - event chips (month view)", () => {
 	const MULTI_EVENTS: CalendarEvent[] = [
 		{ id: "a1", date: new Date(2026, 3, 10), label: "Event A", color: "blue" },
 		{ id: "a2", date: new Date(2026, 3, 10), label: "Event B", color: "green" },
@@ -255,7 +255,7 @@ describe("Calendar — event chips (month view)", () => {
 			<Calendar selectedDate={APRIL_2026} onSelectedDateChange={() => {}} events={xssEvent} />,
 		);
 		const chip = container.querySelector(".ds-atom-calendar-chip");
-		// Escaped — tag should appear as text, no actual script element
+		// Escaped - tag should appear as text, no actual script element
 		expect(container.querySelector("script")).toBeNull();
 		expect(chip?.textContent).toContain("<script>");
 	});
@@ -263,7 +263,7 @@ describe("Calendar — event chips (month view)", () => {
 
 // ─── Task 3: Week view ────────────────────────────────────────────────────
 
-describe("Calendar — week view", () => {
+describe("Calendar - week view", () => {
 	it("week view renders 7 cells (one per weekday)", () => {
 		const { container } = render(
 			<Calendar defaultView="week" selectedDate={APRIL_2026} onSelectedDateChange={() => {}} />,
@@ -316,7 +316,7 @@ describe("Calendar — week view", () => {
 
 // ─── Task 3: Day view ─────────────────────────────────────────────────────
 
-describe("Calendar — day view", () => {
+describe("Calendar - day view", () => {
 	it("day view renders 24 hour slots", () => {
 		const { container } = render(
 			<Calendar defaultView="day" selectedDate={APRIL_2026} onSelectedDateChange={() => {}} />,
@@ -351,7 +351,7 @@ describe("Calendar — day view", () => {
 		const hourlyEvent: CalendarEvent[] = [
 			{
 				id: "h1",
-				date: new Date(2026, 3, 1, 14, 30), // 2:30 PM — hour slot 14
+				date: new Date(2026, 3, 1, 14, 30), // 2:30 PM - hour slot 14
 				label: "Afternoon meeting",
 			},
 		];

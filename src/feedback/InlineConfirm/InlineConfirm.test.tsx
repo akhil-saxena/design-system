@@ -145,7 +145,7 @@ describe("InlineConfirm", () => {
 		// Hover the prompt row (by group)
 		const row = screen.getByRole("group");
 		fireEvent.mouseEnter(row);
-		// Advance another 4000ms — timer should be paused so prompt stays
+		// Advance another 4000ms - timer should be paused so prompt stays
 		act(() => {
 			vi.advanceTimersByTime(4000);
 		});

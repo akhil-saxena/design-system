@@ -12,7 +12,7 @@ const meta: Meta<typeof AppShell> = {
 		docs: {
 			description: {
 				component:
-					"AppShell (DS-71) — top-level CSS Grid layout primitive. Provides topbar, sidebar, main, and optional footer slots. The sidebar collapses to a 48px icon-only rail; collapse state persists in localStorage by default.",
+					"AppShell (DS-71) - top-level CSS Grid layout primitive. Provides topbar, sidebar, main, and optional footer slots. The sidebar collapses to a 48px icon-only rail; collapse state persists in localStorage by default.",
 			},
 		},
 	},
@@ -146,7 +146,7 @@ function MockMain() {
 				Page Content
 			</h1>
 			<p style={{ fontSize: 14, color: "var(--ink-3)", marginBottom: 20 }}>
-				The main slot renders here — add routes, pages, and content as needed.
+				The main slot renders here - add routes, pages, and content as needed.
 			</p>
 			<div
 				style={{
@@ -202,7 +202,7 @@ export const WithFooter: Story = {
 						color: "var(--ink-3)",
 					}}
 				>
-					&copy; 2026 Acme — All rights reserved.
+					&copy; 2026 Acme - All rights reserved.
 				</div>
 			}
 		/>

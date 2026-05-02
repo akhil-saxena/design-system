@@ -24,7 +24,7 @@ const FOCUSABLE_SELECTOR =
 export function useFocusTrap<T extends HTMLElement>(container: T | null, active: boolean): void {
 	useEffect(() => {
 		if (!active || !container) return;
-		// Capture as non-null local — TypeScript loses narrowing across closure boundaries.
+		// Capture as non-null local - TypeScript loses narrowing across closure boundaries.
 		const c = container;
 		const previouslyFocused = document.activeElement as HTMLElement | null;
 

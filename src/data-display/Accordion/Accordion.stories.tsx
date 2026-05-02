@@ -94,7 +94,7 @@ ${ITEMS.slice(0, 3)
 };
 
 export const Single: Story = {
-	name: "Single — one open at a time",
+	name: "Single - one open at a time",
 	parameters: {
 		docs: {
 			description: { story: "Default mode. Opening one item closes the previously open item." },
@@ -113,11 +113,11 @@ export const Single: Story = {
 };
 
 export const Multi: Story = {
-	name: "Multi — independent toggle",
+	name: "Multi - independent toggle",
 	parameters: {
 		docs: {
 			description: {
-				story: "Each item toggles independently — multiple items can be open simultaneously.",
+				story: "Each item toggles independently - multiple items can be open simultaneously.",
 			},
 			source: { code: SOURCE.multi },
 		},
@@ -194,7 +194,7 @@ export const DisabledItem: Story = {
 		docs: {
 			description: {
 				story:
-					"A disabled item cannot be expanded — trigger is non-interactive and visually muted.",
+					"A disabled item cannot be expanded - trigger is non-interactive and visually muted.",
 			},
 			source: { code: SOURCE.disabled },
 		},
@@ -220,7 +220,7 @@ export const DarkMode: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: "Accordion on the dark surface — borders, text, and chevron all follow dark tokens.",
+				story: "Accordion on the dark surface - borders, text, and chevron all follow dark tokens.",
 			},
 			source: { code: SOURCE.single },
 		},
@@ -280,12 +280,12 @@ export const Playground: StoryObj<PlaygroundArgs> = {
 	},
 	argTypes: {
 		mode: { control: "select", options: ["single", "multi"], description: "Open mode." },
-		q1: { control: "text", description: "Item 1 — title / question" },
-		a1: { control: "text", description: "Item 1 — content / answer" },
-		q2: { control: "text", description: "Item 2 — title / question" },
-		a2: { control: "text", description: "Item 2 — content / answer" },
-		q3: { control: "text", description: "Item 3 — title / question" },
-		a3: { control: "text", description: "Item 3 — content / answer" },
+		q1: { control: "text", description: "Item 1 - title / question" },
+		a1: { control: "text", description: "Item 1 - content / answer" },
+		q2: { control: "text", description: "Item 2 - title / question" },
+		a2: { control: "text", description: "Item 2 - content / answer" },
+		q3: { control: "text", description: "Item 3 - title / question" },
+		a3: { control: "text", description: "Item 3 - content / answer" },
 	},
 	parameters: {
 		docs: {

@@ -51,7 +51,7 @@ return (
 	CustomToolbar: `const [html, setHtml] = useState("<p>Custom toolbar demo.</p>");
 const customToolbar = (
   <div style={{ padding: "6px 10px", background: "var(--surf-2)", borderBottom: "1px solid var(--rule)" }}>
-    Custom toolbar — consumer can render anything here
+    Custom toolbar - consumer can render anything here
   </div>
 );
 return (
@@ -326,7 +326,7 @@ export const CustomToolbar: Story = {
 					fontFamily: "var(--font-mono, monospace)",
 				}}
 			>
-				Custom toolbar — consumer can render anything here
+				Custom toolbar - consumer can render anything here
 			</div>
 		);
 

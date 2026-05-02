@@ -117,7 +117,7 @@ const meta: Meta<typeof SegmentedControl> = {
 		size: {
 			control: { type: "select" },
 			options: ["sm", "md", "lg"],
-			description: "Size of the control — sm, md (default), or lg.",
+			description: "Size of the control - sm, md (default), or lg.",
 			table: { type: { summary: '"sm" | "md" | "lg"' } },
 		},
 		disabled: {

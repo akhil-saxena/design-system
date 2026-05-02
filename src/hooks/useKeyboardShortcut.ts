@@ -50,7 +50,7 @@ function matches(e: KeyboardEvent, combo: ParsedCombo): boolean {
 
 /**
  * Bind a keyboard shortcut. Use "mod+k" for Cmd-on-Mac, Ctrl-on-Win/Linux.
- * Used by CommandPalette (Phase 17 — ⌘K), Modal Esc-to-close (Phase 14).
+ * Used by CommandPalette (Phase 17 - ⌘K), Modal Esc-to-close (Phase 14).
  */
 export function useKeyboardShortcut(
 	combo: string | string[],

@@ -1,11 +1,11 @@
 /**
- * useResizableColumns (DS-61, D-17-10) — unit tests
+ * useResizableColumns (DS-61, D-17-10) - unit tests
  *
  * Hook: returns { widths, setWidth, startResize }
  * Tests: pointer events with capture, min width, onWidthsChange callback
  *
  * PRIMARY test approach: deterministic spy-based pattern (captures registered
- * document.addEventListener handlers and invokes them directly — bypasses
+ * document.addEventListener handlers and invokes them directly - bypasses
  * jsdom's incomplete PointerEvent surface entirely).
  *
  * Note: jsdom's PointerEvent does not populate clientX from the event init dict,
@@ -201,7 +201,7 @@ describe("useResizableColumns", () => {
 			});
 			expect(spy.handlers.pointermove).toHaveLength(1);
 
-			// Fire pointerup — listeners should be removed
+			// Fire pointerup - listeners should be removed
 			act(() => {
 				spy.handlers.pointerup[0]({ clientX: 50, pointerId: 1 } as PointerEvent);
 			});

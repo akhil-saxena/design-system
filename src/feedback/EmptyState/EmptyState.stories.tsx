@@ -80,7 +80,7 @@ const meta: Meta<typeof EmptyState> = {
 		children: {
 			control: false,
 			description:
-				"CTA slot — pass one or two `<Button>` elements. Renders as a flex row below the description.",
+				"CTA slot - pass one or two `<Button>` elements. Renders as a flex row below the description.",
 		},
 		className: { control: false },
 		style: { control: false },
@@ -114,7 +114,7 @@ export const NoIcon: Story = {
 		docs: {
 			description: {
 				story:
-					"Title + description only — appropriate for secondary or inline empty states where an icon would add noise.",
+					"Title + description only - appropriate for secondary or inline empty states where an icon would add noise.",
 			},
 			source: { code: SRC.noIcon },
 		},
@@ -132,7 +132,7 @@ export const NoDescription: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: "Icon + title only — minimal variant for brief, self-explanatory states.",
+				story: "Icon + title only - minimal variant for brief, self-explanatory states.",
 			},
 			source: { code: SRC.noDescription },
 		},
@@ -144,7 +144,7 @@ export const SingleCTA: Story = {
 	name: "Single CTA",
 	parameters: {
 		docs: {
-			description: { story: "One action — use a `primary` Button as the clear next step." },
+			description: { story: "One action - use a `primary` Button as the clear next step." },
 			source: { code: SRC.singleCTA },
 		},
 	},
@@ -165,7 +165,7 @@ export const DualCTA: Story = {
 		docs: {
 			description: {
 				story:
-					"Two actions — primary + ghost. Children renders them in a row via the actions slot.",
+					"Two actions - primary + ghost. Children renders them in a row via the actions slot.",
 			},
 			source: { code: SRC.dualCTA },
 		},
@@ -188,7 +188,7 @@ export const ClearFilter: Story = {
 		docs: {
 			description: {
 				story:
-					"No-results state caused by active filters — ghost CTA to clear without an aggressive primary.",
+					"No-results state caused by active filters - ghost CTA to clear without an aggressive primary.",
 			},
 			source: { code: SRC.clearFilter },
 		},
@@ -208,7 +208,7 @@ export const TitleOnly: Story = {
 	name: "Title only",
 	parameters: {
 		docs: {
-			description: { story: "Absolute minimum — title alone for terse inline placeholders." },
+			description: { story: "Absolute minimum - title alone for terse inline placeholders." },
 			source: { code: SRC.titleOnly },
 		},
 	},

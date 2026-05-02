@@ -20,14 +20,14 @@ export interface WizardProps {
 }
 
 /**
- * Wizard — multi-step form scaffold (DS-74).
+ * Wizard - multi-step form scaffold (DS-74).
  *
  *   <Wizard steps={steps} onComplete={handleFinish}>
  *     {(step) => <StepContent step={step} />}
  *   </Wizard>
  *
  * Renders a horizontal (or vertical) stepper, a ProgressBar, step content,
- * optional inline validation error, and Back/Next navigation — all within a
+ * optional inline validation error, and Back/Next navigation - all within a
  * single focus-trapped container.
  *
  * Per-step validation: attach `validate()` to a WizardStep; returning a
@@ -35,7 +35,7 @@ export interface WizardProps {
  * Thrown exceptions are caught and treated as validation failures
  * (threat T-18-04-02).
  *
- * Does NOT wrap content in a <form> — step fields are the consumer's
+ * Does NOT wrap content in a <form> - step fields are the consumer's
  * responsibility. Wizard manages step state only.
  */
 export function Wizard({ steps, onComplete, onCancel, orientation, children }: WizardProps) {
@@ -111,14 +111,14 @@ export function Wizard({ steps, onComplete, onCancel, orientation, children }: W
 				{typeof children === "function" ? children(current) : children}
 			</div>
 
-			{/* Validation error — role="alert" so screen readers announce it */}
+			{/* Validation error - role="alert" so screen readers announce it */}
 			{error && (
 				<div className="ds-atom-wizard-error" role="alert">
 					{error}
 				</div>
 			)}
 
-			{/* Navigation — INSIDE the focus trap boundary */}
+			{/* Navigation - INSIDE the focus trap boundary */}
 			<div className="ds-atom-wizard-nav">
 				{onCancel && (
 					<Button variant="ghost" size="sm" onClick={onCancel} style={{ marginRight: "auto" }}>

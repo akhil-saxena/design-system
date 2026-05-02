@@ -1,11 +1,11 @@
 /**
- * # Usage Audit — Tabs (DS-62)
+ * # Usage Audit - Tabs (DS-62)
  *
  * Consumers (post v0.6):
  * - Settings sections, profile detail panels, dashboard switching
  *
  * API:
- * - tabs: TabItem[] — { id, label, count?, disabled?, content }
+ * - tabs: TabItem[] - { id, label, count?, disabled?, content }
  * - value, onChange (controlled)
  * - variant: "underline" | "pill"
  * - activationMode: "automatic" | "manual"
@@ -86,7 +86,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 	const [overflowOpen, setOverflowOpen] = useState(false);
 	const [overflowActiveIndex, setOverflowActiveIndex] = useState(0);
 
-	// ResizeObserver — compute how many tabs fit in the available width.
+	// ResizeObserver - compute how many tabs fit in the available width.
 	//
 	// Key: we observe the ROOT element (stable container width), NOT the
 	// tablist itself. The tablist shrinks when fewer tabs render, which
@@ -94,8 +94,8 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 	//
 	// Two-pass algorithm prevents the "More appears → layout shifts →
 	// More disappears" oscillation:
-	//   Pass 1 — does every tab fit with no More button?
-	//   Pass 2 — if not, reserve MORE_WIDTH before measuring.
+	//   Pass 1 - does every tab fit with no More button?
+	//   Pass 2 - if not, reserve MORE_WIDTH before measuring.
 	useLayoutEffect(() => {
 		if (!rootRef.current || !tablistRef.current) return;
 		const root = rootRef.current;
@@ -104,7 +104,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 
 		const measure = () => {
 			const containerWidth = root.clientWidth;
-			// Query ALL tab buttons — even hidden ones — by querying original tabs
+			// Query ALL tab buttons - even hidden ones - by querying original tabs
 			// count. We always render all tabs initially then hide via visibleCount.
 			// Use stored widths by measuring while all are in DOM on first pass.
 			const tabButtons = Array.from(tablist.querySelectorAll<HTMLButtonElement>("[role='tab']"));
@@ -121,7 +121,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 				return;
 			}
 
-			// Pass 2: overflow — fit as many as possible within available width
+			// Pass 2: overflow - fit as many as possible within available width
 			const available = containerWidth - MORE_WIDTH;
 			let cumulative = 0;
 			let nextVisible = 0;
@@ -232,7 +232,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 					);
 				})}
 
-				{/* More button — part of the tablist keyboard cycle */}
+				{/* More button - part of the tablist keyboard cycle */}
 				{hasOverflow && (
 					<button
 						ref={moreBtnRef}
@@ -248,7 +248,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 				)}
 			</div>
 
-			{/* Overflow dropdown — portal-mounted via DSDropdown */}
+			{/* Overflow dropdown - portal-mounted via DSDropdown */}
 			{hasOverflow && (
 				<DSDropdown
 					anchorRef={moreBtnRef}
@@ -269,7 +269,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 				>
 					<ul role="menu" className="ds-atom-tabs-overflow-menu">
 						{hiddenTabs.map((t, i) => (
-							// biome-ignore lint/a11y/useFocusableInteractive: the WAI-ARIA menu pattern delegates focus to the child <button>; the menuitem wrapper div is intentionally not focusable — keyboard activation goes through the button
+							// biome-ignore lint/a11y/useFocusableInteractive: the WAI-ARIA menu pattern delegates focus to the child <button>; the menuitem wrapper div is intentionally not focusable - keyboard activation goes through the button
 							// biome-ignore lint/a11y/useSemanticElements: div[role=menuitem] inside ul[role=menu] is the canonical pattern when a focusable child (<button>) exists inside the menuitem
 							<div
 								key={t.id}
@@ -296,7 +296,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 				</DSDropdown>
 			)}
 
-			{/* Tab panels — all kept mounted; hidden attribute controls visibility */}
+			{/* Tab panels - all kept mounted; hidden attribute controls visibility */}
 			{tabs.map((t) => {
 				const isActive = t.id === value;
 				return (

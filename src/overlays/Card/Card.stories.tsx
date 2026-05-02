@@ -13,10 +13,10 @@ const SRC = {
     Default card with backdrop blur and translucent border.
   </div>
 </Card>`,
-	Variants: `<Card variant="glass">Glass — default surface with backdrop blur.</Card>
-<Card variant="amber">Amber — CTA highlight surface.</Card>
-<Card variant="dark">Dark — always-dark surface.</Card>
-<Card variant="kanban">Kanban — hover-lift compact card.</Card>`,
+	Variants: `<Card variant="glass">Glass - default surface with backdrop blur.</Card>
+<Card variant="amber">Amber - CTA highlight surface.</Card>
+<Card variant="dark">Dark - always-dark surface.</Card>
+<Card variant="kanban">Kanban - hover-lift compact card.</Card>`,
 	Composed: `<Card variant="glass" style={{ padding: 0, maxWidth: 480 }}>
   <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}>
     Section Header
@@ -25,7 +25,7 @@ const SRC = {
     Freely-composed body content.
   </div>
   <div style={{ padding: "12px 20px", borderTop: "1px solid var(--rule)" }}>
-    Footer slot — also just a child div.
+    Footer slot - also just a child div.
   </div>
 </Card>`,
 	KanbanCard: `<Card variant="kanban">
@@ -231,7 +231,7 @@ export const Composed: Story = {
 					color: "var(--ink-3)",
 				}}
 			>
-				Footer slot — also just a child div.
+				Footer slot - also just a child div.
 			</div>
 		</Card>
 	),
@@ -436,7 +436,7 @@ export const DarkMode: Story = {
 					Dark (always)
 				</div>
 				<div style={{ fontSize: 13, color: "#aaa39e", lineHeight: 1.5 }}>
-					Identical visual whether :root.dark is set or not — handoff invariant.
+					Identical visual whether :root.dark is set or not - handoff invariant.
 				</div>
 			</Card>
 			<Card variant="kanban">

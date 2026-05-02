@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Radio, RadioGroup } from ".";
 const SRC = {
-	Default: `// Uncontrolled — RadioGroup manages its own state
+	Default: `// Uncontrolled - RadioGroup manages its own state
 <RadioGroup name="status" defaultValue="active">
   <Radio value="new"          label="New"          />
   <Radio value="active"       label="Active"       />
@@ -10,7 +10,7 @@ const SRC = {
   <Radio value="approved"     label="Approved"     />
 </RadioGroup>`,
 
-	Controlled: `// Controlled — parent owns the value
+	Controlled: `// Controlled - parent owns the value
 const [value, setValue] = useState("active");
 
 <RadioGroup name="status" value={value} onChange={(next) => setValue(next)}>
@@ -76,7 +76,7 @@ export const Default: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: "Uncontrolled — `RadioGroup` manages state via `defaultValue`. Click any option.",
+				story: "Uncontrolled - `RadioGroup` manages state via `defaultValue`. Click any option.",
 			},
 			source: { code: SRC.Default },
 		},
@@ -94,7 +94,7 @@ export const Default: Story = {
 export const Controlled: Story = {
 	parameters: {
 		docs: {
-			description: { story: "Controlled — parent owns state via `value` + `onChange`." },
+			description: { story: "Controlled - parent owns state via `value` + `onChange`." },
 			source: { code: SRC.Controlled },
 		},
 	},
@@ -132,7 +132,7 @@ export const Standalone: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: "Without RadioGroup — wire `name`, `defaultChecked`, and `onChange` directly.",
+				story: "Without RadioGroup - wire `name`, `defaultChecked`, and `onChange` directly.",
 			},
 			source: { code: SRC.Standalone },
 		},

@@ -111,7 +111,7 @@ const meta: Meta<typeof Tabs> = {
 		docs: {
 			description: {
 				component:
-					"WAI-ARIA tab panel with underline and pill variants, automatic or manual activation, and an overflow menu for wide tab sets.\n\n**Keyboard model (WAI-ARIA tablist):** `Tab` moves focus *into* the tablist and then *out* to the active panel — it does not cycle between tab buttons. Use `ArrowRight` / `ArrowLeft` to move between tabs, `Home` / `End` to jump to the first or last tab.",
+					"WAI-ARIA tab panel with underline and pill variants, automatic or manual activation, and an overflow menu for wide tab sets.\n\n**Keyboard model (WAI-ARIA tablist):** `Tab` moves focus *into* the tablist and then *out* to the active panel - it does not cycle between tab buttons. Use `ArrowRight` / `ArrowLeft` to move between tabs, `Home` / `End` to jump to the first or last tab.",
 			},
 		},
 	},
@@ -271,7 +271,7 @@ export const ManualActivation: Story = {
 };
 
 export const NarrowOverflow: Story = {
-	name: "Narrow — Overflow Menu",
+	name: "Narrow - Overflow Menu",
 	parameters: { docs: { source: { code: SRC.NarrowOverflow } } },
 	render: () => {
 		const manyTabs: TabItem[] = [
@@ -285,7 +285,7 @@ export const NarrowOverflow: Story = {
 		return (
 			<div style={{ width: 300, border: "1px dashed var(--rule)", padding: 8 }}>
 				<p style={{ fontSize: 12, color: "var(--ink-2)", marginBottom: 8 }}>
-					Container fixed at 300px — tabs that don't fit collapse into More button
+					Container fixed at 300px - tabs that don't fit collapse into More button
 				</p>
 				<ControlledTabs tabs={manyTabs} ariaLabel="Overflow tabs" />
 			</div>

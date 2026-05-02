@@ -137,7 +137,7 @@ const meta: Meta<typeof BottomSheet> = {
 		height: {
 			control: { type: "select" },
 			options: ["half", "full"],
-			description: "Sheet height — half (default) or full screen.",
+			description: "Sheet height - half (default) or full screen.",
 			table: { type: { summary: '"half" | "full"' } },
 		},
 		children: {
@@ -157,7 +157,7 @@ const meta: Meta<typeof BottomSheet> = {
 export default meta;
 type Story = StoryObj<typeof BottomSheet>;
 
-/* Compact preview — just the trigger button, no 100vh blank space */
+/* Compact preview - just the trigger button, no 100vh blank space */
 function Preview({ children }: Readonly<{ children: React.ReactNode }>) {
 	return <div style={{ display: "inline-flex", gap: 8, flexWrap: "wrap" }}>{children}</div>;
 }

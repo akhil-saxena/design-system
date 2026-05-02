@@ -69,7 +69,7 @@ export const WithLabel: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: "Custom `label` hides the raw value — useful for long or sensitive strings.",
+				story: "Custom `label` hides the raw value - useful for long or sensitive strings.",
 			},
 			source: { code: SRC.WithLabel },
 		},
@@ -86,7 +86,7 @@ export const WithCopiedLabel: Story = {
 		docs: {
 			description: {
 				story:
-					"Pass `copiedLabel` to swap the button text for 2 s after copying — the clearest feedback when button space allows.",
+					"Pass `copiedLabel` to swap the button text for 2 s after copying - the clearest feedback when button space allows.",
 			},
 			source: { code: SRC.CopiedLabel },
 		},
@@ -136,7 +136,7 @@ export const ErrorFallback: Story = {
 		docs: {
 			description: {
 				story:
-					"Both clipboard paths are mocked to fail so `onError` fires — icon stays as Copy, no feedback shown.",
+					"Both clipboard paths are mocked to fail so `onError` fires - icon stays as Copy, no feedback shown.",
 			},
 			source: { code: SRC.ErrorFallback },
 		},

@@ -18,7 +18,7 @@ const baseStyle: CSSProperties = {
 };
 
 /**
- * StickyNote — yellow-gradient note surface with slight static rotation.
+ * StickyNote - yellow-gradient note surface with slight static rotation.
  *
  *   <StickyNote>Reach out to David before screening.</StickyNote>
  *   <StickyNote rotation="left">Follow up by May 2.</StickyNote>
@@ -26,11 +26,11 @@ const baseStyle: CSSProperties = {
  *
  * Children are arbitrary JSX (mirrors Card freely-composed pattern). The
  * `.ds-sticky-hint` mini-line in the handoff is NOT part of the primitive
- * — consumers compose it as a child <div>.
+ * - consumers compose it as a child <div>.
  *
  * Always-dark text invariant (per handoff): the text color stays #292524
  * regardless of :root.dark cascade. The amber-yellow surface is identical
- * in light and dark modes — sticky notes are visually consistent across
+ * in light and dark modes - sticky notes are visually consistent across
  * themes, intentionally.
  */
 export const StickyNote = forwardRef<HTMLDivElement, StickyNoteProps>(function StickyNote(

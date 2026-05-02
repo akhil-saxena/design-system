@@ -177,7 +177,7 @@ const PRINCIPLES = [
 	{
 		n: "03",
 		title: "Considered motion",
-		body: "120–280ms, custom easing, never gratuitous. Animation explains state changes — it never decorates them.",
+		body: "120–280ms, custom easing, never gratuitous. Animation explains state changes - it never decorates them.",
 	},
 ];
 
@@ -551,7 +551,7 @@ export function OverviewPage() {
 						marginBottom: 36,
 					}}
 				>
-					A complete kit for building React UIs — tokens, primitives, patterns, and interactions.
+					A complete kit for building React UIs - tokens, primitives, patterns, and interactions.
 					Consistent where it matters, flexible where it counts.
 				</div>
 				<HeroInstall t={t} />

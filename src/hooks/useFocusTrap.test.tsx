@@ -113,7 +113,7 @@ describe("useFocusTrap", () => {
 		expect(event.defaultPrevented).toBe(true);
 
 		document.body.removeChild(outsideTrigger);
-		// container is from getByTestId — leave to RTL cleanup
+		// container is from getByTestId - leave to RTL cleanup
 		void container;
 	});
 });

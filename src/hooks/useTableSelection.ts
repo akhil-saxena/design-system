@@ -16,7 +16,7 @@ export function useTableSelection<Id extends string | number>(
 	options?: {
 		mode?: SelectionMode;
 		defaultSelected?: Id[];
-		/** Controlled selected ids — takes priority over internal state. */
+		/** Controlled selected ids - takes priority over internal state. */
 		selectedIds?: Id[];
 		onSelectionChange?: (ids: Id[]) => void;
 	},

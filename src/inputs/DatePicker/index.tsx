@@ -1,13 +1,13 @@
 import { type HTMLAttributes, forwardRef, useEffect, useMemo, useState } from "react";
 import { buildMonthGrid } from "../../_internals/calendarGrid";
-import { addMonths, isSameDay, isToday, startOfMonth } from "../../_internals/dateUtils"; // DS-53 — DatePicker primitive (Phase 16 Wave 1 / plan 16-05).
+import { addMonths, isSameDay, isToday, startOfMonth } from "../../_internals/dateUtils"; // DS-53 - DatePicker primitive (Phase 16 Wave 1 / plan 16-05).
 // 7×6 calendar grid with controlled value, optional time picker, event dots.
 // Composed by DateRangePicker (16-06) via inRange + defaultMonth backward-
-// compatible API additions. NO date-fns dep — uses pure helpers from
+// compatible API additions. NO date-fns dep - uses pure helpers from
 // ./_internals/dateUtils (D-510). See design-handoff/design-system/ds-pickers.jsx.
-// v0.5.2 — isCellSelected override prop added so DateRangePicker can mark
+// v0.5.2 - isCellSelected override prop added so DateRangePicker can mark
 // BOTH endpoints (start + end) with the amber selected marker.
-// v0.5.3 — added isRangeStart/isRangeEnd modifier props for range-edge bg polish.
+// v0.5.3 - added isRangeStart/isRangeEnd modifier props for range-edge bg polish.
 import { ChevronLeft, ChevronRight } from "../../icons";
 import { Button } from "../Button";
 export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
@@ -146,7 +146,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 		onChange(out);
 	}
 
-	// Time picker uses 12-hour mode with AM/PM toggle (v0.5.1 patch — was 24-hour).
+	// Time picker uses 12-hour mode with AM/PM toggle (v0.5.1 patch - was 24-hour).
 	// Internal Date object stays in 24-hour for caller consumption.
 	function updateHour12(h12: number) {
 		const base = value ?? new Date();
@@ -287,7 +287,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 					<Button
 						size="sm"
 						variant={displayPeriod === "PM" ? "primary" : "secondary"}
-						aria-label={`Currently ${displayPeriod} — click to switch`}
+						aria-label={`Currently ${displayPeriod} - click to switch`}
 						aria-pressed={displayPeriod === "PM"}
 						onClick={() => togglePeriod(displayPeriod === "AM" ? "PM" : "AM")}
 						style={{

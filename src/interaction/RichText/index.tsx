@@ -1,34 +1,34 @@
 /**
- * # RichText — DS-70 (D-17-14..D-17-19)
+ * # RichText - DS-70 (D-17-14..D-17-19)
  *
  * Built on @tiptap/react 3.x + StarterKit + Link + Placeholder + UnderlineExtension.
  * Heaviest primitive in Phase 17 (~50-70 KB gzipped TipTap deps, externalized in tsup.config.ts).
  *
- * ## Controlled-value sync — DO NOT BREAK (RESEARCH.md § "Controlled Value Sync")
+ * ## Controlled-value sync - DO NOT BREAK (RESEARCH.md § "Controlled Value Sync")
  *
  * TipTap is NOT natively a controlled component. The naive pattern infinite-loops:
  *   useEffect(() => editor.setContent(value), [value]); // BAD
  * because setContent fires onUpdate → onChange → parent setState → new value prop → effect → loop.
  *
  * Three-layer guard that prevents the loop:
- *   1. `lastEmittedRef` — tracks the last value we ourselves emitted so we can detect the echo
- *   2. `editor.getHTML()` comparison — defensive equality check; cheap on small docs
- *   3. `{ emitUpdate: false }` passed to setContent — suppresses onUpdate even if both checks miss
+ *   1. `lastEmittedRef` - tracks the last value we ourselves emitted so we can detect the echo
+ *   2. `editor.getHTML()` comparison - defensive equality check; cheap on small docs
+ *   3. `{ emitUpdate: false }` passed to setContent - suppresses onUpdate even if both checks miss
  *
- * If you are tempted to "simplify" this sync by removing any of the three layers — don't.
+ * If you are tempted to "simplify" this sync by removing any of the three layers - don't.
  * Each layer catches a distinct race condition. The pattern is documented in RESEARCH.md.
  *
  * ## Output formats (D-17-17)
  *
- * - "html" (default): onChange(editor.getHTML())  — string
- * - "json":           onChange(editor.getJSON())  — TipTap Doc object
+ * - "html" (default): onChange(editor.getHTML())  - string
+ * - "json":           onChange(editor.getJSON())  - TipTap Doc object
  *
  * When outputFormat="json", we do NOT update lastEmittedRef (consumers using JSON output manage
- * their own state sync — the component doesn't attempt to round-trip JSON through getHTML).
+ * their own state sync - the component doesn't attempt to round-trip JSON through getHTML).
  *
  * ## Sanitization (D-17-18)
  *
- * StarterKit's extension allowlist filters tags/attrs on paste — equivalent to schema-based
+ * StarterKit's extension allowlist filters tags/attrs on paste - equivalent to schema-based
  * sanitization. Inline <script>, <style>, <font>, JS-URL anchors, <iframe>, etc. are stripped
  * during ProseMirror schema parse. NO DOMPurify dependency in v0.6.
  *
@@ -36,14 +36,14 @@
  *
  * ## Threat model
  *
- * - T-17-13-01: XSS via paste — TipTap allowlist mitigates (cited in file header for traceability)
- * - T-17-13-02: XSS via server-side persistence — caller's responsibility (see above)
- * - T-17-13-03: Crafted initial value HTML — same schema parse on setContent; script tags stripped
- * - T-17-13-04: javascript: links — TipTap Link extension defaults filter out javascript:/data: URLs
+ * - T-17-13-01: XSS via paste - TipTap allowlist mitigates (cited in file header for traceability)
+ * - T-17-13-02: XSS via server-side persistence - caller's responsibility (see above)
+ * - T-17-13-03: Crafted initial value HTML - same schema parse on setContent; script tags stripped
+ * - T-17-13-04: javascript: links - TipTap Link extension defaults filter out javascript:/data: URLs
  *
  * ## Underline extension
  *
- * TipTap StarterKit 3.x does NOT include the Underline extension — it ships separately as
+ * TipTap StarterKit 3.x does NOT include the Underline extension - it ships separately as
  * @tiptap/extension-underline. Imported as `UnderlineExtension` to avoid collision with the
  * `Underline` icon component imported from ./icons.
  */
@@ -177,13 +177,13 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 	const editor = useEditor({
 		extensions: [
 			// Disable StarterKit's bundled Link and Underline so we can configure them ourselves.
-			// StarterKit v3.22 includes both by default — providing false opts them out,
+			// StarterKit v3.22 includes both by default - providing false opts them out,
 			// then we add our own configured versions below (avoids "Duplicate extension" warning).
 			StarterKit.configure({ link: false, underline: false, codeBlock: false }),
 			CodeBlockLowlight.configure({ lowlight, defaultLanguage: "plaintext" }),
 			Link.configure({ openOnClick: false, autolink: true }),
 			Placeholder.configure({ placeholder: placeholder ?? "" }),
-			// NOTE: UnderlineExtension — renamed import to avoid collision with Underline icon
+			// NOTE: UnderlineExtension - renamed import to avoid collision with Underline icon
 			UnderlineExtension,
 		],
 		content: value,
@@ -207,14 +207,14 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 	// ── Controlled value → editor sync (three-layer guard) ─────────────────
 	// Called every time the parent passes a new value prop.
 	// We must NOT call setContent when the change originated from our own onUpdate
-	// (parent echoes our emission back as value) — that would loop.
+	// (parent echoes our emission back as value) - that would loop.
 	useEffect(() => {
 		if (!editor) return;
 		// Only HTML sync is supported; JSON consumers own their own state management
 		if (typeof value !== "string") return;
 		// Layer 1: skip if parent just echoed back what we emitted
 		if (value === lastEmittedRef.current) return;
-		// Layer 2: defensive equality — if editor already shows this HTML, do nothing
+		// Layer 2: defensive equality - if editor already shows this HTML, do nothing
 		if (value === editor.getHTML()) return;
 		// Layer 3: { emitUpdate: false } prevents setContent from firing onUpdate
 		editor.commands.setContent(value, { emitUpdate: false });
@@ -293,7 +293,7 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 				<Code size={16} />
 			</Button>
 
-			{/* Language selector + dark toggle — only visible when cursor is inside a code block */}
+			{/* Language selector + dark toggle - only visible when cursor is inside a code block */}
 			{isActive("codeBlock") && (
 				<>
 					<Select
@@ -324,7 +324,7 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 				ref={headingBtnRef}
 				variant="ghost"
 				size="sm"
-				aria-label={`Heading style — currently ${activeHeadingLabel()}`}
+				aria-label={`Heading style - currently ${activeHeadingLabel()}`}
 				aria-haspopup="menu"
 				aria-expanded={headingOpen}
 				data-active={isActive("heading") || undefined}

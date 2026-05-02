@@ -4,11 +4,11 @@ const W = 400; // consistent width for non-playground stories
 
 const SRC = {
 	Default: `<Textarea placeholder="Type a note…" rows={4} />`,
-	WithValue: `<Textarea defaultValue="Strong presentation — ask follow-up about the approach used." />`,
+	WithValue: `<Textarea defaultValue="Strong presentation - ask follow-up about the approach used." />`,
 	WithCounter: `<Textarea defaultValue="Tracking review notes." maxLength={200} />`,
 	ErrorState: `<Textarea error defaultValue="Required field" />`,
-	Disabled: `<Textarea disabled defaultValue="—" />`,
-	Playground: `// Textarea always fills its container — set any width on the wrapper
+	Disabled: `<Textarea disabled defaultValue="-" />`,
+	Playground: `// Textarea always fills its container - set any width on the wrapper
 <div style={{ width: 360 }}>
   <Textarea placeholder="Playground" rows={5} />
 </div>`,
@@ -59,7 +59,7 @@ export const Default: Story = {
 	],
 };
 export const WithValue: Story = {
-	args: { defaultValue: "Strong presentation — ask follow-up about the approach used." },
+	args: { defaultValue: "Strong presentation - ask follow-up about the approach used." },
 	parameters: { docs: { source: { code: SRC.WithValue } } },
 	decorators: [
 		(S) => (
@@ -92,7 +92,7 @@ export const ErrorState: Story = {
 	],
 };
 export const Disabled: Story = {
-	args: { disabled: true, defaultValue: "—" },
+	args: { disabled: true, defaultValue: "-" },
 	parameters: { docs: { source: { code: SRC.Disabled } } },
 	decorators: [
 		(S) => (

@@ -89,7 +89,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
 			/>
 		);
 	}
-	// Wrapped input when icon/prefix/suffix/kbd is present — wrapper handles
+	// Wrapped input when icon/prefix/suffix/kbd is present - wrapper handles
 	// border + focus-within ring so the inner <input> inherits.
 	return (
 		<div

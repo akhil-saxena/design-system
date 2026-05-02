@@ -1,23 +1,23 @@
 /**
- * # Usage Audit — Carousel (DS-65)
+ * # Usage Audit - Carousel (DS-65)
  *
  * Consumers (post v0.6):
  * - Marketing hero rotations: image galleries, tutorial steps, testimonial rotators
  *
  * API:
- * - slides: CarouselSlide[]           — array of { id, content, ariaLabel? }
- * - index / defaultIndex / onIndexChange — controlled or uncontrolled position
- * - autoPlayInterval: number           — ms between auto-advances; 0 = disabled
- * - showArrows: boolean                — render Prev/Next arrow buttons (default true)
- * - showDots: boolean                  — render dot indicator tablist (default true)
- * - ariaLabel: string                  — accessible label for the carousel region
+ * - slides: CarouselSlide[]           - array of { id, content, ariaLabel? }
+ * - index / defaultIndex / onIndexChange - controlled or uncontrolled position
+ * - autoPlayInterval: number           - ms between auto-advances; 0 = disabled
+ * - showArrows: boolean                - render Prev/Next arrow buttons (default true)
+ * - showDots: boolean                  - render dot indicator tablist (default true)
+ * - ariaLabel: string                  - accessible label for the carousel region
  *
  * Implementation:
  * - WAI-ARIA Carousel pattern: <section aria-roledescription="carousel">
  *   with <div role="group" aria-roledescription="slide"> per slide
  * - Dot tablist: role="tablist" + role="tab" buttons with aria-selected
  * - Touch swipe via Pointer Events with setPointerCapture (lifted from BottomSheet)
- *   — touch-only filter via e.pointerType === "touch"
+ *   - touch-only filter via e.pointerType === "touch"
  * - Autoplay gated by useReducedMotion (W3C guidance: skip timer entirely when set)
  * - Pause on hover/focus per WAI-ARIA spec
  * - Keyboard: ArrowLeft/Right when carousel section has focus
@@ -120,7 +120,7 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 
 	// ─── Touch swipe via Pointer Events ──────────────────────────────────────
 	// Pattern lifted from BottomSheet.tsx (handleHandlePointerDown/Up).
-	// Only fires for touch pointer type — preserves mouse click semantics.
+	// Only fires for touch pointer type - preserves mouse click semantics.
 	const dragRef = useRef<{ startX: number; pointerId: number } | null>(null);
 
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -180,7 +180,7 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 			// biome-ignore lint/a11y/noNoninteractiveTabindex: section must be focusable for keyboard ArrowLeft/Right navigation per WAI-ARIA Carousel pattern
 			tabIndex={0}
 		>
-			{/* Viewport — intercepts touch pointer events */}
+			{/* Viewport - intercepts touch pointer events */}
 			<div
 				className="ds-atom-carousel-viewport"
 				onPointerDown={onPointerDown}
@@ -242,7 +242,7 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 				>
 					{slides.map((_, i) => (
 						<button
-							// biome-ignore lint/suspicious/noArrayIndexKey: index is stable for dot nav — slides order is fixed during render
+							// biome-ignore lint/suspicious/noArrayIndexKey: index is stable for dot nav - slides order is fixed during render
 							key={i}
 							role="tab"
 							aria-selected={i === index}

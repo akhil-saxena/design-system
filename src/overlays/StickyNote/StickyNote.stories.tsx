@@ -10,13 +10,13 @@ const SRC = {
   </div>
 </StickyNote>`,
 	Rotations: `<StickyNote rotation="left">
-  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Left tilt — rotate(-0.6deg).</div>
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Left tilt - rotate(-0.6deg).</div>
 </StickyNote>
 <StickyNote rotation="right">
-  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Right tilt — rotate(0.4deg). Default.</div>
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Right tilt - rotate(0.4deg). Default.</div>
 </StickyNote>
 <StickyNote rotation="none">
-  <div style={{ fontSize: 13, lineHeight: 1.5 }}>No tilt — rotate(0deg).</div>
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>No tilt - rotate(0deg).</div>
 </StickyNote>`,
 	Group: `<StickyNote rotation="right">
   <div style={{ fontSize: 13, lineHeight: 1.5 }}>Follow up before Thursday. Review project scope with the team.</div>
@@ -28,10 +28,10 @@ const SRC = {
   <div style={{ fontSize: 13, lineHeight: 1.5 }}>Follow up if no reply within 3 days.</div>
 </StickyNote>`,
 	Playground: `<StickyNote rotation="right">
-  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Playground note — tweak rotation in controls.</div>
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Playground note - tweak rotation in controls.</div>
 </StickyNote>`,
 	DarkMode: `<StickyNote rotation="left">
-  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Sticky notes stay yellow in dark mode — handoff invariant.</div>
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Sticky notes stay yellow in dark mode - handoff invariant.</div>
 </StickyNote>`,
 };
 
@@ -92,15 +92,15 @@ export const Rotations: Story = {
 	render: () => (
 		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 14, padding: 20 }}>
 			<StickyNote rotation="left">
-				<div style={{ fontSize: 13, lineHeight: 1.5 }}>Left tilt — rotate(-0.6deg).</div>
+				<div style={{ fontSize: 13, lineHeight: 1.5 }}>Left tilt - rotate(-0.6deg).</div>
 				<div style={hintStyle}>left</div>
 			</StickyNote>
 			<StickyNote rotation="right">
-				<div style={{ fontSize: 13, lineHeight: 1.5 }}>Right tilt — rotate(0.4deg). Default.</div>
+				<div style={{ fontSize: 13, lineHeight: 1.5 }}>Right tilt - rotate(0.4deg). Default.</div>
 				<div style={hintStyle}>right (default)</div>
 			</StickyNote>
 			<StickyNote rotation="none">
-				<div style={{ fontSize: 13, lineHeight: 1.5 }}>No tilt — rotate(0deg).</div>
+				<div style={{ fontSize: 13, lineHeight: 1.5 }}>No tilt - rotate(0deg).</div>
 				<div style={hintStyle}>none</div>
 			</StickyNote>
 		</div>
@@ -147,7 +147,7 @@ export const DarkMode: Story = {
 		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 14, padding: 20 }}>
 			<StickyNote rotation="left">
 				<div style={{ fontSize: 13, lineHeight: 1.5 }}>
-					Sticky notes stay yellow in dark mode — handoff invariant.
+					Sticky notes stay yellow in dark mode - handoff invariant.
 				</div>
 				<div style={hintStyle}>invariant check</div>
 			</StickyNote>
@@ -159,7 +159,7 @@ export const DarkMode: Story = {
 			</StickyNote>
 			<StickyNote rotation="none">
 				<div style={{ fontSize: 13, lineHeight: 1.5 }}>
-					Identical to light-mode rendering — by design.
+					Identical to light-mode rendering - by design.
 				</div>
 				<div style={hintStyle}>parity</div>
 			</StickyNote>

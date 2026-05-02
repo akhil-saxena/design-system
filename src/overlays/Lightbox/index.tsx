@@ -23,13 +23,13 @@ export interface LightboxProps {
 }
 
 /**
- * Lightbox — full-bleed media-display overlay where the image IS the surface.
+ * Lightbox - full-bleed media-display overlay where the image IS the surface.
  * D-350: heavier backdrop rgba(0,0,0,.92), arrow-key navigation with wrap-
  * around, always-dark invariant (NO :root.dark overrides). Modal-adjacent
  * architecture (DSPortal-mounted, Escape-to-close, initial focus on close).
  *
  * Controlled pattern: caller manages activeIndex + onIndexChange. Lightbox
- * holds no state itself — pairs cleanly with gallery thumbnail-strip selection.
+ * holds no state itself - pairs cleanly with gallery thumbnail-strip selection.
  *
  *   <Lightbox
  *     open={open}
@@ -40,7 +40,7 @@ export interface LightboxProps {
  *
  * a11y: role="dialog" + aria-modal + aria-label includes active item.alt;
  * close button gets initial focus (image is non-focusable); ArrowLeft/Right
- * + Escape via global document keydown listener (no useFocusTrap — only 3
+ * + Escape via global document keydown listener (no useFocusTrap - only 3
  * focusable elements).
  */
 export function Lightbox({ open, onClose, items, activeIndex = 0, onIndexChange }: LightboxProps) {

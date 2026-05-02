@@ -124,13 +124,13 @@ const MILESTONE_EVENTS: TimelineEvent[] = [
 
 // ─── Stories ───────────────────────────────────────────────────────────────
 
-/** Default horizontal timeline — 5 project stages with dates */
+/** Default horizontal timeline - 5 project stages with dates */
 export const Horizontal: Story = {
 	parameters: { docs: { source: { code: SRC.Horizontal } } },
 	render: () => <Timeline events={APPLICATION_EVENTS} orientation="horizontal" />,
 };
 
-/** Vertical orientation — events stack column with left-aligned dots */
+/** Vertical orientation - events stack column with left-aligned dots */
 export const Vertical: Story = {
 	parameters: { docs: { source: { code: SRC.Vertical } } },
 	render: () => (
@@ -140,13 +140,13 @@ export const Vertical: Story = {
 	),
 };
 
-/** Milestones — events with descriptions and custom dot colors */
+/** Milestones - events with descriptions and custom dot colors */
 export const Milestones: Story = {
 	parameters: { docs: { source: { code: SRC.Milestones } } },
 	render: () => <Timeline events={MILESTONE_EVENTS} />,
 };
 
-/** Clickable — events with onClick handlers (fires action in Storybook panel) */
+/** Clickable - events with onClick handlers (fires action in Storybook panel) */
 export const Clickable: Story = {
 	parameters: { docs: { source: { code: SRC.Clickable } } },
 	render: () => {
@@ -176,13 +176,13 @@ export const DarkMode: Story = {
 	),
 };
 
-/** Empty — events array is empty; renders <ol> with no children, no errors */
+/** Empty - events array is empty; renders <ol> with no children, no errors */
 export const Empty: Story = {
 	parameters: { docs: { source: { code: SRC.Empty } } },
 	render: () => <Timeline events={[]} ariaLabel="Empty timeline" />,
 };
 
-/** Playground — use controls panel to experiment with props */
+/** Playground - use controls panel to experiment with props */
 export const Playground: Story = {
 	parameters: { docs: { source: { code: SRC.Playground } } },
 	args: {

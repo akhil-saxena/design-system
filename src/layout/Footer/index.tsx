@@ -10,7 +10,7 @@ export interface FooterColumn {
 export interface FooterProps {
 	/** Visual variant. @default "compact" */
 	variant?: FooterVariant;
-	/** Copyright line text. @default "© 2026 — All rights reserved" */
+	/** Copyright line text. @default "© 2026 - All rights reserved" */
 	copyright?: string;
 	/** Compact variant: right-side link row. */
 	links?: Array<{ label: string; href?: string; onClick?: () => void }>;
@@ -21,7 +21,7 @@ export interface FooterProps {
 }
 
 /**
- * Footer — DS-73
+ * Footer - DS-73
  *
  * Standalone page footer primitive. Pass as the `footer` slot to AppShell (DS-71).
  * - `compact`: 1-line bar with copyright + utility links.
@@ -31,7 +31,7 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
 	(
 		{
 			variant = "compact",
-			copyright = "© 2026 — All rights reserved",
+			copyright = "© 2026 - All rights reserved",
 			links = [],
 			columns = [],
 			className,

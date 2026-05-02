@@ -48,7 +48,7 @@ export interface SheetProps {
  *
  * Per D-332:
  * - 400px wide on desktop (≥640px)
- * - 100vw on mobile (<640px) via @media — no prop required
+ * - 100vw on mobile (<640px) via @media - no prop required
  * - side: 'right' (default) | 'left'; CSS keys off [data-side]
  *
  * Returns null when open=false. When open=true, portals a backdrop +
@@ -57,7 +57,7 @@ export interface SheetProps {
  *
  * useFocusTrap traps Tab inside the panel + restores focus on close.
  * Escape closes via a document keydown listener installed only while open
- * (Wave 0 useFocusTrap only handles Tab — we add Escape ourselves).
+ * (Wave 0 useFocusTrap only handles Tab - we add Escape ourselves).
  */
 export function Sheet({
 	open,
@@ -77,7 +77,7 @@ export function Sheet({
 	const titleId = title ? generatedTitleId : undefined;
 	const descId = description ? generatedDescId : undefined;
 	// Hoisted so biome's lint/a11y/useSemanticElements rule (which fires only on
-	// static "dialog" literals) doesn't insist we swap to a native <dialog> — that
+	// static "dialog" literals) doesn't insist we swap to a native <dialog> - that
 	// element doesn't honor non-modal backdrop click + DSPortal mounting.
 	const dialogRole = "dialog" as const;
 

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ProgressBar } from ".";
 const SRC = {
 	Default: "<ProgressBar value={50} />",
-	Range: `// Determinate — value 0–100
+	Range: `// Determinate - value 0–100
 <ProgressBar value={0}   label="0%"   />
 <ProgressBar value={25}  label="25%"  />
 <ProgressBar value={50}  label="50%"  />
@@ -119,7 +119,7 @@ export const Loading: Story = {
 	render: () => (
 		<div style={{ maxWidth: 480 }}>
 			<div style={{ fontSize: 13, color: "var(--ink-2)", marginBottom: 6 }}>
-				Indeterminate 3-dot pulse — for unknown-duration operations
+				Indeterminate 3-dot pulse - for unknown-duration operations
 			</div>
 			<ProgressBar loading label="Loading" />
 		</div>

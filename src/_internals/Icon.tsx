@@ -33,7 +33,7 @@ export const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon(
 		// Defaults BEFORE rest spread so consumer overrides win.
 		return <IconComponent ref={ref} {...ICON_DEFAULTS} {...rest} {...a11y} />;
 	}
-	// Children escape hatch — custom SVG.
+	// Children escape hatch - custom SVG.
 	return (
 		<span className="ds-atom-icon" {...a11y}>
 			{children}
@@ -44,7 +44,7 @@ export const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon(
 /**
  * Pre-bind a lucide icon with brand-lock defaults. Used by src/icons/index.ts.
  * Returns a component callable as <ChevronDown size={14} /> with all the Icon
- * defaults already applied — so callers don't need to pass `icon={LucideChevronDown}`.
+ * defaults already applied - so callers don't need to pass `icon={LucideChevronDown}`.
  */
 export function wrap(
 	LucideIconComponent: LucideIcon,

@@ -78,7 +78,7 @@ describe("SplitButton", () => {
 		expect(items[2].getAttribute("data-action-variant")).toBe("danger");
 	});
 
-	it("v0.5.4 — when all actions inherit (no explicit variant), no menu item carries data-action-variant", () => {
+	it("v0.5.4 - when all actions inherit (no explicit variant), no menu item carries data-action-variant", () => {
 		const { actions } = makeActions();
 		render(<SplitButton actions={actions} />);
 		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
@@ -88,7 +88,7 @@ describe("SplitButton", () => {
 		}
 	});
 
-	it("v0.5.4 — only the action with an explicit differing variant carries data-action-variant; inheriting siblings do not", () => {
+	it("v0.5.4 - only the action with an explicit differing variant carries data-action-variant; inheriting siblings do not", () => {
 		const actions: [SplitButtonAction, SplitButtonAction, SplitButtonAction] = [
 			{ label: "Save", onClick: () => {} },
 			{ label: "Save as draft", onClick: () => {} },
@@ -118,7 +118,7 @@ describe("SplitButton", () => {
 		expect(primary.getAttribute("data-variant")).toBe("danger");
 	});
 
-	it("v0.5.5 — does not stretch to fill parent flex container width (width: fit-content guard)", () => {
+	it("v0.5.5 - does not stretch to fill parent flex container width (width: fit-content guard)", () => {
 		const { actions } = makeActions();
 		// Parent is a column flex container; default `align-items: stretch` would
 		// force the inline-flex SplitButton to fill the parent's cross-axis (width)
@@ -139,7 +139,7 @@ describe("SplitButton", () => {
 		expect(wrapper.style.width).toBe("");
 	});
 
-	it("re-mount resets currentIdx to 0 (in-instance state only — D-530)", () => {
+	it("re-mount resets currentIdx to 0 (in-instance state only - D-530)", () => {
 		const { actions } = makeActions();
 		const { unmount } = render(<SplitButton actions={actions} />);
 
@@ -155,7 +155,7 @@ describe("SplitButton", () => {
 		unmount();
 
 		render(<SplitButton actions={actions} />);
-		// Fresh instance — primary face must be actions[0]
+		// Fresh instance - primary face must be actions[0]
 		expect(screen.getByRole("button", { name: "Save" })).toHaveAttribute("data-part", "primary");
 		expect(screen.queryByRole("button", { name: "Save and close" })).toBeNull();
 	});

@@ -2,7 +2,7 @@ import { type RefObject, useState } from "react";
 import { X } from "../../icons";
 import { Button } from "../../inputs/Button";
 import { Popover } from "../../overlays/Popover";
-// ─── DS-76: Coachmark — anchored first-run hint ────────────────────────────
+// ─── DS-76: Coachmark - anchored first-run hint ────────────────────────────
 
 export interface CoachmarkProps {
 	/** Ref to the element being highlighted */

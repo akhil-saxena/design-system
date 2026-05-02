@@ -10,7 +10,7 @@ describe("DatePicker", () => {
 
 	it("clicking a cell calls onChange with that Date", () => {
 		const onChange = vi.fn();
-		const april = new Date(2026, 3, 15); // April 15, 2026 — value drives initial month
+		const april = new Date(2026, 3, 15); // April 15, 2026 - value drives initial month
 		render(<DatePicker value={april} onChange={onChange} />);
 		// Find the in-month cell labeled "20" (April 20, 2026)
 		const cells = screen.getAllByRole("gridcell");
@@ -133,7 +133,7 @@ describe("DatePicker", () => {
 		expect(target!.className).toContain("is-range-start");
 	});
 
-	it("v0.5.5 — selected cell retains is-selected class after hover (state preserved)", () => {
+	it("v0.5.5 - selected cell retains is-selected class after hover (state preserved)", () => {
 		render(<DatePicker value={new Date(2026, 3, 15)} onChange={() => {}} />);
 		const cells = screen.getAllByRole("gridcell");
 		const selected = cells.find(
@@ -141,12 +141,12 @@ describe("DatePicker", () => {
 		);
 		expect(selected).toBeTruthy();
 		fireEvent.mouseEnter(selected!);
-		// Hover must not strip the state class — the v0.5.5 explicit hover rules
+		// Hover must not strip the state class - the v0.5.5 explicit hover rules
 		// preserve the amber pill instead of allowing the generic :hover to win.
 		expect(selected!.className).toContain("is-selected");
 	});
 
-	it("v0.5.5 — in-range cell retains is-in-range class after hover (state preserved)", () => {
+	it("v0.5.5 - in-range cell retains is-in-range class after hover (state preserved)", () => {
 		const inRange = (d: Date) => d.getMonth() === 3 && d.getDate() >= 10 && d.getDate() <= 15;
 		render(<DatePicker value={new Date(2026, 3, 1)} onChange={() => {}} inRange={inRange} />);
 		const cells = screen.getAllByRole("gridcell");
@@ -163,7 +163,7 @@ describe("DatePicker", () => {
 		// 14:30 → 2:30 PM in 12-hour mode
 		expect((screen.getByLabelText("Hours") as HTMLInputElement).value).toBe("2");
 		expect((screen.getByLabelText("Minutes") as HTMLInputElement).value).toBe("30");
-		// Single AM/PM toggle button — shows current period, click to flip
+		// Single AM/PM toggle button - shows current period, click to flip
 		const toggle = screen.getByRole("button", { name: /Currently PM/i });
 		expect(toggle.textContent).toBe("PM");
 		expect(toggle.getAttribute("aria-pressed")).toBe("true");

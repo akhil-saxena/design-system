@@ -64,7 +64,7 @@ describe("Tooltip", () => {
 		expect(screen.queryByRole("tooltip")).toBeNull();
 	});
 
-	it("opens after 150ms on focus (parity with hover — Path A)", () => {
+	it("opens after 150ms on focus (parity with hover - Path A)", () => {
 		render(
 			<Tooltip content="Hello">
 				<button type="button">Trigger</button>

@@ -226,7 +226,7 @@ export const ButtonAnchor: Story = {
 				<HoverCard anchorRef={ref}>
 					<div style={{ fontWeight: 700, marginBottom: 4 }}>Button-anchored card</div>
 					<div style={{ fontSize: 12, lineHeight: 1.5, color: "var(--ink-2)" }}>
-						HoverCard's anchorRef accepts any element — including the design-system Button
+						HoverCard's anchorRef accepts any element - including the design-system Button
 						primitive. Forwards ref directly via Button's forwardRef.
 					</div>
 				</HoverCard>
@@ -248,7 +248,7 @@ export const DarkMode: Story = {
 		const ref = useRef<HTMLSpanElement>(null);
 		return (
 			<p style={{ fontSize: 13, lineHeight: 1.5, padding: 16 }}>
-				Dark mode preview — hover{" "}
+				Dark mode preview - hover{" "}
 				<span
 					ref={ref}
 					style={{

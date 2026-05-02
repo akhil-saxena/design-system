@@ -1,4 +1,4 @@
-// @akhil-saxena/design-system/icons — wrapped lucide-react icons (DS-60).
+// @akhil-saxena/design-system/icons - wrapped lucide-react icons (DS-60).
 // Consumed via:
 //   import { ChevronDown } from "@akhil-saxena/design-system/icons";
 // Each icon is pre-wrapped with brand-lock defaults (size 20, stroke 1.5,

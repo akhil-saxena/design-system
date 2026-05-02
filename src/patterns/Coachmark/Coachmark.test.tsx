@@ -42,7 +42,7 @@ describe("Coachmark", () => {
 		expect(screen.queryByText("Welcome!")).toBeNull();
 	});
 
-	it("storageKey provided — dismiss writes 'dismissed' to localStorage", () => {
+	it("storageKey provided - dismiss writes 'dismissed' to localStorage", () => {
 		const anchorRef = makeAnchorRef();
 		render(<Coachmark anchorRef={anchorRef} title="Welcome!" storageKey="coachmark-tour-1" />);
 		const dismissBtn = screen.getByLabelText("Dismiss");
@@ -59,7 +59,7 @@ describe("Coachmark", () => {
 		expect(screen.queryByText("Should not show")).toBeNull();
 	});
 
-	it("storageKey not provided — dismiss does not write to localStorage", () => {
+	it("storageKey not provided - dismiss does not write to localStorage", () => {
 		const anchorRef = makeAnchorRef();
 		render(<Coachmark anchorRef={anchorRef} title="Welcome!" />);
 		const dismissBtn = screen.getByLabelText("Dismiss");

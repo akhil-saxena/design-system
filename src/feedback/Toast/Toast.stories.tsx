@@ -18,7 +18,7 @@ function SaveButton() {
   return (
     <div style={{ display: "flex", gap: 8 }}>
       <Button onClick={() => toast.success("Changes saved")}>Success</Button>
-      <Button variant="danger" onClick={() => toast.error("Save failed — please retry")}>Error</Button>
+      <Button variant="danger" onClick={() => toast.error("Save failed - please retry")}>Error</Button>
       <Button variant="secondary" onClick={() => toast.info("Update available")}>Info</Button>
       <Button variant="ghost" onClick={() => toast.warning("Approaching usage limit")}>Warning</Button>
     </div>
@@ -26,7 +26,7 @@ function SaveButton() {
 }`,
 	Tones: `const toast = useToast();
 toast.success("Saved successfully", { duration: Infinity });
-toast.error("Save failed — please retry", { duration: Infinity });
+toast.error("Save failed - please retry", { duration: Infinity });
 toast.info("Update available", { duration: Infinity });
 toast.warning("Approaching usage limit", { duration: Infinity });`,
 	Stacking: `const toast = useToast();
@@ -34,12 +34,12 @@ toast.warning("Approaching usage limit", { duration: Infinity });`,
 toast.info("First", { duration: Infinity });
 toast.success("Second", { duration: Infinity });
 toast.warning("Third", { duration: Infinity });
-toast.error("Fourth — drops oldest", { duration: Infinity });`,
+toast.error("Fourth - drops oldest", { duration: Infinity });`,
 	AutoDismiss: `const toast = useToast();
 // Auto-dismisses after 3s (default duration)
 toast.success("Auto-dismisses in 3s (default)");`,
 	Persistent: `const toast = useToast();
-toast.warning("Persistent — manual dismiss only", { duration: Infinity });`,
+toast.warning("Persistent - manual dismiss only", { duration: Infinity });`,
 	DarkMode: `const toast = useToast();
 toast.success("Saved (dark)", { duration: Infinity });
 toast.error("Failed (dark)", { duration: Infinity });
@@ -78,7 +78,7 @@ function ToneTriggers() {
 	return (
 		<div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
 			<Button onClick={() => toast.success("Changes saved")}>Success</Button>
-			<Button variant="danger" onClick={() => toast.error("Save failed — please retry")}>
+			<Button variant="danger" onClick={() => toast.error("Save failed - please retry")}>
 				Error
 			</Button>
 			<Button variant="secondary" onClick={() => toast.info("Update available")}>
@@ -126,7 +126,7 @@ export const Tones: Story = {
 			/>
 			<FireOnMount
 				tone="error"
-				message="Save failed — please retry"
+				message="Save failed - please retry"
 				duration={Number.POSITIVE_INFINITY}
 			/>
 			<FireOnMount tone="info" message="Update available" duration={Number.POSITIVE_INFINITY} />
@@ -155,7 +155,7 @@ function StackingDemo() {
 		>
 			<Button
 				onClick={() => {
-					toast.info("First — will be dropped when 4th arrives", {
+					toast.info("First - will be dropped when 4th arrives", {
 						duration: Number.POSITIVE_INFINITY,
 					});
 					toast.success("Second", { duration: Number.POSITIVE_INFINITY });
@@ -167,7 +167,7 @@ function StackingDemo() {
 			<Button
 				variant="danger"
 				onClick={() =>
-					toast.error("Fourth — drops oldest (info)", { duration: Number.POSITIVE_INFINITY })
+					toast.error("Fourth - drops oldest (info)", { duration: Number.POSITIVE_INFINITY })
 				}
 			>
 				Fire 4th (drops oldest)
@@ -198,7 +198,7 @@ function PersistTrigger() {
 	return (
 		<Button
 			onClick={() =>
-				toast.warning("Persistent — manual dismiss only", {
+				toast.warning("Persistent - manual dismiss only", {
 					duration: Number.POSITIVE_INFINITY,
 				})
 			}

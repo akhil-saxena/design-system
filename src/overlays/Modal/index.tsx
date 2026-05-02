@@ -30,7 +30,7 @@ export interface ModalProps {
 	 * @default true
 	 */
 	closeOnBackdropClick?: boolean;
-	/** ARIA role — use `"alertdialog"` for destructive confirmations.
+	/** ARIA role - use `"alertdialog"` for destructive confirmations.
 	 * @default "dialog"
 	 */
 	role?: ModalRole;
@@ -43,7 +43,7 @@ export interface ModalProps {
 }
 
 /**
- * Modal — DSPortal-mounted dialog with focus trap, Escape close, backdrop close.
+ * Modal - DSPortal-mounted dialog with focus trap, Escape close, backdrop close.
  *
  *   <Modal open={open} onClose={close} title="Edit profile">
  *     <form>...</form>
@@ -150,7 +150,7 @@ export function Modal({
 	);
 }
 
-// ─── ConfirmDialog — same-file variant export (D-287, D-356) ─────────
+// ─── ConfirmDialog - same-file variant export (D-287, D-356) ─────────
 
 export interface ConfirmDialogProps {
 	/** Controls visibility; returns null when false. */
@@ -178,7 +178,7 @@ export interface ConfirmDialogProps {
 }
 
 /**
- * ConfirmDialog — Modal-as-confirmation variant (D-287, D-356).
+ * ConfirmDialog - Modal-as-confirmation variant (D-287, D-356).
  *
  *   <ConfirmDialog
  *     open={open}

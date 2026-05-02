@@ -64,7 +64,7 @@ describe("DateRangePicker", () => {
 		expect(arg.end.getDate()).toBe(15);
 	});
 
-	it("third click resets — sets new start, end:null", () => {
+	it("third click resets - sets new start, end:null", () => {
 		const onChange = vi.fn();
 		render(
 			<DateRangePicker
@@ -79,7 +79,7 @@ describe("DateRangePicker", () => {
 		expect(arg.end).toBeNull();
 	});
 
-	it("v0.5.2 — start cell carries is-selected class when only start is set", () => {
+	it("v0.5.2 - start cell carries is-selected class when only start is set", () => {
 		render(
 			<DateRangePicker value={{ start: new Date(2026, 3, 10), end: null }} onChange={() => {}} />,
 		);
@@ -87,7 +87,7 @@ describe("DateRangePicker", () => {
 		expect(startCell.className).toContain("is-selected");
 	});
 
-	it("v0.5.2 — both start AND end cells carry is-selected class when range is complete", () => {
+	it("v0.5.2 - both start AND end cells carry is-selected class when range is complete", () => {
 		const { container } = render(
 			<DateRangePicker
 				value={{ start: new Date(2026, 3, 10), end: new Date(2026, 3, 15) }}
@@ -105,7 +105,7 @@ describe("DateRangePicker", () => {
 		expect(selectedInMonth.length).toBe(2);
 	});
 
-	it("v0.5.2 — 1-day range (start === end) renders as single is-selected cell", () => {
+	it("v0.5.2 - 1-day range (start === end) renders as single is-selected cell", () => {
 		const sameDay = new Date(2026, 3, 12);
 		const { container } = render(
 			<DateRangePicker value={{ start: sameDay, end: sameDay }} onChange={() => {}} />,
@@ -121,7 +121,7 @@ describe("DateRangePicker", () => {
 		expect(inRangeCells.length).toBe(0);
 	});
 
-	it("v0.5.3 — real range marks start with is-range-start and end with is-range-end", () => {
+	it("v0.5.3 - real range marks start with is-range-start and end with is-range-end", () => {
 		render(
 			<DateRangePicker
 				value={{ start: new Date(2026, 3, 5), end: new Date(2026, 3, 10) }}
@@ -139,7 +139,7 @@ describe("DateRangePicker", () => {
 		expect(betweenCell.className).toContain("is-in-range");
 	});
 
-	it("v0.5.3 — 1-day range (start === end) does NOT add is-range-start/is-range-end", () => {
+	it("v0.5.3 - 1-day range (start === end) does NOT add is-range-start/is-range-end", () => {
 		const sameDay = new Date(2026, 3, 5);
 		render(<DateRangePicker value={{ start: sameDay, end: sameDay }} onChange={() => {}} />);
 		const cell = cellByDay("5");

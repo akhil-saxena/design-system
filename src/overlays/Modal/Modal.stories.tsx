@@ -37,7 +37,7 @@ return (
   <>
     <Button onClick={() => setOpen(true)}>Open scrollable modal</Button>
     <Modal open={open} onClose={() => setOpen(false)} title="Long content (scrollable)">
-      <p>Paragraph 1 — modal max-height is 80vh and overflow-y: auto.</p>
+      <p>Paragraph 1 - modal max-height is 80vh and overflow-y: auto.</p>
       <p>Paragraph 2 ...</p>
     </Modal>
   </>
@@ -171,7 +171,7 @@ const meta: Meta<typeof Modal> = {
 		role: {
 			control: "select",
 			options: ["dialog", "alertdialog"],
-			description: "ARIA role — use alertdialog for destructive confirmations.",
+			description: "ARIA role - use alertdialog for destructive confirmations.",
 		},
 		initialFocus: {
 			control: false,
@@ -239,7 +239,7 @@ function LargeContentDemo() {
 			<Modal open={open} onClose={() => setOpen(false)} title="Long content (scrollable)">
 				{Array.from({ length: 20 }, (_, i) => (
 					// biome-ignore lint/suspicious/noArrayIndexKey: static demo content; index is a stable identity here
-					<p key={i}>Paragraph {i + 1} — modal max-height is 80vh and overflow-y: auto.</p>
+					<p key={i}>Paragraph {i + 1} - modal max-height is 80vh and overflow-y: auto.</p>
 				))}
 			</Modal>
 		</>

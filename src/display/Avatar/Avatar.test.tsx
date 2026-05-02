@@ -27,7 +27,7 @@ describe("Avatar utilities", () => {
 			expect(g[0]).toMatch(/^#/);
 			expect(g[1]).toMatch(/^#/);
 		});
-		it("deterministic — same input always returns same gradient", () => {
+		it("deterministic - same input always returns same gradient", () => {
 			expect(deriveGradient("test")).toEqual(deriveGradient("test"));
 			expect(deriveGradient("Maya Chen")).toEqual(deriveGradient("Maya Chen"));
 		});
@@ -146,7 +146,7 @@ describe("presence position", () => {
 		expect(dot.style.left).toBe("");
 	});
 
-	it("no presence prop — no dot rendered (existing behavior unchanged)", () => {
+	it("no presence prop - no dot rendered (existing behavior unchanged)", () => {
 		const { container } = render(<Avatar name="x" />);
 		expect(container.querySelector("span[aria-hidden]")).toBeNull();
 	});

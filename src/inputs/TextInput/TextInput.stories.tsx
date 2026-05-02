@@ -5,7 +5,7 @@ const SRC = {
 	Default: `<TextInput placeholder="Type here…" />`,
 	WithValue: `<TextInput defaultValue="Acme Corp" />`,
 	ErrorState: `<TextInput error defaultValue="Invalid email" />`,
-	Disabled: `<TextInput disabled defaultValue="—" />`,
+	Disabled: `<TextInput disabled defaultValue="-" />`,
 	WithIcon: `<TextInput icon={<Search size={14} />} placeholder="Search items…" />`,
 	WithPrefix: `<TextInput prefix="$" suffix="USD" placeholder="85000" />`,
 	WithUrlIcon: `<TextInput icon={<LinkIcon size={14} />} placeholder="https://acme.com/records/123" />`,
@@ -78,7 +78,7 @@ export const ErrorState: Story = {
 };
 
 export const Disabled: Story = {
-	args: { disabled: true, defaultValue: "—" },
+	args: { disabled: true, defaultValue: "-" },
 	parameters: { docs: { source: { code: SRC.Disabled } } },
 };
 

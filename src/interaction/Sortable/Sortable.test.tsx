@@ -102,7 +102,7 @@ describe("Sortable", () => {
 		);
 		const item = document.querySelector(".ds-atom-sortable-item") as HTMLElement;
 		expect(item).toBeTruthy();
-		// Without dragging, transform is null/empty — this validates the element renders
+		// Without dragging, transform is null/empty - this validates the element renders
 		expect(item.style.transform).toBe("");
 	});
 
@@ -127,7 +127,7 @@ describe("Sortable", () => {
 				renderItem={(item) => <span>{String(item.label)}</span>}
 			/>,
 		);
-		// Initially overId is null — no indicator should render
+		// Initially overId is null - no indicator should render
 		const indicator = document.querySelector(".ds-atom-sortable-indicator");
 		expect(indicator).toBeNull();
 	});
@@ -169,7 +169,7 @@ describe("Sortable", () => {
 		expect(screen.getByTestId("child-content")).toBeTruthy();
 	});
 
-	it("Test 13: cross-list — two Sortable lists render inside SortableDndContext", () => {
+	it("Test 13: cross-list - two Sortable lists render inside SortableDndContext", () => {
 		const onMove = vi.fn();
 		const todoItems: SortableItemData[] = [
 			{ id: "t1", label: "Todo 1" },
@@ -221,7 +221,7 @@ describe("Sortable", () => {
 			</SortableDndContext>,
 		);
 		unmount();
-		// No assertions needed — if it renders without throwing, the prop is accepted
+		// No assertions needed - if it renders without throwing, the prop is accepted
 		expect(true).toBe(true);
 	});
 

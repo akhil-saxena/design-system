@@ -8,7 +8,7 @@ export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, "t
 	icon?: ReactNode;
 	/**
 	 * Primary heading. Required. Rendered in the display font at 600 weight.
-	 * Keep to one short sentence — "No applications yet", "Nothing matched".
+	 * Keep to one short sentence - "No applications yet", "Nothing matched".
 	 */
 	title: ReactNode;
 	/**
@@ -29,7 +29,7 @@ const baseStyle: CSSProperties = {
 };
 
 /**
- * EmptyState — centered display for empty/no-data/first-run states (DS-44, D-421).
+ * EmptyState - centered display for empty/no-data/first-run states (DS-44, D-421).
  *
  *   <EmptyState
  *     icon={<Inbox size={40} />}
@@ -40,7 +40,7 @@ const baseStyle: CSSProperties = {
  *   </EmptyState>
  *
  * Centered vertical stack: icon → title → description → children-as-CTA.
- * Children slot accepts arbitrary JSX — single Button, primary+secondary
+ * Children slot accepts arbitrary JSX - single Button, primary+secondary
  * Buttons in a row, link, or any combination.
  *
  * NO compound API (no `<EmptyState.Icon>`, `<EmptyState.Action>`).
@@ -50,7 +50,7 @@ const baseStyle: CSSProperties = {
  * elements; max-width 360px on text content (consumer can override via
  * `style` or wrapping container width).
  *
- * `description` color uses `var(--ink-3)` token — flips with theme.
+ * `description` color uses `var(--ink-3)` token - flips with theme.
  */
 export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(function EmptyState(
 	{ icon, title, description, children, className, style, ...rest },

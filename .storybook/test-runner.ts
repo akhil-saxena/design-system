@@ -6,7 +6,7 @@ import { waitForPageReady } from "@storybook/test-runner";
 // - postVisit: captures a PNG per story per theme into tests/visual-baselines/ (D-64)
 //
 // The test-runner is invoked by `npm run test:visual` after Storybook has been
-// started by `start-server-and-test`. LOCAL ONLY — never CI (D-31).
+// started by `start-server-and-test`. LOCAL ONLY - never CI (D-31).
 //
 // Theme detection: getStoryContext returns the global default ("light") rather
 // than the story-level globals override, so we read the dark class directly

@@ -44,7 +44,7 @@ export interface BottomSheetProps {
  *   (height 100vh, no top corners) - switched via [data-height] +
  *   sibling-CSS selectors (Phase 12 D-130 pattern).
  * - Drag handle (.ds-atom-bottomsheet-handle, 32x4 ink-5 pill) supports
- *   swipe-to-close via Pointer Events (v0.5.1 patch — resolves D-340 v2.1
+ *   swipe-to-close via Pointer Events (v0.5.1 patch - resolves D-340 v2.1
  *   deferral). pointerdown captures the pointer; pointermove translates
  *   the panel by positive Y delta only (drag-down); pointerup closes if
  *   delta > 120px OR > 40% of panel height, else snaps back via CSS

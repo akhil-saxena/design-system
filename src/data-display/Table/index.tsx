@@ -1,5 +1,5 @@
 /**
- * # Usage Audit — Table (DS-61, D-17-06..D-17-12)
+ * # Usage Audit - Table (DS-61, D-17-06..D-17-12)
  *
  * Compound API:
  *   <Table.Root density="comfortable" sticky ariaLabel="Users">
@@ -30,8 +30,8 @@
  *   <Table.Pagination page={p} pageCount={n} onPageChange={setP} />
  *
  * Helper hooks:
- *   useSortableTable — plan 17-10 (DS-61 part 1)
- *   useTableSelection / useResizableColumns — plan 17-11 (DS-61 part 2)
+ *   useSortableTable - plan 17-10 (DS-61 part 1)
+ *   useTableSelection / useResizableColumns - plan 17-11 (DS-61 part 2)
  *
  * Sort indicator: UTF-8 ▲/▼ at ~9px monospace per D-17-07 (not Lucide icons).
  * Sticky: Table.Root sticky prop → data-sticky="true" → CSS position:sticky on thead.
@@ -100,7 +100,7 @@ export interface TableSelectCellProps extends React.TdHTMLAttributes<HTMLTableCe
 /**
  * Render `<Table.Pagination />` as a SIBLING of `<Table.Root>`, NOT as a child.
  * Pagination produces a `<nav>` element, and `<nav>` inside `<table>` (or any of
- * its descendants except `<caption>`) is invalid HTML — browsers will silently
+ * its descendants except `<caption>`) is invalid HTML - browsers will silently
  * hoist or strip it, and assistive tech may report inconsistent landmarks.
  *
  * GOOD:
@@ -195,7 +195,7 @@ export const TableHeaderCell = forwardRef<HTMLTableCellElement, TableHeaderCellP
 			width != null ? { width: `${width}px`, minWidth: `${width}px`, ...style } : (style ?? {});
 		const resolvedStyle = Object.keys(widthStyle).length > 0 ? widthStyle : undefined;
 
-		// Resize handle: visual affordance only — aria-hidden keeps it out of the
+		// Resize handle: visual affordance only - aria-hidden keeps it out of the
 		// accessibility tree. role="separator" is intentionally omitted: biome's
 		// a11y/useSemanticElements would require <hr>, which is wrong for a drag target.
 		const resizeHandle = resizable ? (
@@ -433,7 +433,7 @@ export const TablePagination = forwardRef<HTMLElement, TablePaginationProps>(
 // ── Compound namespace ────────────────────────────────────────────────────────
 
 /**
- * Table — compound primitive (DS-61, parts 1 + 2).
+ * Table - compound primitive (DS-61, parts 1 + 2).
  *
  * Members: Table.Root, Table.Header, Table.HeaderCell, Table.Body, Table.Row, Table.Cell
  *          Table.SelectAllCell, Table.SelectCell, Table.Pagination

@@ -1,5 +1,5 @@
 /**
- * useSortableTable (DS-61, D-17-07) — unit tests
+ * useSortableTable (DS-61, D-17-07) - unit tests
  *
  * Hook: returns { sorted, sortCol, sortDir, toggleSort }
  * Tests: toggle, comparator, defaults, stable sort, null handling
@@ -95,7 +95,7 @@ describe("useSortableTable", () => {
 
 	it("toggleSort changes col and resets dir to asc", () => {
 		render(<Harness defaultCol="name" defaultDir="desc" />);
-		// Switch to age col — dir should reset to asc
+		// Switch to age col - dir should reset to asc
 		fireEvent.click(screen.getByText("sort-age"));
 		expect(screen.getByTestId("col").textContent).toBe("age");
 		expect(screen.getByTestId("dir").textContent).toBe("asc");

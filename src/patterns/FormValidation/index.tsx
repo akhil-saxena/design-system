@@ -83,7 +83,7 @@ export function FormErrorSummary({
 			<strong>{title}</strong>
 			<ul>
 				{errors.map((err, i) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: static error list — order is stable and no unique IDs available
+					// biome-ignore lint/suspicious/noArrayIndexKey: static error list - order is stable and no unique IDs available
 					<li key={i}>{err}</li>
 				))}
 			</ul>

@@ -36,41 +36,41 @@ export interface TooltipProps {
 const GAP = 6;
 
 /**
- * Tooltip — overlay micro-primitive (DS-32).
+ * Tooltip - overlay micro-primitive (DS-32).
  *
  *   <Tooltip content="Star this application">
  *     <button aria-label="Star">★</button>
  *   </Tooltip>
  *
- * - Wraps EXACTLY ONE child element (React.Children.only — throws on multiple).
+ * - Wraps EXACTLY ONE child element (React.Children.only - throws on multiple).
  * - Clones the child to attach onMouseEnter / onMouseLeave / onFocus / onBlur +
  *   aria-describedby={tooltipId} (D-311).
  * - Mounts the tooltip surface via DSPortal to document.body.
  * - Position computed from trigger.getBoundingClientRect() per `placement`
- *   (D-312, manual calc — no Floating-UI dep).
- * - Open delay default 150ms (D-311 — handoff 0ms feels twitchy, 700ms feels broken).
+ *   (D-312, manual calc - no Floating-UI dep).
+ * - Open delay default 150ms (D-311 - handoff 0ms feels twitchy, 700ms feels broken).
  * - Hover and focus both open with the SAME 150ms delay (Path A from the plan
- *   behavior block — keeps timing consistent for assistive-tech and pointer
+ *   behavior block - keeps timing consistent for assistive-tech and pointer
  *   users; mouseleave + blur close immediately by clearing the timer).
  * - aria-describedby is wired on the trigger when open (assistive-tech surface).
  *
  * v2.0 simplifications (deferred to v2.1):
  * - Consumer ref on trigger is NOT preserved (Tooltip's internal triggerRef
  *   wins). Most leaf-button triggers don't pass refs, so this is acceptable.
- * - No auto-flip on viewport collision — caller is responsible for placing
+ * - No auto-flip on viewport collision - caller is responsible for placing
  *   tooltips with adequate viewport room.
  * - No re-position on scroll/resize while open (most tooltips open + close
  *   within a frame anyway). Re-opens recompute fresh.
- * - No exit animation — surface hard-unmounts on close.
+ * - No exit animation - surface hard-unmounts on close.
  */
 export function Tooltip({ content, placement = "auto", delay = 150, children }: TooltipProps) {
-	// React.Children.only runs synchronously and THROWS on misuse — this is
+	// React.Children.only runs synchronously and THROWS on misuse - this is
 	// the tested error path (single-child enforcement, see Tooltip.test.tsx).
 	const childAsElement = Children.only(children);
 	if (!isValidElement(childAsElement)) {
 		throw new Error("Tooltip child must be a valid React element");
 	}
-	// Cast for prop-merging — we know it's a host element / forwardRef.
+	// Cast for prop-merging - we know it's a host element / forwardRef.
 	const child = childAsElement as ReactElement<HTMLAttributes<HTMLElement>>;
 
 	const tooltipId = useId();
@@ -105,7 +105,7 @@ export function Tooltip({ content, placement = "auto", delay = 150, children }: 
 		setIsOpen(false);
 	}, [clearTimer]);
 
-	// Compose event handlers — consumer's existing handlers run FIRST, then ours.
+	// Compose event handlers - consumer's existing handlers run FIRST, then ours.
 	const handleMouseEnter = (e: ReactMouseEvent<HTMLElement>) => {
 		child.props.onMouseEnter?.(e);
 		scheduleOpen();
@@ -123,7 +123,7 @@ export function Tooltip({ content, placement = "auto", delay = 150, children }: 
 		close();
 	};
 
-	// Position calc — read trigger rect after open + on placement change.
+	// Position calc - read trigger rect after open + on placement change.
 	// useLayoutEffect fires synchronously before paint, so the surface never
 	// visibly "jumps" from (0,0) to its computed position.
 	// Resolve "auto" placement based on viewport space around the trigger.

@@ -44,7 +44,7 @@ export function RadioGroup({
 	style,
 	className,
 }: Readonly<RadioGroupProps>) {
-	// Uncontrolled internal state — used when `value` prop is not provided.
+	// Uncontrolled internal state - used when `value` prop is not provided.
 	const [internalValue, setInternalValue] = useState<string | undefined>(defaultValue);
 	const isControlled = controlledValue !== undefined;
 	const value = isControlled ? controlledValue : internalValue;

@@ -45,7 +45,7 @@ const AVATAR_PALETTE = [
 	["#0ea5e9", "#22c55e"], // sky → green
 ] as const satisfies ReadonlyArray<readonly [string, string]>;
 
-// 6 solid colors — default background when gradient is not requested.
+// 6 solid colors - default background when gradient is not requested.
 const SOLID_PALETTE = [
 	"#d97706", // amber
 	"#2563eb", // blue

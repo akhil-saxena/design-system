@@ -102,7 +102,7 @@ const HERO_SLIDES: CarouselSlide[] = [
 				>
 					Track every record
 				</div>
-				<div style={{ fontSize: 14, opacity: 0.75 }}>Board, list, calendar — your call</div>
+				<div style={{ fontSize: 14, opacity: 0.75 }}>Board, list, calendar - your call</div>
 			</div>
 		),
 	},
@@ -359,7 +359,7 @@ const SRC = {
   ariaLabel="Feature highlights"
   slides={[
     { id: "hero-1", ariaLabel: "Slide 1: Welcome", content: <HeroSlide title="Welcome" sub="Your work, organized and clear" /> },
-    { id: "hero-2", ariaLabel: "Slide 2: Track records", content: <HeroSlide title="Track every record" sub="Board, list, calendar — your call" /> },
+    { id: "hero-2", ariaLabel: "Slide 2: Track records", content: <HeroSlide title="Track every record" sub="Board, list, calendar - your call" /> },
     { id: "hero-3", ariaLabel: "Slide 3: Follow-up reminders", content: <HeroSlide title="Never miss a follow-up" sub="Smart reminders for every stage" /> },
     { id: "hero-4", ariaLabel: "Slide 4: Land the offer", content: <HeroSlide title="Land the offer" sub="Prep, practice, and persist" /> },
   ]}
@@ -383,7 +383,7 @@ const SRC = {
   slides={HERO_SLIDES}
 />`,
 
-	images: `// Image slides — set showArrows={false} for full-bleed images
+	images: `// Image slides - set showArrows={false} for full-bleed images
 <Carousel
   ariaLabel="Photo gallery"
   showArrows={false}
@@ -440,7 +440,7 @@ const SRC = {
 // ─── Stories ──────────────────────────────────────────────────────────────────
 
 export const Default: Story = {
-	name: "Default — hero slides",
+	name: "Default - hero slides",
 	parameters: {
 		docs: {
 			description: {
@@ -458,7 +458,7 @@ export const Default: Story = {
 };
 
 export const Autoplay: Story = {
-	name: "Autoplay — 3 s interval",
+	name: "Autoplay - 3 s interval",
 	parameters: {
 		docs: {
 			description: {
@@ -480,7 +480,7 @@ export const Autoplay: Story = {
 };
 
 export const NoArrows: Story = {
-	name: "No arrows — dot navigation only",
+	name: "No arrows - dot navigation only",
 	parameters: {
 		docs: {
 			description: {
@@ -497,7 +497,7 @@ export const NoArrows: Story = {
 };
 
 export const NoDots: Story = {
-	name: "No dots — arrow navigation only",
+	name: "No dots - arrow navigation only",
 	parameters: {
 		docs: {
 			description: { story: "Hides the dot tablist. Pair with autoplay or keyboard navigation." },
@@ -512,7 +512,7 @@ export const NoDots: Story = {
 };
 
 export const ImageSlides: Story = {
-	name: "Image slides — arrows over image",
+	name: "Image slides - arrows over image",
 	parameters: {
 		docs: {
 			description: {
@@ -530,7 +530,7 @@ export const ImageSlides: Story = {
 };
 
 export const ContentSlides: Story = {
-	name: "Content slides — testimonials",
+	name: "Content slides - testimonials",
 	parameters: {
 		docs: {
 			description: {
@@ -564,7 +564,7 @@ export const DarkMode: Story = {
 };
 
 export const ReducedMotion: Story = {
-	name: "Reduced motion — no transition",
+	name: "Reduced motion - no transition",
 	parameters: {
 		docs: {
 			description: {
@@ -586,7 +586,7 @@ export const ReducedMotion: Story = {
 };
 
 export const Controlled: Story = {
-	name: "Controlled — parent owns index",
+	name: "Controlled - parent owns index",
 	parameters: {
 		docs: {
 			description: {

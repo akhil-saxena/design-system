@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 export interface AppShellProps {
-	/** Sidebar nav component — receives collapsed + onToggleCollapse via cloneElement */
+	/** Sidebar nav component - receives collapsed + onToggleCollapse via cloneElement */
 	sidebar: ReactElement<{ collapsed?: boolean; onToggleCollapse?: () => void }>;
 	/** Topbar component (AppBar DS-72 or any ReactNode) */
 	topbar: ReactNode;
@@ -42,13 +42,13 @@ function readStorage(storageKey: string | null | undefined): boolean {
 }
 
 /**
- * AppShell (DS-71) — top-level CSS Grid layout primitive.
+ * AppShell (DS-71) - top-level CSS Grid layout primitive.
  *
  * Slots: topbar (sticky header), sidebar (collapsible icon rail), main (scrollable content),
  * footer (optional bottom bar).
  *
  * The sidebar slot child receives `collapsed` and `onToggleCollapse` injected via
- * React.cloneElement — no extra context or ref needed.
+ * React.cloneElement - no extra context or ref needed.
  */
 export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(function AppShell(
 	{
@@ -71,7 +71,7 @@ export const AppShell = forwardRef<HTMLDivElement, AppShellProps>(function AppSh
 		try {
 			window.localStorage?.setItem(storageKey, String(collapsed));
 		} catch {
-			// localStorage unavailable — silently ignore
+			// localStorage unavailable - silently ignore
 		}
 	}, [collapsed, storageKey]);
 

@@ -16,7 +16,7 @@ export type HoverCardPlacement = "bottom-start" | "bottom-end" | "top-start" | "
 export interface HoverCardProps {
 	/** Ref attached to the trigger element; HoverCard installs mouse/click listeners on it directly. */
 	anchorRef: RefObject<HTMLElement | null>;
-	/** Rich card content — arbitrary ReactNode such as avatars, charts, or action buttons. */
+	/** Rich card content - arbitrary ReactNode such as avatars, charts, or action buttons. */
 	children: ReactNode;
 	/** Panel placement relative to the anchor.
 	 * @default "bottom-start"
@@ -44,7 +44,7 @@ interface Position {
 }
 
 /**
- * HoverCard — rich-content popover-on-hover with click-to-pin (DS-38, D-355).
+ * HoverCard - rich-content popover-on-hover with click-to-pin (DS-38, D-355).
  *
  * Behavior:
  * - mouseenter on anchor → openDelay timer → render via DSPortal
@@ -94,7 +94,7 @@ export function HoverCard({
 		}
 	}, []);
 
-	// Compute position via smartAnchorPos after panel mounts — gives us real panel rect.
+	// Compute position via smartAnchorPos after panel mounts - gives us real panel rect.
 	useLayoutEffect(() => {
 		if (!open || !panelEl || !anchorRef.current) return;
 		const a = anchorRef.current.getBoundingClientRect();

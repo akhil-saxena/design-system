@@ -71,7 +71,7 @@ function ItemRow({ label, sub }: { label: string; sub: string }) {
 	);
 }
 
-/* Skeleton shaped to match ItemRow — same padding, same two-line layout */
+/* Skeleton shaped to match ItemRow - same padding, same two-line layout */
 function CardSkeleton() {
 	return (
 		<div

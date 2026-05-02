@@ -1,4 +1,4 @@
-// @akhil-saxena/design-system v0.1.0 — barrel exports.
+// @akhil-saxena/design-system v0.1.0 - barrel exports.
 
 export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from "./inputs/Button";
 export { TextInput, type TextInputProps } from "./inputs/TextInput";

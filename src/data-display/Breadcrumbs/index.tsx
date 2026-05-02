@@ -3,7 +3,7 @@
  *
  * API:
  * - items: BreadcrumbItem[] (label + optional href + onClick)
- * - maxVisible: number (default 4 — show first + trigger + last (maxVisible-2))
+ * - maxVisible: number (default 4 - show first + trigger + last (maxVisible-2))
  * - ariaLabel: string (default "Breadcrumb")
  *
  * Implementation:

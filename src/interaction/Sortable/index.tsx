@@ -35,7 +35,7 @@ export interface SortableProps {
 	onReorder: (items: SortableItemData[]) => void;
 	/** Render each item's content */
 	renderItem: (item: SortableItemData, index: number) => ReactNode;
-	/** Stable list identifier — required when used inside SortableDndContext */
+	/** Stable list identifier - required when used inside SortableDndContext */
 	id?: string;
 	className?: string;
 	style?: React.CSSProperties;
@@ -51,10 +51,10 @@ export interface SortableDndContextProps {
 	children: ReactNode;
 	/**
 	 * Called when an item moves between two lists.
-	 * @param activeId  — id of the dragged item
-	 * @param overId    — id of the item it was dropped over
-	 * @param activeListId — `id` prop of the source Sortable
-	 * @param overListId   — `id` prop of the destination Sortable
+	 * @param activeId  - id of the dragged item
+	 * @param overId    - id of the item it was dropped over
+	 * @param activeListId - `id` prop of the source Sortable
+	 * @param overListId   - `id` prop of the destination Sortable
 	 */
 	onMove: (
 		activeId: UniqueIdentifier,
@@ -70,7 +70,7 @@ export interface SortableDndContextProps {
 }
 
 // ─── Context sentinel ─────────────────────────────────────────────────────────
-// Internal context — Sortable checks this to decide whether to render its own DndContext.
+// Internal context - Sortable checks this to decide whether to render its own DndContext.
 const SortableDndCtx = createContext<boolean>(false);
 
 // ─── SortableItem ─────────────────────────────────────────────────────────────
@@ -101,7 +101,7 @@ export function SortableItem({ id, children, reducedMotion }: SortableItemProps)
 }
 
 // ─── SortableDndContext ───────────────────────────────────────────────────────
-// Shared DndContext for cross-list drag — D-12.
+// Shared DndContext for cross-list drag - D-12.
 // Hosts the DndContext and provides SortableDndCtx sentinel to children Sortable instances.
 
 export function SortableDndContext({ children, onMove, renderOverlay }: SortableDndContextProps) {
@@ -234,7 +234,7 @@ export function Sortable({ items, onReorder, renderItem, id, className, style }:
 			{listContent}
 			<DragOverlay dropAnimation={reducedMotion ? null : undefined}>
 				{activeItem ? (
-					// Render the actual card content as the drag overlay — same size as the source
+					// Render the actual card content as the drag overlay - same size as the source
 					<div className="ds-atom-sortable-overlay" aria-hidden="true">
 						{renderItem(activeItem, activeIndex)}
 					</div>

@@ -1,9 +1,9 @@
-/* @akhil-saxena/design-system v0.1.0 — token layer.
+/* @akhil-saxena/design-system v0.1.0 - token layer.
    Imported via:
      import "@akhil-saxena/design-system/tokens.css";
    Use BEFORE primitives.css and utilities.css (cascade order matters). */
 
-/* @fontsource — replaces Google Fonts CDN @import. Versioned with the package. */
+/* @fontsource - replaces Google Fonts CDN @import. Versioned with the package. */
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/500.css";
 @import "@fontsource/inter/600.css";
@@ -43,7 +43,7 @@
 	--amber-d: #b45309;
 	--amber-l: #fef3c7;
 
-	/* Status text-safe — handoff v1.0 AAA-on-cream values */
+	/* Status text-safe - handoff v1.0 AAA-on-cream values */
 	--blue: #1e3a8a;
 	--purple: #5b21b6;
 	--green: #14532d;
@@ -52,7 +52,7 @@
 	/* Hairline rule */
 	--rule: rgba(0, 0, 0, 0.08);
 
-	/* Vivids — decorative-only (dots, fills, borders), never text */
+	/* Vivids - decorative-only (dots, fills, borders), never text */
 	--amber-vivid: #f59e0b;
 	--blue-vivid: #3b82f6;
 	--purple-vivid: #8b5cf6;
@@ -65,7 +65,7 @@
 	--g-bd: rgba(255, 255, 255, 0.5);
 	--g-blur: 14px;
 
-	/* Border radii — handoff v1.0 token table */
+	/* Border radii - handoff v1.0 token table */
 	--radius-sm: 4px;
 	--radius-md: 8px;
 	--radius-lg: 12px;
@@ -75,7 +75,7 @@
 	--radius-2xl: 16px;
 	--radius-full: 999px;
 
-	/* Shadows — handoff v1.0 token table */
+	/* Shadows - handoff v1.0 token table */
 	--shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
 	--shadow-2: 0 4px 12px rgba(0, 0, 0, 0.08);
 	--shadow-3: 0 12px 32px rgba(0, 0, 0, 0.12);
@@ -85,7 +85,7 @@
 	--shadow-elevated: var(--shadow-2);
 	--shadow-overlay: var(--shadow-3);
 
-	/* Spacing scale — handoff v1.0 (multiples of 4px, 16-step) */
+	/* Spacing scale - handoff v1.0 (multiples of 4px, 16-step) */
 	--space-1: 4px;
 	--space-2: 8px;
 	--space-3: 12px;
@@ -103,7 +103,7 @@
 	--space-15: 60px;
 	--space-16: 64px;
 
-	/* Motion tokens — handoff v1.0 */
+	/* Motion tokens - handoff v1.0 */
 	--ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 	--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 	--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -112,23 +112,23 @@
 	--dur-3: 240ms;
 	--dur-4: 360ms;
 
-	/* Surface tokens — handoff v1.0 (translucent overlays, light) */
+	/* Surface tokens - handoff v1.0 (translucent overlays, light) */
 	--surf-1: rgba(255, 255, 255, 0.4);
 	--surf-2: rgba(255, 255, 255, 0.55);
 	--surf-3: rgba(255, 255, 255, 0.7);
 
-	/* Focus tokens — handoff v1.0 */
+	/* Focus tokens - handoff v1.0 */
 	--focus: var(--amber);
 	--focus-ring: 0 0 0 3px rgba(245, 158, 11, 0.45);
 
-	/* Illustration surface fills — use these instead of --cream in SVGs */
+	/* Illustration surface fills - use these instead of --cream in SVGs */
 	--ds-illust-bg: var(--cream-2);
 	--ds-illust-bg-2: var(--cream-3);
 }
 
 /* ─── Dark mode overrides ─────────────────────────────────────────────
-   Both :root.dark (full-page dark — Storybook canvas, consumer apps) and
-   .dark (scoped container dark — Storybook Docs inline story wrappers)
+   Both :root.dark (full-page dark - Storybook canvas, consumer apps) and
+   .dark (scoped container dark - Storybook Docs inline story wrappers)
    define the same values so var(--ink) etc resolve correctly on either. */
 :root.dark,
 .dark {
@@ -150,7 +150,7 @@
 	--g-bg: rgba(40, 37, 34, 0.7);
 	--g-bd: rgba(255, 255, 255, 0.08);
 
-	/* Status colors lift for dark contrast — handoff v1.0 dark table */
+	/* Status colors lift for dark contrast - handoff v1.0 dark table */
 	--amber-d: #fbbf24;
 	--blue: #7cb8fb;
 	--purple: #bfa3fb;
@@ -166,12 +166,12 @@
 	--green-vivid: #22c55e;
 	--red-vivid: #ef4444;
 
-	/* Surface tokens — handoff v1.0 dark (white-low-alpha overlays) */
+	/* Surface tokens - handoff v1.0 dark (white-low-alpha overlays) */
 	--surf-1: rgba(255, 255, 255, 0.04);
 	--surf-2: rgba(255, 255, 255, 0.06);
 	--surf-3: rgba(255, 255, 255, 0.1);
 
-	/* Focus ring — dark-mode amber-d glow */
+	/* Focus ring - dark-mode amber-d glow */
 	--focus-ring: 0 0 0 3px rgba(251, 191, 36, 0.5);
 
 	/* Illustration surface fills lift to visible translucent white in dark mode */

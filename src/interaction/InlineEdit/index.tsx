@@ -28,7 +28,7 @@ export interface InlineEditProps {
 }
 
 /**
- * InlineEdit (DS-77) — click-to-edit pattern with optimistic save + error recovery.
+ * InlineEdit (DS-77) - click-to-edit pattern with optimistic save + error recovery.
  *
  * State machine:
  *   idle     → click / Enter / Space → editing
@@ -143,7 +143,7 @@ export function InlineEdit({
 		);
 	}
 
-	// Idle state — <span role="button"> is intentional: switching to a native <button> would
+	// Idle state - <span role="button"> is intentional: switching to a native <button> would
 	// introduce block-level layout and cause a size shift when toggling between idle and editing
 	// states. Keyboard and ARIA wiring is fully in place (tabIndex, onKeyDown, aria-disabled).
 	return (

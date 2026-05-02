@@ -12,10 +12,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	/**
 	 * Visual variant.
 	 *
-	 * - `primary` — brand amber CTA. Use for the most-prominent action per surface.
-	 * - `secondary` — outlined cream surface. Use for second-priority actions.
-	 * - `ghost` — transparent, text-only. Use for tertiary, icon-only, or cancel-in-modal.
-	 * - `danger` — red destructive. Use for Delete, Remove, Archive, anything irreversible.
+	 * - `primary` - brand amber CTA. Use for the most-prominent action per surface.
+	 * - `secondary` - outlined cream surface. Use for second-priority actions.
+	 * - `ghost` - transparent, text-only. Use for tertiary, icon-only, or cancel-in-modal.
+	 * - `danger` - red destructive. Use for Delete, Remove, Archive, anything irreversible.
 	 *
 	 * @default "primary"
 	 */
