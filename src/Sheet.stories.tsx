@@ -13,7 +13,7 @@ const SRC = {
 return (
   <>
     <Button onClick={() => setOpen(true)}>Open from right</Button>
-    <Sheet open={open} onClose={() => setOpen(false)} title="Application Details">
+    <Sheet open={open} onClose={() => setOpen(false)} title="Item details">
       <p>Sheet body content.</p>
     </Sheet>
   </>
@@ -34,8 +34,8 @@ return (
     <Sheet
       open={open}
       onClose={() => setOpen(false)}
-      title="Edit Application"
-      description="Update the role details below."
+      title="Edit item"
+      description="Update the details below."
       footer={
         <>
           <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
@@ -61,7 +61,7 @@ return (
 return (
   <>
     <Button onClick={() => setOpen(true)}>Open sheet</Button>
-    <Sheet open={open} onClose={() => setOpen(false)} title="Edit Application"
+    <Sheet open={open} onClose={() => setOpen(false)} title="Edit item"
       footer={<><Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
                <Button variant="primary" onClick={() => setOpen(false)}>Save</Button></>}>
       <TextInput placeholder="Role title" />
@@ -110,7 +110,7 @@ function DefaultDemo() {
 	return (
 		<>
 			<Button onClick={() => setOpen(true)}>Open from right</Button>
-			<Sheet open={open} onClose={() => setOpen(false)} title="Application Details">
+			<Sheet open={open} onClose={() => setOpen(false)} title="Item details">
 				<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 					<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 						<Badge tone="info">Engineering</Badge>
@@ -158,8 +158,8 @@ function WithFooterDemo() {
 			<Sheet
 				open={open}
 				onClose={() => setOpen(false)}
-				title="Edit Application"
-				description="Update the role details below."
+				title="Edit item"
+				description="Update the details below."
 				footer={
 					<>
 						<Button variant="ghost" onClick={() => setOpen(false)}>

@@ -1,35 +1,15 @@
-/**
- * # Usage Audit — RichText (DS-70, D-17-14..D-17-19)
- *
- * Stories demonstrate:
- * - Default uncontrolled-style usage
- * - Controlled value (parent manages HTML state)
- * - JSON output format (outputFormat="json")
- * - Placeholder text
- * - Read-only mode (no toolbar)
- * - Markdown shortcuts (manual verification)
- * - Custom toolbar override
- * - Dark mode
- * - Playground (all controls)
- *
- * ## Security note (T-17-13-02)
- *
- * TipTap's StarterKit allowlist filters paste input (client-side). Server-side:
- * validate HTML before persisting — recommend `sanitize-html` or `DOMPurify`.
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { RichText, type RichTextProps } from "./RichText";
 
 const SRC = {
-	Default: `const [html, setHtml] = useState("<p>Write your <strong>cover letter</strong> here.</p>");
+	Default: `const [html, setHtml] = useState("<p>Write your <strong>document</strong> here.</p>");
 return (
   <RichText
     value={html}
     onChange={(v) => { if (typeof v === "string") setHtml(v); }}
     placeholder="Start writing…"
-    ariaLabel="Cover letter editor"
+    ariaLabel="Document editor"
   />
 );`,
 	Controlled: `const [html, setHtml] = useState("<p>Hello, <em>world</em>!</p>");
@@ -56,10 +36,10 @@ return (
   />
 );`,
 	ReadOnly: `<RichText
-  value="<p>Write your <strong>cover letter</strong> here.</p>"
+  value="<p>Write your <strong>document</strong> here.</p>"
   onChange={() => {}}
   readOnly
-  ariaLabel="Read-only cover letter"
+  ariaLabel="Read-only document"
 />`,
 	MarkdownShortcuts: `const [html, setHtml] = useState("");
 return (
@@ -82,7 +62,7 @@ return (
     toolbar={customToolbar}
   />
 );`,
-	DarkMode: `const [html, setHtml] = useState("<p>Write your <strong>cover letter</strong> here.</p>");
+	DarkMode: `const [html, setHtml] = useState("<p>Write your <strong>document</strong> here.</p>");
 return (
   <RichText
     value={html}
@@ -91,7 +71,7 @@ return (
   />
 );`,
 	Playground: `<RichText
-  value="<p>Write your <strong>cover letter</strong> here.</p>"
+  value="<p>Write your <strong>document</strong> here.</p>"
   placeholder="Start writing…"
   readOnly={false}
   outputFormat="html"
@@ -146,7 +126,7 @@ type Story = StoryObj<typeof RichText>;
 // ─── Fixtures ─────────────────────────────────────────────────────────────
 
 const INITIAL_HTML =
-	"<p>Write your <strong>cover letter</strong> here. Highlight key achievements.</p><ul><li>Led migration of legacy system to <strong>React</strong></li><li>Reduced page load time by 40%</li></ul>";
+	"<p>Write your <strong>document</strong> here. Add relevant details.</p><ul><li>Delivered key milestone on schedule</li><li>Improved system performance by 40%</li></ul>";
 
 // ─── Stories ──────────────────────────────────────────────────────────────
 
@@ -164,7 +144,7 @@ export const Default: Story = {
 						if (typeof v === "string") setHtml(v);
 					}}
 					placeholder="Start writing…"
-					ariaLabel="Cover letter editor"
+					ariaLabel="Document editor"
 				/>
 			</div>
 		);
@@ -282,12 +262,7 @@ export const ReadOnly: Story = {
 	parameters: { docs: { source: { code: SRC.ReadOnly } } },
 	render: () => (
 		<div style={{ maxWidth: 680 }}>
-			<RichText
-				value={INITIAL_HTML}
-				onChange={() => {}}
-				readOnly
-				ariaLabel="Read-only cover letter"
-			/>
+			<RichText value={INITIAL_HTML} onChange={() => {}} readOnly ariaLabel="Read-only document" />
 		</div>
 	),
 };

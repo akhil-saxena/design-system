@@ -1,15 +1,3 @@
-/**
- * # Usage Audit — Calendar (DS-68, D-17-20..D-17-25)
- *
- * Stories demonstrate:
- * - Month view (default), week view, day view
- * - Event chips with overflow popover
- * - Multi-day events
- * - selectedDate controlled prop
- * - Calendar.Agenda consumer slot
- * - Dark mode parity
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Calendar, type CalendarEvent } from "./Calendar";
@@ -40,7 +28,7 @@ return (
 return (
   <Calendar
     events={[
-      { id: "m1", date: new Date(2026, 3, 5), endDate: new Date(2026, 3, 8), label: "Sprint 12", color: "var(--purple-vivid)" },
+      { id: "m1", date: new Date(2026, 3, 5), endDate: new Date(2026, 3, 8), label: "Phase 1", color: "var(--purple-vivid)" },
       { id: "m2", date: new Date(2026, 3, 20), endDate: new Date(2026, 3, 22), label: "Hackathon", color: "var(--green-vivid)" },
     ]}
     selectedDate={selected}
@@ -154,43 +142,43 @@ const BASE_EVENTS: CalendarEvent[] = [
 	{
 		id: "e1",
 		date: new Date(2026, 3, 3),
-		label: "Stripe phone call",
+		label: "Client call",
 		color: "var(--blue-vivid, #1d6aff)",
 	},
 	{
 		id: "e2",
 		date: new Date(2026, 3, 7),
-		label: "Linear onsite",
+		label: "Planning meeting",
 		color: "var(--purple-vivid, #7c3aed)",
 	},
 	{
 		id: "e3",
 		date: new Date(2026, 3, 12),
-		label: "Figma panel",
+		label: "Design review",
 		color: "var(--green-vivid, #16a34a)",
 	},
 	{
 		id: "e4",
 		date: new Date(2026, 3, 15),
-		label: "Take-home due",
+		label: "Project deadline",
 		color: "var(--red-vivid, #dc2626)",
 	},
 	{
 		id: "e5",
 		date: new Date(2026, 3, 18),
-		label: "Automattic chat",
+		label: "Team standup",
 		color: "var(--amber, #f59e0b)",
 	},
 	{
 		id: "e6",
 		date: new Date(2026, 3, 22),
-		label: "Offer deadline",
+		label: "Sprint review",
 		color: "var(--green-vivid, #16a34a)",
 	},
 	{
 		id: "e7",
 		date: new Date(2026, 3, 25),
-		label: "Team lunch",
+		label: "Sync meeting",
 		color: "var(--blue-vivid, #1d6aff)",
 	},
 ];
@@ -234,25 +222,25 @@ const WEEK_EVENTS: CalendarEvent[] = [
 	{
 		id: "w1",
 		date: new Date(2026, 3, 6, 10, 0),
-		label: "Mon standup",
+		label: "Team standup",
 		color: "var(--blue-vivid, #1d6aff)",
 	},
 	{
 		id: "w2",
 		date: new Date(2026, 3, 7, 14, 0),
-		label: "Tue design review",
+		label: "Design review",
 		color: "var(--purple-vivid, #7c3aed)",
 	},
 	{
 		id: "w3",
 		date: new Date(2026, 3, 8, 11, 0),
-		label: "Wed sync",
+		label: "Sync meeting",
 		color: "var(--green-vivid, #16a34a)",
 	},
 	{
 		id: "w4",
 		date: new Date(2026, 3, 10, 15, 0),
-		label: "Fri retro",
+		label: "Sprint review",
 		color: "var(--amber, #f59e0b)",
 	},
 ];
@@ -262,14 +250,14 @@ const DAY_EVENTS: CalendarEvent[] = [
 	{
 		id: "d0",
 		date: new Date(2026, 3, 15, 0, 0),
-		label: "Take-home due",
+		label: "Project deadline",
 		color: "var(--red-vivid, #dc2626)",
 	},
 	// Hourly
 	{
 		id: "d1",
 		date: new Date(2026, 3, 15, 9, 0),
-		label: "Morning standup",
+		label: "Morning sync",
 		color: "var(--blue-vivid, #1d6aff)",
 	},
 	{

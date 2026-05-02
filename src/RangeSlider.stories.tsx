@@ -1,20 +1,3 @@
-/**
- * # Usage Audit — RangeSlider (D-87, D-151, D-230)
- *
- * Consumers (post v2.1):
- * - filters/SalaryRange — single-thumb slider with label="Target salary" + valueFormat=currency (or paired with NumberStepper for direct entry)
- * - filters/FitScoreFilter — slider 0-100 with suffix='%' valueFormat
- * - settings/AutoArchiveDays — slider for "auto-archive after N days" (alternative to NumberStepper)
- * - search/RelevanceThreshold — fit-score gate slider on search results
- *
- * API shape consumers expect:
- * - value (controlled) + onChange(next: number, e: ChangeEvent) — always controlled
- * - min/max/step propagate to native <input type="range"> for keyboard a11y
- * - label + valueFormat together display the value alongside the label
- * - Single-thumb only; two-thumb deferred to v2.1
- * - Native input integrates with form submission (use `name` prop)
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { RangeSlider } from "./RangeSlider";

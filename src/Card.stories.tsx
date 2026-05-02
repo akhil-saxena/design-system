@@ -1,31 +1,3 @@
-/**
- * # Usage Audit — Card (D-87, D-300, D-301)
- *
- * Consumers (post v2.1):
- * - kanban/ApplicationCard — variant="kanban"; composes Avatar + Badge + Chip + RollingNumber children (Wave 7 wires data)
- * - dashboard/StatCard — variant="glass"; composes RollingNumber + Badge children
- * - settings/PreferencesCard — variant="glass"; composes Toggle + Radio children
- * - onboarding/CTACard — variant="amber"; composes Button + text children
- * - detail/MetadataCard — variant="dark"; inverted-context content surface
- *
- * API:
- * - extends native <div> attributes (HTMLAttributes<HTMLDivElement>)
- * - variant: 'glass' | 'amber' | 'dark' | 'kanban' — default 'glass'
- * - children: arbitrary JSX (NO compound .Header / .Body / .Footer slots — D-301)
- * - style prop merges LAST so consumers can override padding/border/etc.
- * - forwards ref to root div for measurement / focus / portal-anchor use
- *
- * Implementation (D-300): single .tsx with `data-variant` attribute; CSS
- * attribute selectors in primitives.css drive visuals per variant. Mirrors
- * Button + Chip data-variant pattern.
- *
- * Variant intent:
- * - glass:  default content surface; matches handoff `.glass` recipe
- * - amber:  CTA / next-action highlight; amber-tinted gradient bg + amber border
- * - dark:   ALWAYS-DARK surface (does NOT flip in :root.dark — handoff invariant)
- * - kanban: compact glass with hover lift; visual surface only — data binding
- *           composition (logo + role + age + chips) ships in Wave 7 / DragDropList (D-302)
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { Briefcase, Check, MapPin, Star } from "lucide-react";
 import { Badge } from "./Badge";
@@ -58,25 +30,25 @@ const SRC = {
   </div>
 </Card>`,
 	KanbanCard: `<Card variant="kanban">
-  <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 13 }}>Stripe</div>
+  <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 13 }}>Acme Corp</div>
   <div style={{ fontSize: 11.5, color: "var(--ink-2)", marginTop: 1 }}>Staff Engineer</div>
 </Card>`,
 	ApplicationCard: `<Card variant="glass" style={{ maxWidth: 360, padding: 20 }}>
   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
     <div style={{ width: 40, height: 40, borderRadius: 8, background: "linear-gradient(135deg, #635bff, #4338ca)" }} />
     <div style={{ flex: 1 }}>
-      <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 15 }}>Stripe</div>
+      <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 15 }}>Acme Corp</div>
       <div style={{ fontSize: 12, color: "var(--ink-3)" }}>Staff Engineer</div>
     </div>
-    <Badge tone="amber">Applied</Badge>
+    <Badge tone="amber">In Progress</Badge>
   </div>
   <div style={{ display: "flex", gap: 8 }}>
-    <Button variant="primary" size="sm">Mark Interviewing</Button>
+    <Button variant="primary" size="sm">Mark Approved</Button>
     <Button variant="ghost" size="sm">Pin</Button>
   </div>
 </Card>`,
 	StatCard: `<Card variant="glass">
-  <div>Total Applications</div>
+  <div>Total Records</div>
   <div style={{ fontFamily: "var(--display)", fontWeight: 800, fontSize: 32 }}>
     <RollingNumber value={42} />
   </div>
@@ -271,17 +243,15 @@ export const KanbanCard: Story = {
 	render: () => (
 		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 12 }}>
 			<Card variant="kanban">
-				<div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 13 }}>Stripe</div>
+				<div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 13 }}>Acme Corp</div>
 				<div style={{ fontSize: 11.5, color: "var(--ink-2)", marginTop: 1 }}>Staff Engineer</div>
 			</Card>
 			<Card variant="kanban">
-				<div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 13 }}>
-					Automattic
-				</div>
+				<div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 13 }}>Globex</div>
 				<div style={{ fontSize: 11.5, color: "var(--ink-2)", marginTop: 1 }}>Software Engineer</div>
 			</Card>
 			<Card variant="kanban">
-				<div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 13 }}>Supabase</div>
+				<div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 13 }}>Initech</div>
 				<div style={{ fontSize: 11.5, color: "var(--ink-2)", marginTop: 1 }}>
 					Full Stack Engineer
 				</div>
@@ -312,10 +282,12 @@ export const ApplicationCard: Story = {
 					S
 				</div>
 				<div style={{ flex: 1 }}>
-					<div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 15 }}>Stripe</div>
+					<div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 15 }}>
+						Acme Corp
+					</div>
 					<div style={{ fontSize: 12, color: "var(--ink-3)" }}>Staff Engineer</div>
 				</div>
-				<Badge tone="amber">Applied</Badge>
+				<Badge tone="amber">In Progress</Badge>
 			</div>
 
 			<div
@@ -331,7 +303,7 @@ export const ApplicationCard: Story = {
 
 			<div style={{ display: "flex", gap: 8 }}>
 				<Button variant="primary" size="sm" icon={<Check size={13} />}>
-					Mark Interviewing
+					Mark Approved
 				</Button>
 				<Button variant="ghost" size="sm" icon={<Star size={13} />}>
 					Pin
@@ -356,7 +328,7 @@ export const StatCard: Story = {
 						marginBottom: 6,
 					}}
 				>
-					Total Applications
+					Total Records
 				</div>
 				<div style={{ fontFamily: "var(--display)", fontWeight: 800, fontSize: 32 }}>
 					<RollingNumber value={42} />

@@ -1,17 +1,3 @@
-/**
- * # Usage Audit — Breadcrumbs (DS-69)
- *
- * Consumers (post v0.6):
- * - JobDash app shell — current-page hierarchical nav
- * - Settings pages — section path
- *
- * API shape consumers expect:
- * - items: BreadcrumbItem[] (label + optional href + onClick)
- * - maxVisible: number (default 4 — show first + trigger + last (maxVisible-2) items)
- * - ariaLabel: string (default "Breadcrumb")
- * - className / style passthrough
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { type BreadcrumbItem, Breadcrumbs } from "./Breadcrumbs";
 

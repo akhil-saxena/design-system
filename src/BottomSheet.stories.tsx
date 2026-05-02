@@ -1,27 +1,3 @@
-/**
- * # Usage Audit - BottomSheet (DS-87, D-340)
- *
- * Consumers (post v2.1):
- * - mobile/QuickActionsSheet - application card long-press > action menu (5-6 actions)
- * - mobile/FilterSheet - kanban filter UI on phones (full-height variant)
- * - mobile/StageMoveSheet - pick destination column when dragging is not feasible (touch)
- * - mobile/InterviewNotesSheet - capture quick notes during a call (half-height with footer save button)
- *
- * API shape consumers expect:
- * - open + onClose: controlled visibility (no internal state - caller manages)
- * - title (optional ReactNode): renders as <header> with aria-labelledby auto-wired via useId
- * - footer (optional ReactNode): pinned-bottom slot for Save/Cancel buttons
- * - height: "half" (default, max-height 60vh) | "full" (100vh, no top corners)
- * - closeOnBackdropClick: default true; pass false for destructive-confirm flows
- *
- * a11y notes:
- * - role="dialog" + aria-modal="true" on the panel
- * - useFocusTrap installs Tab cycling + focus restore on close
- * - Escape key closes (handled on the document via keydown listener - same as Modal/Sheet)
- * - Drag handle is purely visual (D-340: no swipe gesture in v0.2; deferred to v2.1)
- * - Backdrop click outside the panel closes (default; opt out for destructive)
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { BottomSheet } from "./BottomSheet";
@@ -36,10 +12,10 @@ const SRC = {
 return (
   <>
     <Button onClick={() => setOpen(true)}>Open half</Button>
-    <BottomSheet open={open} onClose={() => setOpen(false)} title="Application actions">
+    <BottomSheet open={open} onClose={() => setOpen(false)} title="Item actions">
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Edit application</li>
-        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Open job posting</li>
+        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Edit item</li>
+        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Open record</li>
         <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Mark as priority</li>
         <li style={{ padding: "12px 0", color: "var(--red)" }}>Withdraw</li>
       </ul>
@@ -50,7 +26,7 @@ return (
 return (
   <>
     <Button onClick={() => setOpen(true)}>Open full</Button>
-    <BottomSheet open={open} onClose={() => setOpen(false)} title="Filter jobs" height="full">
+    <BottomSheet open={open} onClose={() => setOpen(false)} title="Filter items" height="full">
       <p>Status</p>
       <p>Location</p>
       <p>Salary range</p>
@@ -89,7 +65,7 @@ return (
   <BottomSheet
     open={open}
     onClose={() => setOpen(false)}
-    title="Filter applications"
+    title="Filter records"
     height="half"
     footer={
       <>
@@ -114,9 +90,9 @@ return (
 return (
   <>
     <Button onClick={() => setOpen(true)}>Open half</Button>
-    <BottomSheet open={open} onClose={() => setOpen(false)} title="Application actions">
+    <BottomSheet open={open} onClose={() => setOpen(false)} title="Item actions">
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Edit application</li>
+        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Edit item</li>
         <li style={{ padding: "12px 0", color: "var(--red)" }}>Withdraw</li>
       </ul>
     </BottomSheet>
@@ -151,18 +127,14 @@ function HalfDemo() {
 	return (
 		<Preview>
 			<Button onClick={() => setOpen(true)}>Open half sheet</Button>
-			<BottomSheet open={open} onClose={() => setOpen(false)} title="Application actions">
+			<BottomSheet open={open} onClose={() => setOpen(false)} title="Item actions">
 				<ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>
-						Edit application
-					</li>
-					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>
-						Open job posting
-					</li>
+					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Edit item</li>
+					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Open record</li>
 					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>
 						Mark as priority
 					</li>
-					<li style={{ padding: "12px 0", color: "var(--red)" }}>Withdraw</li>
+					<li style={{ padding: "12px 0", color: "var(--red)" }}>Archive</li>
 				</ul>
 			</BottomSheet>
 		</Preview>
@@ -178,7 +150,7 @@ function FullDemo() {
 	return (
 		<Preview>
 			<Button onClick={() => setOpen(true)}>Open full sheet</Button>
-			<BottomSheet open={open} onClose={() => setOpen(false)} title="Filter jobs" height="full">
+			<BottomSheet open={open} onClose={() => setOpen(false)} title="Filter items" height="full">
 				<p>Status</p>
 				<p>Location</p>
 				<p>Salary range</p>
@@ -239,14 +211,7 @@ export const WithFooter: Story = {
 	render: () => <WithFooterDemo />,
 };
 
-const STATUS_OPTIONS = [
-	"Wishlist",
-	"Applied",
-	"Screening",
-	"Interview",
-	"Offer",
-	"Rejected",
-] as const;
+const STATUS_OPTIONS = ["New", "In Progress", "Review", "Approved", "On Hold", "Archived"] as const;
 type Status = (typeof STATUS_OPTIONS)[number];
 
 function MobileFiltersDemo() {
@@ -260,7 +225,7 @@ function MobileFiltersDemo() {
 			<BottomSheet
 				open={open}
 				onClose={() => setOpen(false)}
-				title="Filter applications"
+				title="Filter records"
 				height="half"
 				footer={
 					<>
@@ -372,15 +337,11 @@ function DarkHalfDemo() {
 	return (
 		<Preview>
 			<Button onClick={() => setOpen(true)}>Open half sheet</Button>
-			<BottomSheet open={open} onClose={() => setOpen(false)} title="Application actions" dark>
+			<BottomSheet open={open} onClose={() => setOpen(false)} title="Item actions" dark>
 				<ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>
-						Edit application
-					</li>
-					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>
-						Open job posting
-					</li>
-					<li style={{ padding: "12px 0", color: "var(--red)" }}>Withdraw</li>
+					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Edit item</li>
+					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Open record</li>
+					<li style={{ padding: "12px 0", color: "var(--red)" }}>Archive</li>
 				</ul>
 			</BottomSheet>
 		</Preview>

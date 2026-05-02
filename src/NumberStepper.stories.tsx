@@ -1,22 +1,3 @@
-/**
- * # Usage Audit — NumberStepper (D-87, D-151, D-210, D-211)
- *
- * Consumers (post v2.1):
- * - filters/SalaryRange — paired NumberSteppers (min/max) with prefix='$' + formatFn=(v)=>v.toLocaleString()
- * - quick-add modal/SalaryField — single NumberStepper for target salary
- * - settings/AutoArchiveDays — suffix='days' for "auto-archive after N days"
- * - kanban/MaxItemsPerColumn — basic NumberStepper with min=1, max=99
- * - analytics/PercentileSlider — variant alternative to RangeSlider for fit-score (suffix='%')
- *
- * API shape consumers expect:
- * - value (controlled) + onChange(next: number) — always controlled, no defaultValue
- * - prefix / suffix as ReactNode (typically string but can be Lucide icon)
- * - formatFn for non-trivial display (e.g., "$50,000" or "12 hrs")
- * - min / max enforce both button-disable AND on-blur clamping
- * - step (default 1) used by both buttons and ArrowUp/Down keys
- * - disabled disables both buttons + input
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { NumberStepper } from "./NumberStepper";

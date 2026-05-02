@@ -1,18 +1,3 @@
-/**
- * # Usage Audit — SegmentedControl (DS-63, D-17-20)
- *
- * Consumers (post v0.6):
- * - Calendar (DS-68) — view-mode toggle (month/week/day)
- * - Consumer apps — 2-5 way visual toggles (filter, mode, view)
- *
- * API shape consumers expect:
- * - options: SegmentedOption[] — 2-5 items; 6+ → use Select
- * - value (controlled) + onChange(next: string) — controlled callback
- * - size: "sm" | "md" | "lg" (default md)
- * - disabled: boolean (group-level)
- * - ariaLabel: string (required — radiogroup needs accessible name)
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { SegmentedControl, type SegmentedOption } from "./SegmentedControl";

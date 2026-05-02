@@ -1,31 +1,3 @@
-/**
- * # Usage Audit — Lightbox (D-87, D-350)
- *
- * Consumers (post v2.1):
- * - documents/ResumePreview — preview attached resume / cover letter PDFs
- *   converted to images
- * - jd/JDScreenshot — display archived job-description screenshot at full
- *   size when user clicks the thumbnail in the JD viewer
- * - portfolio/Gallery — multi-image walkthrough of a candidate's work
- *   samples; ArrowLeft/Right navigate
- *
- * API shape consumers expect:
- * - controlled-pattern: caller manages activeIndex + onIndexChange
- *   (Lightbox has NO internal state; pairs cleanly with a state hook
- *   driven by the gallery/thumbnail strip)
- * - items: LightboxItem[] with src + alt + optional caption
- * - single-item case: prev/next buttons hidden automatically
- *
- * a11y notes:
- * - role="dialog" + aria-modal="true" + aria-label includes active image alt
- *   so screen readers announce "Image lightbox: <alt>"
- * - close button gets initial focus (image is non-focusable)
- * - keyboard: Escape closes; ArrowLeft/Right navigate (wrap-around); Tab
- *   cycles close → prev → next
- * - ALWAYS-DARK invariant (D-350): the heavy black backdrop does NOT flip
- *   in dark mode (handoff parallel to StickyNote always-dark text)
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Button } from "./Button";

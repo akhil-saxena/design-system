@@ -5,8 +5,8 @@ const W = 400; // consistent width for non-playground stories
 
 const SRC = {
 	Default: `<Textarea placeholder="Type a note…" rows={4} />`,
-	WithValue: `<Textarea defaultValue="Strong technical screen — ask follow-up about scaling story." />`,
-	WithCounter: `<Textarea defaultValue="Tracking interview observations." maxLength={200} />`,
+	WithValue: `<Textarea defaultValue="Strong presentation — ask follow-up about the approach used." />`,
+	WithCounter: `<Textarea defaultValue="Tracking review notes." maxLength={200} />`,
 	ErrorState: `<Textarea error defaultValue="Required field" />`,
 	Disabled: `<Textarea disabled defaultValue="—" />`,
 	Playground: `// Textarea always fills its container — set any width on the wrapper
@@ -60,7 +60,7 @@ export const Default: Story = {
 	],
 };
 export const WithValue: Story = {
-	args: { defaultValue: "Strong technical screen — ask follow-up about scaling story." },
+	args: { defaultValue: "Strong presentation — ask follow-up about the approach used." },
 	parameters: { docs: { source: { code: SRC.WithValue } } },
 	decorators: [
 		(S) => (
@@ -71,7 +71,7 @@ export const WithValue: Story = {
 	],
 };
 export const WithCounter: Story = {
-	args: { defaultValue: "Tracking interview observations.", maxLength: 200 },
+	args: { defaultValue: "Tracking review notes.", maxLength: 200 },
 	parameters: { docs: { source: { code: SRC.WithCounter } } },
 	decorators: [
 		(S) => (

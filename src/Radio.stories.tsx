@@ -4,26 +4,26 @@ import { Radio, RadioGroup } from "./Radio";
 
 const SRC = {
 	Default: `// Uncontrolled — RadioGroup manages its own state
-<RadioGroup name="status" defaultValue="applied">
-  <Radio value="wishlist"     label="Wishlist"     />
-  <Radio value="applied"      label="Applied"      />
-  <Radio value="screening"    label="Screening"    />
-  <Radio value="interviewing" label="Interviewing" />
+<RadioGroup name="status" defaultValue="active">
+  <Radio value="new"          label="New"          />
+  <Radio value="active"       label="Active"       />
+  <Radio value="review"       label="Review"       />
+  <Radio value="approved"     label="Approved"     />
 </RadioGroup>`,
 
 	Controlled: `// Controlled — parent owns the value
-const [value, setValue] = useState("applied");
+const [value, setValue] = useState("active");
 
 <RadioGroup name="status" value={value} onChange={(next) => setValue(next)}>
-  <Radio value="wishlist"  label="Wishlist"  />
-  <Radio value="applied"   label="Applied"   />
-  <Radio value="screening" label="Screening" />
+  <Radio value="new"       label="New"       />
+  <Radio value="active"    label="Active"    />
+  <Radio value="review"    label="Review"    />
 </RadioGroup>`,
 
-	Disabled: `<RadioGroup name="status" defaultValue="wishlist">
-  <Radio value="wishlist"  label="Wishlist"             />
-  <Radio value="applied"   label="Applied"   disabled   />
-  <Radio value="screening" label="Screening" disabled   />
+	Disabled: `<RadioGroup name="status" defaultValue="new">
+  <Radio value="new"       label="New"                  />
+  <Radio value="active"    label="Active"    disabled   />
+  <Radio value="review"    label="Review"    disabled   />
 </RadioGroup>`,
 
 	Standalone: `<Radio value="opt1" name="standalone" label="Option 1" defaultChecked />
@@ -35,11 +35,11 @@ const [value, setValue] = useState("applied");
   <Radio value="c" label="Option C" />
 </RadioGroup>`,
 
-	DarkMode: `<RadioGroup name="status" defaultValue="applied">
-  <Radio value="wishlist"  label="Wishlist"           />
-  <Radio value="applied"   label="Applied (selected)" />
-  <Radio value="screening" label="Screening"          />
-  <Radio value="rejected"  label="Rejected"  disabled />
+	DarkMode: `<RadioGroup name="status" defaultValue="active">
+  <Radio value="new"       label="New"                />
+  <Radio value="active"    label="Active (selected)"  />
+  <Radio value="review"    label="Review"             />
+  <Radio value="archived"  label="Archived"  disabled />
 </RadioGroup>`,
 };
 
@@ -83,11 +83,11 @@ export const Default: Story = {
 		},
 	},
 	render: () => (
-		<RadioGroup name="story-default" defaultValue="applied">
-			<Radio value="wishlist" label="Wishlist" />
-			<Radio value="applied" label="Applied" />
-			<Radio value="screening" label="Screening" />
-			<Radio value="interviewing" label="Interviewing" />
+		<RadioGroup name="story-default" defaultValue="active">
+			<Radio value="new" label="New" />
+			<Radio value="active" label="Active" />
+			<Radio value="review" label="Review" />
+			<Radio value="approved" label="Approved" />
 		</RadioGroup>
 	),
 };
@@ -100,12 +100,12 @@ export const Controlled: Story = {
 		},
 	},
 	render: function ControlledStory() {
-		const [v, setV] = useState("applied");
+		const [v, setV] = useState("active");
 		return (
 			<RadioGroup name="story-controlled" value={v} onChange={(next) => setV(next)}>
-				<Radio value="wishlist" label="Wishlist" />
-				<Radio value="applied" label={`Applied${v === "applied" ? " ✓" : ""}`} />
-				<Radio value="screening" label="Screening" />
+				<Radio value="new" label="New" />
+				<Radio value="active" label={`Active${v === "active" ? " ✓" : ""}`} />
+				<Radio value="review" label="Review" />
 			</RadioGroup>
 		);
 	},
@@ -121,10 +121,10 @@ export const Disabled: Story = {
 		},
 	},
 	render: () => (
-		<RadioGroup name="story-disabled" defaultValue="wishlist">
-			<Radio value="wishlist" label="Wishlist" />
-			<Radio value="applied" label="Applied" disabled />
-			<Radio value="screening" label="Screening" disabled />
+		<RadioGroup name="story-disabled" defaultValue="new">
+			<Radio value="new" label="New" />
+			<Radio value="active" label="Active" disabled />
+			<Radio value="review" label="Review" disabled />
 		</RadioGroup>
 	),
 };
@@ -177,11 +177,11 @@ export const DarkMode: Story = {
 		),
 	],
 	render: () => (
-		<RadioGroup name="story-dark" defaultValue="applied">
-			<Radio value="wishlist" label="Wishlist" />
-			<Radio value="applied" label="Applied (selected)" />
-			<Radio value="screening" label="Screening" />
-			<Radio value="rejected" label="Rejected" disabled />
+		<RadioGroup name="story-dark" defaultValue="active">
+			<Radio value="new" label="New" />
+			<Radio value="active" label="Active (selected)" />
+			<Radio value="review" label="Review" />
+			<Radio value="archived" label="Archived" disabled />
 		</RadioGroup>
 	),
 };

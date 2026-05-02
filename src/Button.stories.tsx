@@ -1,19 +1,3 @@
-/**
- * # Usage Audit — Button
- *
- * Consumers (post v2.1):
- * - kanban/QuickAddButton — `primary` md, leading `<Plus />`
- * - kanban/StatusActionButton — `amber` sm
- * - detail/EditField — `secondary` xs
- * - modal/ConfirmFooter — `primary` + `ghost` pair
- * - global header/AddApplicationButton — `primary` md
- *
- * API expectations:
- * - variant + size + loading + icon (D-100 inline maps; D-110 ReactNode)
- * - onClick via ...rest pass-through
- *
- * Out of scope: as="a" link rendering (D-140 — would be LinkButton primitive).
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { Plus, Trash2, X } from "lucide-react";
 import { Button } from "./Button";
@@ -135,7 +119,7 @@ export const WithIcon: Story = {
 	render: () => (
 		<div style={{ display: "flex", gap: 8 }}>
 			<Button variant="primary" icon={<Plus size={13} />}>
-				Add Application
+				Add item
 			</Button>
 			<Button variant="ghost" icon={<X size={13} />}>
 				Cancel

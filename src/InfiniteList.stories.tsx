@@ -49,8 +49,8 @@ type Story = StoryObj<typeof InfiniteList>;
 const makeItems = (start: number, count: number) =>
 	Array.from({ length: count }, (_, i) => ({
 		id: start + i,
-		label: `Application #${start + i + 1}`,
-		sub: `Status update ${start + i + 1}`,
+		label: `Item #${start + i + 1}`,
+		sub: `Updated ${start + i + 1} hours ago`,
 	}));
 
 function ItemRow({ label, sub }: { label: string; sub: string }) {
@@ -115,7 +115,7 @@ const onLoadMore = () => {
   hasMore={hasMore}
   loading={loading}
   onLoadMore={onLoadMore}
-  ariaLabel="Application list"
+  ariaLabel="Item list"
 />`,
 
 	loading: `<InfiniteList
@@ -124,7 +124,7 @@ const onLoadMore = () => {
   hasMore
   loading
   onLoadMore={onLoadMore}
-  ariaLabel="Application list"
+  ariaLabel="Item list"
   loadingSlot={
     <>
       <CardSkeleton />
@@ -140,7 +140,7 @@ const onLoadMore = () => {
   hasMore={false}
   loading={false}
   onLoadMore={() => {}}
-  ariaLabel="Application list"
+  ariaLabel="Item list"
 />`,
 
 	customSlots: `<InfiniteList
@@ -149,7 +149,7 @@ const onLoadMore = () => {
   hasMore={false}
   loading={false}
   onLoadMore={() => {}}
-  ariaLabel="Application list"
+  ariaLabel="Item list"
   endSlot={
     <div style={{ padding: 16, textAlign: "center", color: "var(--amber)", fontWeight: 600 }}>
       You have reached the end
@@ -163,7 +163,7 @@ const onLoadMore = () => {
   hasMore={false}
   loading={false}
   onLoadMore={() => {}}
-  ariaLabel="Application list"
+  ariaLabel="Item list"
 />`,
 };
 
@@ -205,7 +205,7 @@ export const Default: Story = {
 					hasMore={hasMore}
 					loading={loading}
 					onLoadMore={onLoadMore}
-					ariaLabel="Application list"
+					ariaLabel="Item list"
 				/>
 			</div>
 		);
@@ -224,7 +224,7 @@ export const LoadingInProgress: Story = {
 				hasMore
 				loading
 				onLoadMore={() => {}}
-				ariaLabel="Application list"
+				ariaLabel="Item list"
 				loadingSlot={
 					<>
 						<CardSkeleton />
@@ -249,7 +249,7 @@ export const EndOfList: Story = {
 				hasMore={false}
 				loading={false}
 				onLoadMore={() => {}}
-				ariaLabel="Application list"
+				ariaLabel="Item list"
 			/>
 		</div>
 	),
@@ -293,7 +293,7 @@ export const LongList: Story = {
 					hasMore={hasMore}
 					loading={loading}
 					onLoadMore={onLoadMore}
-					ariaLabel="Long application list"
+					ariaLabel="Item list"
 				/>
 			</div>
 		);
@@ -325,7 +325,7 @@ export const CustomSlots: Story = {
 						You have reached the end
 					</div>
 				}
-				ariaLabel="Application list"
+				ariaLabel="Item list"
 			/>
 		</div>
 	),
@@ -363,7 +363,7 @@ export const DarkMode: Story = {
 				hasMore={false}
 				loading={false}
 				onLoadMore={() => {}}
-				ariaLabel="Application list"
+				ariaLabel="Item list"
 			/>
 		</div>
 	),

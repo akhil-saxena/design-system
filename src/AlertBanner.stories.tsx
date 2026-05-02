@@ -1,39 +1,3 @@
-/**
- * # Usage Audit — AlertBanner (DS-87, DS-41, D-410, D-411)
- *
- * Consumers (post v2.1):
- * - dashboard/TrialEndsBanner — `tone="warning"` — "Trial ends in 3 days"
- *   above the kanban board; dismissible (caller persists dismissal in
- *   localStorage)
- * - settings/UnverifiedEmailBanner — `tone="info"` — "Verify your email
- *   to enable backups"; non-dismissible until verified
- * - detail/SaveDraftConfirm — `tone="success"` — "Saved as draft" inline
- *   above form; auto-removed on next blur (caller controls open)
- * - dashboard/ApiQuotaBanner — `tone="error"` — "Cloudflare D1 quota
- *   reached" with `children` slot wrapping a `<Button>` to upgrade
- * - billing/PaymentFailedBanner — `tone="error"` — "Payment failed —
- *   action required"
- *
- * API (D-410):
- * - `open: boolean` — controlled by caller; returns null when false
- * - `onDismiss?: () => void` — passed = X button shown by default
- * - `tone?: 'info' | 'success' | 'warning' | 'error'` — default 'info'
- * - `title: ReactNode` — required; bold display-font
- * - `description?: ReactNode` — optional second line in body slot
- * - `children?: ReactNode` — overrides `description` for advanced layouts
- *   (e.g., banner with embedded action button)
- * - `dismissible?: boolean` — default `!!onDismiss`; force-hide X with `false`
- * - extends native <div> attributes via `...rest` spread
- * - forwards ref to root div
- *
- * vs Toast (DS-40): Toast is ephemeral overlaid feedback ("Saved").
- * AlertBanner is persistent inline contextual messaging ("Verify your
- * email"). Toasts auto-dismiss; AlertBanners are manual close only.
- *
- * Implementation: single .tsx with `data-variant` attribute (Card pattern);
- * CSS attribute selectors in primitives.css drive tone visuals. Lucide
- * tone-icons inline (Info/CheckCircle2/AlertTriangle/XCircle).
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { AlertBanner } from "./AlertBanner";

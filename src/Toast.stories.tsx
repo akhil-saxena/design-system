@@ -1,44 +1,3 @@
-/**
- * # Usage Audit — Toast (DS-87, DS-40, D-400, D-401)
- *
- * Consumers (post v2.1):
- * - root/main.tsx — `<ToastProvider>` mounted ONCE at app root, wrapping
- *   the router/page tree
- * - kanban/useUpdateApplication — `toast.success("Saved")` on mutation
- *   resolve; `toast.error(err.message)` on reject
- * - settings/PreferencesPanel — `toast.success("Preferences updated")`
- *   on save
- * - auth/LogoutButton — `toast.info("Signed out")` after logout
- * - dashboard/StaleAppNudge — `toast.warning("3 stale applications")`
- *   on first session of the day
- *
- * API (D-400):
- * - `<ToastProvider>` accepts `children`. Mounts once at app root.
- * - `useToast()` returns `{ success, error, info, warning, dismiss }`.
- *   - Each tone method takes `(message: ReactNode, opts?: { duration?: number })`
- *   - Returns the toast `id` (number) for manual dismiss
- * - `dismiss(id)` removes a specific toast immediately
- * - Calling `useToast()` outside `<ToastProvider>` throws a clear error
- *
- * Behavior (D-401):
- * - Position: fixed top-right at `var(--space-4)` inset, z-1100
- * - Stacking: max 3 concurrent; 4th added → oldest FIFO drops
- * - Auto-dismiss: 3s default; pass `duration: Infinity` to disable
- * - Animation: slide-in from right 0.2s ease-out; reverse on dismiss
- * - A11y: `role="status"` (success/info) or `role="alert"` (error/warning);
- *   does NOT steal focus
- *
- * vs AlertBanner (DS-41): Toast = ephemeral feedback ("Saved"). AlertBanner
- * = persistent contextual messaging ("Trial ends in 3 days"). Toasts are
- * overlaid + auto-dismissed; AlertBanners are inline + manual-close-only.
- *
- * Implementation:
- * - DSPortal-mounted region (`<DSPortal>` from 14-01)
- * - Callback-ref-as-state for stack DOM (Tooltip line 79 + Popover line 73)
- * - Module-scoped `nextToastId` counter for deterministic ids
- * - Each toast node: lucide tone-icon + message + dismiss-X button
- * - Tone-keyed CSS via `[data-tone]` (Card pattern)
- */
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect, useRef } from "react";
 import { Button } from "./Button";
@@ -59,18 +18,18 @@ function SaveButton() {
   const toast = useToast();
   return (
     <div style={{ display: "flex", gap: 8 }}>
-      <Button onClick={() => toast.success("Application saved successfully")}>Success</Button>
-      <Button variant="danger" onClick={() => toast.error("Failed to save — please retry")}>Error</Button>
-      <Button variant="secondary" onClick={() => toast.info("New feature available")}>Info</Button>
-      <Button variant="ghost" onClick={() => toast.warning("Almost out of free tier")}>Warning</Button>
+      <Button onClick={() => toast.success("Changes saved")}>Success</Button>
+      <Button variant="danger" onClick={() => toast.error("Save failed — please retry")}>Error</Button>
+      <Button variant="secondary" onClick={() => toast.info("Update available")}>Info</Button>
+      <Button variant="ghost" onClick={() => toast.warning("Approaching usage limit")}>Warning</Button>
     </div>
   );
 }`,
 	Tones: `const toast = useToast();
 toast.success("Saved successfully", { duration: Infinity });
-toast.error("Failed to save — please retry", { duration: Infinity });
-toast.info("New feature available", { duration: Infinity });
-toast.warning("Almost out of free tier", { duration: Infinity });`,
+toast.error("Save failed — please retry", { duration: Infinity });
+toast.info("Update available", { duration: Infinity });
+toast.warning("Approaching usage limit", { duration: Infinity });`,
 	Stacking: `const toast = useToast();
 // Fire 3 toasts (4th drops the oldest)
 toast.info("First", { duration: Infinity });
@@ -119,14 +78,14 @@ function ToneTriggers() {
 	const toast = useToast();
 	return (
 		<div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-			<Button onClick={() => toast.success("Application saved successfully")}>Success</Button>
-			<Button variant="danger" onClick={() => toast.error("Failed to save — please retry")}>
+			<Button onClick={() => toast.success("Changes saved")}>Success</Button>
+			<Button variant="danger" onClick={() => toast.error("Save failed — please retry")}>
 				Error
 			</Button>
-			<Button variant="secondary" onClick={() => toast.info("New feature available")}>
+			<Button variant="secondary" onClick={() => toast.info("Update available")}>
 				Info
 			</Button>
-			<Button variant="ghost" onClick={() => toast.warning("Almost out of free tier")}>
+			<Button variant="ghost" onClick={() => toast.warning("Approaching usage limit")}>
 				Warning
 			</Button>
 		</div>
@@ -168,17 +127,13 @@ export const Tones: Story = {
 			/>
 			<FireOnMount
 				tone="error"
-				message="Failed to save — please retry"
+				message="Save failed — please retry"
 				duration={Number.POSITIVE_INFINITY}
 			/>
-			<FireOnMount
-				tone="info"
-				message="New feature available"
-				duration={Number.POSITIVE_INFINITY}
-			/>
+			<FireOnMount tone="info" message="Update available" duration={Number.POSITIVE_INFINITY} />
 			<FireOnMount
 				tone="warning"
-				message="Almost out of free tier"
+				message="Approaching usage limit"
 				duration={Number.POSITIVE_INFINITY}
 			/>
 			<div style={{ color: "var(--ink-2)", fontSize: 13 }}>

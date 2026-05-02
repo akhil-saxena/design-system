@@ -1,37 +1,10 @@
-/**
- * # Usage Audit — StickyNote (D-87, DS-31)
- *
- * Consumers (post v2.1):
- * - detail/QuickReminderNote — StickyNote with reminder text + "Reminder" hint child
- * - detail/PrepQuestionsList — StickyNote with bulleted questions + "3 items" hint child
- * - detail/FollowUpNote — StickyNote with follow-up date in bold + "Reminder" hint child
- * - dashboard/PinnedNotes — small grid of StickyNotes with mixed rotations for visual variety
- *
- * API:
- * - extends native <div> attributes (HTMLAttributes<HTMLDivElement>)
- * - rotation: 'left' | 'right' | 'none' — default 'right' (slight +0.4deg tilt)
- * - children: arbitrary JSX (mirrors Card freely-composed pattern; the
- *   handoff's `.ds-sticky-hint` mini-line is consumer's responsibility)
- * - style prop merges LAST so consumers can override transform / padding
- *   if they need a custom rotation beyond the 3 enum values
- * - forwards ref to root div for measurement / focus / portal-anchor use
- *
- * Implementation: single .tsx with `data-rotation` attribute; CSS attribute
- * selectors in primitives.css drive rotation per value. Mirrors Card's
- * data-variant pattern (D-300).
- *
- * Visual invariants (handoff):
- * - Yellow gradient `linear-gradient(145deg, #fef3c7, #fde68a)`
- * - Amber-tinted drop shadow `0 2px 8px rgba(245,158,11,.15)`
- * - ALWAYS DARK TEXT (color: #292524) — does NOT flip in :root.dark
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { StickyNote } from "./StickyNote";
 
 const SRC = {
 	Default: `<StickyNote>
   <div style={{ fontSize: 13, lineHeight: 1.5 }}>
-    Reach out to David before screening. Research Jetpack vs WP.com split.
+    Follow up before Thursday. Review project scope with the team.
   </div>
   <div style={{ marginTop: 10, fontFamily: "var(--mono)", fontSize: 9.5, color: "rgba(41,37,36,.55)", textTransform: "uppercase" }}>
     Click to expand
@@ -47,13 +20,13 @@ const SRC = {
   <div style={{ fontSize: 13, lineHeight: 1.5 }}>No tilt — rotate(0deg).</div>
 </StickyNote>`,
 	Group: `<StickyNote rotation="right">
-  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Reach out to David before screening.</div>
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Follow up before Thursday. Review project scope with the team.</div>
 </StickyNote>
 <StickyNote rotation="right">
-  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Prep 3 questions for Maya.</div>
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Prep 3 questions for the client.</div>
 </StickyNote>
 <StickyNote rotation="left">
-  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Follow up if no reply by May 2.</div>
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Follow up if no reply within 3 days.</div>
 </StickyNote>`,
 	Playground: `<StickyNote rotation="right">
   <div style={{ fontSize: 13, lineHeight: 1.5 }}>Playground note — tweak rotation in controls.</div>
@@ -107,7 +80,7 @@ export const Default: Story = {
 		children: (
 			<>
 				<div style={{ fontSize: 13, lineHeight: 1.5 }}>
-					Reach out to David before screening. Research Jetpack vs WP.com split.
+					Follow up before Thursday. Review project scope with the team.
 				</div>
 				<div style={hintStyle}>Click to expand</div>
 			</>
@@ -141,13 +114,13 @@ export const Group: Story = {
 		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 14, padding: 20 }}>
 			<StickyNote rotation="right">
 				<div style={{ fontSize: 13, lineHeight: 1.5 }}>
-					Reach out to David before screening. Research Jetpack vs WP.com split.
+					Follow up before Thursday. Review project scope with the team.
 				</div>
 				<div style={hintStyle}>Click to expand</div>
 			</StickyNote>
 			<StickyNote rotation="right" style={{ transform: "rotate(0.4deg)" }}>
 				<div style={{ fontSize: 13, lineHeight: 1.5 }}>
-					Prep 3 questions for Maya:
+					Prep 3 questions for the client:
 					<br />- Division scope
 					<br />- Trial expectations
 					<br />- Mentorship
@@ -155,7 +128,7 @@ export const Group: Story = {
 				<div style={hintStyle}>3 items</div>
 			</StickyNote>
 			<StickyNote rotation="left">
-				<div style={{ fontSize: 13, lineHeight: 1.5 }}>Follow up if no reply by May 2.</div>
+				<div style={{ fontSize: 13, lineHeight: 1.5 }}>Follow up if no reply within 3 days.</div>
 				<div style={hintStyle}>Reminder</div>
 			</StickyNote>
 		</div>

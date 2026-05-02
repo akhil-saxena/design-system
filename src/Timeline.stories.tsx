@@ -1,38 +1,24 @@
-/**
- * # Usage Audit — Timeline (DS-66)
- *
- * Consumers (post v0.6):
- * - JobDash app — application status timeline (Submitted → Interview → Offer)
- * - Project history views — phase sequence with dates and milestone labels
- *
- * API shape consumers expect:
- * - events: TimelineEvent[] (id + date + label + optional description/color/onClick)
- * - orientation: "horizontal" | "vertical" (default horizontal)
- * - ariaLabel: string (default "Timeline")
- * - className / style passthrough
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { Timeline, type TimelineEvent } from "./Timeline";
 
 const SRC = {
 	Horizontal: `<Timeline
   events={[
-    { id: 1, date: "2026-03-04T00:00:00.000Z", label: "Applied", description: "via referral" },
-    { id: 2, date: "2026-03-11T00:00:00.000Z", label: "Recruiter call" },
-    { id: 3, date: "2026-03-18T00:00:00.000Z", label: "Tech screen", description: "in progress" },
-    { id: 4, date: "2026-03-25T00:00:00.000Z", label: "Onsite" },
-    { id: 5, date: "2026-04-02T00:00:00.000Z", label: "Decision" },
+    { id: 1, date: "2026-03-04T00:00:00.000Z", label: "Kickoff", description: "project start" },
+    { id: 2, date: "2026-03-11T00:00:00.000Z", label: "Planning" },
+    { id: 3, date: "2026-03-18T00:00:00.000Z", label: "Review", description: "in progress" },
+    { id: 4, date: "2026-03-25T00:00:00.000Z", label: "Build" },
+    { id: 5, date: "2026-04-02T00:00:00.000Z", label: "Release" },
   ]}
   orientation="horizontal"
 />`,
 	Vertical: `<Timeline
   events={[
-    { id: 1, date: "2026-03-04T00:00:00.000Z", label: "Applied", description: "via referral" },
-    { id: 2, date: "2026-03-11T00:00:00.000Z", label: "Recruiter call" },
-    { id: 3, date: "2026-03-18T00:00:00.000Z", label: "Tech screen" },
-    { id: 4, date: "2026-03-25T00:00:00.000Z", label: "Onsite" },
-    { id: 5, date: "2026-04-02T00:00:00.000Z", label: "Decision" },
+    { id: 1, date: "2026-03-04T00:00:00.000Z", label: "Kickoff", description: "project start" },
+    { id: 2, date: "2026-03-11T00:00:00.000Z", label: "Planning" },
+    { id: 3, date: "2026-03-18T00:00:00.000Z", label: "Review" },
+    { id: 4, date: "2026-03-25T00:00:00.000Z", label: "Build" },
+    { id: 5, date: "2026-04-02T00:00:00.000Z", label: "Release" },
   ]}
   orientation="vertical"
 />`,
@@ -50,9 +36,9 @@ const SRC = {
     ...ev,
     onClick: () => console.log(\`Clicked: \${ev.label}\`),
   }))}
-  ariaLabel="Clickable application stages"
+  ariaLabel="Clickable project stages"
 />`,
-	DarkMode: `<Timeline events={applicationEvents} />
+	DarkMode: `<Timeline events={projectEvents} />
 <Timeline events={milestoneEvents} orientation="vertical" />`,
 	Empty: `<Timeline events={[]} ariaLabel="Empty timeline" />`,
 	Playground: `<Timeline events={events} orientation="horizontal" ariaLabel="Timeline" />`,
@@ -92,11 +78,11 @@ type Story = StoryObj<typeof Timeline>;
 // ─── Shared fixtures ───────────────────────────────────────────────────────
 
 const APPLICATION_EVENTS: TimelineEvent[] = [
-	{ id: 1, date: "2026-03-04T00:00:00.000Z", label: "Applied", description: "via referral" },
-	{ id: 2, date: "2026-03-11T00:00:00.000Z", label: "Recruiter call" },
-	{ id: 3, date: "2026-03-18T00:00:00.000Z", label: "Tech screen", description: "in progress" },
-	{ id: 4, date: "2026-03-25T00:00:00.000Z", label: "Onsite" },
-	{ id: 5, date: "2026-04-02T00:00:00.000Z", label: "Decision" },
+	{ id: 1, date: "2026-03-04T00:00:00.000Z", label: "Kickoff", description: "project start" },
+	{ id: 2, date: "2026-03-11T00:00:00.000Z", label: "Planning" },
+	{ id: 3, date: "2026-03-18T00:00:00.000Z", label: "Review", description: "in progress" },
+	{ id: 4, date: "2026-03-25T00:00:00.000Z", label: "Build" },
+	{ id: 5, date: "2026-04-02T00:00:00.000Z", label: "Release" },
 ];
 
 const MILESTONE_EVENTS: TimelineEvent[] = [
@@ -139,7 +125,7 @@ const MILESTONE_EVENTS: TimelineEvent[] = [
 
 // ─── Stories ───────────────────────────────────────────────────────────────
 
-/** Default horizontal timeline — 5 application stages with dates */
+/** Default horizontal timeline — 5 project stages with dates */
 export const Horizontal: Story = {
 	parameters: { docs: { source: { code: SRC.Horizontal } } },
 	render: () => <Timeline events={APPLICATION_EVENTS} orientation="horizontal" />,
@@ -169,7 +155,7 @@ export const Clickable: Story = {
 			...ev,
 			onClick: () => console.log(`Clicked: ${ev.label}`),
 		}));
-		return <Timeline events={clickableEvents} ariaLabel="Clickable application stages" />;
+		return <Timeline events={clickableEvents} ariaLabel="Clickable project stages" />;
 	},
 };
 

@@ -1,37 +1,3 @@
-/**
- * # Usage Audit — Select (DS-50, DS-87, D-500, D-501)
- *
- * Consumers (post v2.1):
- * - kanban/StatusFilter — single-select with status pipeline options + dotColor
- * - applications/StatusEditor — inline status change in row/detail view
- * - settings/PreferencesForm — single-select for theme / locale / week-start
- * - filters/CompanyTier — small option lists (≤5) with searchable=false
- * - shared/SortPicker — single-select with searchable=false (4-6 opts)
- *
- * API:
- * - value: string | null (controlled)
- * - onChange: (v: string) => void
- * - options: SelectOption[] — { value, label, dotColor? }
- * - placeholder?: string (default "Select…")
- * - searchable?: boolean (default true) — toggles header search input
- * - disabled?: boolean
- * - forwards ref to trigger button; style applies to trigger
- *
- * Implementation:
- * - Composes _internals/DSDropdown (D-500) — DSPortal + anchor-ref position +
- *   useClickOutside + ArrowUp/Down/Home/End/Enter/Escape + 500ms type-ahead.
- * - ARIA per D-501: trigger role="combobox" aria-expanded aria-haspopup="listbox"
- *   aria-controls aria-activedescendant; panel <ul role="listbox"> with
- *   <li role="option" aria-selected> items. DSDropdown does NOT inject these —
- *   Select wires them so the listbox semantic stays accurate.
- * - Searchable: case-insensitive label substring filter; empty filtered set
- *   renders inline "No results" empty state. Filter resets on close.
- * - Visuals: TextInput-shaped trigger (36px height, var(--rule) border),
- *   ChevronDown rotates 180° via .is-open class. Reuses .ds-atom-dropdown
- *   panel chrome from 16-01 (no chrome duplication here).
- *
- * Visual baselines deferred to phase 16-09 cumulative capture (DS-86).
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Select, type SelectOption } from "./Select";
@@ -88,11 +54,11 @@ return (
 };
 
 const STATUS_OPTIONS: SelectOption[] = [
-	{ value: "wishlist", label: "Wishlist", dotColor: "#9ca3af" },
-	{ value: "applied", label: "Applied", dotColor: "var(--amber)" },
-	{ value: "interview", label: "Interview", dotColor: "#3b82f6" },
-	{ value: "offer", label: "Offer", dotColor: "#10b981" },
-	{ value: "rejected", label: "Rejected", dotColor: "#ef4444" },
+	{ value: "new", label: "New", dotColor: "#9ca3af" },
+	{ value: "active", label: "Active", dotColor: "var(--amber)" },
+	{ value: "review", label: "Review", dotColor: "#3b82f6" },
+	{ value: "approved", label: "Approved", dotColor: "#10b981" },
+	{ value: "archived", label: "Archived", dotColor: "#ef4444" },
 ];
 
 const PRIORITY_OPTIONS: SelectOption[] = [
@@ -180,7 +146,7 @@ export const Default: Story = {
 
 export const WithDots: Story = {
 	parameters: { docs: { source: { code: SRC.WithDots } } },
-	render: () => <ControlledSelect initialValue="applied" placeholder="Choose status" />,
+	render: () => <ControlledSelect initialValue="active" placeholder="Choose status" />,
 };
 
 export const Searchable: Story = {
@@ -220,5 +186,5 @@ export const DarkMode: Story = {
 			</div>
 		),
 	],
-	render: () => <ControlledSelect initialValue="interview" placeholder="Choose status" />,
+	render: () => <ControlledSelect initialValue="review" placeholder="Choose status" />,
 };

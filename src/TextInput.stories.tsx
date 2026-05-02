@@ -1,20 +1,3 @@
-/**
- * # Usage Audit — TextInput
- *
- * Consumers (post v2.1):
- * - kanban/QuickAddModal — bare, controlled `value` + `onChange`
- * - detail/EditField — bare for inline edit; error variant on validation
- * - filters/SearchBar — wrapped with leading <Search /> icon
- * - settings/SalaryInput — wrapped with currency `prefix="$"` and `suffix="USD"`
- * - kanban/UrlField — wrapped with leading <Link /> icon for postingUrl
- *
- * API expectations:
- * - bare `<input>` when no icon/prefix/suffix; wrapped when any present
- * - `value` + `onChange` (controlled-first per spec §5)
- * - `error` boolean for invalid state (red border + red shadow)
- *
- * Out of scope: kbd-shortcut hint slot (deferred — handoff has it but no Wave-1 consumer needs it).
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { Link as LinkIcon, Search } from "lucide-react";
 import { TextInput } from "./TextInput";
@@ -24,9 +7,9 @@ const SRC = {
 	WithValue: `<TextInput defaultValue="Acme Corp" />`,
 	ErrorState: `<TextInput error defaultValue="Invalid email" />`,
 	Disabled: `<TextInput disabled defaultValue="—" />`,
-	WithIcon: `<TextInput icon={<Search size={14} />} placeholder="Search applications…" />`,
+	WithIcon: `<TextInput icon={<Search size={14} />} placeholder="Search items…" />`,
 	WithPrefix: `<TextInput prefix="$" suffix="USD" placeholder="85000" />`,
-	WithUrlIcon: `<TextInput icon={<LinkIcon size={14} />} placeholder="https://acme.com/jobs/123" />`,
+	WithUrlIcon: `<TextInput icon={<LinkIcon size={14} />} placeholder="https://acme.com/records/123" />`,
 	Playground: `<TextInput placeholder="Playground" />`,
 	DarkMode: `<TextInput placeholder="Default" />
 <TextInput defaultValue="With value" />
@@ -101,7 +84,7 @@ export const Disabled: Story = {
 };
 
 export const WithIcon: Story = {
-	args: { icon: <Search size={14} />, placeholder: "Search applications…" },
+	args: { icon: <Search size={14} />, placeholder: "Search items…" },
 	parameters: { docs: { source: { code: SRC.WithIcon } } },
 };
 
@@ -113,7 +96,7 @@ export const WithPrefix: Story = {
 export const WithUrlIcon: Story = {
 	args: {
 		icon: <LinkIcon size={14} />,
-		placeholder: "https://acme.com/jobs/123",
+		placeholder: "https://acme.com/records/123",
 	},
 	parameters: { docs: { source: { code: SRC.WithUrlIcon } } },
 };

@@ -1,28 +1,3 @@
-/**
- * # Usage Audit — Modal + ConfirmDialog (D-87, D-287, D-321, D-322, D-356)
- *
- * Consumers (post v2.1):
- * - kanban/AddApplicationModal — Modal with form children + footer Button[Cancel|Add]
- * - kanban/DeleteApplicationConfirm — ConfirmDialog danger=true, "Delete application?"
- * - settings/KeyboardShortcutsInfo — Modal with shortcuts list + close button only (no footer)
- * - profile/SignOutConfirm — ConfirmDialog danger=false (neutral), "Sign out?"
- * - import/CSVUploadModal — Modal with file picker + footer Button[Cancel|Upload]
- *
- * API shape consumers expect:
- * - open + onClose — controlled; consumer owns toggle state
- * - title, description (string), footer — slotted ReactNode
- * - role: "dialog" (default) or "alertdialog" — surfaces to assistive tech
- * - closeOnBackdropClick: true by default (D-320); set false for destructive flows
- * - aria-labelledby + aria-describedby auto-generated via useId() (D-321)
- * - useFocusTrap traps Tab + restores on close (Wave 0 hook); Escape closes via document keydown
- * - ConfirmDialog: same-file variant (D-287); danger=true sets role=alertdialog +
- *   closeOnBackdropClick=false + Button variant=danger
- *
- * Same-file variant-export pattern proven twice in Wave 3:
- *   Popover.tsx → { Popover, ContextMenu }   (14-04)
- *   Modal.tsx   → { Modal, ConfirmDialog }   (14-05)
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Button } from "./Button";
@@ -33,7 +8,7 @@ const SRC = {
 return (
   <>
     <Button onClick={() => setOpen(true)}>Open Modal</Button>
-    <Modal open={open} onClose={() => setOpen(false)} title="Add Application">
+    <Modal open={open} onClose={() => setOpen(false)} title="Add item">
       <p>Body content here. Tab cycles focus inside the panel; Escape closes.</p>
     </Modal>
   </>
@@ -45,12 +20,12 @@ return (
     <Modal
       open={open}
       onClose={() => setOpen(false)}
-      title="Add Application"
+      title="Add item"
       description="Fill out the details below."
       footer={
         <>
           <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="primary" onClick={() => setOpen(false)}>Add Application</Button>
+          <Button variant="primary" onClick={() => setOpen(false)}>Add item</Button>
         </>
       }
     >
@@ -87,7 +62,7 @@ return (
 return (
   <>
     <Button onClick={() => setOpen(true)}>Open Modal</Button>
-    <Modal open={open} onClose={() => setOpen(false)} title="Add Application">
+    <Modal open={open} onClose={() => setOpen(false)} title="Add item">
       <p>Body content here.</p>
     </Modal>
   </>
@@ -99,8 +74,8 @@ return (
     <ConfirmDialog
       open={open}
       onClose={() => setOpen(false)}
-      title="Send to recruiter?"
-      description="Anya Patel will receive your resume and cover letter."
+      title="Send to contact?"
+      description="Jordan Lee will receive the file."
       confirmLabel="Send"
       onConfirm={() => setOpen(false)}
     />
@@ -109,12 +84,12 @@ return (
 	ConfirmDialogDestructive: `const [open, setOpen] = useState(false);
 return (
   <>
-    <Button variant="danger" onClick={() => setOpen(true)}>Delete application</Button>
+    <Button variant="danger" onClick={() => setOpen(true)}>Delete item</Button>
     <ConfirmDialog
       open={open}
       onClose={() => setOpen(false)}
-      title="Delete application?"
-      description="This will permanently remove the Automattic application and all associated notes, documents, and timeline events."
+      title="Delete item?"
+      description="This will permanently remove the item and all associated notes, documents, and history."
       confirmLabel="Yes, delete"
       cancelLabel="Cancel"
       danger
@@ -129,10 +104,10 @@ return (
     <ConfirmDialog
       open={open}
       onClose={() => setOpen(false)}
-      title="Move 12 applications to archive?"
+      title="Move 12 items to archive?"
       description={
         <>
-          <p>Archived applications stop receiving follow-up reminders.</p>
+          <p>Archived items stop receiving follow-up reminders.</p>
           <p>You can restore them at any time from the archive view.</p>
         </>
       }
@@ -144,12 +119,12 @@ return (
 	ConfirmDialogDarkMode: `const [open, setOpen] = useState(false);
 return (
   <>
-    <Button variant="danger" onClick={() => setOpen(true)}>Delete application</Button>
+    <Button variant="danger" onClick={() => setOpen(true)}>Delete item</Button>
     <ConfirmDialog
       open={open}
       onClose={() => setOpen(false)}
-      title="Delete application?"
-      description="This will permanently remove the application."
+      title="Delete item?"
+      description="This will permanently remove the item."
       confirmLabel="Yes, delete"
       danger
       onConfirm={() => setOpen(false)}
@@ -215,7 +190,7 @@ function BasicDemo() {
 	return (
 		<>
 			<Button onClick={() => setOpen(true)}>Open Modal</Button>
-			<Modal open={open} onClose={() => setOpen(false)} title="Add Application">
+			<Modal open={open} onClose={() => setOpen(false)} title="Add item">
 				<p>Body content here. Tab cycles focus inside the panel; Escape closes.</p>
 			</Modal>
 		</>
@@ -234,7 +209,7 @@ function WithFooterDemo() {
 			<Modal
 				open={open}
 				onClose={() => setOpen(false)}
-				title="Add Application"
+				title="Add item"
 				description="Fill out the details below."
 				footer={
 					<>
@@ -242,7 +217,7 @@ function WithFooterDemo() {
 							Cancel
 						</Button>
 						<Button variant="primary" onClick={() => setOpen(false)}>
-							Add Application
+							Add item
 						</Button>
 					</>
 				}
@@ -320,8 +295,8 @@ function ConfirmDialogBasicDemo() {
 			<ConfirmDialog
 				open={open}
 				onClose={() => setOpen(false)}
-				title="Send to recruiter?"
-				description="Anya Patel will receive your resume and cover letter."
+				title="Send to contact?"
+				description="Jordan Lee will receive the file."
 				confirmLabel="Send"
 				onConfirm={() => {
 					setOpen(false);
@@ -340,13 +315,13 @@ function ConfirmDialogDestructiveDemo() {
 	return (
 		<>
 			<Button variant="danger" onClick={() => setOpen(true)}>
-				Delete application
+				Delete item
 			</Button>
 			<ConfirmDialog
 				open={open}
 				onClose={() => setOpen(false)}
-				title="Delete application?"
-				description="This will permanently remove the Automattic application and all associated notes, documents, and timeline events."
+				title="Delete item?"
+				description="This will permanently remove the item and all associated notes, documents, and history."
 				confirmLabel="Yes, delete"
 				cancelLabel="Cancel"
 				danger={true}
@@ -370,10 +345,10 @@ function ConfirmDialogWithDescriptionNodeDemo() {
 			<ConfirmDialog
 				open={open}
 				onClose={() => setOpen(false)}
-				title="Move 12 applications to archive?"
+				title="Move 12 items to archive?"
 				description={
 					<>
-						<p>Archived applications stop receiving follow-up reminders.</p>
+						<p>Archived items stop receiving follow-up reminders.</p>
 						<p>You can restore them at any time from the archive view.</p>
 					</>
 				}

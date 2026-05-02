@@ -1,11 +1,3 @@
-/**
- * # Usage Audit — SplitButton (D-87, D-530)
- *
- * Consumers (post v2.1):
- * - kanban/CardSaveActions — SplitButton with [Save, Save as draft, Save and close]
- * - applications/BulkActions — SplitButton with [Apply now, Apply later, Discard]
- * - settings/ExportActions — SplitButton with [Export as CSV, Export as JSON, Export as PDF]
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { Archive, FileText, Save, Trash2, X } from "lucide-react";
 import { SplitButton } from "./SplitButton";

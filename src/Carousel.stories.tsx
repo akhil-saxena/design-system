@@ -47,7 +47,7 @@ const slide = (
 const HERO_SLIDES: CarouselSlide[] = [
 	{
 		id: "hero-1",
-		ariaLabel: "Slide 1: Welcome to JobDash",
+		ariaLabel: "Slide 1: Welcome",
 		content: (
 			<div
 				style={{
@@ -70,15 +70,15 @@ const HERO_SLIDES: CarouselSlide[] = [
 						marginBottom: 8,
 					}}
 				>
-					Welcome to JobDash
+					Welcome
 				</div>
-				<div style={{ fontSize: 14, opacity: 0.9 }}>The job hunt, with sanity intact</div>
+				<div style={{ fontSize: 14, opacity: 0.9 }}>Your work, organized and clear</div>
 			</div>
 		),
 	},
 	{
 		id: "hero-2",
-		ariaLabel: "Slide 2: Track applications",
+		ariaLabel: "Slide 2: Track records",
 		content: (
 			<div
 				style={{
@@ -101,9 +101,9 @@ const HERO_SLIDES: CarouselSlide[] = [
 						marginBottom: 8,
 					}}
 				>
-					Track every application
+					Track every record
 				</div>
-				<div style={{ fontSize: 14, opacity: 0.75 }}>Kanban, list, calendar — your call</div>
+				<div style={{ fontSize: 14, opacity: 0.75 }}>Board, list, calendar — your call</div>
 			</div>
 		),
 	},
@@ -211,7 +211,7 @@ const TESTIMONIALS: CarouselSlide[] = [
 					"Got my dream job in 6 weeks."
 				</div>
 				<div style={{ fontSize: 13, opacity: 0.75, lineHeight: 1.6, color: "var(--ink)" }}>
-					JobDash kept me organised through 47 applications and 12 interviews.
+					Helped me stay organised through a demanding project cycle.
 				</div>
 			</div>
 		),
@@ -357,10 +357,10 @@ const IMAGE_SLIDES: CarouselSlide[] = [
 
 const SRC = {
 	default: `<Carousel
-  ariaLabel="JobDash feature highlights"
+  ariaLabel="Feature highlights"
   slides={[
-    { id: "hero-1", ariaLabel: "Slide 1: Welcome to JobDash", content: <HeroSlide title="Welcome to JobDash" sub="The job hunt, with sanity intact" /> },
-    { id: "hero-2", ariaLabel: "Slide 2: Track applications", content: <HeroSlide title="Track every application" sub="Kanban, list, calendar — your call" /> },
+    { id: "hero-1", ariaLabel: "Slide 1: Welcome", content: <HeroSlide title="Welcome" sub="Your work, organized and clear" /> },
+    { id: "hero-2", ariaLabel: "Slide 2: Track records", content: <HeroSlide title="Track every record" sub="Board, list, calendar — your call" /> },
     { id: "hero-3", ariaLabel: "Slide 3: Follow-up reminders", content: <HeroSlide title="Never miss a follow-up" sub="Smart reminders for every stage" /> },
     { id: "hero-4", ariaLabel: "Slide 4: Land the offer", content: <HeroSlide title="Land the offer" sub="Prep, practice, and persist" /> },
   ]}
@@ -403,7 +403,7 @@ const SRC = {
       content: (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
           <p style={{ fontWeight: 700, fontSize: 18 }}>"Got my dream job in 6 weeks."</p>
-          <p style={{ opacity: 0.75 }}>JobDash kept me organised through 47 applications and 12 interviews.</p>
+          <p style={{ opacity: 0.75 }}>Helped me stay organised through a demanding project cycle.</p>
         </div>
       ),
     },
@@ -453,7 +453,7 @@ export const Default: Story = {
 	},
 	render: () => (
 		<div style={{ maxWidth: 640 }}>
-			<Carousel slides={HERO_SLIDES} ariaLabel="JobDash feature highlights" />
+			<Carousel slides={HERO_SLIDES} ariaLabel="Feature highlights" />
 		</div>
 	),
 };

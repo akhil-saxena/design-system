@@ -1,43 +1,8 @@
-/**
- * # Usage Audit — Tooltip (D-87, D-310, D-311, D-312, DS-32)
- *
- * Consumers (post v2.1):
- * - kanban/StarToggle — Tooltip wrapping star button: "Star this application"
- * - kanban/ArchiveButton — Tooltip wrapping archive icon: "Archive"
- * - detail/UpcomingBadge — Tooltip wrapping status badge: "Scheduled for Apr 24, 2:00pm"
- * - settings/HelpIcon — Tooltip wrapping ? icon next to setting labels
- * - global/KeyboardShortcutHints — Tooltip showing key combos on toolbar buttons
- *
- * API:
- * - content: ReactNode — what the tooltip says
- * - placement?: 'top' | 'right' | 'bottom' | 'left' — default 'top'
- * - delay?: number — open delay in ms; default 150 (mouseleave/blur close immediately)
- * - children: ReactElement — exactly ONE element (React.Children.only enforced)
- *
- * Implementation:
- * - Wraps the single child via React.cloneElement to attach onMouseEnter /
- *   onMouseLeave / onFocus / onBlur + aria-describedby. Consumer's existing
- *   handlers on the trigger are preserved (called BEFORE our handlers).
- * - Mounts tooltip surface via DSPortal (`src/_internals/DSPortal`) so the
- *   surface escapes parent stacking contexts and overflow:hidden.
- * - Position computed from trigger.getBoundingClientRect() per `placement`,
- *   using window.scrollX/scrollY offsets so absolute coords work after page
- *   scroll. NO Floating-UI — manual calc keeps bundle size small (D-312).
- * - Hover and focus both open with the same 150ms delay (Path A from plan
- *   behavior block — consistency over speed).
- *
- * Limitations (deferred to v2.1):
- * - No auto-flip on viewport collision — surface may render off-screen at edges.
- * - No re-position on scroll/resize while open — re-opens recompute though.
- * - No arrow/pointer pseudo-element — surface is a plain rounded rect.
- * - Consumer ref on trigger is NOT preserved — Tooltip's internal triggerRef wins.
- * - No exit animation — surface hard-unmounts on close.
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { Tooltip } from "./Tooltip";
 
 const SRC = {
-	Default: `<Tooltip content="Star this application">
+	Default: `<Tooltip content="Star this item">
   <button type="button" aria-label="Star">★</button>
 </Tooltip>`,
 	AllPlacements: `<Tooltip content="Top placement" placement="top">
@@ -52,13 +17,13 @@ const SRC = {
 <Tooltip content="Left placement" placement="left">
   <button type="button">left</button>
 </Tooltip>`,
-	WithIcon: `<Tooltip content="Star this application">
+	WithIcon: `<Tooltip content="Star this item">
   <button type="button" aria-label="Star">★</button>
 </Tooltip>
 <Tooltip content="Archive">
   <button type="button" aria-label="Archive">📦</button>
 </Tooltip>
-<Tooltip content="Delete application">
+<Tooltip content="Delete item">
   <button type="button" aria-label="Delete">🗑</button>
 </Tooltip>`,
 	LongContent: `<Tooltip content="A longer tooltip with more text — wraps if max-width reached, otherwise stays single-line." placement="top">
@@ -162,7 +127,7 @@ export const Default: Story = {
 	parameters: { docs: { source: { code: SRC.Default } } },
 	render: () => (
 		<div style={{ padding: 60, display: "inline-block" }}>
-			<Tooltip content="Star this application">
+			<Tooltip content="Star this item">
 				<button type="button" style={buttonStyle} aria-label="Star">
 					★
 				</button>
@@ -194,7 +159,7 @@ export const WithIcon: Story = {
 	parameters: { docs: { source: { code: SRC.WithIcon } } },
 	render: () => (
 		<div style={{ display: "flex", gap: 20, padding: 60 }}>
-			<Tooltip content="Star this application">
+			<Tooltip content="Star this item">
 				<button type="button" style={{ ...buttonStyle, padding: "7px 10px" }} aria-label="Star">
 					★
 				</button>
@@ -204,7 +169,7 @@ export const WithIcon: Story = {
 					📦
 				</button>
 			</Tooltip>
-			<Tooltip content="Delete application">
+			<Tooltip content="Delete item">
 				<button type="button" style={{ ...buttonStyle, padding: "7px 10px" }} aria-label="Delete">
 					🗑
 				</button>

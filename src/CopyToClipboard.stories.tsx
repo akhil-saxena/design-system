@@ -1,43 +1,24 @@
-/**
- * # Usage Audit — CopyToClipboard (DS-87, DS-55, D-531)
- *
- * Consumers (post v2.1):
- * - settings/ApiKeyRow — value=user's API key (displayed redacted), onCopy fires app-level toast
- * - integrations/WebhookUrl — value=webhook callback URL
- * - billing/InvoiceId — value=invoice number for receipt lookup
- *
- * API:
- * - value (required): string to write to clipboard
- * - label?: visible text override (default = value)
- * - onCopy?: fires after successful clipboard.writeText
- * - onError?: fires on clipboard failure (insecure context, denied, unsupported)
- *
- * Behavior (D-531):
- * - On success: icon swaps Copy→Check (var(--green)) for 2000ms, then reverts
- * - On failure: console.warn(err) + icon stays Copy + onError?.(err) called
- * - NO internal Toast dep — consumer wires their own toast in onCopy / onError
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useEffect } from "react";
 import { CopyToClipboard } from "./CopyToClipboard";
 
 const SRC = {
-	Default: `<CopyToClipboard value="sk_live_xxxxxxxxxxxx" />`,
+	Default: `<CopyToClipboard value="tok_live_xxxxxxxxxxxx" />`,
 	WithLabel: `<CopyToClipboard
-  value="sk_live_51HqLfKJdGpTbRz9YxN8mWvVcA0bC2dE3fG4hI5jK6lM7nO8pQ9rS"
-  label="Copy API key"
+  value="tok_live_51HqLfKJdGpTbRz9YxN8mWvVcA0bC2dE3fG4hI5jK6lM7nO8pQ9rS"
+  label="Copy token"
 />`,
 	CopiedLabel: `// Label swaps to "Copied!" for 2 s after a successful click
 <CopyToClipboard
-  value="sk_live_xxxxxxxxxxxx"
+  value="tok_live_xxxxxxxxxxxx"
   copiedLabel="Copied!"
 />`,
 	ErrorFallback: `<CopyToClipboard
-  value="sk_live_will_fail"
+  value="tok_live_will_fail"
   onError={(err) => console.warn("[onError]", err.message)}
 />`,
 	Playground: `<CopyToClipboard value="playground_value_123" label="Click me" copiedLabel="Copied!" />`,
-	DarkMode: `<CopyToClipboard value="sk_live_dark_xxxxxxxxxxxx" copiedLabel="Copied!" />`,
+	DarkMode: `<CopyToClipboard value="tok_live_dark_xxxxxxxxxxxx" copiedLabel="Copied!" />`,
 };
 
 const meta: Meta<typeof CopyToClipboard> = {
@@ -76,15 +57,15 @@ type Story = StoryObj<typeof CopyToClipboard>;
 
 export const Default: Story = {
 	args: {
-		value: "sk_live_xxxxxxxxxxxx",
+		value: "tok_live_xxxxxxxxxxxx",
 	},
 	parameters: { docs: { source: { code: SRC.Default } } },
 };
 
 export const WithLabel: Story = {
 	args: {
-		value: "sk_live_51HqLfKJdGpTbRz9YxN8mWvVcA0bC2dE3fG4hI5jK6lM7nO8pQ9rS",
-		label: "Copy API key",
+		value: "tok_live_51HqLfKJdGpTbRz9YxN8mWvVcA0bC2dE3fG4hI5jK6lM7nO8pQ9rS",
+		label: "Copy token",
 	},
 	parameters: {
 		docs: {
@@ -99,7 +80,7 @@ export const WithLabel: Story = {
 export const WithCopiedLabel: Story = {
 	name: "Copied label feedback",
 	args: {
-		value: "sk_live_xxxxxxxxxxxx",
+		value: "tok_live_xxxxxxxxxxxx",
 		copiedLabel: "Copied!",
 	},
 	parameters: {
@@ -138,7 +119,7 @@ export const ErrorFallback: Story = {
 		return (
 			<CopyToClipboard
 				{...args}
-				value="sk_live_will_fail"
+				value="tok_live_will_fail"
 				onError={(err) => console.warn("[story onError]", err.message)}
 			/>
 		);
@@ -163,6 +144,6 @@ export const DarkMode: Story = {
 		),
 	],
 	args: {
-		value: "sk_live_dark_xxxxxxxxxxxx",
+		value: "tok_live_dark_xxxxxxxxxxxx",
 	},
 };

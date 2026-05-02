@@ -1,15 +1,3 @@
-/**
- * # Usage Audit — Chip
- *
- * Consumers (post v2.1):
- * - kanban/CardTags — application tags, removable when in edit mode
- * - detail/InterviewSkillChips — match/miss/learning tones for skill matrix
- * - filters/ActiveFilters — removable filter chips with onRemove
- *
- * API:
- * - tone: default | match | miss | learning
- * - onRemove?: () => void — when present, renders × button (Lucide X size=10)
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { Chip } from "./Chip";
 

@@ -1,45 +1,3 @@
-/**
- * # Usage Audit — DateRangePicker (DS-54, DS-87)
- *
- * Consumers (post v2.1):
- * - applications/Filters — "Posted within" date range filter on the kanban /
- *   table view (last 7 days, last 30 days, custom range)
- * - analytics/DateRangeSelector — pipeline metrics over a custom window
- * - dashboard/CalendarFilter — multi-day calendar view scoping
- * - settings/ExportPanel — export applications matching a date range
- *
- * API:
- * - value: { start: Date | null; end: Date | null } (controlled)
- * - onChange: (range) => void
- * - disablePast?: boolean — opacity 0.45 + aria-disabled on past days (both calendars)
- * - disableFuture?: boolean — same treatment for future days
- *
- * Click flow (D-512):
- * 1. First click (no start): sets `start`, leaves `end` null
- * 2. Second click (start set): sets `end` — auto-swaps if before `start` so end is later
- * 3. Third click (full range): resets — new `start`, `end` cleared
- *
- * Between-state styling: cells inside [start, end] (excluding endpoints) get
- * the `.is-in-range` class via DatePicker's `inRange` predicate prop —
- * `var(--amber-l)` background, 0 radius. Endpoints keep DatePicker's
- * `is-selected` styling (`var(--amber)` bg + 6px radius).
- *
- * Hover preview: while picking `end`, hovering a cell shows the would-be
- * range bg via state-tracked `hoverDate`.
- *
- * Layout (v0.5.1 single-cal redesign):
- * - Single calendar at all viewports — overrides original D-512 two-cal layout
- *   per user feedback + handoff `ds-pickers.jsx`. User navigates between months
- *   with DatePicker's built-in prev/next stepper.
- *
- * NO time picker for v2.0 (deferred to v2.1 — typical use cases are
- * deadline-window scheduling where day granularity is sufficient).
- *
- * Implementation: PURELY consumes DatePicker (DS-53, plan 16-05). Does not
- * modify DatePicker.tsx or its CSS — the `inRange?: (d: Date) => boolean`
- * predicate prop and the `.ds-atom-datepicker-cell.is-in-range` CSS rule
- * shipped via 16-05 as backward-compatible API additions.
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { DateRangePicker } from "./DateRangePicker";
@@ -118,7 +76,7 @@ export const Default: Story = {
 						marginBottom: 8,
 					}}
 				>
-					Posted within
+					Date range
 				</div>
 				<DateRangePicker value={value} onChange={setValue} />
 				<div
@@ -198,7 +156,7 @@ export const DarkMode: Story = {
 						marginBottom: 8,
 					}}
 				>
-					Posted within (dark)
+					Date range (dark)
 				</div>
 				<DateRangePicker value={value} onChange={setValue} />
 			</div>

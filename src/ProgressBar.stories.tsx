@@ -1,38 +1,3 @@
-/**
- * # Usage Audit — ProgressBar (DS-87, DS-42)
- *
- * Consumers (post v2.1):
- * - upload/DocumentUploadProgress — `<ProgressBar value={pct} label="Uploading" />`
- *   while file uploads to R2; switches to `<ProgressBar loading />` during
- *   the brief gap between upload-complete and metadata-write
- * - dashboard/AppQuotaIndicator — `<ProgressBar value={used} max={limit}
- *   label="Storage" />` showing R2 free-tier usage
- * - import/CsvImportProgress — `<ProgressBar value={rows} max={total}
- *   label="Importing rows" />` during bulk CSV import (deferred v2 feature)
- * - kanban/PipelineCompleteness — `<ProgressBar value={completed} max={total}
- *   label="Profile completeness" />` for onboarding progress
- * - ANY async-operation-bound surface that needs visual feedback
- *
- * API:
- * - `value?: number` — 0 to `max`; default 0; clamped internally
- * - `max?: number` — default 100
- * - `loading?: boolean` — default false; switches to indeterminate 3-dot pulse
- * - `label?: ReactNode` — string only used for `aria-label` (defaults
- *   "Progress" / "Loading"); for visible label, render your own caption
- *   above/below
- * - extends native <div> attributes via `...rest` spread
- * - forwards ref to root div
- *
- * A11y:
- * - Determinate: role="progressbar" + aria-valuenow/min/max
- * - Loading: role="status" + aria-live="polite" (announced once on mount)
- *
- * Implementation:
- * - Determinate: `<div .ds-atom-progress-track><div .ds-atom-progress-fill style="width: pct%">`
- * - Loading: `<span .ds-atom-progress-dots>` with 3 staggered-pulse dots
- * - Tone: amber gradient fill (var(--amber) → var(--amber-d)) — same
- *   family as primary Button (DS-10)
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useEffect, useState } from "react";
 import { ProgressBar } from "./ProgressBar";

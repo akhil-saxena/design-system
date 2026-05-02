@@ -1,24 +1,3 @@
-/**
- * # Usage Audit — Popover + ContextMenu (D-87, D-330, D-331)
- *
- * Consumers (post v2.1):
- * - kanban/CardActionsMenu — ContextMenu with [Edit, Duplicate, Move to stage…, Export, Delete (danger)]
- * - table/RowActions — ContextMenu on the trailing-cell triple-dot button
- * - appbar/UserMenu — ContextMenu with [Profile, Settings, Sign out (danger)]
- * - settings/AdvancedToggleGroup — Popover with arbitrary form children (anchored to gear icon)
- * - filters/SortDropdown — Popover with custom radio-list children
- *
- * API shape consumers expect:
- * - anchorRef + open + onOpenChange — controlled; consumer owns toggle state
- * - placement: 4 fixed (no auto-flip in v0.2; deferred to v2.1)
- * - ContextMenu items[]: array-driven; items with variant="danger" get red text
- * - Both close on outside-click + Escape
- * - Both portal to body via DSPortal
- *
- * Implementation (D-330): no Floating-UI dep. Position = anchor rect +
- * placement + offset, computed once-on-open. ContextMenu (D-331) is a
- * named export from the SAME file (Popover.tsx) — mirrors Modal+ConfirmDialog.
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useRef, useState } from "react";
 import { Button } from "./Button";
@@ -70,11 +49,11 @@ return (
 	ContextMenuDefault: `const anchorRef = useRef(null);
 const [open, setOpen] = useState(false);
 const items = [
-  { label: "Edit application", onSelect: () => {} },
+  { label: "Edit item", onSelect: () => {} },
   { label: "Duplicate", onSelect: () => {} },
-  { label: "Move to stage…", onSelect: () => {} },
+  { label: "Move to group…", onSelect: () => {} },
   { label: "Export as PDF", onSelect: () => {} },
-  { label: "Delete application", onSelect: () => {}, variant: "danger" },
+  { label: "Delete item", onSelect: () => {}, variant: "danger" },
 ];
 return (
   <>
@@ -98,8 +77,8 @@ return (
 	DarkMode: `const anchorRef = useRef(null);
 const [open, setOpen] = useState(false);
 const items = [
-  { label: "Edit application", onSelect: () => {} },
-  { label: "Delete application", onSelect: () => {}, variant: "danger" },
+  { label: "Edit item", onSelect: () => {} },
+  { label: "Delete item", onSelect: () => {}, variant: "danger" },
 ];
 return (
   <>
@@ -189,11 +168,11 @@ function ContextMenuDemo() {
 	const anchorRef = useRef<HTMLButtonElement>(null);
 	const [open, setOpen] = useState(false);
 	const items: ContextMenuItem[] = [
-		{ label: "Edit application", onSelect: () => console.log("edit") },
+		{ label: "Edit item", onSelect: () => console.log("edit") },
 		{ label: "Duplicate", onSelect: () => console.log("duplicate") },
-		{ label: "Move to stage…", onSelect: () => console.log("move") },
+		{ label: "Move to group…", onSelect: () => console.log("move") },
 		{ label: "Export as PDF", onSelect: () => console.log("export") },
-		{ label: "Delete application", onSelect: () => console.log("delete"), variant: "danger" },
+		{ label: "Delete item", onSelect: () => console.log("delete"), variant: "danger" },
 	];
 	return (
 		<div style={{ padding: 80, display: "inline-block" }}>

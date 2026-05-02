@@ -3,32 +3,32 @@ import { Avatar, AvatarStack } from "./Avatar";
 
 const SRC = {
 	Default: `// Solid colour derived from name by default
-<Avatar name="Akhil Saxena" />`,
+<Avatar name="Alex Morgan" />`,
 
 	Image: `// Pass src to show a photo — initials/bg are hidden
-<Avatar name="Akhil Saxena" src="https://i.pravatar.cc/80?u=akhil" size={40} />
-<Avatar name="Maya Chen"   src="https://i.pravatar.cc/80?u=maya"  size={40} />`,
+<Avatar name="Alex Morgan" src="https://i.pravatar.cc/80?u=akhil" size={40} />
+<Avatar name="Sam Chen"   src="https://i.pravatar.cc/80?u=maya"  size={40} />`,
 
-	Sizes: `<Avatar name="Maya Chen"     size={24} />
+	Sizes: `<Avatar name="Sam Chen"     size={24} />
 <Avatar name="David Swanson" size={28} />
 <Avatar name="Jake Kim"      size={32} />
 <Avatar name="Alex Park"     size={36} />
 <Avatar name="Sam Patel"     size={40} />`,
 
-	Presence: `<Avatar name="Maya Chen"     presence="online"  />
+	Presence: `<Avatar name="Sam Chen"     presence="online"  />
 <Avatar name="David Swanson" presence="away"    />
 <Avatar name="Jake Kim"      presence="offline" />
 <Avatar name="Alex Park"     presence="dnd"     />`,
 
 	Gradient: `// Pass gradient={true} to use auto-derived gradient
-<Avatar name="Akhil Saxena" gradient />
+<Avatar name="Alex Morgan" gradient />
 
 // Or pass custom stops
 <Avatar name="Custom" gradient={["#7c3aed", "#1d4ed8"]} />`,
 
 	Stack: `<AvatarStack
   avatars={[
-    { name: "Maya Chen" },
+    { name: "Sam Chen" },
     { name: "David Swanson" },
     { name: "Jake Kim" },
     { name: "Alex Park" },
@@ -38,9 +38,9 @@ const SRC = {
   size={32}
 />`,
 
-	Playground: `<Avatar name="Akhil Saxena" size={32} />`,
+	Playground: `<Avatar name="Alex Morgan" size={32} />`,
 
-	DarkMode: `<Avatar name="Maya Chen"     size={32} />
+	DarkMode: `<Avatar name="Sam Chen"     size={32} />
 <Avatar name="David Swanson" size={32} presence="online" />
 <Avatar name="Jake Kim"      size={32} src="https://i.pravatar.cc/80?u=jake" />
 <AvatarStack avatars={[{ name: "A" }, { name: "B" }, { name: "C" }]} max={3} />`,
@@ -59,7 +59,7 @@ const meta: Meta<typeof Avatar> = {
 			},
 		},
 	},
-	args: { name: "Akhil Saxena" },
+	args: { name: "Alex Morgan" },
 	argTypes: {
 		name: { control: "text", description: "Full name — drives initials and background colour." },
 		initials: {
@@ -116,8 +116,8 @@ export const WithImage: Story = {
 	},
 	render: () => (
 		<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-			<Avatar name="Akhil Saxena" src="https://i.pravatar.cc/80?u=akhil" size={40} />
-			<Avatar name="Maya Chen" src="https://i.pravatar.cc/80?u=maya" size={40} />
+			<Avatar name="Alex Morgan" src="https://i.pravatar.cc/80?u=akhil" size={40} />
+			<Avatar name="Sam Chen" src="https://i.pravatar.cc/80?u=maya" size={40} />
 			<Avatar
 				name="David Swanson"
 				src="https://i.pravatar.cc/80?u=david"
@@ -137,7 +137,7 @@ export const Sizes: Story = {
 	},
 	render: () => (
 		<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-			<Avatar name="Maya Chen" size={24} />
+			<Avatar name="Sam Chen" size={24} />
 			<Avatar name="David Swanson" size={28} />
 			<Avatar name="Jake Kim" size={32} />
 			<Avatar name="Alex Park" size={36} />
@@ -158,7 +158,7 @@ export const Presence: Story = {
 	render: () => (
 		<div style={{ display: "flex", gap: 16, alignItems: "center" }}>
 			<div style={{ textAlign: "center" }}>
-				<Avatar name="Maya Chen" presence="online" size={40} />
+				<Avatar name="Sam Chen" presence="online" size={40} />
 				<div style={{ fontSize: 11, marginTop: 6, color: "var(--ink-3)" }}>online</div>
 			</div>
 			<div style={{ textAlign: "center" }}>
@@ -191,11 +191,11 @@ export const GradientOption: Story = {
 	render: () => (
 		<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
 			<div style={{ textAlign: "center" }}>
-				<Avatar name="Akhil Saxena" size={40} />
+				<Avatar name="Alex Morgan" size={40} />
 				<div style={{ fontSize: 11, marginTop: 6, color: "var(--ink-3)" }}>solid (default)</div>
 			</div>
 			<div style={{ textAlign: "center" }}>
-				<Avatar name="Akhil Saxena" gradient size={40} />
+				<Avatar name="Alex Morgan" gradient size={40} />
 				<div style={{ fontSize: 11, marginTop: 6, color: "var(--ink-3)" }}>gradient={"{true}"}</div>
 			</div>
 			<div style={{ textAlign: "center" }}>
@@ -219,7 +219,7 @@ export const Stack: Story = {
 		<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 			<AvatarStack
 				avatars={[
-					{ name: "Maya Chen" },
+					{ name: "Sam Chen" },
 					{ name: "David Swanson" },
 					{ name: "Jake Kim" },
 					{ name: "Alex Park" },
@@ -229,7 +229,7 @@ export const Stack: Story = {
 				size={32}
 			/>
 			<AvatarStack
-				avatars={[{ name: "Maya Chen" }, { name: "David Swanson" }, { name: "Jake Kim" }]}
+				avatars={[{ name: "Sam Chen" }, { name: "David Swanson" }, { name: "Jake Kim" }]}
 				max={4}
 				size={24}
 			/>
@@ -238,7 +238,7 @@ export const Stack: Story = {
 };
 
 export const Playground: Story = {
-	args: { name: "Akhil Saxena", size: 32, presence: undefined },
+	args: { name: "Alex Morgan", size: 32, presence: undefined },
 	parameters: {
 		docs: {
 			description: { story: "Adjust props via the Controls panel." },
@@ -264,7 +264,7 @@ export const DarkMode: Story = {
 	],
 	render: () => (
 		<div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-			<Avatar name="Maya Chen" size={40} />
+			<Avatar name="Sam Chen" size={40} />
 			<Avatar name="David Swanson" size={40} presence="online" />
 			<Avatar name="Jake Kim" size={40} src="https://i.pravatar.cc/80?u=jake" presence="away" />
 			<AvatarStack

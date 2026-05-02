@@ -1,38 +1,3 @@
-/**
- * # Usage Audit — DatePicker (DS-53, DS-87)
- *
- * Consumers (post v2.1):
- * - applications/ApplicationForm — application date input (single Date, no time)
- * - applications/DeadlineEditor — deadline date input (showTime opt-in for cutoff hour)
- * - interviews/InterviewScheduler — interview slot input (showTime=true; HH/MM picker)
- * - dashboard/CalendarFilter — single-date filter for calendar view
- * - composes-into: DateRangePicker (16-06) — two DatePicker instances with shared
- *   range state via inRange + defaultMonth backward-compatible API additions
- *
- * API:
- * - value: Date | null (controlled)
- * - onChange: (d: Date) => void
- * - onMonthChange?: (d: Date) => void — fires on prev/next nav
- * - disabled?: (d: Date) => boolean — predicate for arbitrary disabled days
- * - events?: Date[] — single dot under matching dates (max 1 dot per day)
- * - disablePast?: boolean — opacity 0.45 + aria-disabled on past days
- * - disableFuture?: boolean — same treatment for future days
- * - showTime?: boolean — opt-in HH/MM number inputs below grid (D-512)
- * - inRange?: (d: Date) => boolean — between-state amber-light bg (16-06 consumer)
- * - defaultMonth?: Date — initial view month when uncontrolled (16-06 consumer)
- *
- * Visual spec (D-511, handoff design-handoff/design-system/ds-pickers.jsx):
- * - 7×6 grid (always 42 cells; prev/next month padding dimmed via .is-out)
- * - 34×34px cells; column headers `S M T W T F S` in var(--mono) 9.5px uppercase
- * - Today: amber-dot top-right via ::after + bolder text
- * - Selected: var(--amber) bg + ink text + 6px radius
- * - In-range: var(--amber-l) bg + 0 radius (between-state)
- * - Past dates: opacity 0.45 + cursor not-allowed when disablePast
- *
- * Implementation: NO date-fns dep; imports pure helpers from
- * `./_internals/dateUtils` (D-510). forwardRef + ...rest spread + style
- * last-wins per Button/Card convention.
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { DatePicker } from "./DatePicker";
@@ -141,7 +106,7 @@ export const Default: Story = {
 						marginBottom: 8,
 					}}
 				>
-					Application date
+					Selected date
 				</div>
 				<DatePicker value={value} onChange={setValue} />
 			</div>
@@ -187,7 +152,7 @@ export const WithTimePicker: Story = {
 						marginBottom: 8,
 					}}
 				>
-					Interview date &amp; time
+					Event date &amp; time
 				</div>
 				<DatePicker value={value} onChange={setValue} showTime />
 			</div>
@@ -233,7 +198,7 @@ export const DarkMode: Story = {
 						marginBottom: 8,
 					}}
 				>
-					Application date (dark)
+					Selected date (dark)
 				</div>
 				<DatePicker
 					value={value}

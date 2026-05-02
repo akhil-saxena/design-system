@@ -1,16 +1,3 @@
-/**
- * # Usage Audit — Badge
- *
- * Consumers (post v2.1):
- * - kanban/CardStatusBadge — tone keyed on application.status
- * - detail/InterviewRoundCard — round status (upcoming/passed/pending/done)
- * - calendar/EventChipCount — "+N more" via tone="count"
- * - filters/CategoryDot — tone + dot for active filters
- *
- * API:
- * - tone: upcoming | passed | pending | done | count | neutral
- * - dot?: boolean — leading 6px colored dot matching tone
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { Badge } from "./Badge";
 

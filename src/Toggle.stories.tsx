@@ -1,20 +1,3 @@
-/**
- * # Usage Audit — Toggle (D-87, D-151, D-200)
- *
- * Consumers (post v2.1):
- * - settings/EmailNotifications — single Toggle with "Email notifications" label
- * - settings/AutoAdvanceStage — settings page toggle row
- * - settings/DarkModeToggle — paired with theme picker (Wave 5 RadioGroup)
- * - kanban/QuickFiltersBar — "Show archived" toggle
- * - filters/RemoteOnly — toggle filter (could also be Checkbox; either works — Toggle reads as a setting, Checkbox as a filter selection)
- *
- * API shape consumers expect:
- * - checked / defaultChecked / onChange via ...rest pass-through
- * - label: optional string rendered after the track
- * - role="switch" surfaces to assistive tech as "switch" not "checkbox"
- * - Native form integration: includes `name` and `value` attributes via ...rest
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Toggle } from "./Toggle";

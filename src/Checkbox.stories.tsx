@@ -1,20 +1,3 @@
-/**
- * # Usage Audit — Checkbox
- *
- * Consumers (post v2.1):
- * - kanban/CardSelectCheckbox — bulk-select checkboxes per card
- * - settings/EmailNotificationsToggle — feature flags
- * - filters/IncludeArchived — filter inclusions
- *
- * API:
- * - extends native <input type="checkbox"> attributes (Omit'd 'type')
- * - label?: string — co-rendered text node inside the wrapping <label>
- * - controlled or uncontrolled (native input semantics)
- *
- * Implementation (D-130 / D-131): native <input type="checkbox"> visually
- * hidden inside <label>, sibling-selector CSS in index.css drives :checked
- * background + Lucide <Check /> visibility.
- */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Checkbox } from "./Checkbox";

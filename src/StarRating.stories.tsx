@@ -1,28 +1,10 @@
-/**
- * # Usage Audit — StarRating (D-87, D-151, D-240)
- *
- * Consumers (post v2.1):
- * - interview/RoundRating — review form star rating after each interview round
- * - companies/OverallRating — read-only compact stars in company list (size=compact, readOnly)
- * - search/RelevanceFeedback — thumbs-up/down replacement (1=strongly negative, 5=strongly positive)
- * - applications/Excitement — quick "how excited are you about this role" rating in detail panel
- *
- * API shape consumers expect:
- * - value (controlled) + onChange(next: number) — controlled callback
- * - size: 'default' (24px) for forms, 'compact' (14px) for inline list display
- * - readOnly: prevents click + hover preview; useful for displaying stored ratings
- * - disabled: also prevents interaction + visually dims
- * - label: accessible label for the whole radiogroup
- * - Self-contained — does NOT use Phase 12 RadioGroup (D-240)
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { StarRating } from "./StarRating";
 
 const SRC = {
 	Interactive: `const [v, setV] = useState(3);
-return <StarRating value={v} onChange={setV} label="Interview round rating" />;`,
+return <StarRating value={v} onChange={setV} label="Item rating" />;`,
 	Compact: `const [v, setV] = useState(4);
 return <StarRating value={v} onChange={setV} size="compact" label="Compact rating" />;`,
 	AllValues: `<StarRating value={0} onChange={() => {}} label="Rating 0" />
@@ -97,7 +79,7 @@ export const Interactive: Story = {
 	parameters: { docs: { source: { code: SRC.Interactive } } },
 	render: () => {
 		const [v, setV] = useState(3);
-		return <StarRating value={v} onChange={setV} label="Interview round rating" />;
+		return <StarRating value={v} onChange={setV} label="Item rating" />;
 	},
 };
 

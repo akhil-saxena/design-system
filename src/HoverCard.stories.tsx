@@ -1,36 +1,3 @@
-/**
- * # Usage Audit — HoverCard (D-87, D-355)
- *
- * Consumers (post v2.1):
- * - mentions/UserMentionPreview — @username triggers profile preview on hover
- *   (avatar + name + role + 1-line bio + Message/Profile actions)
- * - jd/JobLinkPreview — application card link triggers a job-meta preview
- *   (company logo + title + salary range + posted-ago + 1-line summary)
- * - analytics/MetricPreview — hover a stat to see a sparkline + trend context
- *
- * API shape consumers expect:
- * - anchorRef: caller owns the trigger and supplies a ref (HoverCard does
- *   NOT clone or wrap the trigger — distinct from Tooltip's cloneElement
- *   pattern; consumers can attach the ref to ANY element, including
- *   composed components that forward refs)
- * - children: arbitrary ReactNode (rich content — avatars, charts, action
- *   buttons; max-width 320px for visual stability)
- * - placement: 4 fixed variants (bottom-start default; -end variants
- *   align right edge; top variants align bottom edge — handled via CSS
- *   transform, no JS measurement of panel size)
- * - openDelay default 300ms (filters cursor pass-throughs); closeDelay
- *   default 150ms (cursor-into-card grace window)
- *
- * Behavior notes:
- * - Hover trigger: mouseenter → openDelay → render
- * - Cursor-into-card grace window: leaving anchor + entering panel within
- *   closeDelay keeps the card open (the canonical hover-card UX)
- * - Click-to-pin: clicking the anchor pins the card open; mouseleave is
- *   ignored while pinned; click anywhere outside (anchor + panel) unpins
- * - Non-modal: NO focus trap; Tab from anchor moves into panel's focusable
- *   children naturally (safest default for non-blocking previews)
- */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { useRef } from "react";
 import { Avatar } from "./Avatar";
@@ -43,12 +10,12 @@ return (
   <p>
     Hover{" "}
     <span ref={ref} style={{ color: "var(--amber-d)", fontWeight: 600, cursor: "pointer" }}>
-      @anya.patel
+      @jordan.lee
     </span>{" "}
     to see her profile.
     <HoverCard anchorRef={ref}>
-      <div style={{ fontWeight: 700 }}>Anya Patel</div>
-      <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Recruiter · Stripe</div>
+      <div style={{ fontWeight: 700 }}>Jordan Lee</div>
+      <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Contact · Acme Corp</div>
       <div style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8 }}>
         Senior recruiter focused on staff+ engineering.
       </div>
@@ -58,14 +25,14 @@ return (
 	LinkPreview: `const ref = useRef(null);
 return (
   <p>
-    Applied to{" "}
+    Linked to{" "}
     <a ref={ref} href="#" style={{ color: "var(--blue)", fontWeight: 600 }}>
-      Staff Engineer at Stripe
+      Staff Engineer at Acme Corp
     </a>{" "}
     two weeks ago.
     <HoverCard anchorRef={ref}>
       <div style={{ fontWeight: 700 }}>Staff Engineer</div>
-      <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Stripe · San Francisco</div>
+      <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Acme Corp · Remote</div>
     </HoverCard>
   </p>
 );`,
@@ -152,7 +119,7 @@ export const UserProfilePreview: Story = {
 		const ref = useRef<HTMLSpanElement>(null);
 		return (
 			<p style={{ fontSize: 13, lineHeight: 1.5, padding: 16 }}>
-				Anya brought this candidate in — hover{" "}
+				Hover{" "}
 				<span
 					ref={ref}
 					style={{
@@ -162,19 +129,19 @@ export const UserProfilePreview: Story = {
 						borderBottom: "1px dashed var(--amber)",
 					}}
 				>
-					@anya.patel
+					@jordan.lee
 				</span>{" "}
 				to see her profile.
 				<HoverCard anchorRef={ref}>
 					<div style={{ display: "flex", gap: 12, marginBottom: 10 }}>
-						<Avatar name="Anya Patel" size={40} gradient />
+						<Avatar name="Jordan Lee" size={40} gradient />
 						<div>
-							<div style={{ fontWeight: 700 }}>Anya Patel</div>
-							<div style={{ fontSize: 11, color: "var(--ink-3)" }}>Recruiter · Stripe</div>
+							<div style={{ fontWeight: 700 }}>Jordan Lee</div>
+							<div style={{ fontSize: 11, color: "var(--ink-3)" }}>Contact · Acme Corp</div>
 						</div>
 					</div>
 					<div style={{ fontSize: 12, lineHeight: 1.5, marginBottom: 10 }}>
-						Senior recruiter focused on staff+ engineering. Met at SF Tech Mixer.
+						Senior contact specialising in engineering roles.
 					</div>
 					<div style={{ display: "flex", gap: 6 }}>
 						<Button size="xs" variant="secondary">
@@ -196,7 +163,7 @@ export const LinkPreview: Story = {
 		const ref = useRef<HTMLAnchorElement>(null);
 		return (
 			<p style={{ fontSize: 13, lineHeight: 1.5, padding: 16 }}>
-				Applied to{" "}
+				Linked to{" "}
 				{/* biome-ignore lint/a11y/useValidAnchor: link preview story intentionally targets <a> to demonstrate ref-on-anchor pattern; href + preventDefault keep it inert in Storybook */}
 				<a
 					ref={ref}
@@ -204,13 +171,13 @@ export const LinkPreview: Story = {
 					onClick={(e) => e.preventDefault()}
 					style={{ color: "var(--blue, #1d4ed8)", fontWeight: 600 }}
 				>
-					Staff Engineer at Stripe
+					Staff Engineer at Acme Corp
 				</a>{" "}
 				two weeks ago.
 				<HoverCard anchorRef={ref}>
 					<div style={{ fontWeight: 700, marginBottom: 4 }}>Staff Engineer</div>
 					<div style={{ fontSize: 11, color: "var(--ink-3)", marginBottom: 8 }}>
-						Stripe · San Francisco
+						Acme Corp · Remote
 					</div>
 					<div style={{ fontSize: 12, lineHeight: 1.5 }}>
 						Lead infrastructure team building payments primitives. Remote OK with quarterly onsites.
