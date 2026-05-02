@@ -1,6 +1,23 @@
+import { useEffect, useState } from "react";
+
 const MONO = "'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace";
 const DISPLAY = "'Archivo', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
+
+function useDarkMode() {
+	const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+	useEffect(() => {
+		const observer = new MutationObserver(() => {
+			setIsDark(document.documentElement.classList.contains("dark"));
+		});
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
+		return () => observer.disconnect();
+	}, []);
+	return isDark;
+}
 
 const categories = [
 	{
@@ -103,17 +120,22 @@ const categories = [
 	},
 ];
 
-function CodeBlock({ children }: { children: React.ReactNode }) {
+function CodeBlock({
+	children,
+	bg,
+	fg,
+}: Readonly<{ children: React.ReactNode; bg: string; fg: string }>) {
 	return (
 		<div
 			style={{
-				background: "#0a0a0a",
+				background: bg,
 				borderRadius: 8,
 				padding: "10px 14px",
 				fontFamily: MONO,
 				fontSize: 13,
 				lineHeight: 1.7,
-				color: "#f5f3f0",
+				color: fg,
+				transition: "background 0.2s, color 0.2s",
 			}}
 		>
 			{children}
@@ -121,7 +143,7 @@ function CodeBlock({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function StepLabel({ n, label }: { n: number; label: string }) {
+function StepLabel({ n, label, isDark }: Readonly<{ n: number; label: string; isDark: boolean }>) {
 	return (
 		<div
 			style={{
@@ -148,7 +170,7 @@ function StepLabel({ n, label }: { n: number; label: string }) {
 				style={{
 					fontFamily: MONO,
 					fontSize: 12,
-					color: "#a8a29e",
+					color: isDark ? "#a8a29e" : "#78716c",
 				}}
 			>
 				{label}
@@ -158,6 +180,20 @@ function StepLabel({ n, label }: { n: number; label: string }) {
 }
 
 export function OverviewPage() {
+	const isDark = useDarkMode();
+
+	const hero = {
+		bg: isDark ? "#1c1917" : "#ffffff",
+		border: isDark ? "none" : "1px solid #e7e2dc",
+		title: isDark ? "#f5f3f0" : "#1c1917",
+		subtitle: isDark ? "#a8a29e" : "#78716c",
+		divider: isDark ? "#292524" : "#e7e2dc",
+		sectionLabel: isDark ? "#57534e" : "#a8a29e",
+		codeBg: isDark ? "#0a0a0a" : "#f5f3f0",
+		codeText: isDark ? "#f5f3f0" : "#1c1917",
+		codeComment: isDark ? "#57534e" : "#a8a29e",
+	};
+
 	return (
 		<div
 			style={{
@@ -170,10 +206,12 @@ export function OverviewPage() {
 			{/* ── Hero ──────────────────────────────────────────────── */}
 			<div
 				style={{
-					background: "#1c1917",
+					background: hero.bg,
+					border: hero.border,
 					borderRadius: 14,
 					padding: "44px 48px 48px",
 					marginBottom: 40,
+					transition: "background 0.2s, border-color 0.2s",
 				}}
 			>
 				<div
@@ -183,8 +221,9 @@ export function OverviewPage() {
 						fontSize: 72,
 						letterSpacing: "-0.04em",
 						lineHeight: 0.92,
-						color: "#f5f3f0",
+						color: hero.title,
 						marginBottom: 24,
+						transition: "color 0.2s",
 					}}
 				>
 					Design
@@ -194,10 +233,11 @@ export function OverviewPage() {
 				<div
 					style={{
 						fontSize: 15,
-						color: "#a8a29e",
+						color: hero.subtitle,
 						lineHeight: 1.7,
 						maxWidth: 480,
 						marginBottom: 36,
+						transition: "color 0.2s",
 					}}
 				>
 					A collection of reusable React components built on a consistent token system. Click any
@@ -206,11 +246,12 @@ export function OverviewPage() {
 
 				<div
 					style={{
-						borderTop: "1px solid #292524",
+						borderTop: `1px solid ${hero.divider}`,
 						paddingTop: 32,
 						display: "flex",
 						flexDirection: "column",
 						gap: 20,
+						transition: "border-color 0.2s",
 					}}
 				>
 					<div
@@ -220,7 +261,7 @@ export function OverviewPage() {
 							fontWeight: 600,
 							letterSpacing: "0.08em",
 							textTransform: "uppercase",
-							color: "#57534e",
+							color: hero.sectionLabel,
 							marginBottom: 4,
 						}}
 					>
@@ -228,16 +269,16 @@ export function OverviewPage() {
 					</div>
 
 					<div>
-						<StepLabel n={1} label="Install" />
-						<CodeBlock>
+						<StepLabel n={1} label="Install" isDark={isDark} />
+						<CodeBlock bg={hero.codeBg} fg={hero.codeText}>
 							<span style={{ color: "#f59e0b" }}>npm</span>
 							{" install @akhil-saxena/design-system"}
 						</CodeBlock>
 					</div>
 
 					<div>
-						<StepLabel n={2} label="Import styles in your app entry" />
-						<CodeBlock>
+						<StepLabel n={2} label="Import styles in your app entry" isDark={isDark} />
+						<CodeBlock bg={hero.codeBg} fg={hero.codeText}>
 							<span style={{ color: "#a78bfa" }}>import</span>
 							{" '@akhil-saxena/design-system/tokens.css';"}
 							<br />
@@ -247,8 +288,8 @@ export function OverviewPage() {
 					</div>
 
 					<div>
-						<StepLabel n={3} label="Use components" />
-						<CodeBlock>
+						<StepLabel n={3} label="Use components" isDark={isDark} />
+						<CodeBlock bg={hero.codeBg} fg={hero.codeText}>
 							<span style={{ color: "#a78bfa" }}>import</span>
 							{" { Button, TextInput } "}
 							<span style={{ color: "#a78bfa" }}>from</span>

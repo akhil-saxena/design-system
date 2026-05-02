@@ -19,6 +19,23 @@ const docsTheme = create({
 const DARK_BG = "#1c1917";
 
 const preview: Preview = {
+	globalTypes: {
+		theme: {
+			description: "Color scheme",
+			toolbar: {
+				title: "Theme",
+				icon: "circlehollow",
+				items: [
+					{ value: "light", icon: "sun", title: "Light" },
+					{ value: "dark", icon: "moon", title: "Dark" },
+				],
+				dynamicTitle: false,
+			},
+		},
+	},
+	initialGlobals: {
+		theme: "light",
+	},
 	parameters: {
 		options: {
 			storySort: {
@@ -54,11 +71,9 @@ const preview: Preview = {
 	},
 	decorators: [
 		(Story, context) => {
-			const isDark = context.globals.backgrounds?.value === DARK_BG;
-			// Always sync <html> so storybook.css dark overrides (sidebar, docs prose) work
+			const isDark =
+				context.globals.theme === "dark" || context.globals.backgrounds?.value === DARK_BG;
 			document.documentElement.classList.toggle("dark", isDark);
-			// Also wrap the story in a scoped .dark div so DarkMode stories in the
-			// Docs page have their own isolated dark context independent of <html>
 			if (isDark) {
 				return (
 					<div className="dark" style={{ background: DARK_BG }}>
