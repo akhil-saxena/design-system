@@ -4280,3 +4280,60 @@
 	color: var(--ink);
 	border-color: var(--rule);
 }
+
+/* ─── DS atom: AppShell (DS-71) ──────────────────────────────────────────── */
+.ds-atom-appshell {
+	display: grid;
+	grid-template:
+		"topbar topbar" auto
+		"sidebar main" 1fr
+		/ var(--ds-sidebar-w, 240px) 1fr;
+	min-height: 100vh;
+	background: var(--cream);
+}
+.ds-atom-appshell-topbar {
+	grid-area: topbar;
+	background: var(--surf-3);
+	border-bottom: 1px solid var(--rule);
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+.ds-atom-appshell-sidebar {
+	grid-area: sidebar;
+	background: var(--surf-2);
+	border-right: 1px solid var(--rule);
+	overflow: hidden;
+	transition: width 0.25s ease;
+}
+.ds-atom-appshell-main {
+	grid-area: main;
+	overflow: auto;
+}
+.ds-atom-appshell-footer {
+	grid-column: 2;
+	grid-row: 3;
+}
+/* Below 768px: hide sidebar entirely (mobile — bottom tab bar deferred per CONTEXT.md) */
+@media (max-width: 767px) {
+	.ds-atom-appshell {
+		grid-template:
+			"topbar" auto
+			"main" 1fr
+			/ 1fr;
+	}
+	.ds-atom-appshell-sidebar {
+		display: none;
+	}
+}
+/* Dark mode */
+.dark .ds-atom-appshell {
+	background: var(--cream);
+}
+.dark .ds-atom-appshell-topbar {
+	background: var(--surf-3);
+}
+.dark .ds-atom-appshell-sidebar {
+	background: var(--surf-2);
+	border-right-color: var(--rule);
+}
