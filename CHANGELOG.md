@@ -6,6 +6,67 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## 1.0.0 — Wave 7: Layout Shell, Patterns, Interaction + Illustrations
+
+### New primitives (DS-71 through DS-81)
+
+#### Layout Shell
+
+- **AppShell** (`DS-71`) — CSS Grid layout shell; sidebar collapsible to 48px icon rail; localStorage persistence (opt-out via `storageKey={null}`); props-based slots: `sidebar`, `topbar`, `main`, `footer`. Controlled + uncontrolled collapsed state via `collapsed` / `defaultCollapsed`.
+- **AppBar** (`DS-72`) — Standalone topbar primitive; 4 variants (`minimal` / `withSearch` / `default` / `centered`); scrolled blur/shadow effect via IntersectionObserver sentinel; slots for logo, center content, and actions.
+- **Footer** (`DS-73`) — `compact` (1-line copyright) and `expanded` (4-column link grid) variants; accepts typed `FooterColumn[]` for expanded layout.
+
+#### Patterns
+
+- **Wizard** (`DS-74`) — Multi-step form scaffold; `horizontal` + `vertical` stepper layout; ProgressBar integration for completion percentage; per-step `validate()` async gate; `useFocusTrap` boundary wraps the active step; `WizardStep` compound member.
+- **FormValidation** (`DS-75`) — Three composable helpers: `PasswordStrength` (4-segment animated score bar, zxcvbn-compatible strength 0-4 prop), `FieldError` (accessible `role="alert"` inline error), `FormErrorSummary` (linked error list, scrolls to first error on mount).
+- **Coachmark** (`DS-76`) — First-run contextual hint anchored to a target element via Popover; dismissible via close button or click-outside; `storageKey` prop persists dismiss in localStorage; optional step counter dots for multi-step tours.
+
+#### Interaction
+
+- **InlineEdit** (`DS-77`) — Click-to-edit `text` or `textarea`; optimistic save with `onSave` async callback; error recovery (restores original value on rejection); Escape-to-cancel; `aria-label` for the trigger.
+- **SearchAndFilters** (`DS-78`) — Search input with debounce + DSDropdown suggestion list; Chip filter tokens with clear-per-chip and clear-all; controlled `filters` + `onFiltersChange`; `suggestions` prop for autocomplete options; fully keyboard navigable.
+- **Presence** (`DS-79`) — Avatar extended with `presencePosition` prop: `top-right` (default) / `bottom-right` / `top-left` / `bottom-left`. Exported `AvatarPresencePosition` type. Additive — no existing Avatar API changes.
+
+#### Drag and Drop
+
+- **Sortable** (`DS-80`) — `@dnd-kit/core` + `@dnd-kit/sortable`; list reorder + cross-list (Kanban) drag; keyboard Space-to-lift / Arrow-to-move / Space-to-drop (WAI-ARIA sortable); 1px `var(--amber)` drop indicator between items; `prefers-reduced-motion` respected (instant reposition, no spring easing); exports: `Sortable`, `SortableItem`, `SortableDndContext`.
+
+#### Illustrations subpath
+
+- **Illustrations** (`DS-81`) — `/illustrations` subpath export (`@akhil-saxena/design-system/illustrations`); 24 named SVG React components (tree-shakeable); uses CSS custom property tokens for theme-aware colour; `width` + `height` props default `120×120`. Components: `MailSent`, `Documents`, `Rocket`, `Celebrate`, `Lightbulb`, `Idea`, `IllustrationSearch`, `Plant`, `Cloud`, `EmptyBox`, `ConnectionLost`, `IllustrationError`, `Inbox`, `GraphUp`, `Chart`, `CalendarEvent`, `Team`, `Thinking`, `Lock`, `Puzzle`, `Workflow`, `Travel`, `IllustrationSuccess`, `PhoneScreen`.
+
+### Infrastructure
+
+- Added `@dnd-kit/core@^6.3.1`, `@dnd-kit/sortable@^10.0.0`, `@dnd-kit/utilities@^3.2.2` as production dependencies.
+- Added `@akhil-saxena/design-system/illustrations` subpath export in `package.json` and tsup config.
+- tsup now builds 4 entries: `index`, `hooks`, `icons`, `illustrations`.
+
+### Migration from 0.x
+
+No breaking changes. All v0.x exports are preserved at their original import paths. The `/illustrations` subpath is new — no existing import paths changed.
+
+```typescript
+// New in v1.0.0 — layout shell
+import { AppShell, AppBar, Footer } from '@akhil-saxena/design-system';
+
+// New in v1.0.0 — patterns
+import { Wizard, Coachmark } from '@akhil-saxena/design-system';
+import { PasswordStrength, FieldError, FormErrorSummary } from '@akhil-saxena/design-system';
+
+// New in v1.0.0 — interaction
+import { InlineEdit, SearchAndFilters } from '@akhil-saxena/design-system';
+import { Avatar } from '@akhil-saxena/design-system'; // Presence position extended, non-breaking
+
+// New in v1.0.0 — drag and drop
+import { Sortable, SortableItem, SortableDndContext } from '@akhil-saxena/design-system';
+
+// New in v1.0.0 — illustrations subpath
+import { EmptyBox, MailSent, Rocket, IllustrationSearch } from '@akhil-saxena/design-system/illustrations';
+```
+
+---
+
 ## 0.6.0 — Wave 6: Data Display Primitives + Canonical Icons
 
 ### New primitives (DS-60 through DS-70)
