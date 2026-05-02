@@ -4806,3 +4806,37 @@
 	border-color: var(--rule);
 	color: var(--ink);
 }
+
+/* ─── DS atom: Sortable (DS-80) ────────────────────────────────────── */
+.ds-atom-sortable {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.ds-atom-sortable-item {
+	user-select: none;
+	cursor: grab;
+	border-radius: 6px;
+	transition: box-shadow 0.15s ease;
+}
+.ds-atom-sortable-item:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+}
+.ds-atom-sortable-item[data-dragging="true"] {
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+	cursor: grabbing;
+}
+/* D-14: 1px amber drop indicator line */
+.ds-atom-sortable-indicator {
+	height: 1px;
+	background: var(--amber);
+	border-radius: 1px;
+	margin: 2px 0;
+}
+.ds-atom-sortable-overlay {
+	pointer-events: none;
+}
+.dark .ds-atom-sortable-item {
+	/* tokens flip automatically — no override needed */
+}

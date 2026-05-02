@@ -32,7 +32,7 @@ describe("Sortable", () => {
 		expect(screen.getByText("Item C")).toBeTruthy();
 	});
 
-	it("Test 2: renders a list container with role=list", () => {
+	it("Test 2: renders a ul list container", () => {
 		render(
 			<Sortable
 				items={ITEMS}
@@ -40,10 +40,10 @@ describe("Sortable", () => {
 				renderItem={(item) => <span>{String(item.label)}</span>}
 			/>,
 		);
-		expect(document.querySelector('[role="list"]')).toBeTruthy();
+		expect(document.querySelector("ul.ds-atom-sortable")).toBeTruthy();
 	});
 
-	it("Test 3: renders listitems for each item", () => {
+	it("Test 3: renders li items for each item", () => {
 		render(
 			<Sortable
 				items={ITEMS}
@@ -51,8 +51,8 @@ describe("Sortable", () => {
 				renderItem={(item) => <span>{String(item.label)}</span>}
 			/>,
 		);
-		const items = document.querySelectorAll('[role="listitem"]');
-		expect(items.length).toBe(3);
+		const listItems = document.querySelectorAll("ul.ds-atom-sortable > li");
+		expect(listItems.length).toBe(3);
 	});
 
 	it("Test 4: SortableItem renders children content", () => {
@@ -154,9 +154,9 @@ describe("Sortable", () => {
 				renderItem={(item) => <span>{String(item.label)}</span>}
 			/>,
 		);
-		const list = document.querySelector('[role="list"]');
+		const list = document.querySelector("ul.ds-atom-sortable");
 		expect(list).toBeTruthy();
-		const listItems = document.querySelectorAll('[role="listitem"]');
+		const listItems = document.querySelectorAll("ul.ds-atom-sortable > li");
 		expect(listItems.length).toBe(0);
 	});
 
@@ -235,7 +235,7 @@ describe("Sortable", () => {
 				style={{ padding: "8px" }}
 			/>,
 		);
-		const list = document.querySelector('[role="list"]') as HTMLElement;
+		const list = document.querySelector("ul.ds-atom-sortable") as HTMLElement;
 		expect(list?.style.padding).toBe("8px");
 	});
 });
