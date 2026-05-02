@@ -32,7 +32,7 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 		ref,
 	) {
 		const [copied, setCopied] = useState(false);
-		const timerRef = useRef<number | null>(null);
+		const timerRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
 
 		useEffect(() => {
 			return () => {
