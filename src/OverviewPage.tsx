@@ -361,39 +361,52 @@ function StatsStrip({ t }: Readonly<{ t: T }>) {
 function InsideGrid({ t }: Readonly<{ t: T }>) {
 	return (
 		<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 48 }}>
-			{categories.map(({ name, components }) => (
+			{categories.map(({ name, id, components }) => (
 				<div
 					key={name}
 					style={{
 						background: t.gridBg,
 						border: t.gridBorder,
 						borderRadius: 10,
-						padding: "16px 20px",
-						display: "flex",
-						alignItems: "baseline",
-						gap: 14,
+						padding: "16px 20px 18px",
 						transition: "background 0.2s",
 					}}
 				>
-					<div
-						style={{
-							fontFamily: DISPLAY,
-							fontWeight: 700,
-							fontSize: 14,
-							color: t.gridName,
-							minWidth: 96,
-						}}
-					>
-						{name}
+					<div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12 }}>
+						<div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 14, color: t.gridName }}>
+							{name}
+						</div>
+						<div style={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: AMBER }}>
+							{components.length}
+						</div>
 					</div>
-					<div
-						style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: AMBER, minWidth: 18 }}
-					>
-						{components.length}
-					</div>
-					<div style={{ fontSize: 13, color: t.gridList, lineHeight: 1.5, flex: 1 }}>
-						{components.slice(0, 5).join(", ")}
-						{components.length > 5 ? `, +${components.length - 5}` : ""}
+					<div style={{ display: "flex", flexWrap: "wrap", gap: "4px 6px" }}>
+						{components.map((label) => (
+							<a
+								key={label}
+								href={`/?path=/docs/${componentStoryId(id, label)}--docs`}
+								target="_parent"
+								style={{
+									fontSize: 12,
+									color: t.gridList,
+									textDecoration: "none",
+									background: t.cardPillBg,
+									borderRadius: 5,
+									padding: "2px 7px",
+									transition: "background 0.15s, color 0.15s",
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.background = t.cardHoverBg;
+									e.currentTarget.style.color = t.cardHoverFg;
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.background = t.cardPillBg;
+									e.currentTarget.style.color = t.gridList;
+								}}
+							>
+								{label}
+							</a>
+						))}
 					</div>
 				</div>
 			))}
