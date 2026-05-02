@@ -237,16 +237,6 @@ export const Stack: Story = {
 	),
 };
 
-export const Playground: Story = {
-	args: { name: "Alex Morgan", size: 32, presence: undefined },
-	parameters: {
-		docs: {
-			description: { story: "Adjust props via the Controls panel." },
-			source: { code: SRC.Playground },
-		},
-	},
-};
-
 export const DarkMode: Story = {
 	name: "Dark mode",
 	parameters: {

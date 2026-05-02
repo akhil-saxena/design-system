@@ -5,10 +5,40 @@ import { Sortable, SortableDndContext } from "./Sortable";
 import type { SortableItemData } from "./Sortable";
 
 const meta: Meta<typeof Sortable> = {
-	title: "DS-80 / Sortable",
+	title: "Interaction/Sortable",
 	component: Sortable,
 	parameters: {
 		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"Drag-and-drop sortable list built on @dnd-kit/sortable; supports single-list reordering and cross-list moves via the shared `SortableDndContext`.",
+			},
+		},
+	},
+	argTypes: {
+		items: {
+			control: false,
+			description: "Array of sortable item objects; each must have a unique `id` string.",
+			table: { type: { summary: "{ id: string; [key: string]: unknown }[]" } },
+		},
+		onReorder: {
+			control: false,
+			description: "Called with the new item array after a drag-and-drop reorder completes.",
+			table: { type: { summary: "(items: SortableItemData[]) => void" } },
+		},
+		renderItem: {
+			control: false,
+			description:
+				"Render function called for each item with `(item, index)` returning a ReactNode.",
+			table: { type: { summary: "(item: SortableItemData, index: number) => React.ReactNode" } },
+		},
+		id: {
+			control: "text",
+			description:
+				"Optional id for the droppable container; required when using multiple Sortable lists inside a shared SortableDndContext.",
+			table: { type: { summary: "string" } },
+		},
 	},
 };
 

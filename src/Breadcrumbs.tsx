@@ -1,9 +1,5 @@
 /**
- * # Usage Audit — Breadcrumbs (DS-69)
- *
- * Consumers (post v0.6):
- * - JobDash app shell — current-page hierarchical nav
- * - Settings pages — section path
+ * Breadcrumbs (DS-69)
  *
  * API:
  * - items: BreadcrumbItem[] (label + optional href + onClick)

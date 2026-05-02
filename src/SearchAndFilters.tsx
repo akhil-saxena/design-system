@@ -1,5 +1,7 @@
 import { type CSSProperties, useRef, useState } from "react";
+import { Button } from "./Button";
 import { Chip } from "./Chip";
+import { TextInput } from "./TextInput";
 import { DSDropdown } from "./_internals/DSDropdown";
 
 export interface SearchFilter {
@@ -101,7 +103,7 @@ export function SearchAndFilters({
 	return (
 		<div className={["ds-atom-searchfilters", className].filter(Boolean).join(" ")} style={style}>
 			<div className="ds-atom-searchfilters-bar">
-				<input
+				<TextInput
 					ref={inputRef}
 					type="search"
 					className="ds-atom-searchfilters-input"
@@ -109,13 +111,17 @@ export function SearchAndFilters({
 					value={inputValue}
 					onChange={handleInputChange}
 					onFocus={handleFocus}
-					aria-expanded={open}
 					aria-haspopup="listbox"
 				/>
 				{hasFilters && (
-					<button type="button" className="ds-atom-searchfilters-clear" onClick={onClearFilters}>
+					<Button
+						variant="ghost"
+						size="sm"
+						className="ds-atom-searchfilters-clear"
+						onClick={onClearFilters}
+					>
 						Clear all
-					</button>
+					</Button>
 				)}
 			</div>
 

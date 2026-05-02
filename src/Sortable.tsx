@@ -63,6 +63,11 @@ export interface SortableDndContextProps {
 		activeListId: string | undefined,
 		overListId: string | undefined,
 	) => void;
+	/**
+	 * Renders the drag overlay card when an item is being dragged across lists.
+	 * Receives the active item id. If omitted, a ghost placeholder is shown.
+	 */
+	renderOverlay?: (activeId: UniqueIdentifier) => ReactNode;
 }
 
 // ─── Context sentinel ─────────────────────────────────────────────────────────
@@ -79,7 +84,7 @@ export function SortableItem({ id, children, reducedMotion }: SortableItemProps)
 	const style: React.CSSProperties = {
 		transform: reducedMotion ? undefined : (CSS.Transform.toString(transform) ?? undefined),
 		transition: reducedMotion ? undefined : (transition ?? undefined),
-		opacity: isDragging ? 0 : 1, // source fades; DragOverlay shows clone
+		// Source slot shows as dotted placeholder via CSS [data-dragging]; no opacity change.
 	};
 
 	return (
@@ -100,7 +105,7 @@ export function SortableItem({ id, children, reducedMotion }: SortableItemProps)
 // Shared DndContext for cross-list drag — D-12.
 // Hosts the DndContext and provides SortableDndCtx sentinel to children Sortable instances.
 
-export function SortableDndContext({ children, onMove }: SortableDndContextProps) {
+export function SortableDndContext({ children, onMove, renderOverlay }: SortableDndContextProps) {
 	const reducedMotion = useReducedMotion();
 	const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
@@ -142,7 +147,11 @@ export function SortableDndContext({ children, onMove }: SortableDndContextProps
 				<DragOverlay dropAnimation={reducedMotion ? null : undefined}>
 					{activeId ? (
 						<div className="ds-atom-sortable-overlay" aria-hidden="true">
-							<div className="ds-atom-sortable-indicator" />
+							{renderOverlay ? (
+								renderOverlay(activeId)
+							) : (
+								<div className="ds-atom-sortable-overlay-ghost" />
+							)}
 						</div>
 					) : null}
 				</DragOverlay>
@@ -162,7 +171,6 @@ export function Sortable({ items, onReorder, renderItem, id, className, style }:
 	// overId is only tracked when this Sortable owns its DndContext (standalone mode).
 	// In cross-list mode (hasParentDnd=true), the parent SortableDndContext drives state.
 	const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-	const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -173,14 +181,11 @@ export function Sortable({ items, onReorder, renderItem, id, className, style }:
 		setActiveId(e.active.id);
 	}, []);
 
-	const handleDragOver = useCallback((e: DragOverEvent) => {
-		setOverId(e.over?.id ?? null);
-	}, []);
+	const handleDragOver = useCallback((_e: DragOverEvent) => {}, []);
 
 	const handleDragEnd = useCallback(
 		(e: DragEndEvent) => {
 			setActiveId(null);
-			setOverId(null);
 			const { active, over } = e;
 			if (!over || active.id === over.id) return;
 			const oldIndex = items.findIndex((item) => item.id === active.id);
@@ -193,6 +198,7 @@ export function Sortable({ items, onReorder, renderItem, id, className, style }:
 	);
 
 	const activeItem = items.find((item) => item.id === activeId);
+	const activeIndex = activeItem ? items.indexOf(activeItem) : -1;
 
 	const listContent = (
 		<SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
@@ -203,10 +209,6 @@ export function Sortable({ items, onReorder, renderItem, id, className, style }:
 			>
 				{items.map((item, index) => (
 					<li key={item.id} style={{ listStyle: "none", padding: 0, margin: 0 }}>
-						{/* D-14: 1px amber drop indicator — renders when this item is the current drop target */}
-						{overId === item.id && (
-							<div className="ds-atom-sortable-indicator" aria-hidden="true" />
-						)}
 						<SortableItem id={item.id} reducedMotion={reducedMotion}>
 							{renderItem(item, index)}
 						</SortableItem>
@@ -233,8 +235,9 @@ export function Sortable({ items, onReorder, renderItem, id, className, style }:
 			{listContent}
 			<DragOverlay dropAnimation={reducedMotion ? null : undefined}>
 				{activeItem ? (
+					// Render the actual card content as the drag overlay — same size as the source
 					<div className="ds-atom-sortable-overlay" aria-hidden="true">
-						<div className="ds-atom-sortable-indicator" />
+						{renderItem(activeItem, activeIndex)}
 					</div>
 				) : null}
 			</DragOverlay>

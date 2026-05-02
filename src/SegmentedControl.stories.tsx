@@ -93,6 +93,47 @@ const meta: Meta<typeof SegmentedControl> = {
 			},
 		},
 	},
+	argTypes: {
+		options: {
+			control: false,
+			description:
+				"Array of option objects with `value` and `label`; each may also include `disabled`.",
+			table: { type: { summary: "{ value: string; label: string; disabled?: boolean }[]" } },
+		},
+		value: {
+			control: "text",
+			description: "Controlled selected value matching one of the option values.",
+			table: { type: { summary: "string" } },
+		},
+		onChange: {
+			control: false,
+			description: "Called with the new value when the user selects a different option.",
+			table: { type: { summary: "(value: string) => void" } },
+		},
+		defaultValue: {
+			control: "text",
+			description: "Initial selected value when uncontrolled.",
+			table: { type: { summary: "string" } },
+		},
+		size: {
+			control: { type: "select" },
+			options: ["sm", "md", "lg"],
+			description: "Size of the control — sm, md (default), or lg.",
+			table: { type: { summary: '"sm" | "md" | "lg"' } },
+		},
+		disabled: {
+			control: "boolean",
+			description: "When true, disables all options in the control.",
+			table: { type: { summary: "boolean" } },
+		},
+		ariaLabel: {
+			control: "text",
+			description: "Accessible label for the radiogroup container.",
+			table: { type: { summary: "string" } },
+		},
+		className: { control: false, table: { type: { summary: "string" } } },
+		style: { control: false, table: { type: { summary: "React.CSSProperties" } } },
+	},
 };
 export default meta;
 type Story = StoryObj<typeof SegmentedControl>;

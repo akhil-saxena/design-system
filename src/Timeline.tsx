@@ -1,9 +1,5 @@
 /**
- * # Usage Audit — Timeline (DS-66)
- *
- * Consumers (post v0.6):
- * - JobDash app — application status timeline (Submitted → Interview → Offer)
- * - Project history views — phase sequence with dates and milestone labels
+ * Timeline (DS-66)
  *
  * API:
  * - events: TimelineEvent[] — { id, date, label, description?, color?, onClick? }

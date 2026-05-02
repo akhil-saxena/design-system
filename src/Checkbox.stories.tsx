@@ -89,11 +89,6 @@ export const Controlled: Story = {
 	},
 };
 
-export const Playground: Story = {
-	args: { label: "Playground", disabled: false, defaultChecked: false },
-	parameters: { docs: { source: { code: SRC.Playground } } },
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	render: () => (

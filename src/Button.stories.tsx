@@ -139,33 +139,6 @@ export const WithIcon: Story = {
 	},
 };
 
-export const Playground: Story = {
-	args: {
-		variant: "primary",
-		size: "md",
-		children: "Playground",
-		loading: false,
-		disabled: false,
-	},
-	argTypes: {
-		variant: {
-			control: { type: "select" },
-			options: ["primary", "secondary", "ghost", "danger"],
-		},
-		size: {
-			control: { type: "select" },
-			options: ["xs", "sm", "md", "lg"],
-		},
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: "Tweak any prop via the Controls panel below.",
-			},
-		},
-	},
-};
-
 export const DarkMode: Story = {
 	render: () => (
 		<div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

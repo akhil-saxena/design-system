@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { AppShell } from "./AppShell";
+import { Avatar } from "./Avatar";
+import { Button } from "./Button";
+import { ChevronLeft, ChevronRight } from "./icons";
 
 const meta: Meta<typeof AppShell> = {
 	title: "Layout/AppShell",
@@ -21,6 +24,13 @@ type Story = StoryObj<typeof AppShell>;
 
 // ─── MockSidebar ─────────────────────────────────────────────────────────────
 
+const NAV_ITEMS = [
+	{ label: "Dashboard", initial: "D" },
+	{ label: "Projects", initial: "P" },
+	{ label: "Team", initial: "T" },
+	{ label: "Settings", initial: "S" },
+];
+
 function MockSidebar({
 	collapsed,
 	onToggleCollapse,
@@ -28,7 +38,6 @@ function MockSidebar({
 	collapsed?: boolean;
 	onToggleCollapse?: () => void;
 }) {
-	const NAV_ITEMS = ["Dashboard", "Jobs", "Resume", "Settings"];
 	return (
 		<div
 			style={{
@@ -40,38 +49,24 @@ function MockSidebar({
 				background: "var(--surf-2)",
 			}}
 		>
-			<button
-				type="button"
+			<Button
+				variant="ghost"
+				size="sm"
 				onClick={onToggleCollapse}
 				aria-label="Toggle sidebar"
-				style={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-					padding: "6px 8px",
-					fontSize: 13,
-					background: "transparent",
-					border: "1px solid var(--rule)",
-					borderRadius: 6,
-					cursor: "pointer",
-					color: "var(--ink)",
-					marginBottom: 8,
-				}}
+				style={{ justifyContent: "center", marginBottom: 4 }}
 			>
-				{collapsed ? "→" : "←"}
-			</button>
-			{NAV_ITEMS.map((label, i) => (
-				<div
-					key={label}
+				{collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+			</Button>
+
+			{NAV_ITEMS.map((item, i) => (
+				<Button
+					key={item.label}
+					variant={i === 0 ? "primary" : "ghost"}
+					size="sm"
 					style={{
-						display: "flex",
-						alignItems: "center",
+						justifyContent: collapsed ? "center" : "flex-start",
 						gap: 8,
-						padding: "6px 8px",
-						borderRadius: 6,
-						background: i === 0 ? "var(--ink)" : "transparent",
-						color: i === 0 ? "var(--cream)" : "var(--ink)",
-						fontSize: 13,
 						overflow: "hidden",
 						whiteSpace: "nowrap",
 					}}
@@ -79,16 +74,17 @@ function MockSidebar({
 					<span
 						style={{
 							display: "inline-block",
-							width: 12,
-							height: 12,
-							borderRadius: 3,
-							background: i === 0 ? "var(--amber)" : "var(--ink-4)",
+							width: 10,
+							height: 10,
+							borderRadius: 2,
+							background: i === 0 ? "var(--amber)" : "currentColor",
+							opacity: i === 0 ? 1 : 0.4,
 							flexShrink: 0,
 						}}
 					/>
-					{!collapsed && <span>{label}</span>}
-					{collapsed && <span style={{ fontSize: 11, fontWeight: 600 }}>{label[0]}</span>}
-				</div>
+					{!collapsed && item.label}
+					{collapsed && <span style={{ fontSize: 11, fontWeight: 700 }}>{item.initial}</span>}
+				</Button>
 			))}
 		</div>
 	);
@@ -126,25 +122,10 @@ function MockTopbar() {
 					letterSpacing: "0.02em",
 				}}
 			>
-				JobDash
+				Acme
 			</span>
 			<div style={{ flex: 1 }} />
-			<div
-				style={{
-					width: 28,
-					height: 28,
-					borderRadius: "50%",
-					background: "var(--amber)",
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-					fontSize: 11,
-					fontWeight: 600,
-					color: "#fff",
-				}}
-			>
-				AS
-			</div>
+			<Avatar name="Alex Smith" size={28} />
 		</div>
 	);
 }
@@ -222,7 +203,7 @@ export const WithFooter: Story = {
 						color: "var(--ink-3)",
 					}}
 				>
-					&copy; 2026 JobDash — All rights reserved.
+					&copy; 2026 Acme — All rights reserved.
 				</div>
 			}
 		/>

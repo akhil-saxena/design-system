@@ -164,10 +164,9 @@ describe("DatePicker", () => {
 		// 14:30 → 2:30 PM in 12-hour mode
 		expect((screen.getByLabelText("Hours") as HTMLInputElement).value).toBe("2");
 		expect((screen.getByLabelText("Minutes") as HTMLInputElement).value).toBe("30");
-		// AM/PM toggle is always rendered when showTime=true (no locale gating)
-		const am = screen.getByRole("button", { name: "AM" });
-		const pm = screen.getByRole("button", { name: "PM" });
-		expect(am.getAttribute("aria-pressed")).toBe("false");
-		expect(pm.getAttribute("aria-pressed")).toBe("true");
+		// Single AM/PM toggle button — shows current period, click to flip
+		const toggle = screen.getByRole("button", { name: /Currently PM/i });
+		expect(toggle.textContent).toBe("PM");
+		expect(toggle.getAttribute("aria-pressed")).toBe("true");
 	});
 });

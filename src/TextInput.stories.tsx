@@ -101,11 +101,6 @@ export const WithUrlIcon: Story = {
 	parameters: { docs: { source: { code: SRC.WithUrlIcon } } },
 };
 
-export const Playground: Story = {
-	args: { placeholder: "Playground", error: false, disabled: false },
-	parameters: { docs: { source: { code: SRC.Playground } } },
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	render: () => (

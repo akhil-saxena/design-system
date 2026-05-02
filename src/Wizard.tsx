@@ -1,6 +1,8 @@
 import { Fragment, type ReactNode, useState } from "react";
+import { Button } from "./Button";
 import { ProgressBar } from "./ProgressBar";
 import { useFocusTrap } from "./hooks/useFocusTrap";
+import { Check } from "./icons";
 
 export interface WizardStep {
 	label: string;
@@ -17,20 +19,6 @@ export interface WizardProps {
 	orientation?: "horizontal" | "vertical";
 	children: ReactNode | ((step: number) => ReactNode);
 }
-
-const CheckSVG = () => (
-	<svg
-		viewBox="0 0 24 24"
-		width="13"
-		height="13"
-		fill="none"
-		stroke="var(--cream)"
-		strokeWidth="3"
-		aria-hidden="true"
-	>
-		<polyline points="20 6 9 17 4 12" />
-	</svg>
-);
 
 /**
  * Wizard — multi-step form scaffold (DS-74).
@@ -90,7 +78,7 @@ export function Wizard({ steps, onComplete, onCancel, orientation, children }: W
 		setCurrent((c) => c - 1);
 	};
 
-	const pct = (current / steps.length) * 100;
+	const pct = ((current + 1) / steps.length) * 100;
 
 	return (
 		<div ref={setTrapEl} className="ds-atom-wizard" data-orientation={orientation ?? "horizontal"}>
@@ -103,7 +91,9 @@ export function Wizard({ steps, onComplete, onCancel, orientation, children }: W
 						<Fragment key={i}>
 							{i > 0 && <div className="ds-atom-wizard-connector" aria-hidden="true" />}
 							<div className="ds-atom-wizard-step" data-status={status}>
-								<div className="ds-atom-wizard-dot">{status === "done" ? <CheckSVG /> : i + 1}</div>
+								<div className="ds-atom-wizard-dot">
+									{status === "done" ? <Check size={13} color="var(--cream)" /> : i + 1}
+								</div>
 								<div className="ds-atom-wizard-step-text">
 									<div className="ds-atom-wizard-label">{step.label}</div>
 									{step.desc && <div className="ds-atom-wizard-desc">{step.desc}</div>}
@@ -132,21 +122,16 @@ export function Wizard({ steps, onComplete, onCancel, orientation, children }: W
 			{/* Navigation — INSIDE the focus trap boundary */}
 			<div className="ds-atom-wizard-nav">
 				{onCancel && (
-					<button type="button" className="ds-atom-wizard-cancel" onClick={onCancel}>
+					<Button variant="ghost" size="sm" onClick={onCancel} style={{ marginRight: "auto" }}>
 						Cancel
-					</button>
+					</Button>
 				)}
-				<button
-					type="button"
-					className="ds-atom-wizard-back"
-					onClick={handleBack}
-					disabled={current === 0}
-				>
+				<Button variant="secondary" size="sm" onClick={handleBack} disabled={current === 0}>
 					Back
-				</button>
-				<button type="button" className="ds-atom-wizard-next" onClick={handleNext}>
+				</Button>
+				<Button variant="primary" size="sm" onClick={handleNext}>
 					{current === steps.length - 1 ? "Finish" : "Next"}
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

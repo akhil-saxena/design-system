@@ -188,6 +188,29 @@ const meta: Meta<typeof CompanyPicker> = {
 			},
 		},
 	},
+	argTypes: {
+		pool: {
+			control: false,
+			description: "Full list of items to search; consumer filters this before passing to `items`.",
+			table: { type: { summary: "{ value: string; label: string }[]" } },
+		},
+		recents: {
+			control: false,
+			description:
+				"Recently selected items shown at the top of the dropdown before the user types.",
+			table: { type: { summary: "{ value: string; label: string }[]" } },
+		},
+		withOnCreate: {
+			control: "boolean",
+			description: "When true, shows a 'Create …' option when no results match the query.",
+			table: { type: { summary: "boolean" } },
+		},
+		customRender: {
+			control: "boolean",
+			description: "When true, renders each item with a custom template (avatar + name).",
+			table: { type: { summary: "boolean" } },
+		},
+	},
 };
 
 export default meta;

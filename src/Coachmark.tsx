@@ -1,5 +1,7 @@
 import { type RefObject, useState } from "react";
+import { Button } from "./Button";
 import { Popover } from "./Popover";
+import { X } from "./icons";
 
 // ─── DS-76: Coachmark — anchored first-run hint ────────────────────────────
 
@@ -49,6 +51,7 @@ export function Coachmark({
 	}
 
 	const isLastStep = step !== undefined && total !== undefined && step >= total;
+	const hasSteps = step !== undefined && total !== undefined;
 
 	return (
 		<Popover
@@ -60,43 +63,45 @@ export function Coachmark({
 			placement={placement}
 		>
 			<div className="ds-atom-coachmark">
-				{step !== undefined && total !== undefined && (
-					<span className="ds-atom-coachmark-step">
-						{step} / {total}
-					</span>
-				)}
-				<div className="ds-atom-coachmark-title">{title}</div>
-				{desc && <div className="ds-atom-coachmark-desc">{desc}</div>}
-				{total !== undefined && total > 0 && (
-					<div className="ds-atom-coachmark-dots">
-						{Array.from({ length: total }, (_, i) => (
-							<span
-								// biome-ignore lint/suspicious/noArrayIndexKey: step dots are positional by design; no stable ID available
-								key={i}
-								className="ds-atom-coachmark-dot"
-								data-active={i === (step ?? 1) - 1 ? "true" : "false"}
-							/>
-						))}
-					</div>
-				)}
-				<div className="ds-atom-coachmark-actions">
-					<div>
-						{step !== undefined &&
-							total !== undefined &&
-							(isLastStep ? (
-								<button type="button" onClick={onDone}>
-									Done
-								</button>
-							) : (
-								<button type="button" onClick={onNext}>
-									Next
-								</button>
-							))}
-					</div>
-					<button type="button" onClick={dismiss} aria-label="Dismiss">
-						&times;
-					</button>
+				{/* Header: title + dismiss */}
+				<div className="ds-atom-coachmark-header">
+					<div className="ds-atom-coachmark-title">{title}</div>
+					<Button variant="ghost" size="xs" onClick={dismiss} aria-label="Dismiss">
+						<X size={12} />
+					</Button>
 				</div>
+
+				{desc && <div className="ds-atom-coachmark-desc">{desc}</div>}
+
+				{/* Footer: step dots + actions */}
+				{hasSteps && (
+					<div className="ds-atom-coachmark-footer">
+						{/* Step dots */}
+						<div className="ds-atom-coachmark-dots">
+							{Array.from({ length: total ?? 0 }, (_, i) => (
+								<span
+									// biome-ignore lint/suspicious/noArrayIndexKey: step dots are positional by design; no stable ID available
+									key={i}
+									className="ds-atom-coachmark-dot"
+									data-active={i === (step ?? 1) - 1 ? "true" : "false"}
+								/>
+							))}
+						</div>
+
+						{/* Next / Done */}
+						<div className="ds-atom-coachmark-actions">
+							{isLastStep ? (
+								<Button size="xs" variant="primary" onClick={onDone}>
+									Done
+								</Button>
+							) : (
+								<Button size="xs" variant="primary" onClick={onNext}>
+									Next
+								</Button>
+							)}
+						</div>
+					</div>
+				)}
 			</div>
 		</Popover>
 	);

@@ -1,4 +1,6 @@
 import { type CSSProperties, type ReactNode, forwardRef } from "react";
+import { Button } from "./Button";
+import { TextInput } from "./TextInput";
 
 export type AppBarVariant = "minimal" | "withSearch" | "default" | "centered";
 
@@ -101,24 +103,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 					style={{ ...scrolledStyles, transition: "all 0.2s ease", ...style }}
 				>
 					{logoNode}
-					{actions ?? (
-						<button
-							type="button"
-							style={{
-								fontSize: 12,
-								padding: "7px 14px",
-								borderRadius: 7,
-								fontWeight: 500,
-								border: "1px solid var(--rule)",
-								background: "var(--ink)",
-								color: "var(--cream)",
-								cursor: "pointer",
-								fontFamily: "var(--font)",
-							}}
-						>
-							Sign in
-						</button>
-					)}
+					{actions ?? <Button size="sm">Sign in</Button>}
 				</header>
 			);
 		}
@@ -160,7 +145,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 				>
 					<div style={{ display: "flex", alignItems: "center", gap: 24 }}>
 						{logoNode}
-						<input
+						<TextInput
 							type="search"
 							className="ds-atom-appbar-search"
 							placeholder={searchPlaceholder}

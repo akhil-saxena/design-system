@@ -73,9 +73,9 @@ export function HoverCard({
 	const [pinned, setPinned] = useState(false);
 	const [position, setPosition] = useState<Position | null>(null);
 	// Callback-ref so we know panel dimensions for smartAnchorPos
-	const [panelEl, setPanelEl] = useState<HTMLDivElement | null>(null);
-	const panelRef = useRef<HTMLDivElement | null>(null);
-	const setPanelRef = (node: HTMLDivElement | null) => {
+	const [panelEl, setPanelEl] = useState<HTMLDialogElement | null>(null);
+	const panelRef = useRef<HTMLDialogElement | null>(null);
+	const setPanelRef = (node: HTMLDialogElement | null) => {
 		panelRef.current = node;
 		setPanelEl(node);
 	};
@@ -213,7 +213,6 @@ export function HoverCard({
 		anchorRef.current?.closest(".dark") != null ||
 		document.documentElement.classList.contains("dark");
 
-	// biome-ignore lint/a11y/useSemanticElements: HoverCard uses <dialog open> for non-modal semantics; showModal() not used so it behaves as inline dialog without blocking
 	const cardEl = (
 		<dialog
 			ref={setPanelRef}

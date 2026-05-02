@@ -87,9 +87,15 @@ describe("Coachmark", () => {
 		expect(onDone).toHaveBeenCalledOnce();
 	});
 
-	it("step/total renders as 'N / M' indicator", () => {
+	it("step/total renders dot progress indicators", () => {
 		const anchorRef = makeAnchorRef();
 		render(<Coachmark anchorRef={anchorRef} title="Step title" step={2} total={4} />);
-		expect(screen.getByText("2 / 4")).toBeTruthy();
+		const dots = document.querySelectorAll(".ds-atom-coachmark-dot");
+		expect(dots.length).toBe(4);
+		// second dot (index 1) is active
+		expect((dots[1] as HTMLElement | undefined)?.dataset.active).toBe("true");
+		// others are inactive
+		expect((dots[0] as HTMLElement | undefined)?.dataset.active).toBe("false");
+		expect((dots[2] as HTMLElement | undefined)?.dataset.active).toBe("false");
 	});
 });

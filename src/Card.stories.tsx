@@ -377,17 +377,6 @@ export const StatCard: Story = {
 	),
 };
 
-export const Playground: Story = {
-	args: {
-		variant: "glass",
-		children: "Playground card content. Tweak the variant via the controls panel.",
-	},
-	parameters: { docs: { source: { code: SRC.Playground } } },
-	argTypes: {
-		variant: { control: "select", options: ["glass", "amber", "dark", "kanban"] },
-	},
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [

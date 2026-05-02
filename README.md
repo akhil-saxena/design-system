@@ -1,6 +1,6 @@
 # @akhil-saxena/design-system
 
-Accessible React primitive library — 58 primitives, full dark mode, cream+ink+amber design language. Extracted from JobDash v1.0.
+Accessible React primitive library — 58 primitives, full dark mode, cream+ink+amber design language.
 
 Status: **v1.0.0 — 58 primitives across 7 waves.**
 

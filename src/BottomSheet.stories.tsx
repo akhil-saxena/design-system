@@ -113,6 +113,47 @@ const meta: Meta<typeof BottomSheet> = {
 			},
 		},
 	},
+	argTypes: {
+		open: {
+			control: "boolean",
+			description: "Controls whether the sheet is visible.",
+			table: { type: { summary: "boolean" } },
+		},
+		onClose: {
+			control: false,
+			description:
+				"Called when the user dismisses the sheet (backdrop click, swipe, or close button).",
+			table: { type: { summary: "() => void" } },
+		},
+		title: {
+			control: "text",
+			description: "Optional header title string rendered in the sheet header.",
+			table: { type: { summary: "string" } },
+		},
+		description: {
+			control: "text",
+			description: "Optional secondary text rendered below the title in the header.",
+			table: { type: { summary: "string" } },
+		},
+		height: {
+			control: { type: "select" },
+			options: ["half", "full"],
+			description: "Sheet height — half (default) or full screen.",
+			table: { type: { summary: '"half" | "full"' } },
+		},
+		children: {
+			control: false,
+			description: "Content rendered in the scrollable sheet body.",
+			table: { type: { summary: "React.ReactNode" } },
+		},
+		footer: {
+			control: false,
+			description: "Optional footer slot rendered in a sticky row at the bottom of the sheet.",
+			table: { type: { summary: "React.ReactNode" } },
+		},
+		className: { control: false, table: { type: { summary: "string" } } },
+		style: { control: false, table: { type: { summary: "React.CSSProperties" } } },
+	},
 };
 export default meta;
 type Story = StoryObj<typeof BottomSheet>;

@@ -1,4 +1,7 @@
 import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { FieldError } from "./FormValidation";
+import { TextInput } from "./TextInput";
+import { Textarea } from "./Textarea";
 
 type InlineEditState = "idle" | "editing" | "saving" | "error";
 
@@ -52,23 +55,25 @@ export function InlineEdit({
 	const [state, setState] = useState<InlineEditState>("idle");
 	const [draft, setDraft] = useState(value);
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
-	const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
 	// Sync draft with external value changes when in idle state
 	useEffect(() => {
 		if (state === "idle") setDraft(value);
 	}, [value, state]);
 
-	// Auto-focus when entering editing state
+	// Auto-focus and select when entering editing state
 	useEffect(() => {
-		if ((state === "editing" || state === "error") && inputRef.current) {
-			inputRef.current.focus();
-			// Select all text for convenience
-			if (inputRef.current instanceof HTMLInputElement) {
-				inputRef.current.select();
+		if (state === "editing" || state === "error") {
+			if (multiline) {
+				textareaRef.current?.focus();
+			} else {
+				inputRef.current?.focus();
+				inputRef.current?.select();
 			}
 		}
-	}, [state]);
+	}, [state, multiline]);
 
 	async function handleCommit() {
 		setState("saving");
@@ -112,8 +117,7 @@ export function InlineEdit({
 
 	// Editing, saving, or error state: show input / textarea
 	if (state !== "idle") {
-		const inputProps = {
-			ref: inputRef as React.Ref<HTMLInputElement & HTMLTextAreaElement>,
+		const sharedProps = {
 			className: "ds-atom-inlineedit-input",
 			value: draft,
 			disabled: state === "saving",
@@ -122,6 +126,7 @@ export function InlineEdit({
 			onKeyDown: handleKeyDown,
 			onBlur: handleBlur,
 			"data-state": state,
+			error: state === "error",
 		};
 
 		return (
@@ -129,12 +134,12 @@ export function InlineEdit({
 				className={["ds-atom-inlineedit-wrap", className].filter(Boolean).join(" ")}
 				style={style}
 			>
-				{multiline ? <textarea {...inputProps} rows={3} /> : <input {...inputProps} type="text" />}
-				{state === "error" && errorMsg ? (
-					<span className="ds-atom-inlineedit-error" role="alert">
-						{errorMsg}
-					</span>
-				) : null}
+				{multiline ? (
+					<Textarea ref={textareaRef} {...sharedProps} rows={3} />
+				) : (
+					<TextInput ref={inputRef} {...sharedProps} type="text" />
+				)}
+				<FieldError message={state === "error" ? errorMsg : null} />
 			</span>
 		);
 	}
@@ -143,30 +148,24 @@ export function InlineEdit({
 	// introduce block-level layout and cause a size shift when toggling between idle and editing
 	// states. Keyboard and ARIA wiring is fully in place (tabIndex, onKeyDown, aria-disabled).
 	return (
-		<>
-			<span
-				className={["ds-atom-inlineedit", className].filter(Boolean).join(" ")}
-				data-state="idle"
-				onClick={disabled ? undefined : () => setState("editing")}
-				tabIndex={disabled ? -1 : 0}
-				onKeyDown={(e) => {
-					if (e.key === "Enter" || e.key === " ") {
-						e.preventDefault();
-						if (!disabled) setState("editing");
-					}
-				}}
-				// biome-ignore lint/a11y/useSemanticElements: span role=button is required here to keep inline flow; a native <button> causes layout shift between idle/editing states
-				role="button"
-				aria-label="Click to edit"
-				aria-disabled={disabled}
-				style={style}
-			>
-				{value ? (
-					value
-				) : placeholder ? (
-					<span style={{ color: "var(--ink-4)" }}>{placeholder}</span>
-				) : null}
-			</span>
-		</>
+		<span
+			className={["ds-atom-inlineedit", className].filter(Boolean).join(" ")}
+			data-state="idle"
+			onClick={disabled ? undefined : () => setState("editing")}
+			tabIndex={disabled ? -1 : 0}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") {
+					e.preventDefault();
+					if (!disabled) setState("editing");
+				}
+			}}
+			// biome-ignore lint/a11y/useSemanticElements: span role=button is required here to keep inline flow; a native <button> causes layout shift between idle/editing states
+			role="button"
+			aria-label="Click to edit"
+			aria-disabled={disabled}
+			style={style}
+		>
+			{value || (placeholder ? <span style={{ color: "var(--ink-4)" }}>{placeholder}</span> : null)}
+		</span>
 	);
 }

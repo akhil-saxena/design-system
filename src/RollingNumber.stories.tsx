@@ -210,7 +210,7 @@ const meta: Meta<typeof RollingNumber> = {
 	},
 	argTypes: {
 		value: {
-			control: "number",
+			control: { type: "range", min: 0, max: 9999, step: 1 },
 			description: "Numeric value — triggers rolling animation on change.",
 		},
 		variant: {
@@ -240,11 +240,12 @@ type Story = StoryObj<typeof RollingNumber>;
 // ─── Stories ──────────────────────────────────────────────────────────────────
 
 export const Default: Story = {
-	args: { value: 42 },
+	args: { value: 42, variant: "default" },
 	parameters: {
 		docs: {
 			description: {
-				story: "Transparent default. Change `value` in Controls to see the digit roll.",
+				story:
+					"Use the Controls panel to change `value`, `variant`, `prefix`, and `suffix` in real time.",
 			},
 			source: { code: SRC.Default },
 		},
@@ -328,24 +329,6 @@ export const CounterLight: Story = {
 		),
 	],
 	render: () => <CounterLightDemo />,
-};
-
-export const Playground: Story = {
-	args: { value: 42, variant: "default" },
-	parameters: {
-		docs: {
-			description: {
-				story: "Adjust `value`, `variant`, `prefix`, `suffix` via the Controls panel.",
-			},
-			source: { code: SRC.Playground },
-		},
-	},
-	argTypes: {
-		value: { control: { type: "range", min: 0, max: 9999, step: 1 } },
-		variant: { control: "select", options: ["default", "dark", "light"] },
-		prefix: { control: "text" },
-		suffix: { control: "text" },
-	},
 };
 
 export const DarkMode: Story = {

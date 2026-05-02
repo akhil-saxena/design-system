@@ -55,6 +55,14 @@ const ALL_ILLUSTRATIONS = [
 
 const meta: Meta = {
 	title: "Foundation/Illustrations",
+	parameters: {
+		docs: {
+			description: {
+				component:
+					"24 SVG illustration components for empty states, onboarding, and feedback screens; each accepts optional `width` and `height` props (default 120×120).",
+			},
+		},
+	},
 };
 
 export default meta;

@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { Button } from "./Button";
+import { TextInput } from "./TextInput";
 import { Wizard, type WizardStep } from "./Wizard";
 
 const meta: Meta<typeof Wizard> = {
-	title: "Primitives/Wizard",
+	title: "Patterns/Wizard",
 	component: Wizard,
 	tags: ["autodocs"],
 	parameters: {
@@ -13,6 +15,39 @@ const meta: Meta<typeof Wizard> = {
 				component:
 					"Multi-step form scaffold (DS-74). Composes ProgressBar and useFocusTrap. Renders a stepper header, step content area, and Back/Next navigation — all inside a single focus-trapped container. Per-step `validate()` blocks advance and displays the error inline.",
 			},
+		},
+	},
+	argTypes: {
+		steps: {
+			control: false,
+			description:
+				"Ordered array of step definitions; each has a label, optional desc, and optional validate function.",
+			table: {
+				type: { summary: "{ label: string; desc?: string; validate?: () => string | null }[]" },
+			},
+		},
+		onComplete: {
+			control: false,
+			description: "Called when the user clicks Next on the final step and all validation passes.",
+			table: { type: { summary: "() => void" } },
+		},
+		onCancel: {
+			control: false,
+			description:
+				"Called when the user clicks Back on the first step; omit to hide the Back button on step 0.",
+			table: { type: { summary: "() => void" } },
+		},
+		orientation: {
+			control: { type: "select" },
+			options: ["horizontal", "vertical"],
+			description: "Layout direction of the stepper header — horizontal (default) or vertical.",
+			table: { type: { summary: '"horizontal" | "vertical"' } },
+		},
+		children: {
+			control: false,
+			description:
+				"Render function called with the current zero-based step index; returns step content.",
+			table: { type: { summary: "(step: number) => React.ReactNode" } },
 		},
 	},
 };
@@ -60,26 +95,17 @@ export const ThreeStepForm: Story = {
 				>
 					<div style={{ fontSize: 32, marginBottom: 8 }}>Done</div>
 					<p style={{ color: "var(--ink-3)", fontSize: 13 }}>onComplete fired — form submitted.</p>
-					<button
-						type="button"
+					<Button
+						variant="primary"
+						size="sm"
+						style={{ marginTop: 16 }}
 						onClick={() => {
 							setDone(false);
 							setName("");
 						}}
-						style={{
-							marginTop: 16,
-							padding: "6px 16px",
-							background: "var(--amber)",
-							color: "#fff",
-							border: "none",
-							borderRadius: 7,
-							cursor: "pointer",
-							fontFamily: "var(--font)",
-							fontWeight: 600,
-						}}
 					>
 						Reset
-					</button>
+					</Button>
 				</div>
 			);
 		}
@@ -92,6 +118,7 @@ export const ThreeStepForm: Story = {
 							return (
 								<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
 									<label
+										htmlFor="wizard-name"
 										style={{
 											fontSize: 12,
 											fontWeight: 600,
@@ -101,20 +128,12 @@ export const ThreeStepForm: Story = {
 									>
 										Full name
 									</label>
-									<input
+									<TextInput
+										id="wizard-name"
 										type="text"
 										value={name}
 										onChange={(e) => setName(e.target.value)}
 										placeholder="Jane Smith"
-										style={{
-											padding: "8px 12px",
-											border: "1px solid var(--rule)",
-											borderRadius: 7,
-											fontFamily: "var(--font)",
-											fontSize: 13,
-											color: "var(--ink)",
-											background: "var(--cream)",
-										}}
 									/>
 								</div>
 							);
@@ -243,7 +262,7 @@ export const Dark: Story = {
 			<div
 				className="dark"
 				style={{
-					background: "var(--ink)",
+					background: "#1c1917",
 					padding: 32,
 					borderRadius: 14,
 					maxWidth: 560,

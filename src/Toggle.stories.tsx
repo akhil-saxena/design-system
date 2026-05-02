@@ -110,12 +110,6 @@ export const Controlled: Story = {
 	},
 };
 
-export const Playground: Story = {
-	args: { label: "Toggle me", defaultChecked: false, disabled: false },
-	parameters: { docs: { source: { code: SRC.Playground } } },
-	argTypes: { defaultChecked: { control: "boolean" }, disabled: { control: "boolean" } },
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [

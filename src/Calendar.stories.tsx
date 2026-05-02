@@ -410,25 +410,3 @@ export const DarkMode: Story = {
 		);
 	},
 };
-
-export const Playground: Story = {
-	parameters: { docs: { source: { code: SRC.Playground } } },
-	render: () => {
-		const [selected, setSelected] = useState<Date | null>(null);
-		const [view, setView] = useState<"month" | "week" | "day">("month");
-		return (
-			<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-				<Calendar
-					view={view}
-					onViewChange={setView}
-					events={BASE_EVENTS}
-					selectedDate={selected}
-					onSelectedDateChange={setSelected}
-				/>
-				<p style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--ink-2)" }}>
-					Selected: {selected ? selected.toLocaleDateString() : "none"} | View: {view}
-				</p>
-			</div>
-		);
-	},
-};

@@ -37,7 +37,7 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 		useEffect(() => {
 			return () => {
 				if (timerRef.current !== null) {
-					window.clearTimeout(timerRef.current);
+					globalThis.clearTimeout(timerRef.current);
 					timerRef.current = null;
 				}
 			};
@@ -47,18 +47,45 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 			const showCopied = () => {
 				setCopied(true);
 				onCopy?.();
-				if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-				timerRef.current = window.setTimeout(() => {
+				if (timerRef.current !== null) globalThis.clearTimeout(timerRef.current);
+				timerRef.current = globalThis.setTimeout(() => {
 					setCopied(false);
 					timerRef.current = null;
 				}, 2000);
 			};
 
+			// Try modern Clipboard API first.
 			try {
 				await navigator.clipboard.writeText(value);
 				showCopied();
-			} catch (err) {
-				const error = err instanceof Error ? err : new Error(String(err));
+				return;
+			} catch {
+				// Clipboard API unavailable in this context (iframe without
+				// clipboard-write permission, insecure context, or browser block).
+				// Fall through to execCommand fallback below.
+			}
+
+			// execCommand fallback — works in iframes (e.g. Storybook docs) where
+			// navigator.clipboard is blocked by the clipboard-write permission policy.
+			try {
+				const ta = document.createElement("textarea");
+				ta.value = value;
+				ta.style.cssText = "position:fixed;opacity:0;pointer-events:none;top:0;left:0;";
+				document.body.appendChild(ta);
+				ta.focus();
+				ta.select();
+				// eslint-disable-next-line @typescript-eslint/no-deprecated
+				const ok = document.execCommand("copy");
+				ta.remove();
+				if (ok) {
+					showCopied();
+				} else {
+					const error = new Error("Copy command unavailable");
+					console.warn("[CopyToClipboard]", error.message);
+					onError?.(error);
+				}
+			} catch (fallbackErr) {
+				const error = fallbackErr instanceof Error ? fallbackErr : new Error(String(fallbackErr));
 				console.warn("[CopyToClipboard] clipboard unavailable:", error.message);
 				onError?.(error);
 			}

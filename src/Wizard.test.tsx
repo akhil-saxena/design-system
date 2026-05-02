@@ -97,7 +97,7 @@ describe("Wizard", () => {
 		expect(stepEls[1]).toHaveAttribute("data-status", "active");
 	});
 
-	// Test 7: ProgressBar receives value = (currentStep / totalSteps) * 100
+	// Test 7: ProgressBar receives value = ((currentStep + 1) / totalSteps) * 100
 	it("ProgressBar receives correct value based on current step", () => {
 		render(
 			<Wizard steps={STEPS} onComplete={vi.fn()}>
@@ -106,12 +106,13 @@ describe("Wizard", () => {
 		);
 		const progressBar = document.querySelector("[role='progressbar']");
 		expect(progressBar).toBeInTheDocument();
-		// At step 0 of 3: value = 0/3 * 100 = 0
-		expect(progressBar).toHaveAttribute("aria-valuenow", "0");
+		// At step 0 of 3: value = 1/3 * 100 ≈ 33.33
+		const initial = progressBar?.getAttribute("aria-valuenow") ?? "";
+		expect(Number(initial)).toBeCloseTo(33.33, 1);
 		fireEvent.click(screen.getByText("Next"));
-		// At step 1 of 3: value = 1/3 * 100 ≈ 33.33 (floating point)
+		// At step 1 of 3: value = 2/3 * 100 ≈ 66.67
 		const valuenow = progressBar?.getAttribute("aria-valuenow") ?? "";
-		expect(Number(valuenow)).toBeCloseTo(33.33, 1);
+		expect(Number(valuenow)).toBeCloseTo(66.67, 1);
 	});
 
 	// Test 8: Next on last step calls onComplete

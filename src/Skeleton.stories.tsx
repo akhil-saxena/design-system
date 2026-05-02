@@ -193,19 +193,6 @@ export const CardPlaceholder: Story = {
 	),
 };
 
-export const Playground: Story = {
-	args: { shape: "text", width: "100%" },
-	parameters: { docs: { source: { code: SRC.Playground } } },
-	argTypes: {
-		shape: { control: "select", options: ["text", "circle", "pill"] },
-	},
-	render: (args) => (
-		<div style={{ maxWidth: 360 }}>
-			<Skeleton {...args} />
-		</div>
-	),
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [

@@ -98,40 +98,51 @@ export const WithCopiedLabel: Story = {
  * Demonstrates D-531 silent fallback. Clipboard mock rejects so onError fires
  * + console.warn logged + icon stays Copy. NO internal toast.
  */
-export const ErrorFallback: Story = {
-	parameters: { docs: { source: { code: SRC.ErrorFallback } } },
-	render: (args) => {
-		useEffect(() => {
-			const original = navigator.clipboard;
+function ErrorFallbackDemo() {
+	useEffect(() => {
+		const originalClipboard = navigator.clipboard;
+		Object.defineProperty(navigator, "clipboard", {
+			value: { writeText: () => Promise.reject(new Error("Permission denied (mock)")) },
+			configurable: true,
+			writable: true,
+		});
+		// Patch execCommand via Object.defineProperty to avoid the deprecated-member TS warning.
+		const originalExecCommand = Object.getOwnPropertyDescriptor(document, "execCommand");
+		Object.defineProperty(document, "execCommand", {
+			value: () => false,
+			configurable: true,
+			writable: true,
+		});
+		return () => {
 			Object.defineProperty(navigator, "clipboard", {
-				value: { writeText: () => Promise.reject(new Error("Permission denied (mock)")) },
+				value: originalClipboard,
 				configurable: true,
 				writable: true,
 			});
-			return () => {
-				Object.defineProperty(navigator, "clipboard", {
-					value: original,
-					configurable: true,
-					writable: true,
-				});
-			};
-		}, []);
-		return (
-			<CopyToClipboard
-				{...args}
-				value="tok_live_will_fail"
-				onError={(err) => console.warn("[story onError]", err.message)}
-			/>
-		);
-	},
-};
+			if (originalExecCommand) {
+				Object.defineProperty(document, "execCommand", originalExecCommand);
+			}
+		};
+	}, []);
+	return (
+		<CopyToClipboard
+			value="tok_live_will_fail"
+			onError={(err) => console.warn("[story onError]", err.message)}
+		/>
+	);
+}
 
-export const Playground: Story = {
-	args: {
-		value: "playground_value_123",
-		label: "Click me",
+export const ErrorFallback: Story = {
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Both clipboard paths are mocked to fail so `onError` fires — icon stays as Copy, no feedback shown.",
+			},
+			source: { code: SRC.ErrorFallback },
+		},
 	},
-	parameters: { docs: { source: { code: SRC.Playground } } },
+	render: () => <ErrorFallbackDemo />,
 };
 
 export const DarkMode: Story = {

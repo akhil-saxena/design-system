@@ -1215,7 +1215,7 @@
 }
 
 /* ─── DS atom: ProgressBar ──────────────────────────────────────────
-   Determinate (track + amber gradient fill, 500ms width transition) +
+   Determinate (track + solid amber fill, 500ms width transition) +
    loading (3-dot pulse) variants. (DS-42) */
 .ds-atom-progress {
 	box-sizing: border-box;
@@ -1232,7 +1232,7 @@
 }
 .ds-atom-progress-fill {
 	height: 100%;
-	background: linear-gradient(90deg, var(--amber), var(--amber-d));
+	background: var(--amber);
 	border-radius: var(--radius-pill);
 	transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -1903,18 +1903,17 @@
 /* v0.5.1 patch — full-width grid layout (HH | : | MM | AM/PM toggle).
    AM/PM is ALWAYS rendered when showTime=true (no locale gating). */
 .ds-atom-datepicker-time {
-	display: grid;
-	grid-template-columns: 1fr auto 1fr auto;
+	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 6px;
 	margin-top: 12px;
 	padding-top: 12px;
 	border-top: 1px solid var(--rule);
-	width: 100%;
 }
 .ds-atom-datepicker-time input {
-	width: 100%;
+	flex: 1;
 	min-width: 0;
+	width: 0; /* flex overrides; width:0 + flex:1 forces equal share */
 	border: 1px solid var(--rule);
 	border-radius: 6px;
 	padding: 6px 8px;
@@ -1934,34 +1933,7 @@
 	font-size: 14px;
 	font-weight: 700;
 	color: var(--ink-2);
-}
-/* Segmented AM/PM toggle. Mirrors Toggle/segmented-control idiom. */
-.ds-atom-datepicker-time-period {
-	display: inline-flex;
-	border: 1px solid var(--rule);
-	border-radius: 6px;
-	overflow: hidden;
-	background: var(--cream-2);
-}
-.ds-atom-datepicker-time-period-btn {
-	background: transparent;
-	border: none;
-	cursor: pointer;
-	padding: 6px 10px;
-	font-family: var(--mono);
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.04em;
-	color: var(--ink-3);
-	transition: background 0.12s, color 0.12s;
-}
-.ds-atom-datepicker-time-period-btn.is-active {
-	background: var(--amber);
-	color: #1c1917;
-}
-.ds-atom-datepicker-time-period-btn:hover:not(.is-active) {
-	background: var(--cream);
-	color: var(--ink);
+	flex-shrink: 0;
 }
 
 /* Dark-mode overrides (v0.5.1 patch) — most tokens auto-flip via :root.dark
@@ -2023,14 +1995,6 @@
 .dark .ds-atom-datepicker-time input {
 	background: rgba(255, 255, 255, 0.06);
 	border-color: rgba(255, 255, 255, 0.12);
-	color: var(--ink);
-}
-.dark .ds-atom-datepicker-time-period {
-	background: rgba(255, 255, 255, 0.06);
-	border-color: rgba(255, 255, 255, 0.12);
-}
-.dark .ds-atom-datepicker-time-period-btn:hover:not(.is-active) {
-	background: rgba(255, 255, 255, 0.08);
 	color: var(--ink);
 }
 
@@ -4387,42 +4351,51 @@
 	font-family: var(--font);
 	color: var(--ink-3);
 	font-size: 12px;
+	text-align: left;
 }
 .ds-atom-footer[data-variant="compact"] {
-	padding: 20px 24px;
+	padding: 16px 32px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	gap: 16px;
 }
 .ds-atom-footer[data-variant="expanded"] {
-	padding: 32px 28px 20px;
+	padding: 40px 32px 24px;
 }
 .ds-atom-footer-cols {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
-	gap: 24px;
-	margin-bottom: 24px;
+	gap: 32px;
+	margin-bottom: 32px;
+}
+.ds-atom-footer-col {
+	text-align: left;
+	display: flex;
+	flex-direction: column;
 }
 .ds-atom-footer-col-title {
 	font-family: var(--display);
-	font-size: 11px;
+	font-size: 10px;
 	font-weight: 700;
 	text-transform: uppercase;
-	letter-spacing: 0.06em;
+	letter-spacing: 0.08em;
 	color: var(--ink);
-	margin-bottom: 8px;
+	margin-bottom: 14px;
 }
 .ds-atom-footer-link {
 	display: block;
+	text-align: left;
 	color: var(--ink-3);
-	font-size: 12px;
-	line-height: 1.8;
+	font-size: 12.5px;
+	line-height: 1;
 	background: none;
 	border: none;
 	cursor: pointer;
-	padding: 0;
+	padding: 5px 0;
 	font-family: var(--font);
 	text-decoration: none;
+	transition: color 0.12s;
 }
 .ds-atom-footer-link:hover {
 	color: var(--ink);
@@ -4432,9 +4405,9 @@
 }
 
 /* ─── DS atom: Illustrations (DS-81) ───────────────────────────────── */
-/* Ground shadow ellipses use rgba(0,0,0,.06) by default; invert in dark mode */
+/* illustration tokens (--ds-illust-bg, --ds-illust-bg-2, --ds-illust-shadow) live in tokens.css */
 .dark {
-	--ds-illust-shadow: rgba(255, 255, 255, 0.06);
+	--ds-illust-shadow: rgba(255, 255, 255, 0.04);
 }
 
 /* ─── DS atom: Wizard (DS-74) ──────────────────────────────────────── */
@@ -4532,67 +4505,6 @@
 	gap: 8px;
 	justify-content: flex-end;
 }
-.ds-atom-wizard-cancel,
-.ds-atom-wizard-back,
-.ds-atom-wizard-next {
-	padding: 6px 16px;
-	border-radius: 7px;
-	font-family: var(--font);
-	font-size: 13px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.15s;
-	border: 1px solid transparent;
-}
-.ds-atom-wizard-cancel {
-	background: none;
-	color: var(--ink-3);
-	border-color: var(--rule);
-	margin-right: auto;
-}
-.ds-atom-wizard-cancel:hover:not(:disabled) {
-	background: var(--cream-2);
-	color: var(--ink);
-}
-.ds-atom-wizard-back {
-	background: none;
-	color: var(--ink-3);
-	border-color: var(--rule);
-}
-.ds-atom-wizard-back:hover:not(:disabled) {
-	background: var(--cream-2);
-	color: var(--ink);
-}
-.ds-atom-wizard-back:disabled {
-	opacity: 0.35;
-	cursor: not-allowed;
-}
-.ds-atom-wizard-next {
-	background: var(--amber);
-	color: #fff;
-	border-color: var(--amber);
-}
-.ds-atom-wizard-next:hover:not(:disabled) {
-	background: var(--amber-d);
-	border-color: var(--amber-d);
-}
-.ds-atom-wizard-cancel:focus-visible,
-.ds-atom-wizard-back:focus-visible,
-.ds-atom-wizard-next:focus-visible {
-	outline: none;
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
-}
-/* Dark mode */
-.dark .ds-atom-wizard-cancel,
-.dark .ds-atom-wizard-back {
-	border-color: var(--rule);
-	color: var(--ink-3);
-}
-.dark .ds-atom-wizard-cancel:hover:not(:disabled),
-.dark .ds-atom-wizard-back:hover:not(:disabled) {
-	background: rgba(255, 255, 255, 0.06);
-	color: var(--ink);
-}
 .dark .ds-atom-wizard-step[data-status="pending"] .ds-atom-wizard-dot {
 	background: rgba(255, 255, 255, 0.06);
 	border-color: var(--ink-5);
@@ -4651,28 +4563,38 @@
 	flex-direction: column;
 	gap: 8px;
 }
-.ds-atom-coachmark-step {
-	font-family: var(--mono);
-	font-size: 10px;
-	font-weight: 700;
-	color: var(--amber);
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
+/* Header row: title + dismiss button side by side */
+.ds-atom-coachmark-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 8px;
 }
 .ds-atom-coachmark-title {
 	font-family: var(--display);
 	font-weight: 700;
 	font-size: 13px;
 	color: var(--ink);
+	flex: 1;
+	line-height: 1.4;
 }
 .ds-atom-coachmark-desc {
 	font-size: 12px;
 	color: var(--ink-3);
 	line-height: 1.5;
 }
+/* Footer row: dots left, action button right */
+.ds-atom-coachmark-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-top: 4px;
+}
 .ds-atom-coachmark-dots {
 	display: flex;
 	gap: 5px;
+	align-items: center;
 }
 .ds-atom-coachmark-dot {
 	width: 6px;
@@ -4686,9 +4608,8 @@
 }
 .ds-atom-coachmark-actions {
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
-	margin-top: 4px;
+	gap: 6px;
 }
 .dark .ds-atom-coachmark-title {
 	color: var(--ink);
@@ -4824,18 +4745,30 @@
 	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
 }
 .ds-atom-sortable-item[data-dragging="true"] {
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+	/* Source slot becomes a dotted amber outline — content hidden, space preserved */
+	border: 2px dashed var(--amber) !important;
+	background: rgba(245, 158, 11, 0.06) !important;
+	box-shadow: none;
 	cursor: grabbing;
+	border-radius: 6px;
 }
-/* D-14: 1px amber drop indicator line */
-.ds-atom-sortable-indicator {
-	height: 1px;
-	background: var(--amber);
-	border-radius: 1px;
-	margin: 2px 0;
+.ds-atom-sortable-item[data-dragging="true"] > * {
+	opacity: 0;
 }
 .ds-atom-sortable-overlay {
 	pointer-events: none;
+	opacity: 0.92;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.08);
+	border-radius: 6px;
+	cursor: grabbing;
+	transform: scale(1.02);
+}
+/* Ghost placeholder for SortableDndContext without a renderOverlay prop */
+.ds-atom-sortable-overlay-ghost {
+	height: 40px;
+	border-radius: 6px;
+	background: var(--amber);
+	opacity: 0.18;
 }
 .dark .ds-atom-sortable-item {
 	/* tokens flip automatically — no override needed */

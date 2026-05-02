@@ -104,44 +104,6 @@ export const Disabled: Story = {
 	],
 };
 
-// Playground — no width constraint from meta so containerWidth control works freely
-type PlaygroundArgs = {
-	containerWidth: number;
-	placeholder: string;
-	rows: number;
-	error: boolean;
-	disabled: boolean;
-	maxLength?: number;
-};
-export const Playground: StoryObj<PlaygroundArgs> = {
-	args: { containerWidth: 360, placeholder: "Playground", rows: 5, error: false, disabled: false },
-	parameters: {
-		layout: "padded",
-		docs: {
-			description: {
-				story: "Drag `containerWidth` to see how the textarea fills any container size.",
-			},
-			source: { code: SRC.Playground },
-		},
-	},
-	argTypes: {
-		containerWidth: {
-			control: { type: "range", min: 120, max: 700, step: 8 },
-			description: "Width of the parent container in px.",
-		},
-		error: { control: "boolean" },
-		disabled: { control: "boolean" },
-		rows: { control: "number" },
-		placeholder: { control: "text" },
-		maxLength: { control: "number" },
-	},
-	render: ({ containerWidth, ...args }) => (
-		<div style={{ width: containerWidth }}>
-			<Textarea {...args} />
-		</div>
-	),
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [

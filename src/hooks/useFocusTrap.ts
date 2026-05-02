@@ -24,10 +24,12 @@ const FOCUSABLE_SELECTOR =
 export function useFocusTrap<T extends HTMLElement>(container: T | null, active: boolean): void {
 	useEffect(() => {
 		if (!active || !container) return;
+		// Capture as non-null local — TypeScript loses narrowing across closure boundaries.
+		const c = container;
 		const previouslyFocused = document.activeElement as HTMLElement | null;
 
 		const focusables = () =>
-			Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+			Array.from(c.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
 				(el) => !el.hasAttribute("inert"),
 			);
 
@@ -35,18 +37,18 @@ export function useFocusTrap<T extends HTMLElement>(container: T | null, active:
 		if (initial) {
 			initial.focus();
 		} else {
-			container.focus();
+			c.focus();
 		}
 
 		function handleKeyDown(e: KeyboardEvent) {
 			if (e.key !== "Tab") return;
 			const list = focusables();
 			const activeEl = document.activeElement as HTMLElement | null;
-			const activeInside = activeEl ? container.contains(activeEl) : false;
+			const activeInside = activeEl ? c.contains(activeEl) : false;
 
 			if (list.length === 0) {
 				e.preventDefault();
-				if (!activeInside) container.focus();
+				if (!activeInside) c.focus();
 				return;
 			}
 

@@ -120,6 +120,10 @@
 	/* Focus tokens — handoff v1.0 */
 	--focus: var(--amber);
 	--focus-ring: 0 0 0 3px rgba(245, 158, 11, 0.45);
+
+	/* Illustration surface fills — use these instead of --cream in SVGs */
+	--ds-illust-bg: var(--cream-2);
+	--ds-illust-bg-2: var(--cream-3);
 }
 
 /* ─── Dark mode overrides ─────────────────────────────────────────────
@@ -169,4 +173,8 @@
 
 	/* Focus ring — dark-mode amber-d glow */
 	--focus-ring: 0 0 0 3px rgba(251, 191, 36, 0.5);
+
+	/* Illustration surface fills lift to visible translucent white in dark mode */
+	--ds-illust-bg: rgba(255, 255, 255, 0.13);
+	--ds-illust-bg-2: rgba(255, 255, 255, 0.2);
 }

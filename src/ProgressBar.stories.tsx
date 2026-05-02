@@ -136,16 +136,6 @@ export const CustomMax: Story = {
 	parameters: { docs: { source: { code: SRC.CustomMax } } },
 };
 
-export const Playground: Story = {
-	args: { value: 35, max: 100, loading: false },
-	parameters: { docs: { source: { code: SRC.Playground } } },
-	argTypes: {
-		value: { control: { type: "range", min: 0, max: 100, step: 1 } },
-		max: { control: "number" },
-		loading: { control: "boolean" },
-	},
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [

@@ -88,11 +88,6 @@ export const Removable: Story = {
 	),
 };
 
-export const Playground: Story = {
-	args: { tone: "default", children: "Playground" },
-	parameters: { docs: { source: { code: SRC.Playground } } },
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	render: () => (

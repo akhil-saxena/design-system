@@ -94,11 +94,6 @@ export const WithDot: Story = {
 	),
 };
 
-export const Playground: Story = {
-	args: { tone: "upcoming", children: "Playground", dot: false },
-	parameters: { docs: { source: { code: SRC.Playground } } },
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	render: () => (

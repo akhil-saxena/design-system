@@ -1,4 +1,5 @@
 import { type HTMLAttributes, forwardRef, useEffect, useMemo, useState } from "react";
+import { Button } from "./Button";
 import { buildMonthGrid } from "./_internals/calendarGrid";
 import { addMonths, isSameDay, isToday, startOfMonth } from "./_internals/dateUtils";
 // DS-53 — DatePicker primitive (Phase 16 Wave 1 / plan 16-05).
@@ -285,29 +286,22 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 						value={value?.getMinutes() ?? 0}
 						onChange={(e) => updateMinute(Number(e.target.value))}
 					/>
-					{/* biome-ignore lint/a11y/useSemanticElements: <fieldset> would inject default browser legend/border styling that conflicts with our segmented-control look; role="group" + aria-label is the WAI-ARIA equivalent for a 2-button toggle (matches Radix Toggle Group pattern) */}
-					<div className="ds-atom-datepicker-time-period" role="group" aria-label="AM or PM">
-						<button
-							type="button"
-							className={`ds-atom-datepicker-time-period-btn${
-								displayPeriod === "AM" ? " is-active" : ""
-							}`}
-							aria-pressed={displayPeriod === "AM"}
-							onClick={() => togglePeriod("AM")}
-						>
-							AM
-						</button>
-						<button
-							type="button"
-							className={`ds-atom-datepicker-time-period-btn${
-								displayPeriod === "PM" ? " is-active" : ""
-							}`}
-							aria-pressed={displayPeriod === "PM"}
-							onClick={() => togglePeriod("PM")}
-						>
-							PM
-						</button>
-					</div>
+					<Button
+						size="sm"
+						variant={displayPeriod === "PM" ? "primary" : "secondary"}
+						aria-label={`Currently ${displayPeriod} — click to switch`}
+						aria-pressed={displayPeriod === "PM"}
+						onClick={() => togglePeriod(displayPeriod === "AM" ? "PM" : "AM")}
+						style={{
+							fontFamily: "var(--mono)",
+							fontWeight: 700,
+							letterSpacing: "0.04em",
+							flexShrink: 0,
+							width: 48,
+						}}
+					>
+						{displayPeriod}
+					</Button>
 				</div>
 			) : null}
 		</div>

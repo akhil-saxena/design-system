@@ -135,39 +135,6 @@ export const Group: Story = {
 	),
 };
 
-export const Playground: Story = {
-	parameters: {
-		docs: {
-			description: {
-				story:
-					"Select `rotation` in the Controls panel — compare the three options side-by-side in the Rotations story above to see the tilt effect clearly.",
-			},
-			source: { code: SRC.Playground },
-		},
-	},
-	args: {
-		rotation: "right",
-		children: (
-			<>
-				<div style={{ fontSize: 13, lineHeight: 1.5 }}>
-					Playground note — change rotation in Controls.
-				</div>
-				<div style={hintStyle}>playground</div>
-			</>
-		),
-	},
-	decorators: [
-		(Story) => (
-			<div style={{ padding: 24 }}>
-				<Story />
-			</div>
-		),
-	],
-	argTypes: {
-		rotation: { control: "select", options: ["left", "right", "none"] },
-	},
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [

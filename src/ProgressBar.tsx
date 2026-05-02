@@ -31,8 +31,8 @@ const baseStyle: CSSProperties = {
  *   <ProgressBar value={3} max={10} label="Upload" />   // 3 of 10 (30%)
  *   <ProgressBar loading />                              // 3-dot pulse
  *
- * Determinate: track + amber gradient fill (linear-gradient from var(--amber)
- * to var(--amber-d)); fill width transitions over 500ms ease-out. role="progressbar"
+ * Determinate: track + solid amber fill (var(--amber)); fill width transitions
+ * over 500ms ease-out. role="progressbar"
  * with aria-valuenow / aria-valuemin / aria-valuemax wired.
  *
  * Loading: 3-dot pulse animation (handoff visual). role="status"; aria-live="polite";

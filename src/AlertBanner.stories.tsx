@@ -199,21 +199,6 @@ export const NonDismissible: Story = {
 	parameters: { docs: { source: { code: SRC.NonDismissible } } },
 };
 
-export const Playground: Story = {
-	args: {
-		tone: "info",
-		title: "Tweak via controls",
-		description: "Try the tone selector and toggle dismissible.",
-		onDismiss: () => {},
-	},
-	parameters: { docs: { source: { code: SRC.Playground } } },
-	argTypes: {
-		tone: { control: "select", options: ["info", "success", "warning", "error"] },
-		open: { control: "boolean" },
-		dismissible: { control: "boolean" },
-	},
-};
-
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [
