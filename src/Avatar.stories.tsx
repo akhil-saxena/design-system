@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Avatar, AvatarStack } from "./Avatar";
+import { Avatar, type AvatarPresencePosition, AvatarStack } from "./Avatar";
 
 const SRC = {
 	Default: `// Solid colour derived from name by default
@@ -272,6 +272,85 @@ export const DarkMode: Story = {
 				max={3}
 				size={32}
 			/>
+		</div>
+	),
+};
+
+const PRESENCE_POSITIONS: AvatarPresencePosition[] = [
+	"top-left",
+	"top-right",
+	"bottom-left",
+	"bottom-right",
+];
+
+export const PresencePositions: Story = {
+	name: "Presence — 4 corners (DS-79)",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"The `presencePosition` prop (default `bottom-right`) places the dot at any of the four corners.",
+			},
+		},
+	},
+	render: () => (
+		<div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+			{PRESENCE_POSITIONS.map((pos) => (
+				<div key={pos} style={{ textAlign: "center" }}>
+					<Avatar name="Sam Chen" size={40} presence="online" presencePosition={pos} />
+					<div style={{ fontSize: 11, marginTop: 8, color: "var(--ink-3)" }}>{pos}</div>
+				</div>
+			))}
+		</div>
+	),
+};
+
+export const PresenceAllStatuses: Story = {
+	name: "Presence — all statuses",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"All four presence statuses rendered at `size=40` with the default `bottom-right` position.",
+			},
+		},
+	},
+	render: () => (
+		<div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+			{(["online", "away", "offline", "dnd"] as const).map((status) => (
+				<div key={status} style={{ textAlign: "center" }}>
+					<Avatar name="Alex Park" size={40} presence={status} />
+					<div style={{ fontSize: 11, marginTop: 8, color: "var(--ink-3)" }}>{status}</div>
+				</div>
+			))}
+		</div>
+	),
+};
+
+export const PresenceDark: Story = {
+	name: "Presence — dark mode corners",
+	parameters: {
+		docs: {
+			description: {
+				story: "All four corner positions shown in dark mode.",
+			},
+		},
+	},
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 24, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
+	render: () => (
+		<div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+			{PRESENCE_POSITIONS.map((pos) => (
+				<div key={pos} style={{ textAlign: "center" }}>
+					<Avatar name="Sam Chen" size={40} presence="online" presencePosition={pos} />
+					<div style={{ fontSize: 11, marginTop: 8, color: "var(--ink-3)" }}>{pos}</div>
+				</div>
+			))}
 		</div>
 	),
 };

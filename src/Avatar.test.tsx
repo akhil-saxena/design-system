@@ -89,3 +89,73 @@ describe("AvatarStack", () => {
 		expect(container.querySelectorAll("[aria-label]").length).toBe(2);
 	});
 });
+
+describe("presence position", () => {
+	it("defaults to bottom-right when no presencePosition supplied", () => {
+		const { container } = render(<Avatar name="x" presence="online" />);
+		const dot = container.querySelector("span[aria-hidden]") as HTMLElement;
+		expect(dot).not.toBeNull();
+		expect(dot.style.bottom).not.toBe("");
+		expect(dot.style.right).not.toBe("");
+		expect(dot.style.top).toBe("");
+		expect(dot.style.left).toBe("");
+	});
+
+	it("presencePosition=top-right sets top and right, clears bottom and left", () => {
+		const { container } = render(
+			<Avatar name="x" presence="online" presencePosition="top-right" />,
+		);
+		const dot = container.querySelector("span[aria-hidden]") as HTMLElement;
+		expect(dot).not.toBeNull();
+		expect(dot.style.top).not.toBe("");
+		expect(dot.style.right).not.toBe("");
+		expect(dot.style.bottom).toBe("");
+		expect(dot.style.left).toBe("");
+	});
+
+	it("presencePosition=top-left sets top and left, clears bottom and right", () => {
+		const { container } = render(<Avatar name="x" presence="online" presencePosition="top-left" />);
+		const dot = container.querySelector("span[aria-hidden]") as HTMLElement;
+		expect(dot).not.toBeNull();
+		expect(dot.style.top).not.toBe("");
+		expect(dot.style.left).not.toBe("");
+		expect(dot.style.bottom).toBe("");
+		expect(dot.style.right).toBe("");
+	});
+
+	it("presencePosition=bottom-left sets bottom and left, clears top and right", () => {
+		const { container } = render(
+			<Avatar name="x" presence="online" presencePosition="bottom-left" />,
+		);
+		const dot = container.querySelector("span[aria-hidden]") as HTMLElement;
+		expect(dot).not.toBeNull();
+		expect(dot.style.bottom).not.toBe("");
+		expect(dot.style.left).not.toBe("");
+		expect(dot.style.top).toBe("");
+		expect(dot.style.right).toBe("");
+	});
+
+	it("presencePosition=bottom-right (explicit) sets bottom and right", () => {
+		const { container } = render(
+			<Avatar name="x" presence="online" presencePosition="bottom-right" />,
+		);
+		const dot = container.querySelector("span[aria-hidden]") as HTMLElement;
+		expect(dot).not.toBeNull();
+		expect(dot.style.bottom).not.toBe("");
+		expect(dot.style.right).not.toBe("");
+		expect(dot.style.top).toBe("");
+		expect(dot.style.left).toBe("");
+	});
+
+	it("no presence prop — no dot rendered (existing behavior unchanged)", () => {
+		const { container } = render(<Avatar name="x" />);
+		expect(container.querySelector("span[aria-hidden]")).toBeNull();
+	});
+
+	it("AvatarStack still renders without regressions after Avatar changes", () => {
+		const { container } = render(
+			<AvatarStack avatars={[{ name: "Alpha" }, { name: "Beta" }]} max={4} />,
+		);
+		expect(container.querySelectorAll("[aria-label]").length).toBe(2);
+	});
+});

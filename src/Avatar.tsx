@@ -2,6 +2,7 @@ import { type CSSProperties, type HTMLAttributes, forwardRef } from "react";
 
 export type AvatarSize = 24 | 28 | 32 | 36 | 40;
 export type AvatarPresence = "online" | "away" | "offline" | "dnd";
+export type AvatarPresencePosition = "top-right" | "bottom-right" | "top-left" | "bottom-left";
 
 export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
 	/** Full name used to derive initials and background color. Also becomes `aria-label`. */
@@ -27,6 +28,11 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
 	size?: AvatarSize;
 	/** Shows a colored presence dot at the bottom-right edge. */
 	presence?: AvatarPresence;
+	/**
+	 * Which corner of the avatar the presence dot appears at.
+	 * @default "bottom-right"
+	 */
+	presencePosition?: AvatarPresencePosition;
 }
 
 // 6 hand-picked 2-stop gradients (D-121).
@@ -88,7 +94,19 @@ const presenceColors: Record<AvatarPresence, string> = {
 };
 
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
-	{ name, initials, src, alt, gradient, size = 32, presence, children, style, ...rest },
+	{
+		name,
+		initials,
+		src,
+		alt,
+		gradient,
+		size = 32,
+		presence,
+		presencePosition = "bottom-right",
+		children,
+		style,
+		...rest
+	},
 	ref,
 ) {
 	const seed = initials || name || "?";
@@ -143,8 +161,10 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
 					aria-hidden="true"
 					style={{
 						position: "absolute",
-						right: presenceOffset,
-						bottom: presenceOffset,
+						top: presencePosition.startsWith("top") ? presenceOffset : undefined,
+						bottom: presencePosition.startsWith("bottom") ? presenceOffset : undefined,
+						left: presencePosition.endsWith("left") ? presenceOffset : undefined,
+						right: presencePosition.endsWith("right") ? presenceOffset : undefined,
 						width: presenceSize,
 						height: presenceSize,
 						borderRadius: "50%",

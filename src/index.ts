@@ -11,6 +11,7 @@ export {
 	deriveGradient,
 	deriveInitials,
 	type AvatarPresence,
+	type AvatarPresencePosition,
 	type AvatarProps,
 	type AvatarSize,
 	type AvatarStackProps,
