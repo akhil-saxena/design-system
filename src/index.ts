@@ -104,3 +104,13 @@ export { RichText, type RichTextProps } from "./RichText";
 export { AppShell, type AppShellProps } from "./AppShell";
 export { AppBar, type AppBarProps, type AppBarVariant } from "./AppBar";
 export { Footer, type FooterProps, type FooterVariant, type FooterColumn } from "./Footer";
+export {
+	PasswordStrength,
+	FieldError,
+	FormErrorSummary,
+	type PasswordStrengthProps,
+	type FieldErrorProps,
+	type FormErrorSummaryProps,
+} from "./FormValidation";
+export { Coachmark, type CoachmarkProps } from "./Coachmark";
+export { Wizard, type WizardProps, type WizardStep } from "./Wizard";
