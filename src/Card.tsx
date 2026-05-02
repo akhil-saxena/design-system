@@ -3,7 +3,15 @@ import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } f
 export type CardVariant = "glass" | "amber" | "dark" | "kanban";
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+	/** Surface style variant.
+	 * - `glass` — translucent glass surface (default).
+	 * - `amber` — amber-tinted CTA card.
+	 * - `dark` — always-dark surface independent of theme.
+	 * - `kanban` — compact glass with hover-lift; use for drag-and-drop boards.
+	 * @default "glass"
+	 */
 	variant?: CardVariant;
+	/** Arbitrary JSX content; Card has no compound structure — compose freely. */
 	children: ReactNode;
 }
 

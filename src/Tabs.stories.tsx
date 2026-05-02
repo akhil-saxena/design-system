@@ -2,13 +2,150 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { type TabItem, Tabs } from "./Tabs";
 
+const SRC = {
+	Underline: `const [value, setValue] = useState("overview");
+return (
+  <Tabs
+    tabs={[
+      { id: "overview", label: "Overview", content: <p>Overview content</p> },
+      { id: "analytics", label: "Analytics", content: <p>Analytics content</p> },
+      { id: "settings", label: "Settings", content: <p>Settings content</p> },
+    ]}
+    value={value}
+    onChange={setValue}
+    ariaLabel="Example tabs"
+    variant="underline"
+  />
+);`,
+	Pill: `const [value, setValue] = useState("overview");
+return (
+  <Tabs
+    tabs={[
+      { id: "overview", label: "Overview", content: <p>Overview content</p> },
+      { id: "analytics", label: "Analytics", content: <p>Analytics content</p> },
+      { id: "settings", label: "Settings", content: <p>Settings content</p> },
+    ]}
+    value={value}
+    onChange={setValue}
+    ariaLabel="Pill tabs"
+    variant="pill"
+  />
+);`,
+	WithCounts: `const [value, setValue] = useState("inbox");
+return (
+  <Tabs
+    tabs={[
+      { id: "inbox", label: "Inbox", count: 12, content: <p>12 unread messages</p> },
+      { id: "sent", label: "Sent", count: 0, content: <p>No sent messages</p> },
+      { id: "drafts", label: "Drafts", count: 3, content: <p>3 drafts</p> },
+      { id: "spam", label: "Spam", count: 99, content: <p>99 spam messages</p> },
+    ]}
+    value={value}
+    onChange={setValue}
+    ariaLabel="Mailbox tabs"
+    variant="underline"
+  />
+);`,
+	WithDisabled: `const [value, setValue] = useState("a");
+return (
+  <Tabs
+    tabs={[
+      { id: "a", label: "Active", content: <p>Active tab content</p> },
+      { id: "b", label: "Disabled", disabled: true, content: <p>Disabled</p> },
+      { id: "c", label: "Also Active", content: <p>Also Active content</p> },
+    ]}
+    value={value}
+    onChange={setValue}
+    ariaLabel="Tabs with disabled"
+  />
+);`,
+	ManualActivation: `const [value, setValue] = useState("overview");
+return (
+  <Tabs
+    tabs={tabs}
+    value={value}
+    onChange={setValue}
+    ariaLabel="Manual activation tabs"
+    activationMode="manual"
+  />
+);`,
+	NarrowOverflow: `const [value, setValue] = useState("1");
+return (
+  <div style={{ width: 300 }}>
+    <Tabs
+      tabs={[
+        { id: "1", label: "Dashboard", content: <p>Dashboard</p> },
+        { id: "2", label: "Analytics", content: <p>Analytics</p> },
+        { id: "3", label: "Reports", content: <p>Reports</p> },
+        { id: "4", label: "Settings", count: 2, content: <p>Settings</p> },
+        { id: "5", label: "Team", content: <p>Team</p> },
+        { id: "6", label: "Billing", content: <p>Billing</p> },
+      ]}
+      value={value}
+      onChange={setValue}
+      ariaLabel="Overflow tabs"
+    />
+  </div>
+);`,
+	DarkMode: `const [value, setValue] = useState("overview");
+return (
+  <>
+    <Tabs tabs={tabs} value={value} onChange={setValue} ariaLabel="Dark underline tabs" variant="underline" />
+    <Tabs tabs={tabs} value={value} onChange={setValue} ariaLabel="Dark pill tabs" variant="pill" />
+  </>
+);`,
+	Playground: `<Tabs
+  tabs={tabs}
+  value="overview"
+  onChange={() => {}}
+  ariaLabel="Playground tabs"
+  variant="underline"
+  activationMode="automatic"
+/>`,
+};
+
 const meta: Meta<typeof Tabs> = {
 	title: "Primitives/Tabs",
 	component: Tabs,
 	parameters: {
 		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"WAI-ARIA tab panel with underline and pill variants, automatic or manual activation, and an overflow menu for wide tab sets.\n\n**Keyboard model (WAI-ARIA tablist):** `Tab` moves focus *into* the tablist and then *out* to the active panel — it does not cycle between tab buttons. Use `ArrowRight` / `ArrowLeft` to move between tabs, `Home` / `End` to jump to the first or last tab.",
+			},
+		},
 	},
 	tags: ["autodocs"],
+	argTypes: {
+		tabs: {
+			control: false,
+			description:
+				"Array of tab definitions including id, label, optional count badge, disabled flag, and panel content.",
+		},
+		value: { control: false, description: "Controlled id of the currently active tab." },
+		onChange: {
+			control: false,
+			description: "Called with the tab id when the user activates a different tab.",
+		},
+		variant: {
+			control: "select",
+			options: ["underline", "pill"],
+			description: "Visual style of the tab triggers.",
+		},
+		activationMode: {
+			control: "select",
+			options: ["automatic", "manual"],
+			description:
+				"Whether selecting a tab happens on arrow-key press (automatic) or only on Enter/Space (manual).",
+		},
+		ariaLabel: {
+			control: "text",
+			description: "Accessible label for the role='tablist' element (required).",
+		},
+		className: { control: false },
+		style: { control: false },
+	},
 };
 
 export default meta;
@@ -62,14 +199,17 @@ function ControlledTabs(
 // ── Stories ───────────────────────────────────────────────────────────────────
 
 export const Underline: Story = {
+	parameters: { docs: { source: { code: SRC.Underline } } },
 	render: () => <ControlledTabs tabs={sampleTabs} ariaLabel="Example tabs" variant="underline" />,
 };
 
 export const Pill: Story = {
+	parameters: { docs: { source: { code: SRC.Pill } } },
 	render: () => <ControlledTabs tabs={sampleTabs} ariaLabel="Pill tabs" variant="pill" />,
 };
 
 export const WithCounts: Story = {
+	parameters: { docs: { source: { code: SRC.WithCounts } } },
 	render: () => {
 		const tabsWithCounts: TabItem[] = [
 			{
@@ -102,6 +242,7 @@ export const WithCounts: Story = {
 };
 
 export const WithDisabled: Story = {
+	parameters: { docs: { source: { code: SRC.WithDisabled } } },
 	render: () => {
 		const tabs: TabItem[] = [
 			{ id: "a", label: "Active", content: <p>Active tab content</p> },
@@ -114,6 +255,7 @@ export const WithDisabled: Story = {
 
 export const ManualActivation: Story = {
 	name: "Manual Activation (Enter/Space to select)",
+	parameters: { docs: { source: { code: SRC.ManualActivation } } },
 	render: () => (
 		<div>
 			<p style={{ marginBottom: 12, fontSize: 13, color: "var(--ink-2)" }}>
@@ -131,6 +273,7 @@ export const ManualActivation: Story = {
 
 export const NarrowOverflow: Story = {
 	name: "Narrow — Overflow Menu",
+	parameters: { docs: { source: { code: SRC.NarrowOverflow } } },
 	render: () => {
 		const manyTabs: TabItem[] = [
 			{ id: "1", label: "Dashboard", content: <p>Dashboard content</p> },
@@ -152,12 +295,10 @@ export const NarrowOverflow: Story = {
 };
 
 export const DarkMode: Story = {
-	parameters: {
-		backgrounds: { default: "dark" },
-	},
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [
 		(Story) => (
-			<div className="dark" style={{ padding: 24 }}>
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
 				<Story />
 			</div>
 		),
@@ -171,6 +312,7 @@ export const DarkMode: Story = {
 };
 
 export const Playground: Story = {
+	parameters: { docs: { source: { code: SRC.Playground } } },
 	args: {
 		tabs: sampleTabs,
 		value: "overview",

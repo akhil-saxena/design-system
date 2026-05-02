@@ -11,13 +11,27 @@ export type StarRatingSize = "default" | "compact";
  * "display existing rating" case. Documented as the public StarRating API of v2.0.
  */
 export interface StarRatingProps {
+	/** Controlled rating value (1–5). */
 	value: number;
+	/** Called when the user clicks a star with the new rating; omit for read-only display. */
 	onChange?: (value: number) => void;
+	/** Icon size token; `"compact"` uses 14px stars for dense list contexts.
+	 * @default "default"
+	 */
 	size?: StarRatingSize;
+	/** Accessible label for the `role="radiogroup"` container. */
 	label?: string;
+	/** When true, disables hover preview and click interaction without the disabled visual.
+	 * @default false
+	 */
 	readOnly?: boolean;
+	/** When true, disables all interaction and dims the stars.
+	 * @default false
+	 */
 	disabled?: boolean;
+	/** Additional className applied to the root element. */
 	className?: string;
+	/** Inline styles applied to the root element. */
 	style?: CSSProperties;
 }
 

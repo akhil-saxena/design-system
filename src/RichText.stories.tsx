@@ -22,17 +22,122 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { RichText, type RichTextProps } from "./RichText";
 
+const SRC = {
+	Default: `const [html, setHtml] = useState("<p>Write your <strong>cover letter</strong> here.</p>");
+return (
+  <RichText
+    value={html}
+    onChange={(v) => { if (typeof v === "string") setHtml(v); }}
+    placeholder="Start writing…"
+    ariaLabel="Cover letter editor"
+  />
+);`,
+	Controlled: `const [html, setHtml] = useState("<p>Hello, <em>world</em>!</p>");
+return (
+  <RichText
+    value={html}
+    onChange={(v) => typeof v === "string" && setHtml(v)}
+  />
+);`,
+	JSONOutput: `const [doc, setDoc] = useState({});
+return (
+  <RichText
+    value="<p>Edit to see the <strong>JSON doc</strong> structure.</p>"
+    outputFormat="json"
+    onChange={(v) => { if (typeof v === "object") setDoc(v); }}
+  />
+);`,
+	Placeholder: `const [html, setHtml] = useState("");
+return (
+  <RichText
+    value={html}
+    onChange={(v) => typeof v === "string" && setHtml(v)}
+    placeholder="Start writing your story here…"
+  />
+);`,
+	ReadOnly: `<RichText
+  value="<p>Write your <strong>cover letter</strong> here.</p>"
+  onChange={() => {}}
+  readOnly
+  ariaLabel="Read-only cover letter"
+/>`,
+	MarkdownShortcuts: `const [html, setHtml] = useState("");
+return (
+  <RichText
+    value={html}
+    onChange={(v) => typeof v === "string" && setHtml(v)}
+    placeholder="Type markdown shortcuts here…"
+  />
+);`,
+	CustomToolbar: `const [html, setHtml] = useState("<p>Custom toolbar demo.</p>");
+const customToolbar = (
+  <div style={{ padding: "6px 10px", background: "var(--surf-2)", borderBottom: "1px solid var(--rule)" }}>
+    Custom toolbar — consumer can render anything here
+  </div>
+);
+return (
+  <RichText
+    value={html}
+    onChange={(v) => typeof v === "string" && setHtml(v)}
+    toolbar={customToolbar}
+  />
+);`,
+	DarkMode: `const [html, setHtml] = useState("<p>Write your <strong>cover letter</strong> here.</p>");
+return (
+  <RichText
+    value={html}
+    onChange={(v) => typeof v === "string" && setHtml(v)}
+    placeholder="Dark mode editor…"
+  />
+);`,
+	Playground: `<RichText
+  value="<p>Write your <strong>cover letter</strong> here.</p>"
+  placeholder="Start writing…"
+  readOnly={false}
+  outputFormat="html"
+  onChange={(v) => console.log(v)}
+/>`,
+};
+
 const meta: Meta<typeof RichText> = {
 	title: "Atoms/RichText",
 	component: RichText,
-	parameters: { layout: "padded" },
-	argTypes: {
-		outputFormat: {
-			control: "radio",
-			options: ["html", "json"],
+	tags: ["autodocs"],
+	parameters: {
+		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"WYSIWYG rich-text editor built on TipTap/StarterKit with a configurable toolbar, markdown shortcuts, read-only mode, and HTML or JSON output.",
+			},
 		},
-		readOnly: { control: "boolean" },
-		placeholder: { control: "text" },
+	},
+	argTypes: {
+		value: { control: false, description: "Controlled HTML string or TipTap JSON Doc object." },
+		onChange: {
+			control: false,
+			description: "Called on every editor change with the updated value.",
+		},
+		placeholder: {
+			control: "text",
+			description: "Placeholder text shown in the empty editor surface.",
+		},
+		readOnly: {
+			control: "boolean",
+			description: "When true, hides the toolbar and makes the editor non-editable.",
+		},
+		outputFormat: {
+			control: "select",
+			options: ["html", "json"],
+			description: "Output format emitted to onChange.",
+		},
+		toolbar: {
+			control: false,
+			description: "Replace the default toolbar with a custom ReactNode.",
+		},
+		ariaLabel: { control: "text", description: "Accessible label for the editor region." },
+		className: { control: false },
+		style: { control: false },
 	},
 };
 export default meta;
@@ -47,6 +152,7 @@ const INITIAL_HTML =
 
 /** Uncontrolled-style: initial value set, onChange logs to console. */
 export const Default: Story = {
+	parameters: { docs: { source: { code: SRC.Default } } },
 	render: () => {
 		const [html, setHtml] = useState(INITIAL_HTML);
 		return (
@@ -67,6 +173,7 @@ export const Default: Story = {
 
 /** Controlled: parent state drives value, live preview shows synced output. */
 export const Controlled: Story = {
+	parameters: { docs: { source: { code: SRC.Controlled } } },
 	render: () => {
 		const [html, setHtml] = useState("<p>Hello, <em>world</em>!</p>");
 		return (
@@ -87,7 +194,7 @@ export const Controlled: Story = {
 						style={{
 							margin: 0,
 							padding: "8px 12px",
-							background: "var(--surface-2, #f5f5f0)",
+							background: "var(--surf-2, #f5f5f0)",
 							borderRadius: 6,
 							fontSize: 11,
 							fontFamily: "var(--font-mono, monospace)",
@@ -106,6 +213,7 @@ export const Controlled: Story = {
 
 /** JSON output: onChange receives TipTap Doc object instead of HTML string. */
 export const JSONOutput: Story = {
+	parameters: { docs: { source: { code: SRC.JSONOutput } } },
 	render: () => {
 		const [doc, setDoc] = useState<object>({});
 		const [html] = useState("<p>Edit to see the <strong>JSON doc</strong> structure.</p>");
@@ -133,7 +241,7 @@ export const JSONOutput: Story = {
 						style={{
 							margin: 0,
 							padding: "8px 12px",
-							background: "var(--surface-2, #f5f5f0)",
+							background: "var(--surf-2, #f5f5f0)",
 							borderRadius: 6,
 							fontSize: 11,
 							fontFamily: "var(--font-mono, monospace)",
@@ -154,6 +262,7 @@ export const JSONOutput: Story = {
 
 /** Placeholder visible on empty editor. */
 export const Placeholder: Story = {
+	parameters: { docs: { source: { code: SRC.Placeholder } } },
 	render: () => {
 		const [html, setHtml] = useState("");
 		return (
@@ -170,6 +279,7 @@ export const Placeholder: Story = {
 
 /** Read-only: toolbar is hidden, editor is not editable. */
 export const ReadOnly: Story = {
+	parameters: { docs: { source: { code: SRC.ReadOnly } } },
 	render: () => (
 		<div style={{ maxWidth: 680 }}>
 			<RichText
@@ -189,6 +299,7 @@ export const ReadOnly: Story = {
  * Type `> ` → becomes blockquote. Type `---` → inserts horizontal rule.
  */
 export const MarkdownShortcuts: Story = {
+	parameters: { docs: { source: { code: SRC.MarkdownShortcuts } } },
 	render: () => {
 		const [html, setHtml] = useState("<p></p>");
 		return (
@@ -196,7 +307,7 @@ export const MarkdownShortcuts: Story = {
 				<div
 					style={{
 						padding: "10px 14px",
-						background: "var(--surface-2, #f5f5f0)",
+						background: "var(--surf-2, #f5f5f0)",
 						borderRadius: 6,
 						fontSize: 12,
 						color: "var(--ink-2, #555)",
@@ -226,6 +337,7 @@ export const MarkdownShortcuts: Story = {
 
 /** Custom toolbar: consumer replaces the default toolbar with their own. */
 export const CustomToolbar: Story = {
+	parameters: { docs: { source: { code: SRC.CustomToolbar } } },
 	render: () => {
 		const [html, setHtml] = useState("<p>Custom toolbar demo.</p>");
 
@@ -233,7 +345,7 @@ export const CustomToolbar: Story = {
 			<div
 				style={{
 					padding: "6px 10px",
-					background: "var(--surface-2, #f5f5f0)",
+					background: "var(--surf-2, #f5f5f0)",
 					borderBottom: "1px solid var(--rule, #e2e2de)",
 					fontSize: 12,
 					color: "var(--ink-3, #888)",
@@ -258,11 +370,18 @@ export const CustomToolbar: Story = {
 
 /** Dark mode: wrapper adds class="dark" to html element in Storybook. */
 export const DarkMode: Story = {
-	parameters: { backgrounds: { default: "dark" } },
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
 	render: () => {
 		const [html, setHtml] = useState(INITIAL_HTML);
 		return (
-			<div className="dark" style={{ maxWidth: 680 }}>
+			<div style={{ maxWidth: 680 }}>
 				<RichText
 					value={html}
 					onChange={(v) => typeof v === "string" && setHtml(v)}
@@ -275,6 +394,7 @@ export const DarkMode: Story = {
 
 /** Playground: all props controllable via Storybook controls. */
 export const Playground: Story = {
+	parameters: { docs: { source: { code: SRC.Playground } } },
 	args: {
 		value: INITIAL_HTML,
 		placeholder: "Start writing…",

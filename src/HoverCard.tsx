@@ -4,34 +4,38 @@ import {
 	type RefObject,
 	useCallback,
 	useEffect,
+	useLayoutEffect,
 	useRef,
 	useState,
 } from "react";
 import { DSPortal } from "./_internals/DSPortal";
+import { smartAnchorPos } from "./_internals/floatingPos";
 import { useClickOutside } from "./hooks/useClickOutside";
 
 export type HoverCardPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end";
 
 export interface HoverCardProps {
-	/**
-	 * The trigger element. Consumer owns the trigger; HoverCard does NOT clone
-	 * or wrap it (distinct from Tooltip's cloneElement pattern). The ref must
-	 * be attached to a real DOM element so HoverCard can install
-	 * mouseenter/mouseleave/click listeners and read getBoundingClientRect on
-	 * open. (D-355)
-	 */
+	/** Ref attached to the trigger element; HoverCard installs mouse/click listeners on it directly. */
 	anchorRef: RefObject<HTMLElement | null>;
-	/** Card content — arbitrary ReactNode (avatars, charts, action buttons). */
+	/** Rich card content — arbitrary ReactNode such as avatars, charts, or action buttons. */
 	children: ReactNode;
-	/** Default `"bottom-start"`. End variants align right edge; top variants align bottom edge (CSS transform). */
+	/** Panel placement relative to the anchor.
+	 * @default "bottom-start"
+	 */
 	placement?: HoverCardPlacement;
-	/** Pixels between anchor edge and panel. Default 8 (slightly more than Popover's 4 for richer content breathing room). */
+	/** Gap in pixels between the anchor edge and the panel.
+	 * @default 8
+	 */
 	offset?: number;
-	/** ms to wait after mouseenter before opening. Default 300 — filters cursor pass-throughs. */
+	/** Milliseconds to wait after mouseenter before opening; filters accidental cursor pass-throughs.
+	 * @default 300
+	 */
 	openDelay?: number;
-	/** ms to wait after mouseleave before closing. Default 150 — cursor-into-card grace window. */
+	/** Milliseconds to wait after mouseleave before closing; gives the cursor time to move into the card.
+	 * @default 150
+	 */
 	closeDelay?: number;
-	/** Optional extra class on the panel root. */
+	/** Additional className applied to the panel root element. */
 	className?: string;
 }
 
@@ -68,7 +72,13 @@ export function HoverCard({
 	const [open, setOpen] = useState(false);
 	const [pinned, setPinned] = useState(false);
 	const [position, setPosition] = useState<Position | null>(null);
-	const panelRef = useRef<HTMLDivElement>(null);
+	// Callback-ref so we know panel dimensions for smartAnchorPos
+	const [panelEl, setPanelEl] = useState<HTMLDivElement | null>(null);
+	const panelRef = useRef<HTMLDivElement | null>(null);
+	const setPanelRef = (node: HTMLDivElement | null) => {
+		panelRef.current = node;
+		setPanelEl(node);
+	};
 	const openTimerRef = useRef<number | null>(null);
 	const closeTimerRef = useRef<number | null>(null);
 
@@ -85,21 +95,22 @@ export function HoverCard({
 		}
 	}, []);
 
-	const computePosition = useCallback((): Position | null => {
-		const a = anchorRef.current;
-		if (!a) return null;
-		const r = a.getBoundingClientRect();
-		switch (placement) {
-			case "bottom-end":
-				return { top: r.bottom + offset, left: r.right };
-			case "top-start":
-				return { top: r.top - offset, left: r.left };
-			case "top-end":
-				return { top: r.top - offset, left: r.right };
-			default:
-				return { top: r.bottom + offset, left: r.left };
-		}
-	}, [anchorRef, placement, offset]);
+	// Compute position via smartAnchorPos after panel mounts — gives us real panel rect.
+	useLayoutEffect(() => {
+		if (!open || !panelEl || !anchorRef.current) return;
+		const a = anchorRef.current.getBoundingClientRect();
+		const p = panelEl.getBoundingClientRect();
+		const side = placement.startsWith("top") ? "top" : "bottom";
+		const align = placement.endsWith("end") ? "end" : "start";
+		const { top, left } = smartAnchorPos(
+			a,
+			{ width: p.width, height: p.height },
+			side,
+			align,
+			offset,
+		);
+		setPosition({ top, left });
+	}, [open, panelEl, anchorRef, placement, offset]);
 
 	useEffect(() => {
 		const anchor = anchorRef.current;
@@ -107,10 +118,9 @@ export function HoverCard({
 
 		function scheduleOpen() {
 			clearCloseTimer();
-			if (openTimerRef.current !== null) return; // open already pending
+			if (openTimerRef.current !== null) return;
 			openTimerRef.current = window.setTimeout(() => {
 				openTimerRef.current = null;
-				setPosition(computePosition());
 				setOpen(true);
 			}, openDelay);
 		}
@@ -121,12 +131,12 @@ export function HoverCard({
 			closeTimerRef.current = window.setTimeout(() => {
 				closeTimerRef.current = null;
 				setOpen(false);
+				setPosition(null);
 			}, closeDelay);
 		}
 		function openNow() {
 			clearOpenTimer();
 			clearCloseTimer();
-			setPosition(computePosition());
 			setOpen(true);
 		}
 
@@ -154,7 +164,7 @@ export function HoverCard({
 			anchor.removeEventListener("mouseleave", handleLeave);
 			anchor.removeEventListener("click", handleClick);
 		};
-	}, [anchorRef, pinned, openDelay, closeDelay, computePosition, clearOpenTimer, clearCloseTimer]);
+	}, [anchorRef, pinned, openDelay, closeDelay, clearOpenTimer, clearCloseTimer]);
 
 	// Cleanup any pending timers on full unmount.
 	useEffect(
@@ -177,18 +187,13 @@ export function HoverCard({
 		open,
 	);
 
-	if (!open || !position) return null;
+	if (!open) return null;
 
-	const xShift =
-		placement === "bottom-end" || placement === "top-end" ? "translateX(-100%)" : undefined;
-	const yShift =
-		placement === "top-start" || placement === "top-end" ? "translateY(-100%)" : undefined;
-	const combinedTransform = [xShift, yShift].filter(Boolean).join(" ") || undefined;
-
+	// Hide until smartAnchorPos has computed a real position.
 	const style: CSSProperties = {
-		top: position.top,
-		left: position.left,
-		transform: combinedTransform,
+		top: position?.top ?? -9999,
+		left: position?.left ?? -9999,
+		visibility: position ? "visible" : "hidden",
 	};
 
 	function onPanelEnter() {
@@ -204,21 +209,25 @@ export function HoverCard({
 		}, closeDelay);
 	}
 
-	return (
-		<DSPortal>
-			<div
-				ref={panelRef}
-				// biome-ignore lint/a11y/useSemanticElements: native <dialog> implies modal/inert behavior we don't want for non-modal hovercards
-				role="dialog"
-				className={`ds-atom-hovercard${className ? ` ${className}` : ""}`}
-				data-placement={placement}
-				data-pinned={pinned ? "true" : "false"}
-				style={style}
-				onMouseEnter={onPanelEnter}
-				onMouseLeave={onPanelLeave}
-			>
-				{children}
-			</div>
-		</DSPortal>
+	const isDark =
+		anchorRef.current?.closest(".dark") != null ||
+		document.documentElement.classList.contains("dark");
+
+	// biome-ignore lint/a11y/useSemanticElements: HoverCard uses <dialog open> for non-modal semantics; showModal() not used so it behaves as inline dialog without blocking
+	const cardEl = (
+		<dialog
+			ref={setPanelRef}
+			open
+			className={["ds-atom-hovercard", className].filter(Boolean).join(" ")}
+			data-placement={placement}
+			data-pinned={pinned ? "true" : "false"}
+			style={style}
+			onMouseEnter={onPanelEnter}
+			onMouseLeave={onPanelLeave}
+		>
+			{children}
+		</dialog>
 	);
+
+	return <DSPortal>{isDark ? <div className="dark">{cardEl}</div> : cardEl}</DSPortal>;
 }

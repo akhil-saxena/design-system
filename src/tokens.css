@@ -123,9 +123,11 @@
 }
 
 /* ─── Dark mode overrides ─────────────────────────────────────────────
-   Selector is :root.dark (NOT body.dark like the handoff HTML) because
-   our app + Storybook both toggle .dark on <html> via documentElement. */
-:root.dark {
+   Both :root.dark (full-page dark — Storybook canvas, consumer apps) and
+   .dark (scoped container dark — Storybook Docs inline story wrappers)
+   define the same values so var(--ink) etc resolve correctly on either. */
+:root.dark,
+.dark {
 	/* Ink ramp inverts: ink becomes cream-toned, cream becomes near-black */
 	--ink: #f5f3f0;
 	--ink-2: #d6d3d1;

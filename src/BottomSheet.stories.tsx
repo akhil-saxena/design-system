@@ -26,40 +26,131 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { BottomSheet } from "./BottomSheet";
 import { Button } from "./Button";
+import { Checkbox } from "./Checkbox";
+import { Chip } from "./Chip";
+import { RangeSlider } from "./RangeSlider";
+import { Textarea } from "./Textarea";
+
+const SRC = {
+	Half: `const [open, setOpen] = useState(false);
+return (
+  <>
+    <Button onClick={() => setOpen(true)}>Open half</Button>
+    <BottomSheet open={open} onClose={() => setOpen(false)} title="Application actions">
+      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Edit application</li>
+        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Open job posting</li>
+        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Mark as priority</li>
+        <li style={{ padding: "12px 0", color: "var(--red)" }}>Withdraw</li>
+      </ul>
+    </BottomSheet>
+  </>
+);`,
+	Full: `const [open, setOpen] = useState(false);
+return (
+  <>
+    <Button onClick={() => setOpen(true)}>Open full</Button>
+    <BottomSheet open={open} onClose={() => setOpen(false)} title="Filter jobs" height="full">
+      <p>Status</p>
+      <p>Location</p>
+      <p>Salary range</p>
+      <p>Remote-only</p>
+      <p>Posted within</p>
+    </BottomSheet>
+  </>
+);`,
+	WithTitle: `const [open, setOpen] = useState(true);
+return (
+  <BottomSheet open={open} onClose={() => setOpen(false)} title="Notifications">
+    <p>You have 3 unread digests.</p>
+  </BottomSheet>
+);`,
+	WithFooter: `const [open, setOpen] = useState(false);
+return (
+  <>
+    <Button onClick={() => setOpen(true)}>Open with footer</Button>
+    <BottomSheet
+      open={open}
+      onClose={() => setOpen(false)}
+      title="Quick note"
+      footer={
+        <>
+          <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="primary" onClick={() => setOpen(false)}>Save</Button>
+        </>
+      }
+    >
+      <textarea style={{ width: "100%", minHeight: 80 }} placeholder="Add a note..." />
+    </BottomSheet>
+  </>
+);`,
+	MobileFilters: `const [open, setOpen] = useState(false);
+return (
+  <BottomSheet
+    open={open}
+    onClose={() => setOpen(false)}
+    title="Filter applications"
+    height="half"
+    footer={
+      <>
+        <Button variant="ghost" onClick={() => setOpen(false)}>Reset</Button>
+        <Button variant="primary" onClick={() => setOpen(false)}>Apply filters</Button>
+      </>
+    }
+  >
+    <Checkbox label="Remote-friendly only" checked={remote} onChange={(e) => setRemote(e.target.checked)} />
+  </BottomSheet>
+);`,
+	SwipeToClose: `const [open, setOpen] = useState(false);
+return (
+  <>
+    <Button onClick={() => setOpen(true)}>Open swipe-to-close</Button>
+    <BottomSheet open={open} onClose={() => setOpen(false)} title="Drag the handle to close">
+      <p>Drag the handle at the top down by more than ~120px to close. Smaller drags snap back.</p>
+    </BottomSheet>
+  </>
+);`,
+	DarkMode: `const [open, setOpen] = useState(false);
+return (
+  <>
+    <Button onClick={() => setOpen(true)}>Open half</Button>
+    <BottomSheet open={open} onClose={() => setOpen(false)} title="Application actions">
+      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        <li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>Edit application</li>
+        <li style={{ padding: "12px 0", color: "var(--red)" }}>Withdraw</li>
+      </ul>
+    </BottomSheet>
+  </>
+);`,
+};
 
 const meta: Meta<typeof BottomSheet> = {
 	title: "Surfaces/BottomSheet",
 	component: BottomSheet,
-	parameters: { layout: "fullscreen" },
+	tags: ["autodocs"],
+	parameters: {
+		layout: "fullscreen",
+		docs: {
+			description: {
+				component:
+					"Bottom-anchored drawer with half or full height, optional header and footer slots, backdrop-click dismiss, and swipe-to-close gesture support.",
+			},
+		},
+	},
 };
 export default meta;
 type Story = StoryObj<typeof BottomSheet>;
 
-function PreviewFrame({ children }: { children: React.ReactNode }) {
-	return (
-		<div
-			style={{
-				width: "100%",
-				minHeight: "100vh",
-				background: "var(--cream)",
-				padding: "24px",
-				color: "var(--ink)",
-				fontFamily: "var(--font)",
-			}}
-		>
-			<p style={{ color: "var(--ink-3)", fontSize: 12 }}>
-				Background content. Sheet renders via DSPortal at the bottom edge.
-			</p>
-			{children}
-		</div>
-	);
+/* Compact preview — just the trigger button, no 100vh blank space */
+function Preview({ children }: Readonly<{ children: React.ReactNode }>) {
+	return <div style={{ display: "inline-flex", gap: 8, flexWrap: "wrap" }}>{children}</div>;
 }
 
 function HalfDemo() {
-	const [open, setOpen] = useState(true);
+	const [open, setOpen] = useState(false);
 	return (
-		<PreviewFrame>
-			<Button onClick={() => setOpen(true)}>Open half</Button>
+		<Preview>
+			<Button onClick={() => setOpen(true)}>Open half sheet</Button>
 			<BottomSheet open={open} onClose={() => setOpen(false)} title="Application actions">
 				<ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
 					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>
@@ -74,16 +165,19 @@ function HalfDemo() {
 					<li style={{ padding: "12px 0", color: "var(--red)" }}>Withdraw</li>
 				</ul>
 			</BottomSheet>
-		</PreviewFrame>
+		</Preview>
 	);
 }
-export const Half: Story = { render: () => <HalfDemo /> };
+export const Half: Story = {
+	parameters: { docs: { source: { code: SRC.Half } } },
+	render: () => <HalfDemo />,
+};
 
 function FullDemo() {
-	const [open, setOpen] = useState(true);
+	const [open, setOpen] = useState(false);
 	return (
-		<PreviewFrame>
-			<Button onClick={() => setOpen(true)}>Open full</Button>
+		<Preview>
+			<Button onClick={() => setOpen(true)}>Open full sheet</Button>
 			<BottomSheet open={open} onClose={() => setOpen(false)} title="Filter jobs" height="full">
 				<p>Status</p>
 				<p>Location</p>
@@ -91,27 +185,35 @@ function FullDemo() {
 				<p>Remote-only</p>
 				<p>Posted within</p>
 			</BottomSheet>
-		</PreviewFrame>
+		</Preview>
 	);
 }
-export const Full: Story = { render: () => <FullDemo /> };
+export const Full: Story = {
+	parameters: { docs: { source: { code: SRC.Full } } },
+	render: () => <FullDemo />,
+};
 
 function WithTitleDemo() {
-	const [open, setOpen] = useState(true);
+	const [open, setOpen] = useState(false);
 	return (
-		<PreviewFrame>
+		<Preview>
+			<Button onClick={() => setOpen(true)}>Open with title</Button>
 			<BottomSheet open={open} onClose={() => setOpen(false)} title="Notifications">
 				<p>You have 3 unread digests.</p>
 			</BottomSheet>
-		</PreviewFrame>
+		</Preview>
 	);
 }
-export const WithTitle: Story = { render: () => <WithTitleDemo /> };
+export const WithTitle: Story = {
+	parameters: { docs: { source: { code: SRC.WithTitle } } },
+	render: () => <WithTitleDemo />,
+};
 
 function WithFooterDemo() {
-	const [open, setOpen] = useState(true);
+	const [open, setOpen] = useState(false);
 	return (
-		<PreviewFrame>
+		<Preview>
+			<Button onClick={() => setOpen(true)}>Open with footer</Button>
 			<BottomSheet
 				open={open}
 				onClose={() => setOpen(false)}
@@ -127,19 +229,34 @@ function WithFooterDemo() {
 					</>
 				}
 			>
-				<textarea style={{ width: "100%", minHeight: 80 }} placeholder="Add a note..." />
+				<Textarea placeholder="Add a note..." rows={3} />
 			</BottomSheet>
-		</PreviewFrame>
+		</Preview>
 	);
 }
-export const WithFooter: Story = { render: () => <WithFooterDemo /> };
+export const WithFooter: Story = {
+	parameters: { docs: { source: { code: SRC.WithFooter } } },
+	render: () => <WithFooterDemo />,
+};
+
+const STATUS_OPTIONS = [
+	"Wishlist",
+	"Applied",
+	"Screening",
+	"Interview",
+	"Offer",
+	"Rejected",
+] as const;
+type Status = (typeof STATUS_OPTIONS)[number];
 
 function MobileFiltersDemo() {
-	const [open, setOpen] = useState(true);
+	const [open, setOpen] = useState(false);
 	const [salary, setSalary] = useState(120);
 	const [remote, setRemote] = useState(true);
+	const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
 	return (
-		<PreviewFrame>
+		<Preview>
+			<Button onClick={() => setOpen(true)}>Open filters</Button>
 			<BottomSheet
 				open={open}
 				onClose={() => setOpen(false)}
@@ -170,22 +287,20 @@ function MobileFiltersDemo() {
 						>
 							Min salary
 						</div>
-						<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-							<input
-								type="range"
-								min={50}
-								max={300}
-								value={salary}
-								onChange={(e) => setSalary(Number(e.target.value))}
-								style={{ flex: 1 }}
-							/>
-							<span style={{ fontFamily: "var(--mono)", fontWeight: 700 }}>${salary}k</span>
-						</div>
+						<RangeSlider
+							min={50}
+							max={300}
+							value={salary}
+							onChange={setSalary}
+							label="Min salary"
+							valueFormat={(v) => `$${v}k`}
+						/>
 					</div>
-					<label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13 }}>
-						<input type="checkbox" checked={remote} onChange={(e) => setRemote(e.target.checked)} />
-						Remote-friendly only
-					</label>
+					<Checkbox
+						label="Remote-friendly only"
+						checked={remote}
+						onChange={(e) => setRemote(e.target.checked)}
+					/>
 					<div>
 						<div
 							style={{
@@ -200,52 +315,86 @@ function MobileFiltersDemo() {
 							Status
 						</div>
 						<div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-							{["Wishlist", "Applied", "Screening", "Interview", "Offer", "Rejected"].map((s) => (
-								<button
+							{STATUS_OPTIONS.map((s) => (
+								<Chip
 									key={s}
-									type="button"
-									style={{
-										padding: "5px 11px",
-										borderRadius: 999,
-										border: "1px solid var(--rule)",
-										background: "transparent",
-										fontSize: 11,
-										color: "var(--ink-2)",
-										cursor: "pointer",
+									tone={selectedStatus === s ? "tag" : "default"}
+									data-interactive="true"
+									tabIndex={0}
+									onMouseDown={(e) => e.preventDefault()}
+									onClick={() => setSelectedStatus(selectedStatus === s ? null : s)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											setSelectedStatus(selectedStatus === s ? null : s);
+										}
 									}}
 								>
 									{s}
-								</button>
+								</Chip>
 							))}
 						</div>
 					</div>
 				</div>
 			</BottomSheet>
-		</PreviewFrame>
+		</Preview>
 	);
 }
-export const MobileFilters: Story = { render: () => <MobileFiltersDemo /> };
+export const MobileFilters: Story = {
+	parameters: { docs: { source: { code: SRC.MobileFilters } } },
+	render: () => <MobileFiltersDemo />,
+};
 
 function SwipeToCloseDemo() {
-	const [open, setOpen] = useState(true);
+	const [open, setOpen] = useState(false);
 	return (
-		<PreviewFrame>
+		<Preview>
 			<Button onClick={() => setOpen(true)}>Open swipe-to-close</Button>
 			<BottomSheet open={open} onClose={() => setOpen(false)} title="Drag the handle to close">
 				<p style={{ marginBottom: 12 }}>
-					v0.5.1 — drag the handle at the top down by more than ~120px (or 40% of panel height) to
-					close. Smaller drags snap back.
+					Drag the handle at the top down by more than ~120px (or 40% of panel height) to close.
+					Smaller drags snap back.
 				</p>
 				<p style={{ color: "var(--ink-3)", fontSize: 12 }}>
 					Try it on touch or click-and-drag the pill at the top.
 				</p>
 			</BottomSheet>
-		</PreviewFrame>
+		</Preview>
 	);
 }
-export const SwipeToClose: Story = { render: () => <SwipeToCloseDemo /> };
+export const SwipeToClose: Story = {
+	parameters: { docs: { source: { code: SRC.SwipeToClose } } },
+	render: () => <SwipeToCloseDemo />,
+};
+
+function DarkHalfDemo() {
+	const [open, setOpen] = useState(false);
+	return (
+		<Preview>
+			<Button onClick={() => setOpen(true)}>Open half sheet</Button>
+			<BottomSheet open={open} onClose={() => setOpen(false)} title="Application actions" dark>
+				<ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>
+						Edit application
+					</li>
+					<li style={{ padding: "12px 0", borderBottom: "1px solid var(--rule)" }}>
+						Open job posting
+					</li>
+					<li style={{ padding: "12px 0", color: "var(--red)" }}>Withdraw</li>
+				</ul>
+			</BottomSheet>
+		</Preview>
+	);
+}
 
 export const DarkMode: Story = {
-	globals: { theme: "dark" },
-	render: () => <HalfDemo />,
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
+	render: () => <DarkHalfDemo />,
 };

@@ -4,9 +4,13 @@ import { X } from "./icons";
 export type ChipTone = "default" | "match" | "miss" | "learning" | "tag";
 
 export interface ChipProps extends HTMLAttributes<HTMLSpanElement> {
+	/** Color tone applying semantic background and text colors.
+	 * @default "default"
+	 */
 	tone?: ChipTone;
+	/** When provided, renders a small X button that calls this handler on click. */
 	onRemove?: () => void;
-	/** Optional leading icon (Lucide recommended size 10–11) per D-110. */
+	/** Optional leading icon rendered before the label text (Lucide, size 10–11 recommended). */
 	icon?: ReactNode;
 }
 
@@ -15,9 +19,9 @@ const baseStyle: CSSProperties = {
 	alignItems: "center",
 	gap: 5,
 	fontSize: 11,
-	color: "var(--ink-2)",
-	background: "rgba(255,255,255,.55)",
-	border: "1px solid rgba(0,0,0,.05)",
+	color: "var(--ink)",
+	background: "var(--cream-3)",
+	border: "1px solid var(--rule)",
 	borderRadius: 999,
 	padding: "4px 10px",
 	fontWeight: 500,
@@ -25,7 +29,7 @@ const baseStyle: CSSProperties = {
 };
 
 const toneStyles: Record<ChipTone, CSSProperties> = {
-	default: {},
+	default: { borderColor: "var(--rule)", background: "var(--cream-3)", color: "var(--ink)" },
 	match: {
 		background: "rgba(34,197,94,.12)",
 		color: "var(--green)",
@@ -76,7 +80,7 @@ export const Chip = forwardRef<HTMLSpanElement, ChipProps>(function Chip(
 						padding: 0,
 						margin: "0 0 0 2px",
 						cursor: "pointer",
-						color: "var(--ink-4)",
+						color: "inherit",
 						display: "inline-flex",
 						alignItems: "center",
 					}}

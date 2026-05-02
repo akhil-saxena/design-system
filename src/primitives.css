@@ -42,27 +42,27 @@
 }
 /* Dark-mode tweaks: ghost text flips to cream so it reads on dark surfaces;
    primary amber stays the same hue (amber doesn't flip per handoff). */
-:root.dark .ds-atom-btn[data-variant="ghost"] {
+.dark .ds-atom-btn[data-variant="ghost"] {
 	color: var(--ink);
 }
-:root.dark .ds-atom-btn[data-variant="ghost"]:hover:not(:disabled) {
+.dark .ds-atom-btn[data-variant="ghost"]:hover:not(:disabled) {
 	background: rgba(255, 255, 255, 0.06);
 }
-:root.dark .ds-atom-btn[data-variant="secondary"] {
+.dark .ds-atom-btn[data-variant="secondary"] {
 	color: var(--ink);
 }
 /* v0.5.5 — secondary hover in dark mode: keep bg translucent-light over the
    dark surface so text stays readable. The light-mode rule uses var(--cream-2)
    which flips to a near-black in dark mode, causing text-on-bg contrast loss. */
-:root.dark .ds-atom-btn[data-variant="secondary"]:hover:not(:disabled) {
+.dark .ds-atom-btn[data-variant="secondary"]:hover:not(:disabled) {
 	background: rgba(255, 255, 255, 0.08);
 	border-color: rgba(255, 255, 255, 0.18);
 	color: var(--ink);
 }
 
 /* ─── DS atom: TextInput ─────────────────────────────────────────────────
-   Source: handoff .ds-input + .ds-input-wrap rules. focus-within applies
-   to the wrap variant (D-103). */
+   Background is var(--cream) inline — auto-flips in dark mode via tokens.
+   Only dark-specific overrides needed here (border, focus ring strength). */
 .ds-atom-input:focus {
 	border-color: var(--amber);
 	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
@@ -75,14 +75,22 @@
 	border-color: var(--red);
 	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
-:root.dark .ds-atom-input {
-	background: rgba(255, 255, 255, 0.06);
-	color: var(--ink);
-	border-color: rgba(255, 255, 255, 0.12);
-}
-:root.dark .ds-atom-input::placeholder {
+.ds-atom-input::placeholder {
 	color: var(--ink-3);
 }
+/* Dark mode — stronger border + focus/error rings for AAA visibility */
+.dark .ds-atom-input {
+	border-color: var(--rule);
+}
+.dark .ds-atom-input:focus {
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.28);
+}
+.dark .ds-atom-input[data-error="true"] {
+	border-color: var(--red);
+	box-shadow: 0 0 0 3px rgba(251, 136, 136, 0.22);
+}
+
 .ds-atom-input-wrap:focus-within {
 	border-color: var(--amber);
 	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
@@ -91,20 +99,20 @@
 	border-color: var(--red);
 	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
-:root.dark .ds-atom-input-wrap {
-	background: rgba(255, 255, 255, 0.06);
-	color: var(--ink);
-	border-color: rgba(255, 255, 255, 0.12);
-}
-:root.dark .ds-atom-input-wrap input {
-	color: var(--ink);
-}
-:root.dark .ds-atom-input-wrap input::placeholder {
+.ds-atom-input-wrap input::placeholder {
 	color: var(--ink-3);
+}
+.dark .ds-atom-input-wrap:focus-within {
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.28);
+}
+.dark .ds-atom-input-wrap[data-error="true"] {
+	border-color: var(--red);
+	box-shadow: 0 0 0 3px rgba(251, 136, 136, 0.22);
 }
 
 /* ─── DS atom: Textarea ──────────────────────────────────────────────────
-   Source: handoff .ds-textarea rule. Same focus/error contract as input. */
+   Same token-flip pattern as TextInput. */
 .ds-atom-textarea:focus {
 	border-color: var(--amber);
 	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
@@ -117,30 +125,48 @@
 	border-color: var(--red);
 	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
-:root.dark .ds-atom-textarea {
-	background: rgba(255, 255, 255, 0.06);
-	color: var(--ink);
-	border-color: rgba(255, 255, 255, 0.12);
-}
-:root.dark .ds-atom-textarea::placeholder {
+.ds-atom-textarea::placeholder {
 	color: var(--ink-3);
+}
+.dark .ds-atom-textarea:focus {
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.28);
+}
+.dark .ds-atom-textarea[data-error="true"] {
+	border-color: var(--red);
+	box-shadow: 0 0 0 3px rgba(251, 136, 136, 0.22);
 }
 
 /* ─── DS atom: Chip ──────────────────────────────────────────────────────
    Source: handoff .ds-chip rule. × hover turns red. */
-:root.dark .ds-atom-chip {
+/* Interactive chips (role="button").
+   onMouseDown e.preventDefault() prevents mouse-click focus so the
+   browser never shows the default black focus border on click.
+   :focus-visible still shows the amber ring for keyboard navigation. */
+.ds-atom-chip[data-interactive] {
+	cursor: pointer;
+}
+.ds-atom-chip[data-interactive]:focus {
+	outline: none;
+}
+.ds-atom-chip[data-interactive]:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.dark .ds-atom-chip {
 	background: rgba(255, 255, 255, 0.1);
 	border-color: rgba(255, 255, 255, 0.18);
 	color: var(--ink);
 }
 .ds-atom-chip-x {
-	color: var(--ink-3);
+	opacity: 0.65;
 }
-:root.dark .ds-atom-chip-x {
-	color: var(--ink-2);
+.dark .ds-atom-chip-x {
+	opacity: 1;
 }
 .ds-atom-chip-x:hover {
-	color: var(--red);
+	opacity: 1;
+	color: var(--red) !important;
 }
 
 /* ─── DS atom: Checkbox ──────────────────────────────────────────────────
@@ -158,6 +184,17 @@
 }
 .ds-atom-checkbox-label.is-disabled .ds-atom-checkbox-box {
 	cursor: not-allowed;
+}
+/* Dark mode — border is inline style so needs !important to override.
+   --ink-5 in dark = #44403c (near-black on dark bg, fails AAA).
+   Use --ink-3 (#a8a29e) for a readable border; add subtle fill for legibility. */
+.dark .ds-atom-checkbox-box {
+	border-color: var(--ink-3) !important;
+	background: rgba(255, 255, 255, 0.06) !important;
+}
+.dark .ds-atom-checkbox-input:checked + .ds-atom-checkbox-box {
+	background: var(--amber) !important;
+	border-color: var(--amber) !important;
 }
 
 /* ─── DS atom: Radio ─────────────────────────────────────────────────────
@@ -181,6 +218,15 @@
 }
 .ds-atom-radio-label.is-disabled .ds-atom-radio-box {
 	cursor: not-allowed;
+}
+/* Dark mode — border is inline style (needs !important). --ink-4 gives visible border. */
+.dark .ds-atom-radio-box {
+	border-color: var(--ink-3) !important;
+	background: rgba(255, 255, 255, 0.06) !important;
+}
+.dark .ds-atom-radio-input:checked + .ds-atom-radio-box {
+	border-color: var(--amber) !important;
+	background: transparent !important;
 }
 
 /* ─── DS atom: Toggle ────────────────────────────────────────────────
@@ -234,7 +280,7 @@
 	overflow: hidden;
 	background: rgba(255, 255, 255, 0.6);
 }
-:root.dark .ds-atom-stepper {
+.dark .ds-atom-stepper {
 	background: rgba(255, 255, 255, 0.06);
 }
 .ds-atom-stepper-btn {
@@ -303,6 +349,7 @@
 	align-items: baseline;
 	font-variant-numeric: tabular-nums;
 	font-family: var(--mono);
+	color: var(--ink);
 }
 .ds-atom-rolling-cell {
 	display: inline-block;
@@ -324,7 +371,7 @@
 	text-align: center;
 	font-size: 14px;
 	font-weight: 700;
-	color: var(--ink);
+	color: inherit;
 }
 .ds-atom-rolling-static {
 	display: inline-block;
@@ -332,8 +379,70 @@
 	line-height: 22px;
 	font-size: 14px;
 	font-weight: 700;
-	color: var(--ink);
+	color: inherit;
 	padding: 0 1px;
+}
+
+/* ── RollingNumber variants ──────────────────────────────────────────── */
+
+/* DARK variant — departure-board / flip-clock aesthetic.
+   Shell: near-black container. Cells: individual recessed tiles with subtle
+   inner shadow and gradient. Separators: muted to create hierarchy. */
+.ds-atom-rolling[data-variant="dark"] {
+	align-items: center;
+	gap: 2px;
+	background: #0c0a09;
+	border-radius: 8px;
+	padding: 8px 10px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.ds-atom-rolling[data-variant="dark"] .ds-atom-rolling-cell {
+	background: linear-gradient(180deg, #252220 0%, #1c1917 100%);
+	border-radius: 5px;
+	width: 20px;
+	border: 1px solid #3a3530;
+	box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.ds-atom-rolling[data-variant="dark"] .ds-atom-rolling-strip > span {
+	color: #f0ede8;
+	font-size: 15px;
+}
+.ds-atom-rolling[data-variant="dark"] .ds-atom-rolling-static {
+	color: #6b6057;
+	padding: 0 3px;
+	font-size: 15px;
+	height: 22px;
+	line-height: 22px;
+}
+
+/* LIGHT variant — frosted-card aesthetic for dark surfaces.
+   Shell: near-white with soft border. Cells: pure white elevated tiles. */
+.ds-atom-rolling[data-variant="light"] {
+	align-items: center;
+	gap: 2px;
+	background: rgba(255, 255, 255, 0.9);
+	border-radius: 8px;
+	padding: 8px 10px;
+	border: 1px solid rgba(0, 0, 0, 0.06);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.ds-atom-rolling[data-variant="light"] .ds-atom-rolling-cell {
+	background: #ffffff;
+	border-radius: 5px;
+	width: 20px;
+	border: 1px solid rgba(0, 0, 0, 0.07);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.ds-atom-rolling[data-variant="light"] .ds-atom-rolling-strip > span {
+	color: #1c1917;
+	font-size: 15px;
+}
+.ds-atom-rolling[data-variant="light"] .ds-atom-rolling-static {
+	color: #9b9490;
+	padding: 0 3px;
+	font-size: 15px;
+	height: 22px;
+	line-height: 22px;
 }
 
 /* ─── DS atom: RangeSlider ──────────────────────────────────────────
@@ -393,7 +502,7 @@
 }
 .ds-atom-range-fill {
 	height: 100%;
-	background: linear-gradient(90deg, var(--amber), var(--amber-d));
+	background: var(--amber);
 	border-radius: 3px;
 	pointer-events: none;
 	transition: width 150ms ease;
@@ -475,31 +584,32 @@
 
 /* ─── DS atom: StickyNote ────────────────────────────────────────────
    Yellow gradient surface with slight static rotation per data-rotation.
-   Always-dark text — does NOT flip in :root.dark (handoff invariant).
+   Always-dark text — does NOT flip in .dark (handoff invariant).
    Source: design-handoff/design-system/ds-surfaces.jsx ds-sticky CSS. */
 .ds-atom-stickynote {
 	background: linear-gradient(145deg, #fef3c7, #fde68a);
 	color: #292524;
 	padding: 16px;
 	border-radius: 8px;
-	box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+	border: 1px solid rgba(245, 158, 11, 0.35);
+	box-shadow: 0 2px 8px rgba(245, 158, 11, 0.18), 0 1px 2px rgba(0, 0, 0, 0.06);
 	box-sizing: border-box;
 	display: block;
 	transition: transform 0.15s, box-shadow 0.15s;
 }
 .ds-atom-stickynote[data-rotation="left"] {
-	transform: rotate(-0.6deg);
+	transform: rotate(-2deg);
 }
 .ds-atom-stickynote[data-rotation="right"] {
-	transform: rotate(0.4deg);
+	transform: rotate(2deg);
 }
 .ds-atom-stickynote[data-rotation="none"] {
-	transform: rotate(0deg);
+	transform: none;
 }
 /* Handoff invariant: text stays dark even under :root.dark.
-   Without this rule, :root.dark body color would cascade in and tint the
+   Without this rule, .dark body color would cascade in and tint the
    text — sticky notes must read as paper-on-cream regardless of theme. */
-:root.dark .ds-atom-stickynote {
+.dark .ds-atom-stickynote {
 	color: #292524;
 }
 
@@ -528,7 +638,7 @@
 /* Dark mode: drop the amber-on-cream gradient (reads muddy on dark cream-2);
    replace with a solid amber-tinted surface that maintains visual identity
    without the awkward gradient or amber border. */
-:root.dark .ds-atom-card[data-variant="amber"] {
+.dark .ds-atom-card[data-variant="amber"] {
 	background: rgba(245, 158, 11, 0.1);
 	border: 1px solid rgba(245, 158, 11, 0.18);
 }
@@ -539,10 +649,15 @@
 	border-radius: var(--radius-lg);
 	padding: 20px 22px;
 }
-/* Dark variant is ALWAYS dark — does NOT respond to :root.dark cascade.
-   Handoff invariant. */
-:root.dark .ds-atom-card[data-variant="dark"] {
+/* Dark variant is ALWAYS dark — does NOT respond to .dark cascade.
+   Handoff invariant. Force rolling number text to match card color. */
+.dark .ds-atom-card[data-variant="dark"] {
 	background: #1c1917;
+	color: #f5f3f0;
+}
+.ds-atom-card[data-variant="dark"] .ds-atom-rolling,
+.ds-atom-card[data-variant="dark"] .ds-atom-rolling-strip > span,
+.ds-atom-card[data-variant="dark"] .ds-atom-rolling-static {
 	color: #f5f3f0;
 }
 .ds-atom-card[data-variant="kanban"] {
@@ -610,9 +725,7 @@
 .ds-atom-popover {
 	position: fixed;
 	z-index: 100;
-	background: var(--g-bg);
-	-webkit-backdrop-filter: blur(14px);
-	backdrop-filter: blur(14px);
+	background: var(--cream-2);
 	border: 1px solid var(--rule);
 	border-radius: var(--radius-md);
 	box-shadow: var(--shadow-3);
@@ -663,7 +776,7 @@
 	transition: background 0.1s;
 }
 .ds-atom-popover-item:hover:not(:disabled) {
-	background: var(--cream-2);
+	background: var(--cream-3);
 }
 .ds-atom-popover-item:focus-visible {
 	outline: 2px solid var(--amber);
@@ -700,8 +813,6 @@
 	animation: ds-atom-modal-fadein 0.15s ease-out;
 }
 .ds-atom-modal {
-	/* Solid white panel in light mode for legibility — translucent reads as
-	   grey over body backgrounds (D-322 fix). Dark mode flips to cream-2. */
 	background: #ffffff;
 	border: 1px solid var(--rule);
 	border-radius: var(--radius-lg);
@@ -709,37 +820,50 @@
 	max-width: 480px;
 	width: calc(100% - var(--space-4));
 	max-height: 80vh;
-	overflow-y: auto;
+	/* Flex column so header/footer pin while body scrolls */
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 	box-shadow: var(--shadow-3);
 	animation: ds-atom-modal-in 0.2s ease-out;
 	font-family: var(--font);
 	color: var(--ink);
 }
-:root.dark .ds-atom-modal {
+.dark .ds-atom-modal {
 	background: var(--cream-2);
 }
 .ds-atom-modal-hd {
-	padding: var(--space-4) var(--space-5);
+	padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
 	border-bottom: 1px solid var(--rule);
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
+	flex-shrink: 0;
+}
+.ds-atom-modal-hd-title {
 	font-family: var(--display);
 	font-weight: 700;
 	font-size: 17px;
+	flex: 1;
+	min-width: 0;
 }
 .ds-atom-modal-body {
 	padding: var(--space-4) var(--space-5);
 	font-size: 13px;
 	line-height: 1.5;
 	color: var(--ink-2);
+	/* Body scrolls independently; header + footer stay pinned */
+	overflow-y: auto;
+	flex: 1;
+	min-height: 0;
 }
 .ds-atom-modal-ft {
-	padding: var(--space-4) var(--space-5);
+	padding: var(--space-3) var(--space-5);
 	border-top: 1px solid var(--rule);
 	display: flex;
 	justify-content: flex-end;
 	gap: var(--space-2);
+	flex-shrink: 0;
 }
 @keyframes ds-atom-modal-fadein {
 	from {
@@ -795,7 +919,7 @@
 	color: var(--ink);
 	z-index: 1001;
 }
-:root.dark .ds-atom-sheet {
+.dark .ds-atom-sheet {
 	background: var(--cream-2);
 }
 .ds-atom-sheet[data-side="right"] {
@@ -811,14 +935,19 @@
 	animation: ds-atom-sheet-in-left 0.2s ease-out;
 }
 .ds-atom-sheet-hd {
-	padding: var(--space-4) var(--space-5);
+	padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
 	border-bottom: 1px solid var(--rule);
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
+	flex-shrink: 0;
+}
+.ds-atom-sheet-hd-title {
 	font-family: var(--display);
 	font-weight: 700;
 	font-size: 17px;
+	flex: 1;
+	min-width: 0;
 }
 .ds-atom-sheet-body {
 	padding: var(--space-4) var(--space-5);
@@ -863,6 +992,8 @@
    namespaced (ds-atom-hovercard-fadein) to avoid colliding with
    consumer-defined fadeIn. */
 .ds-atom-hovercard {
+	/* Reset <dialog> browser defaults, then apply panel styles */
+	margin: 0;
 	position: fixed;
 	background: var(--cream);
 	border: 1px solid var(--rule);
@@ -876,8 +1007,8 @@
 	animation: ds-atom-hovercard-fadein 0.15s ease-out;
 	z-index: 1500;
 }
-:root.dark .ds-atom-hovercard {
-	background: var(--surf-2, var(--cream));
+.dark .ds-atom-hovercard {
+	background: var(--cream-2);
 	border-color: var(--rule);
 	color: var(--ink);
 }
@@ -923,7 +1054,7 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
-	background: #ffffff;
+	background: var(--cream);
 	border-top: 1px solid var(--rule);
 	box-shadow: var(--shadow-3);
 	border-radius: 16px 16px 0 0;
@@ -934,8 +1065,10 @@
 	font-family: var(--font);
 	color: var(--ink);
 	z-index: 1001;
+	/* snap-back transition; disabled while dragging via [data-dragging] */
+	transition: transform 0.2s ease-out;
 }
-:root.dark .ds-atom-bottomsheet {
+.dark .ds-atom-bottomsheet {
 	background: var(--cream-2);
 }
 .ds-atom-bottomsheet[data-height="half"] {
@@ -945,11 +1078,6 @@
 	height: 100vh;
 	padding-top: env(safe-area-inset-top, 0);
 	border-radius: 0;
-}
-/* v0.5.1 patch — swipe-to-close: snap-back transition by default; disabled
-   while dragging via [data-dragging] so the panel follows the finger. */
-.ds-atom-bottomsheet {
-	transition: transform 0.2s ease-out;
 }
 .ds-atom-bottomsheet[data-dragging="true"] {
 	transition: none;
@@ -1004,7 +1132,7 @@
 
 /* ─── DS atom: Lightbox ────────────────────────────────────────────────
    Full-bleed media overlay with arrow navigation. Always-dark invariant
-   — NO :root.dark overrides. (D-350) */
+   — NO .dark overrides. (D-350) */
 .ds-atom-lightbox-backdrop {
 	position: fixed;
 	inset: 0;
@@ -1038,7 +1166,7 @@
 	width: 40px;
 	height: 40px;
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.12);
+	background: rgba(0, 0, 0, 0.45);
 	border: none;
 	color: #ffffff;
 	cursor: pointer;
@@ -1048,7 +1176,7 @@
 	z-index: 2001;
 }
 .ds-atom-lightbox-close:hover {
-	background: rgba(255, 255, 255, 0.2);
+	background: rgba(0, 0, 0, 0.6);
 }
 .ds-atom-lightbox-prev,
 .ds-atom-lightbox-next {
@@ -1058,7 +1186,7 @@
 	width: 40px;
 	height: 40px;
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.12);
+	background: rgba(0, 0, 0, 0.45);
 	border: none;
 	color: #ffffff;
 	cursor: pointer;
@@ -1146,9 +1274,9 @@
 		transform: scale(1.15);
 	}
 }
-/* Dark mode: lift track contrast against cream-2 dark surface. */
-:root.dark .ds-atom-progress-track {
-	background: rgba(255, 255, 255, 0.06);
+/* Dark mode: 0.06 is invisible on #1c1917; lift to 0.20 for a clear track. */
+.dark .ds-atom-progress-track {
+	background: rgba(255, 255, 255, 0.2);
 }
 
 /* ─── DS atom: AlertBanner ──────────────────────────────────────────
@@ -1240,6 +1368,14 @@
 .ds-atom-banner[data-variant="warning"] .ds-atom-banner-icon {
 	color: var(--amber-d);
 }
+/* Warning text must always be dark — amber-l bg (#fef3c7) is light,
+   so --ink-2 reads grey and --ink reads correctly dark in light mode. */
+.ds-atom-banner[data-variant="warning"] .ds-atom-banner-title {
+	color: #292524;
+}
+.ds-atom-banner[data-variant="warning"] .ds-atom-banner-desc {
+	color: #57534e;
+}
 .ds-atom-banner[data-variant="error"] {
 	background: rgba(239, 68, 68, 0.1);
 	border-color: var(--red);
@@ -1248,18 +1384,31 @@
 	color: var(--red);
 }
 /* Dark mode: lift saturation 0.10 → 0.16 so tone bgs read on cream-2 surfaces. */
-:root.dark .ds-atom-banner[data-variant="info"] {
+.dark .ds-atom-banner[data-variant="info"] {
 	background: rgba(94, 184, 251, 0.16);
 }
-:root.dark .ds-atom-banner[data-variant="success"] {
+.dark .ds-atom-banner[data-variant="success"] {
 	background: rgba(74, 222, 128, 0.18);
 }
-:root.dark .ds-atom-banner[data-variant="error"] {
+/* Warning: amber-l (#fef3c7) is too bright on dark surfaces and makes --ink
+   (near-white in dark) unreadable. Swap to low-alpha amber so dark --ink text works. */
+.dark .ds-atom-banner[data-variant="warning"] {
+	background: rgba(245, 158, 11, 0.15);
+	border-color: #fbbf24;
+}
+.dark .ds-atom-banner[data-variant="warning"] .ds-atom-banner-title,
+.dark .ds-atom-banner[data-variant="warning"] .ds-atom-banner-desc {
+	color: var(--ink);
+}
+.dark .ds-atom-banner[data-variant="warning"] .ds-atom-banner-icon {
+	color: #fbbf24;
+}
+.dark .ds-atom-banner[data-variant="error"] {
 	background: rgba(239, 68, 68, 0.16);
 }
 /* Dark-mode dismiss-X hover: black-alpha doesn't read on dark surfaces;
    flip to white-alpha so the hover state remains visible. */
-:root.dark .ds-atom-banner-close:hover {
+.dark .ds-atom-banner-close:hover {
 	background: rgba(255, 255, 255, 0.08);
 	color: var(--ink);
 }
@@ -1292,7 +1441,7 @@
 	}
 }
 /* Dark mode: cream-2 is too bright; switch to white-low-alpha. */
-:root.dark .ds-atom-skeleton {
+.dark .ds-atom-skeleton {
 	background: rgba(255, 255, 255, 0.06);
 }
 
@@ -1322,8 +1471,8 @@
 	border: 1px solid var(--rule);
 	background: var(--surf-1);
 	box-shadow: var(--shadow-2);
-	-webkit-backdrop-filter: blur(6px);
-	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(20px);
+	backdrop-filter: blur(20px);
 	font-family: var(--font);
 	font-size: 13px;
 	color: var(--ink);
@@ -1389,6 +1538,10 @@
 .ds-atom-toast[data-tone="warning"] .ds-atom-toast-icon {
 	color: var(--amber-d);
 }
+/* Warning text pinned dark — amber-l (#fef3c7) is light so --ink reads correctly. */
+.ds-atom-toast[data-tone="warning"] .ds-atom-toast-msg {
+	color: #292524;
+}
 .ds-atom-toast[data-tone="info"] {
 	background: rgba(94, 184, 251, 0.1);
 	border-color: var(--blue);
@@ -1397,14 +1550,25 @@
 	color: var(--blue);
 }
 /* Dark mode: lift saturation 0.10 → 0.16 so tone bgs read on cream-2 surfaces. */
-:root.dark .ds-atom-toast[data-tone="success"] {
+.dark .ds-atom-toast[data-tone="success"] {
 	background: rgba(74, 222, 128, 0.16);
 }
-:root.dark .ds-atom-toast[data-tone="error"] {
+.dark .ds-atom-toast[data-tone="error"] {
 	background: rgba(239, 68, 68, 0.16);
 }
-:root.dark .ds-atom-toast[data-tone="info"] {
+.dark .ds-atom-toast[data-tone="info"] {
 	background: rgba(94, 184, 251, 0.16);
+}
+/* Warning: swap amber-l for low-alpha amber so dark --ink text is readable. */
+.dark .ds-atom-toast[data-tone="warning"] {
+	background: rgba(245, 158, 11, 0.15);
+	border-color: #fbbf24;
+}
+.dark .ds-atom-toast[data-tone="warning"] .ds-atom-toast-msg {
+	color: var(--ink);
+}
+.dark .ds-atom-toast[data-tone="warning"] .ds-atom-toast-icon {
+	color: #fbbf24;
 }
 @keyframes ds-atom-toast-slidein {
 	from {
@@ -1502,7 +1666,7 @@
 	font-family: var(--mono);
 	font-size: 12px;
 	color: var(--ink);
-	transition: background 0.15s, border-color 0.15s;
+	transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .ds-atom-copy:hover {
 	background: var(--cream-2);
@@ -1511,17 +1675,38 @@
 	outline: 2px solid var(--amber);
 	outline-offset: 2px;
 }
+/* Copied state — green border + subtle tint so the whole button communicates success */
+.ds-atom-copy[data-state="copied"] {
+	border-color: var(--green);
+	background: rgba(74, 222, 128, 0.08);
+}
 .ds-atom-copy-value {
 	font-family: var(--mono);
 	font-size: 12px;
-	color: var(--ink);
+	color: inherit;
 }
 .ds-atom-copy-icon {
 	color: var(--ink-2);
 	flex-shrink: 0;
+	transition: color 0.15s;
 }
 .ds-atom-copy-icon-check {
 	color: var(--green);
+	animation: ds-atom-copy-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes ds-atom-copy-pop {
+	from {
+		transform: scale(0.6);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+.dark .ds-atom-copy[data-state="copied"] {
+	border-color: var(--green);
+	background: rgba(74, 222, 128, 0.12);
 }
 
 /* ─── DS atom: DSDropdown ─────────────────────────────────────────────
@@ -1529,7 +1714,7 @@
    The TSX class .ds-atom-dropdown is set inline by DSDropdown.tsx; this
    block provides bg/border/shadow/scroll. (D-500 internal infra.) */
 .ds-atom-dropdown {
-	background: var(--surf-1);
+	background: var(--cream-2);
 	border: 1px solid var(--rule);
 	border-radius: 8px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -1540,7 +1725,7 @@
    Source: design-handoff/design-system/ds-pickers.jsx. */
 .ds-atom-datepicker {
 	display: inline-block;
-	background: var(--surf-1);
+	background: var(--cream-2);
 	border: 1px solid var(--rule);
 	border-radius: var(--radius-lg);
 	padding: 12px;
@@ -1684,10 +1869,12 @@
 	background: var(--amber-l);
 	filter: brightness(0.97);
 }
+/* No filter here — filter creates a stacking context that makes z-index:-1
+   ::before render above the cell background, causing a half-cell split.
+   Use explicit slightly-darker amber instead. */
 .ds-atom-datepicker-cell.is-range-start:hover:not(:disabled),
 .ds-atom-datepicker-cell.is-range-end:hover:not(:disabled) {
-	background: var(--amber);
-	filter: brightness(0.92);
+	background: #d97706;
 }
 /* Today cell hover (only when not also selected/in-range/endpoint) — preserve
    amber dot indicator (rendered via ::after); use amber-l wash for hover feedback. */
@@ -1781,70 +1968,68 @@
    in tokens.css; the entries below are the ones that don't have a dark-mode
    value baked into the token (--amber-l) or need surface-specific tuning
    (cell hover, in-range bg, today dot visibility, time inputs). */
-:root.dark .ds-atom-datepicker {
+.dark .ds-atom-datepicker {
 	background: rgba(255, 255, 255, 0.04);
 	border-color: rgba(255, 255, 255, 0.12);
 }
-:root.dark .ds-atom-datepicker-cell:hover:not(:disabled) {
+.dark .ds-atom-datepicker-cell:hover:not(:disabled) {
 	background: rgba(255, 255, 255, 0.08);
 }
-:root.dark .ds-atom-datepicker-cell.is-in-range {
+.dark .ds-atom-datepicker-cell.is-in-range {
 	/* var(--amber-l) is light cream-yellow; in dark mode use a translucent
 	   amber wash so the between-state remains legible against dark bg. */
 	background: rgba(245, 158, 11, 0.18);
 }
 /* v0.5.6 — dark-mode state-preserving hover rules. The light-mode v0.5.5
    hover rules have specificity 0,4,0 (e.g. .is-range-end:hover:not(:disabled)),
-   but the existing :root.dark .ds-atom-datepicker-cell:hover:not(:disabled)
-   rule is 0,4,1 (the :root.dark ancestor adds a class). In dark mode the
-   :root.dark plain-hover wins, blowing away the amber pill / brown range bg
+   but the existing .dark .ds-atom-datepicker-cell:hover:not(:disabled)
+   rule is 0,4,1 (the .dark ancestor adds a class). In dark mode the
+   .dark plain-hover wins, blowing away the amber pill / brown range bg
    on hover. These :root.dark.is-state:hover rules at 0,5,1 win cleanly. */
-:root.dark .ds-atom-datepicker-cell.is-selected:hover:not(:disabled) {
+.dark .ds-atom-datepicker-cell.is-selected:hover:not(:disabled) {
 	/* Keep amber pill in dark mode; brightness lift for hover feedback. */
 	background: var(--amber);
 	filter: brightness(1.08);
 }
-:root.dark .ds-atom-datepicker-cell.is-in-range:hover:not(:disabled) {
+.dark .ds-atom-datepicker-cell.is-in-range:hover:not(:disabled) {
 	/* Keep translucent-amber in-range bg in dark mode; subtle lift. */
 	background: rgba(245, 158, 11, 0.18);
 	filter: brightness(1.08);
 }
-:root.dark .ds-atom-datepicker-cell.is-range-start:hover:not(:disabled),
-:root.dark .ds-atom-datepicker-cell.is-range-end:hover:not(:disabled) {
-	/* Endpoint cells: keep amber pill on hover; the v0.5.3 ::before half-cell
-	   pseudo continues to paint the in-range bg behind the inner edge. */
-	background: var(--amber);
-	filter: brightness(1.08);
+.dark .ds-atom-datepicker-cell.is-range-start:hover:not(:disabled),
+.dark .ds-atom-datepicker-cell.is-range-end:hover:not(:disabled) {
+	/* Same fix: no filter to avoid stacking-context ::before bleed. */
+	background: #fbbf24;
 }
-:root.dark
+.dark
 	.ds-atom-datepicker-cell.is-today:not(.is-selected):not(.is-in-range):not(.is-range-start):not(
 		.is-range-end
 	):hover:not(:disabled) {
 	/* Today cell hover (when not also a range cell): keep light-amber wash. */
 	background: var(--amber-l);
 }
-:root.dark .ds-atom-datepicker-cell.is-today::after {
+.dark .ds-atom-datepicker-cell.is-today::after {
 	/* Amber dot already auto-flips, but bump opacity for contrast on dark surface. */
 	background: var(--amber);
 	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
-:root.dark .ds-atom-datepicker-nav {
+.dark .ds-atom-datepicker-nav {
 	border-color: rgba(255, 255, 255, 0.12);
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-datepicker-nav:hover {
+.dark .ds-atom-datepicker-nav:hover {
 	background: rgba(255, 255, 255, 0.08);
 }
-:root.dark .ds-atom-datepicker-time input {
+.dark .ds-atom-datepicker-time input {
 	background: rgba(255, 255, 255, 0.06);
 	border-color: rgba(255, 255, 255, 0.12);
 	color: var(--ink);
 }
-:root.dark .ds-atom-datepicker-time-period {
+.dark .ds-atom-datepicker-time-period {
 	background: rgba(255, 255, 255, 0.06);
 	border-color: rgba(255, 255, 255, 0.12);
 }
-:root.dark .ds-atom-datepicker-time-period-btn:hover:not(.is-active) {
+.dark .ds-atom-datepicker-time-period-btn:hover:not(.is-active) {
 	background: rgba(255, 255, 255, 0.08);
 	color: var(--ink);
 }
@@ -1905,18 +2090,19 @@
 }
 .ds-atom-split-primary[data-variant="primary"],
 .ds-atom-split-chevron[data-variant="primary"] {
-	background: var(--ink);
-	color: var(--cream);
+	background: var(--amber);
+	color: #1c1917;
+	font-weight: 600;
 }
 .ds-atom-split-primary[data-variant="primary"]:hover,
 .ds-atom-split-chevron[data-variant="primary"]:hover {
-	background: #1c1917;
+	background: var(--amber-d);
 }
 .ds-atom-split[data-variant="primary"] {
-	border-color: var(--ink);
+	border-color: var(--amber-d);
 }
 .ds-atom-split-chevron[data-variant="primary"] {
-	border-left-color: rgba(245, 243, 240, 0.2);
+	border-left-color: rgba(28, 25, 23, 0.2);
 }
 .ds-atom-split-primary[data-variant="secondary"]:hover,
 .ds-atom-split-chevron[data-variant="secondary"]:hover {
@@ -1937,15 +2123,16 @@
 }
 .ds-atom-split-primary[data-variant="danger"],
 .ds-atom-split-chevron[data-variant="danger"] {
-	background: var(--red);
+	background: #dc2626;
 	color: #fff;
+	font-weight: 600;
 }
 .ds-atom-split-primary[data-variant="danger"]:hover,
 .ds-atom-split-chevron[data-variant="danger"]:hover {
 	background: #b91c1c;
 }
 .ds-atom-split[data-variant="danger"] {
-	border-color: var(--red);
+	border-color: #b91c1c;
 }
 .ds-atom-split-chevron[data-variant="danger"] {
 	border-left-color: rgba(255, 255, 255, 0.3);
@@ -1964,40 +2151,69 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
+	width: 100%;
 	background: transparent;
 	border: none;
 	cursor: pointer;
-	padding: 8px 10px;
+	padding: 7px 10px;
 	font-family: var(--font);
 	font-size: 13px;
 	color: var(--ink);
 	border-radius: 6px;
 	text-align: left;
+	position: relative;
 }
+/* Hover: slightly darker than the cream-2 panel background */
 .ds-atom-split-menuitem:hover {
-	background: var(--cream);
+	background: var(--cream-3);
 }
+/* Current item: checkmark via ::after, bold text — no background box */
 .ds-atom-split-menuitem.is-current {
-	background: var(--cream-2);
 	font-weight: 600;
 }
-/* v0.5.1 patch — per-action variant color hint via left-border accent. */
-.ds-atom-split-menuitem[data-action-variant="primary"] {
-	border-left: 3px solid var(--amber);
-	padding-left: 7px;
+.ds-atom-split-menuitem.is-current::after {
+	content: "✓";
+	margin-left: auto;
+	font-size: 11px;
+	color: var(--ink-3);
+	flex-shrink: 0;
 }
-.ds-atom-split-menuitem[data-action-variant="secondary"] {
-	border-left: 3px solid var(--ink-4);
-	padding-left: 7px;
-}
-.ds-atom-split-menuitem[data-action-variant="ghost"] {
-	border-left: 3px solid transparent;
-	padding-left: 7px;
-}
+/* Variant coloring — text only, no border-left (avoids corner clipping) */
 .ds-atom-split-menuitem[data-action-variant="danger"] {
-	border-left: 3px solid var(--red);
-	padding-left: 7px;
 	color: var(--red);
+}
+/* Semantic tone — same text-only approach */
+.ds-atom-split-menuitem[data-tone="danger"] {
+	color: var(--red);
+}
+.ds-atom-split-menuitem[data-tone="warning"] {
+	color: var(--amber-d);
+}
+.ds-atom-split-menuitem[data-tone="success"] {
+	color: var(--green);
+}
+/* Dark mode menu */
+.dark .ds-atom-split-menuitem:hover {
+	background: var(--cream-3);
+}
+.dark .ds-atom-split-menuitem.is-current::after {
+	color: var(--ink-4);
+}
+.dark .ds-atom-split-primary[data-variant="secondary"],
+.dark .ds-atom-split-chevron[data-variant="secondary"] {
+	color: var(--ink);
+}
+.dark .ds-atom-split-primary[data-variant="secondary"]:hover,
+.dark .ds-atom-split-chevron[data-variant="secondary"]:hover {
+	background: var(--cream-2);
+}
+.dark .ds-atom-split-primary[data-variant="ghost"],
+.dark .ds-atom-split-chevron[data-variant="ghost"] {
+	color: var(--ink-2);
+}
+.dark .ds-atom-split-primary[data-variant="ghost"]:hover,
+.dark .ds-atom-split-chevron[data-variant="ghost"]:hover {
+	background: var(--cream-2);
 }
 
 /* ─── DS atom: Autocomplete ───────────────────────────────────────────
@@ -2025,12 +2241,12 @@
 .ds-atom-autocomplete::placeholder {
 	color: var(--ink-3);
 }
-:root.dark .ds-atom-autocomplete {
+.dark .ds-atom-autocomplete {
 	background: rgba(255, 255, 255, 0.06);
 	color: var(--ink);
 	border-color: rgba(255, 255, 255, 0.12);
 }
-:root.dark .ds-atom-autocomplete::placeholder {
+.dark .ds-atom-autocomplete::placeholder {
 	color: var(--ink-3);
 }
 .ds-atom-autocomplete-section-header {
@@ -2059,7 +2275,7 @@
 .ds-atom-autocomplete-option.is-active {
 	background: var(--cream);
 }
-:root.dark .ds-atom-autocomplete-option.is-active {
+.dark .ds-atom-autocomplete-option.is-active {
 	background: rgba(255, 255, 255, 0.08);
 }
 .ds-atom-autocomplete-clock {
@@ -2081,7 +2297,7 @@
 .ds-atom-autocomplete-create:hover {
 	background: var(--cream);
 }
-:root.dark .ds-atom-autocomplete-create:hover {
+.dark .ds-atom-autocomplete-create:hover {
 	background: rgba(255, 255, 255, 0.08);
 }
 .ds-atom-autocomplete-empty {
@@ -2152,7 +2368,7 @@
 .ds-atom-select-search {
 	padding: 6px;
 	border-bottom: 1px solid var(--rule);
-	background: var(--surf-1);
+	background: var(--cream-2);
 	position: sticky;
 	top: 0;
 	box-sizing: border-box;
@@ -2166,7 +2382,7 @@
 	padding: 6px 8px;
 	font-family: var(--font);
 	font-size: 13px;
-	background: var(--surf-1);
+	background: var(--cream-2);
 	color: var(--ink);
 	outline: none;
 }
@@ -2177,7 +2393,7 @@
 	list-style: none;
 	margin: 0;
 	padding: 4px;
-	background: var(--surf-1);
+	background: var(--cream-2);
 }
 .ds-atom-select-option {
 	display: flex;
@@ -2206,16 +2422,16 @@
 	text-align: center;
 	color: var(--ink-3);
 	font-size: 12px;
-	background: var(--surf-1);
+	background: var(--cream-2);
 }
-:root.dark .ds-atom-select {
+.dark .ds-atom-select {
 	background: rgba(255, 255, 255, 0.06);
 	border-color: rgba(255, 255, 255, 0.12);
 }
-:root.dark .ds-atom-select-option.is-active {
+.dark .ds-atom-select-option.is-active {
 	background: rgba(255, 255, 255, 0.08);
 }
-:root.dark .ds-atom-select-search input {
+.dark .ds-atom-select-search input {
 	background: rgba(255, 255, 255, 0.06);
 	border-color: rgba(255, 255, 255, 0.12);
 }
@@ -2333,7 +2549,7 @@
 .ds-atom-multiselect-option.is-active {
 	background: var(--cream);
 }
-:root.dark .ds-atom-multiselect-option.is-active {
+.dark .ds-atom-multiselect-option.is-active {
 	background: rgba(255, 255, 255, 0.08);
 }
 .ds-atom-multiselect-checkbox {
@@ -2355,16 +2571,16 @@
 .ds-atom-multiselect-option-label {
 	flex: 1;
 }
-:root.dark .ds-atom-multiselect {
+.dark .ds-atom-multiselect {
 	background: rgba(255, 255, 255, 0.06);
 	color: var(--ink);
 	border-color: rgba(255, 255, 255, 0.12);
 }
-:root.dark .ds-atom-multiselect-chip {
+.dark .ds-atom-multiselect-chip {
 	background: rgba(255, 255, 255, 0.08);
 	border-color: rgba(255, 255, 255, 0.12);
 }
-:root.dark .ds-atom-multiselect-chip-more {
+.dark .ds-atom-multiselect-chip-more {
 	background: transparent;
 	border-color: rgba(255, 255, 255, 0.18);
 }
@@ -2457,14 +2673,14 @@
 	padding: 0 18px;
 }
 /* Dark mode */
-:root.dark .ds-atom-segmented {
+.dark .ds-atom-segmented {
 	background: var(--cream-2);
 	border-color: var(--rule);
 }
-:root.dark .ds-atom-segmented-btn {
+.dark .ds-atom-segmented-btn {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-segmented-btn[data-active] {
+.dark .ds-atom-segmented-btn[data-active] {
 	background: var(--amber);
 	color: #000;
 }
@@ -2520,7 +2736,7 @@
 	align-items: center;
 }
 .ds-atom-breadcrumbs-more:hover {
-	background: var(--surface-2);
+	background: var(--surf-2);
 	color: var(--ink);
 }
 .ds-atom-breadcrumbs-more:focus-visible {
@@ -2550,21 +2766,21 @@
 }
 .ds-atom-breadcrumbs-menuitem a:hover,
 .ds-atom-breadcrumbs-menuitem button:hover {
-	background: var(--surface-2);
+	background: var(--surf-2);
 }
 /* Dark mode */
-:root.dark .ds-atom-breadcrumbs-link {
+.dark .ds-atom-breadcrumbs-link {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-breadcrumbs-link:hover {
+.dark .ds-atom-breadcrumbs-link:hover {
 	color: var(--ink);
 }
-:root.dark .ds-atom-breadcrumbs-current,
-:root.dark .ds-atom-breadcrumbs-text {
+.dark .ds-atom-breadcrumbs-current,
+.dark .ds-atom-breadcrumbs-text {
 	color: var(--ink);
 }
-:root.dark .ds-atom-breadcrumbs-more:hover {
-	background: var(--surface-2);
+.dark .ds-atom-breadcrumbs-more:hover {
+	background: var(--surf-2);
 }
 
 /* ─── DS atom: Timeline (DS-66) ─────────────────────────────────────────────
@@ -2575,30 +2791,47 @@
 	margin: 0;
 	padding: 0;
 	display: flex;
-	gap: 24px;
 }
 .ds-atom-timeline[data-orientation="horizontal"] {
 	flex-direction: row;
 	align-items: flex-start;
+	gap: 0;
 }
 .ds-atom-timeline[data-orientation="vertical"] {
 	flex-direction: column;
-	align-items: flex-start;
+	align-items: stretch;
+	gap: 0;
 }
+
+/* ── Horizontal event — column: dot → date → label → desc ──────────────── */
 .ds-atom-timeline-event {
 	position: relative;
+	flex: 1;
+	min-width: 100px;
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
-	flex: 1;
-	min-width: 80px;
-}
-.ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-event {
-	flex-direction: row;
 	align-items: flex-start;
+	gap: 6px;
+	padding-right: 16px;
+}
+
+/* ── Vertical event — CSS grid: dot | [date, label, desc] ──────────────── */
+.ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-event {
 	flex: none;
 	width: 100%;
+	display: grid;
+	grid-template-columns: 24px 1fr;
+	grid-template-rows: auto auto auto;
+	column-gap: 12px;
+	row-gap: 2px;
+	padding-right: 0;
+	padding-bottom: 28px;
 }
+.ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-event:last-child {
+	padding-bottom: 0;
+}
+
+/* Dot positioning per orientation */
 .ds-atom-timeline-dot {
 	width: 10px;
 	height: 10px;
@@ -2606,47 +2839,81 @@
 	background: var(--amber);
 	flex-shrink: 0;
 	z-index: 1;
+	margin-top: 3px; /* vertically centre against first-line text */
 }
-/* Connector line — horizontal */
+/* In vertical grid: dot sits in col 1, rows 1-3 */
+.ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-dot {
+	grid-column: 1;
+	grid-row: 1;
+	justify-self: center;
+	margin-top: 4px;
+}
+/* In horizontal: dot is the first flex child, no special placement needed */
+.ds-atom-timeline[data-orientation="horizontal"] .ds-atom-timeline-dot {
+	margin-top: 0;
+}
+
+/* Connector — horizontal */
 .ds-atom-timeline[data-orientation="horizontal"] .ds-atom-timeline-event:not(:last-child)::after {
 	content: "";
 	position: absolute;
-	top: 4px;
-	left: 12px;
-	right: -24px;
+	top: 4px; /* dot centre (10px / 2 = 5px, minus 1px for line half-width) */
+	left: 11px;
+	right: 0;
 	height: 2px;
 	background: var(--rule);
 	z-index: 0;
 }
-/* Connector line — vertical */
+/* Connector — vertical */
 .ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-event:not(:last-child)::after {
 	content: "";
 	position: absolute;
-	top: 12px;
-	bottom: -24px;
-	left: 4px;
+	top: 18px; /* below the dot (dot top: 4px + dot height: 10px + gap: 4px) */
+	bottom: 4px;
+	left: 11px; /* centre of 24px grid column */
 	width: 2px;
 	background: var(--rule);
 	z-index: 0;
 }
+
+/* Content typography */
 .ds-atom-timeline-date {
 	font-family: var(--font-mono);
 	font-size: 11px;
-	color: var(--ink-2);
+	color: var(--ink-3);
 	text-transform: uppercase;
-	letter-spacing: 0.04em;
+	letter-spacing: 0.05em;
+	line-height: 1.4;
 }
 .ds-atom-timeline-label {
 	font-family: var(--font-display);
 	font-size: 14px;
 	color: var(--ink);
 	font-weight: 600;
+	line-height: 1.3;
 }
 .ds-atom-timeline-desc {
 	font-family: var(--font-body);
-	font-size: 13px;
+	font-size: 12px;
 	color: var(--ink-2);
+	line-height: 1.5;
 }
+
+/* Vertical grid placement for content */
+.ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-date {
+	grid-column: 2;
+	grid-row: 1;
+}
+.ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-label {
+	grid-column: 2;
+	grid-row: 2;
+}
+.ds-atom-timeline[data-orientation="vertical"] .ds-atom-timeline-desc {
+	grid-column: 2;
+	grid-row: 3;
+}
+
+/* Trigger button — same layout as its container */
 .ds-atom-timeline-trigger {
 	appearance: none;
 	background: transparent;
@@ -2654,10 +2921,7 @@
 	padding: 0;
 	cursor: pointer;
 	text-align: left;
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	width: 100%;
+	display: contents; /* lets grid/flex items flow directly into parent grid */
 	color: inherit;
 	font: inherit;
 }
@@ -2667,16 +2931,16 @@
 	border-radius: 4px;
 }
 /* Dark mode */
-:root.dark .ds-atom-timeline-date {
+.dark .ds-atom-timeline-date {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-timeline-label {
+.dark .ds-atom-timeline-label {
 	color: var(--ink);
 }
-:root.dark .ds-atom-timeline-desc {
+.dark .ds-atom-timeline-desc {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-timeline-event::after {
+.dark .ds-atom-timeline-event::after {
 	background: var(--rule);
 }
 
@@ -2686,6 +2950,9 @@
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
+	padding: 0;
+	margin: 0;
+	list-style: none;
 }
 .ds-atom-infinitelist-item {
 	display: block;
@@ -2709,7 +2976,7 @@
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 }
-:root.dark .ds-atom-infinitelist-end {
+.dark .ds-atom-infinitelist-end {
 	color: var(--ink-2);
 }
 
@@ -2722,7 +2989,7 @@
 	border: 1px solid var(--rule);
 	border-radius: 8px;
 	overflow: hidden;
-	background: var(--surface);
+	background: var(--surf-1);
 }
 .ds-atom-accordion-item + .ds-atom-accordion-item {
 	border-top: 1px solid var(--rule);
@@ -2750,7 +3017,7 @@
 	text-align: left;
 }
 .ds-atom-accordion-trigger:hover:not(:disabled) {
-	background: var(--surface-2);
+	background: var(--surf-2);
 }
 .ds-atom-accordion-trigger:focus-visible {
 	outline: 2px solid var(--amber);
@@ -2782,17 +3049,17 @@
 	transition: none;
 }
 /* Dark mode */
-:root.dark .ds-atom-accordion {
-	background: var(--surface);
+.dark .ds-atom-accordion {
+	background: var(--surf-1);
 	border-color: var(--rule);
 }
-:root.dark .ds-atom-accordion-trigger:hover:not(:disabled) {
-	background: var(--surface-2);
+.dark .ds-atom-accordion-trigger:hover:not(:disabled) {
+	background: var(--surf-2);
 }
-:root.dark .ds-atom-accordion-trigger {
+.dark .ds-atom-accordion-trigger {
 	color: var(--ink);
 }
-:root.dark .ds-atom-accordion-panel {
+.dark .ds-atom-accordion-panel {
 	color: var(--ink);
 }
 
@@ -2822,6 +3089,7 @@
 .ds-atom-carousel-slide {
 	flex: 0 0 100%;
 	min-width: 100%;
+	box-sizing: border-box;
 }
 .ds-atom-carousel-arrow {
 	position: absolute;
@@ -2830,7 +3098,7 @@
 	width: 40px;
 	height: 40px;
 	border-radius: 50%;
-	background: var(--surface);
+	background: var(--surf-1);
 	border: 1px solid var(--rule);
 	cursor: pointer;
 	display: flex;
@@ -2840,7 +3108,7 @@
 	transition: background-color 120ms ease;
 }
 .ds-atom-carousel-arrow:hover:not(:disabled) {
-	background: var(--surface-2);
+	background: var(--surf-2);
 }
 .ds-atom-carousel-arrow:focus-visible {
 	outline: 2px solid var(--amber);
@@ -2881,18 +3149,18 @@
 	outline-offset: 2px;
 }
 /* Dark mode */
-:root.dark .ds-atom-carousel-arrow {
-	background: var(--surface);
+.dark .ds-atom-carousel-arrow {
+	background: var(--surf-1);
 	border-color: var(--rule);
 	color: var(--ink);
 }
-:root.dark .ds-atom-carousel-arrow:hover:not(:disabled) {
-	background: var(--surface-2);
+.dark .ds-atom-carousel-arrow:hover:not(:disabled) {
+	background: var(--surf-2);
 }
-:root.dark .ds-atom-carousel-dot {
+.dark .ds-atom-carousel-dot {
 	background: var(--rule);
 }
-:root.dark .ds-atom-carousel-dot[data-active] {
+.dark .ds-atom-carousel-dot[data-active] {
 	background: var(--amber);
 }
 
@@ -2913,7 +3181,7 @@
 .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-list {
 	border-bottom: 0;
 	padding: 4px;
-	background: var(--surface-2);
+	background: var(--surf-2);
 	border-radius: 999px;
 	gap: 2px;
 }
@@ -2939,7 +3207,8 @@
 }
 .ds-atom-tabs-trigger:focus-visible {
 	outline: 2px solid var(--amber);
-	outline-offset: 2px;
+	outline-offset: -2px;
+	border-radius: 4px;
 }
 .ds-atom-tabs-trigger:disabled {
 	opacity: 0.5;
@@ -2975,7 +3244,7 @@
 	height: 18px;
 	padding: 0 6px;
 	border-radius: 999px;
-	background: var(--surface-2);
+	background: var(--surf-2);
 	color: var(--ink-2);
 	font-family: var(--font-mono);
 	font-size: 11px;
@@ -3008,12 +3277,12 @@
 	border-radius: 4px;
 }
 .ds-atom-tabs-more:hover {
-	background: var(--surface-2);
+	background: var(--surf-2);
 	color: var(--ink);
 }
 .ds-atom-tabs-more:focus-visible {
 	outline: 2px solid var(--amber);
-	outline-offset: 2px;
+	outline-offset: -2px;
 }
 /* Overflow dropdown menu */
 .ds-atom-tabs-overflow-menu {
@@ -3040,38 +3309,40 @@
 }
 .ds-atom-tabs-overflow-item[data-active] button,
 .ds-atom-tabs-overflow-item button:hover {
-	background: var(--surface-2);
+	background: var(--surf-2);
 }
 /* Dark mode */
-:root.dark .ds-atom-tabs-list {
+.dark .ds-atom-tabs-list {
 	border-bottom-color: var(--rule);
 }
-:root.dark .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-list {
-	background: var(--surface-2);
+.dark .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-list {
+	background: var(--surf-2);
 }
-:root.dark .ds-atom-tabs-trigger {
+/* Inactive tabs: clearly readable but dimmer than active */
+.dark .ds-atom-tabs-trigger {
+	color: var(--ink-3);
+}
+.dark .ds-atom-tabs-trigger:hover:not(:disabled):not([data-active]) {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-tabs-trigger:hover:not(:disabled):not([data-active]) {
+/* Active tabs: full brightness */
+.dark .ds-atom-tabs[data-variant="underline"] .ds-atom-tabs-trigger[data-active] {
 	color: var(--ink);
 }
-:root.dark .ds-atom-tabs[data-variant="underline"] .ds-atom-tabs-trigger[data-active] {
-	color: var(--ink);
-}
-:root.dark .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-trigger[data-active] {
+.dark .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-trigger[data-active] {
 	background: var(--amber);
-	color: var(--ink-inverse, #000);
+	color: #1c1917;
 }
-:root.dark .ds-atom-tabs-count {
-	background: var(--surface-2);
+.dark .ds-atom-tabs-count {
+	background: var(--surf-2);
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-tabs-more:hover {
-	background: var(--surface-2);
+.dark .ds-atom-tabs-more:hover {
+	background: var(--surf-2);
 }
-:root.dark .ds-atom-tabs-overflow-item[data-active] button,
-:root.dark .ds-atom-tabs-overflow-item button:hover {
-	background: var(--surface-2);
+.dark .ds-atom-tabs-overflow-item[data-active] button,
+.dark .ds-atom-tabs-overflow-item button:hover {
+	background: var(--surf-2);
 }
 
 /* ─── DS atom: Table (DS-61, part 1) ────────────────────────────────────
@@ -3086,11 +3357,13 @@
 }
 .ds-atom-table-header {
 	border-bottom: 1px solid var(--rule);
-	background: var(--surface-2);
+	background: var(--surf-2);
 }
 .ds-atom-table[data-sticky="true"] .ds-atom-table-header {
 	position: sticky;
 	top: 0;
+	/* Solid background so scrolled row text doesn't bleed through the semi-transparent --surf-2 */
+	background: var(--cream-2);
 	z-index: 1;
 }
 .ds-atom-table-headercell {
@@ -3133,7 +3406,7 @@
 	border-bottom: 0;
 }
 .ds-atom-table-row:hover {
-	background: var(--surface-2);
+	background: var(--surf-2);
 }
 .ds-atom-table-cell {
 	padding: 8px 12px;
@@ -3158,24 +3431,27 @@
 	height: 48px;
 }
 /* Dark mode */
-:root.dark .ds-atom-table {
+.dark .ds-atom-table {
 	color: var(--ink);
 }
-:root.dark .ds-atom-table-header {
-	background: var(--surface-2);
+.dark .ds-atom-table-header {
+	background: var(--surf-2);
 	border-bottom-color: var(--rule);
 }
-:root.dark .ds-atom-table-headercell {
+.dark .ds-atom-table[data-sticky="true"] .ds-atom-table-header {
+	background: var(--cream-2);
+}
+.dark .ds-atom-table-headercell {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-table-headercell-sortable:hover {
+.dark .ds-atom-table-headercell-sortable:hover {
 	color: var(--ink);
 }
-:root.dark .ds-atom-table-row {
+.dark .ds-atom-table-row {
 	border-bottom-color: var(--rule);
 }
-:root.dark .ds-atom-table-row:hover {
-	background: var(--surface-2);
+.dark .ds-atom-table-row:hover {
+	background: var(--surf-2);
 }
 
 /* DS-61 part 2 — Selection, resize, pagination (Plan 17-11) */
@@ -3227,11 +3503,11 @@
 	letter-spacing: 0.04em;
 }
 /* Dark mode */
-:root.dark .ds-atom-table-row[data-selected="true"] {
+.dark .ds-atom-table-row[data-selected="true"] {
 	background: color-mix(in srgb, var(--amber) 18%, transparent);
 }
-:root.dark .ds-atom-table-pagination-ellipsis,
-:root.dark .ds-atom-table-pagination-summary {
+.dark .ds-atom-table-pagination-ellipsis,
+.dark .ds-atom-table-pagination-summary {
 	color: var(--ink-2);
 }
 
@@ -3240,7 +3516,7 @@
    Today highlight in amber per DatePicker tokens (D-17-25). */
 .ds-atom-calendar {
 	font-family: var(--font-body);
-	background: var(--surface);
+	background: var(--cream);
 	border: 1px solid var(--rule);
 	border-radius: 8px;
 	padding: 16px;
@@ -3270,7 +3546,7 @@
 	justify-content: center;
 }
 .ds-atom-calendar-navbtn:hover {
-	background: var(--surface-2);
+	background: var(--cream-3);
 	color: var(--ink);
 }
 .ds-atom-calendar-navbtn:focus-visible {
@@ -3293,7 +3569,7 @@
 .ds-atom-calendar-weekdays,
 .ds-atom-calendar-week {
 	display: grid;
-	grid-template-columns: repeat(7, 1fr);
+	grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 .ds-atom-calendar-weekday {
 	padding: 6px 0;
@@ -3314,6 +3590,7 @@
 	cursor: pointer;
 	padding: 8px;
 	min-height: 80px;
+	min-width: 0;
 	color: var(--ink);
 	font-family: inherit;
 	text-align: left;
@@ -3323,6 +3600,7 @@
 	gap: 4px;
 	position: relative;
 	transition: background-color 100ms ease;
+	overflow: hidden;
 }
 .ds-atom-calendar-week:last-child .ds-atom-calendar-cell {
 	border-bottom: 1px solid var(--rule);
@@ -3331,7 +3609,7 @@
 	border-left: 1px solid var(--rule);
 }
 .ds-atom-calendar-cell:hover {
-	background: var(--surface-2);
+	background: var(--cream-3);
 }
 .ds-atom-calendar-cell:focus-visible {
 	outline: 2px solid var(--amber);
@@ -3397,7 +3675,7 @@
 .ds-atom-calendar-events-popover {
 	padding: 12px;
 	min-width: 240px;
-	background: var(--surface);
+	background: var(--surf-1);
 	border: 1px solid var(--rule);
 	border-radius: 6px;
 }
@@ -3551,6 +3829,27 @@
 .ds-atom-calendar-dayview-grid {
 	display: flex;
 	flex-direction: column;
+	/* Height + overflow set via inline style (dayViewHeight prop, default 480px) */
+	position: relative;
+}
+/* Current-time indicator — horizontal amber line across the time grid */
+.ds-atom-calendar-nowline {
+	position: absolute;
+	left: 60px; /* align with hour slot column, past the label */
+	right: 0;
+	height: 2px;
+	background: var(--amber);
+	z-index: 2;
+	pointer-events: none;
+}
+.ds-atom-calendar-nowdot {
+	position: absolute;
+	left: -5px;
+	top: -4px;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--amber);
 }
 .ds-atom-calendar-dayview-hour {
 	display: grid;
@@ -3571,58 +3870,66 @@
 	gap: 2px;
 }
 /* Dark mode */
-:root.dark .ds-atom-calendar {
-	background: var(--surface);
+.dark .ds-atom-calendar {
+	background: var(--surf-1);
 	border-color: var(--rule);
+	color: var(--ink);
 }
-:root.dark .ds-atom-calendar-cell {
+.dark .ds-atom-calendar-cell {
 	color: var(--ink);
 	border-color: var(--rule);
 }
-:root.dark .ds-atom-calendar-cell:hover {
-	background: var(--surface-2);
+.dark .ds-atom-calendar-cell:hover {
+	background: var(--surf-2);
 }
-:root.dark .ds-atom-calendar-cell[data-today] .ds-atom-calendar-cell-num {
+.dark .ds-atom-calendar-cell[data-today] .ds-atom-calendar-cell-num {
 	background: var(--amber);
 	color: var(--ink-inverse, #000);
 }
-:root.dark .ds-atom-calendar-cell[data-out-of-month] {
+.dark .ds-atom-calendar-cell[data-out-of-month] {
 	color: var(--ink-2);
 	opacity: 0.5;
 }
-:root.dark .ds-atom-calendar-weekday {
+.dark .ds-atom-calendar-weekday {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-calendar-navbtn {
+.dark .ds-atom-calendar-navbtn {
 	border-color: var(--rule);
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-calendar-navbtn:hover {
-	background: var(--surface-2);
+.dark .ds-atom-calendar-navbtn:hover {
+	background: var(--surf-2);
 	color: var(--ink);
 }
-:root.dark .ds-atom-calendar-chip-more {
+.dark .ds-atom-calendar-chip-more {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-calendar-events-popover {
-	background: var(--surface);
+.dark .ds-atom-calendar-events-popover {
+	background: var(--surf-1);
 	border-color: var(--rule);
 }
-:root.dark .ds-atom-calendar-events-item {
+.dark .ds-atom-calendar-events-item {
 	color: var(--ink);
 }
-:root.dark .ds-atom-calendar-weekcell {
+.dark .ds-atom-calendar-weekcell {
 	border-color: var(--rule);
+	color: var(--ink);
 }
-:root.dark .ds-atom-calendar-weekcell-name {
+.dark .ds-atom-calendar-weekcell-name {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-calendar-dayview-alldaylabel,
-:root.dark .ds-atom-calendar-dayview-hourlabel {
+.dark .ds-atom-calendar-weekcell-date {
+	color: var(--ink);
+}
+.dark .ds-atom-calendar-weekcell-header {
+	color: var(--ink);
+}
+.dark .ds-atom-calendar-dayview-alldaylabel,
+.dark .ds-atom-calendar-dayview-hourlabel {
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-calendar-dayview-allday,
-:root.dark .ds-atom-calendar-dayview-hour {
+.dark .ds-atom-calendar-dayview-allday,
+.dark .ds-atom-calendar-dayview-hour {
 	border-bottom-color: var(--rule);
 }
 
@@ -3637,7 +3944,7 @@
 .ds-atom-richtext {
 	border: 1px solid var(--rule);
 	border-radius: 8px;
-	background: var(--surface);
+	background: var(--surf-1);
 	overflow: hidden;
 }
 .ds-atom-richtext:focus-within {
@@ -3655,7 +3962,7 @@
 	gap: 2px;
 	padding: 6px;
 	border-bottom: 1px solid var(--rule);
-	background: var(--surface-2);
+	background: var(--surf-2);
 	flex-wrap: wrap;
 }
 .ds-atom-richtext-toolbar-divider {
@@ -3694,7 +4001,7 @@
 }
 .ds-atom-richtext-headingmenu li[data-active] button,
 .ds-atom-richtext-headingmenu li button:hover {
-	background: var(--surface-2);
+	background: var(--surf-2);
 }
 
 /* ── Editor surface ───────────────────────────────────────────────────────── */
@@ -3732,13 +4039,132 @@
 	margin: 14px 0 6px 0;
 	line-height: 1.4;
 }
+/* Inline code */
 .ds-atom-richtext-surface .ProseMirror code {
-	background: var(--surface-2);
+	background: var(--cream-3);
 	padding: 1px 6px;
 	border-radius: 3px;
 	font-family: var(--font-mono);
 	font-size: 12px;
 	color: var(--ink);
+}
+/* Fenced code block — lowlight adds <pre><code class="language-*"> */
+.ds-atom-richtext-surface .ProseMirror pre {
+	background: var(--cream-2);
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	padding: 12px 14px;
+	margin: 8px 0;
+	overflow-x: auto;
+}
+/* Dark code block — activated by Moon toggle OR page dark mode.
+   Uses !important to override storybook.css's global pre background rule. */
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre,
+.dark .ds-atom-richtext-surface .ProseMirror pre {
+	background: #1c1917 !important;
+	border-color: #44403c !important;
+}
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre code,
+.dark .ds-atom-richtext-surface .ProseMirror pre code {
+	color: #f5f3f0 !important;
+}
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-keyword,
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-tag,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-keyword,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-tag {
+	color: #c084fc;
+}
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-string,
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-attr,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-string,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-attr {
+	color: #86efac;
+}
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-built_in,
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-title.function_,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-built_in,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-title.function_ {
+	color: #7dd3fc;
+}
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-number,
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-literal,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-number,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-literal {
+	color: #fbbf24;
+}
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-comment,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-comment {
+	color: #6b7280;
+	font-style: italic;
+}
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-type,
+.ds-atom-richtext-surface[data-code-dark] .ProseMirror pre .hljs-class .hljs-title,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-type,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-class .hljs-title {
+	color: #7dd3fc;
+}
+.ds-atom-richtext-surface .ProseMirror pre code {
+	background: none;
+	padding: 0;
+	border-radius: 0;
+	font-family: var(--font-mono);
+	font-size: 12.5px;
+	line-height: 1.65;
+	color: var(--ink);
+}
+/* Syntax token colours — light mode */
+.ds-atom-richtext-surface .ProseMirror pre .hljs-keyword,
+.ds-atom-richtext-surface .ProseMirror pre .hljs-tag {
+	color: #7c3aed;
+}
+.ds-atom-richtext-surface .ProseMirror pre .hljs-string,
+.ds-atom-richtext-surface .ProseMirror pre .hljs-attr {
+	color: #15803d;
+}
+.ds-atom-richtext-surface .ProseMirror pre .hljs-built_in,
+.ds-atom-richtext-surface .ProseMirror pre .hljs-title.function_ {
+	color: #1d4ed8;
+}
+.ds-atom-richtext-surface .ProseMirror pre .hljs-number,
+.ds-atom-richtext-surface .ProseMirror pre .hljs-literal {
+	color: #b45309;
+}
+.ds-atom-richtext-surface .ProseMirror pre .hljs-comment {
+	color: var(--ink-3);
+	font-style: italic;
+}
+.ds-atom-richtext-surface .ProseMirror pre .hljs-type,
+.ds-atom-richtext-surface .ProseMirror pre .hljs-class .hljs-title {
+	color: #0369a1;
+}
+/* Syntax token colours — dark mode */
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-keyword,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-tag {
+	color: #c084fc;
+}
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-string,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-attr {
+	color: #86efac;
+}
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-built_in,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-title.function_ {
+	color: #7dd3fc;
+}
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-number,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-literal {
+	color: #fbbf24;
+}
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-comment {
+	color: var(--ink-3);
+	font-style: italic;
+}
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-type,
+.dark .ds-atom-richtext-surface .ProseMirror pre .hljs-class .hljs-title {
+	color: #7dd3fc;
+}
+.dark .ds-atom-richtext-surface .ProseMirror pre {
+	background: var(--cream-3);
+	border-color: var(--rule);
 }
 .ds-atom-richtext-surface .ProseMirror blockquote {
 	border-left: 3px solid var(--amber);
@@ -3777,17 +4203,20 @@
 }
 
 /* ── Link popover ─────────────────────────────────────────────────────────── */
+/* Reset browser <dialog> defaults first, then apply panel styles */
 .ds-atom-richtext-linkpopover {
-	background: var(--surface);
+	background: var(--cream-2);
 	border: 1px solid var(--rule);
 	border-radius: 6px;
 	padding: 8px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	box-shadow: var(--shadow-3);
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 	min-width: 280px;
 	z-index: 1050;
+	/* Ensure browser dialog outline/background don't interfere */
+	outline: none;
 }
 .ds-atom-richtext-linkinput {
 	appearance: none;
@@ -3795,7 +4224,7 @@
 	padding: 6px 8px;
 	border: 1px solid var(--rule);
 	border-radius: 4px;
-	background: var(--surface);
+	background: var(--cream);
 	color: var(--ink);
 	font-family: inherit;
 	font-size: 13px;
@@ -3812,42 +4241,42 @@
 }
 
 /* ── Dark mode ────────────────────────────────────────────────────────────── */
-:root.dark .ds-atom-richtext {
-	background: var(--surface);
+.dark .ds-atom-richtext {
+	background: var(--surf-1);
 	border-color: var(--rule);
 }
-:root.dark .ds-atom-richtext-toolbar {
-	background: var(--surface-2);
+.dark .ds-atom-richtext-toolbar {
+	background: var(--surf-2);
 	border-bottom-color: var(--rule);
 }
-:root.dark .ds-atom-richtext-toolbar-divider {
+.dark .ds-atom-richtext-toolbar-divider {
 	background: var(--rule);
 }
-:root.dark .ds-atom-richtext-surface {
+.dark .ds-atom-richtext-surface {
 	color: var(--ink);
 }
-:root.dark .ds-atom-richtext-surface .ProseMirror code {
-	background: var(--surface-2);
+.dark .ds-atom-richtext-surface .ProseMirror code {
+	background: var(--surf-2);
 	color: var(--ink);
 }
-:root.dark .ds-atom-richtext-surface .ProseMirror blockquote {
+.dark .ds-atom-richtext-surface .ProseMirror blockquote {
 	border-left-color: var(--amber);
 	color: var(--ink-2);
 }
-:root.dark .ds-atom-richtext-headingmenu li button {
+.dark .ds-atom-richtext-headingmenu li button {
 	color: var(--ink);
 }
-:root.dark .ds-atom-richtext-headingmenu li[data-active] button,
-:root.dark .ds-atom-richtext-headingmenu li button:hover {
-	background: var(--surface-2);
+.dark .ds-atom-richtext-headingmenu li[data-active] button,
+.dark .ds-atom-richtext-headingmenu li button:hover {
+	background: var(--surf-2);
 }
-:root.dark .ds-atom-richtext-linkpopover {
-	background: var(--surface);
+.dark .ds-atom-richtext-linkpopover {
+	background: var(--cream-2);
 	border-color: var(--rule);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
-:root.dark .ds-atom-richtext-linkinput {
-	background: var(--surface);
+.dark .ds-atom-richtext-linkinput {
+	background: var(--cream-3);
 	color: var(--ink);
 	border-color: var(--rule);
 }

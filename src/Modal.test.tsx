@@ -102,7 +102,7 @@ describe("Modal", () => {
 		expect(onClose).not.toHaveBeenCalled();
 	});
 
-	it("focus trap: focuses first focusable child inside the panel on open", () => {
+	it("focus trap: focuses the header close button (first focusable element) on open", () => {
 		render(
 			<Modal open={true} onClose={() => {}} title="Trap">
 				<button type="button" data-testid="first-btn">
@@ -113,7 +113,8 @@ describe("Modal", () => {
 				</button>
 			</Modal>,
 		);
-		expect(document.activeElement).toBe(screen.getByTestId("first-btn"));
+		// Close button in the header is now the first focusable element.
+		expect(document.activeElement).toBe(screen.getByRole("button", { name: "Close" }));
 	});
 });
 

@@ -4,10 +4,28 @@ export type AvatarSize = 24 | 28 | 32 | 36 | 40;
 export type AvatarPresence = "online" | "away" | "offline" | "dnd";
 
 export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
+	/** Full name used to derive initials and background color. Also becomes `aria-label`. */
 	name?: string;
+	/** Override the auto-derived initials (1–2 uppercase letters). */
 	initials?: string;
-	gradient?: [string, string];
+	/**
+	 * URL of an image to display. When provided, the image fills the circle and
+	 * initials/background are not rendered.
+	 */
+	src?: string;
+	/** Alt text for the image. Falls back to `name` when omitted. */
+	alt?: string;
+	/**
+	 * Use a two-stop gradient background instead of the default solid color.
+	 * Pass `[fromColor, toColor]` to override, or omit to use the auto-derived gradient.
+	 * When not set, a solid color derived from the name is used.
+	 */
+	gradient?: [string, string] | true;
+	/** Diameter of the avatar circle in pixels.
+	 * @default 32
+	 */
 	size?: AvatarSize;
+	/** Shows a colored presence dot at the bottom-right edge. */
 	presence?: AvatarPresence;
 }
 
@@ -20,6 +38,16 @@ const AVATAR_PALETTE = [
 	["#ef4444", "#f59e0b"], // red → amber
 	["#0ea5e9", "#22c55e"], // sky → green
 ] as const satisfies ReadonlyArray<readonly [string, string]>;
+
+// 6 solid colors — default background when gradient is not requested.
+const SOLID_PALETTE = [
+	"#d97706", // amber
+	"#2563eb", // blue
+	"#16a34a", // green
+	"#7c3aed", // purple
+	"#dc2626", // red
+	"#0284c7", // sky
+] as const;
 
 // djb2 hash on lowercased string (D-121).
 function djb2(s: string): number {
@@ -44,9 +72,12 @@ export function deriveInitials(name?: string | null): string {
 
 export function deriveGradient(seed: string): readonly [string, string] {
 	const idx = djb2(seed.toLowerCase()) % AVATAR_PALETTE.length;
-	// Modulo by AVATAR_PALETTE.length always yields a valid index; fall back
-	// to first entry only to satisfy TS noUncheckedIndexedAccess style rules.
 	return AVATAR_PALETTE[idx] ?? AVATAR_PALETTE[0];
+}
+
+function deriveSolidColor(seed: string): string {
+	const idx = djb2(seed.toLowerCase()) % SOLID_PALETTE.length;
+	return SOLID_PALETTE[idx] ?? SOLID_PALETTE[0];
 }
 
 const presenceColors: Record<AvatarPresence, string> = {
@@ -57,17 +88,27 @@ const presenceColors: Record<AvatarPresence, string> = {
 };
 
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
-	{ name, initials, gradient, size = 32, presence, children, style, ...rest },
+	{ name, initials, src, alt, gradient, size = 32, presence, children, style, ...rest },
 	ref,
 ) {
+	const seed = initials || name || "?";
 	const computedInitials = initials ?? deriveInitials(name);
-	const computedGradient = gradient ?? deriveGradient(initials || name || "?");
+
+	// Background: solid by default; gradient when gradient prop is set.
+	let background: string;
+	if (gradient) {
+		const stops = Array.isArray(gradient) ? gradient : deriveGradient(seed);
+		background = `linear-gradient(145deg, ${stops[0]}, ${stops[1]})`;
+	} else {
+		background = deriveSolidColor(seed);
+	}
+
 	const containerStyle: CSSProperties = {
 		position: "relative",
 		width: size,
 		height: size,
 		borderRadius: "50%",
-		background: `linear-gradient(145deg, ${computedGradient[0]}, ${computedGradient[1]})`,
+		background: src ? "transparent" : background,
 		color: "#ffffff",
 		display: "inline-flex",
 		alignItems: "center",
@@ -76,24 +117,40 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
 		fontSize: Math.round(size * 0.35),
 		fontWeight: 700,
 		flexShrink: 0,
+		overflow: src ? "hidden" : "visible",
 		...style,
 	};
-	const presenceSize = 12;
+
+	// Presence dot: positioned so its centre sits on the circle's edge at 45°.
+	// offset = radius - radius * cos(45°) ≈ radius * 0.29; negative value pushes
+	// the dot outside the container so it straddles the avatar border.
+	const presenceSize = Math.max(8, Math.round(size * 0.28));
+	const presenceOffset = -Math.round(presenceSize * 0.3);
+
 	return (
 		<div ref={ref} style={containerStyle} aria-label={name} {...rest}>
-			{children ?? computedInitials}
+			{src ? (
+				<img
+					src={src}
+					alt={alt ?? name ?? "Avatar"}
+					style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+				/>
+			) : (
+				(children ?? computedInitials)
+			)}
 			{presence ? (
 				<span
 					aria-hidden="true"
 					style={{
 						position: "absolute",
-						right: 0,
-						bottom: 0,
+						right: presenceOffset,
+						bottom: presenceOffset,
 						width: presenceSize,
 						height: presenceSize,
 						borderRadius: "50%",
 						background: presenceColors[presence],
 						border: "2px solid var(--cream)",
+						flexShrink: 0,
 					}}
 				/>
 			) : null}
@@ -102,8 +159,15 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
 });
 
 export interface AvatarStackProps extends HTMLAttributes<HTMLDivElement> {
+	/** Array of avatar descriptors rendered as an overlapping stack. */
 	avatars: ReadonlyArray<{ name?: string; initials?: string; gradient?: [string, string] }>;
+	/** Maximum number of avatars shown before a "+N more" overflow badge.
+	 * @default 4
+	 */
 	max?: number;
+	/** Size in pixels applied to every avatar in the stack.
+	 * @default 32
+	 */
 	size?: AvatarSize;
 }
 

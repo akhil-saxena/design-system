@@ -25,12 +25,14 @@ import {
 	List as L_List,
 	ListOrdered as L_ListOrdered,
 	Minus as L_Minus,
+	Moon as L_Moon,
 	MoreHorizontal as L_MoreHorizontal,
 	Plus as L_Plus,
 	Quote as L_Quote,
 	Search as L_Search,
 	Star as L_Star,
 	Strikethrough as L_Strikethrough,
+	Sun as L_Sun,
 	Trash as L_Trash,
 	Trash2 as L_Trash2,
 	Underline as L_Underline,
@@ -69,7 +71,9 @@ export const Italic = wrap(L_Italic);
 export const Link2 = wrap(L_Link2);
 export const List = wrap(L_List);
 export const ListOrdered = wrap(L_ListOrdered);
+export const Moon = wrap(L_Moon);
 export const MoreHorizontal = wrap(L_MoreHorizontal);
+export const Sun = wrap(L_Sun);
 export const Quote = wrap(L_Quote);
 export const Strikethrough = wrap(L_Strikethrough);
 export const Underline = wrap(L_Underline);

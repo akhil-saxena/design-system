@@ -17,10 +17,97 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { SegmentedControl, type SegmentedOption } from "./SegmentedControl";
 
+const SRC = {
+	Default: `const [v, setV] = useState("week");
+return (
+  <SegmentedControl
+    options={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }, { value: "month", label: "Month" }]}
+    value={v}
+    onChange={setV}
+    ariaLabel="View mode"
+  />
+);`,
+	TwoOptions: `const [v, setV] = useState("active");
+return (
+  <SegmentedControl
+    options={[{ value: "active", label: "Active" }, { value: "archived", label: "Archived" }]}
+    value={v}
+    onChange={setV}
+    ariaLabel="Status filter"
+  />
+);`,
+	FiveOptions: `const [v, setV] = useState("1m");
+return (
+  <SegmentedControl
+    options={[
+      { value: "1d", label: "1D" },
+      { value: "1w", label: "1W" },
+      { value: "1m", label: "1M" },
+      { value: "3m", label: "3M" },
+      { value: "1y", label: "1Y" },
+    ]}
+    value={v}
+    onChange={setV}
+    ariaLabel="Time period"
+  />
+);`,
+	Sizes: `<SegmentedControl options={options} value={v} onChange={setV} ariaLabel="View mode small" size="sm" />
+<SegmentedControl options={options} value={v} onChange={setV} ariaLabel="View mode medium" size="md" />
+<SegmentedControl options={options} value={v} onChange={setV} ariaLabel="View mode large" size="lg" />`,
+	Disabled: `<SegmentedControl
+  options={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }, { value: "month", label: "Month" }]}
+  value="week"
+  onChange={() => {}}
+  ariaLabel="View mode (disabled)"
+  disabled
+/>`,
+	WithDisabledOption: `const [v, setV] = useState("list");
+return (
+  <SegmentedControl
+    options={[
+      { value: "list", label: "List" },
+      { value: "board", label: "Board", disabled: true },
+      { value: "calendar", label: "Calendar" },
+    ]}
+    value={v}
+    onChange={setV}
+    ariaLabel="View layout"
+  />
+);`,
+	DarkMode: `const [view, setView] = useState("week");
+return (
+  <SegmentedControl
+    options={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }, { value: "month", label: "Month" }]}
+    value={view}
+    onChange={setView}
+    ariaLabel="View mode (dark)"
+  />
+);`,
+	Playground: `const [v, setV] = useState("week");
+return (
+  <SegmentedControl
+    options={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }, { value: "month", label: "Month" }]}
+    value={v}
+    onChange={setV}
+    size="md"
+    ariaLabel="Playground"
+  />
+);`,
+};
+
 const meta: Meta<typeof SegmentedControl> = {
 	title: "Atoms/SegmentedControl",
 	component: SegmentedControl,
-	parameters: { layout: "padded" },
+	tags: ["autodocs"],
+	parameters: {
+		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"Pill-style single-select control for switching between a small set of mutually exclusive options, styled as a connected button group.",
+			},
+		},
+	},
 };
 export default meta;
 type Story = StoryObj<typeof SegmentedControl>;
@@ -51,6 +138,7 @@ const WITH_DISABLED_OPTION: SegmentedOption[] = [
 ];
 
 export const Default: Story = {
+	parameters: { docs: { source: { code: SRC.Default } } },
 	render: () => {
 		const [v, setV] = useState("week");
 		return (
@@ -60,6 +148,7 @@ export const Default: Story = {
 };
 
 export const TwoOptions: Story = {
+	parameters: { docs: { source: { code: SRC.TwoOptions } } },
 	render: () => {
 		const [v, setV] = useState("active");
 		return (
@@ -69,6 +158,7 @@ export const TwoOptions: Story = {
 };
 
 export const FiveOptions: Story = {
+	parameters: { docs: { source: { code: SRC.FiveOptions } } },
 	render: () => {
 		const [v, setV] = useState("1m");
 		return (
@@ -78,6 +168,7 @@ export const FiveOptions: Story = {
 };
 
 export const Sizes: Story = {
+	parameters: { docs: { source: { code: SRC.Sizes } } },
 	render: () => {
 		const [sm, setSm] = useState("week");
 		const [md, setMd] = useState("week");
@@ -150,6 +241,7 @@ export const Sizes: Story = {
 };
 
 export const Disabled: Story = {
+	parameters: { docs: { source: { code: SRC.Disabled } } },
 	render: () => (
 		<SegmentedControl
 			options={VIEW_OPTIONS}
@@ -162,6 +254,7 @@ export const Disabled: Story = {
 };
 
 export const WithDisabledOption: Story = {
+	parameters: { docs: { source: { code: SRC.WithDisabledOption } } },
 	render: () => {
 		const [v, setV] = useState("list");
 		return (
@@ -176,7 +269,14 @@ export const WithDisabledOption: Story = {
 };
 
 export const DarkMode: Story = {
-	globals: { theme: "dark" },
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
 	render: () => {
 		const [view, setView] = useState("week");
 		const [period, setPeriod] = useState("1m");
@@ -207,6 +307,7 @@ export const DarkMode: Story = {
 };
 
 export const Playground: Story = {
+	parameters: { docs: { source: { code: SRC.Playground } } },
 	args: {
 		options: VIEW_OPTIONS,
 		value: "week",

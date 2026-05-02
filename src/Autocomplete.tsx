@@ -3,17 +3,31 @@ import { DSDropdown } from "./_internals/DSDropdown";
 import { Clock } from "./icons";
 
 export interface AutocompleteProps<T> {
+	/** Controlled text value of the input field. */
 	value: string;
+	/** Called on every keystroke with the new input string. */
 	onValueChange: (q: string) => void;
+	/** Consumer-filtered list of items to show; Autocomplete never filters internally. */
 	items: T[];
+	/** Optional array of recently-used items shown when the input is empty and focused. */
 	recentItems?: T[];
+	/** Called when the user selects an item from the dropdown. */
 	onSelect: (item: T) => void;
+	/** When provided, shows a "+ Add …" button when `items` is empty; called with the current query. */
 	onCreate?: (query: string) => void;
+	/** Extracts a display string from an item for rendering and type-ahead. */
 	getItemLabel: (item: T) => string;
+	/** Extracts a unique React key string from an item. */
 	getItemKey: (item: T) => string;
+	/** Custom render function for each option row; receives the item and whether it is keyboard-active. */
 	renderItem?: (item: T, isActive: boolean) => ReactNode;
+	/** Placeholder text shown in the empty input.
+	 * @default "Search…"
+	 */
 	placeholder?: string;
+	/** Additional className applied to the underlying `<input>` element. */
 	className?: string;
+	/** Inline styles applied to the underlying `<input>` element. */
 	style?: CSSProperties;
 }
 

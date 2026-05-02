@@ -2,17 +2,31 @@ import { type CSSProperties, type ReactNode, forwardRef, useEffect, useState } f
 import { Minus, Plus } from "./icons";
 
 export interface NumberStepperProps {
+	/** Controlled numeric value. */
 	value: number;
+	/** Called with the clamped next value after each increment, decrement, or manual edit. */
 	onChange: (next: number) => void;
+	/** Minimum allowed value; decrement button disables at this boundary. */
 	min?: number;
+	/** Maximum allowed value; increment button disables at this boundary. */
 	max?: number;
+	/** Amount added or subtracted per button click.
+	 * @default 1
+	 */
 	step?: number;
+	/** Optional leading adornment (e.g. currency symbol) rendered before the value. */
 	prefix?: ReactNode;
+	/** Optional trailing adornment (e.g. unit label) rendered after the value. */
 	suffix?: ReactNode;
+	/** Custom display formatter called when the input is not focused; raw value shown while editing. */
 	formatFn?: (value: number) => string;
+	/** When true, disables all interaction including both buttons and the input. */
 	disabled?: boolean;
+	/** Accessible label for the stepper container used by assistive technology. */
 	ariaLabel?: string;
+	/** Additional className applied to the root wrapper element. */
 	className?: string;
+	/** Inline styles applied to the root wrapper element. */
 	style?: CSSProperties;
 }
 

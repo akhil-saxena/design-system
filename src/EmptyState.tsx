@@ -1,9 +1,26 @@
 import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } from "react";
 
 export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+	/**
+	 * Optional icon rendered above the title. Pass a lucide icon or any SVG at **40×40**.
+	 * Omit for minimal inline empty states where an icon would add visual noise.
+	 */
 	icon?: ReactNode;
+	/**
+	 * Primary heading. Required. Rendered in the display font at 600 weight.
+	 * Keep to one short sentence — "No applications yet", "Nothing matched".
+	 */
 	title: ReactNode;
+	/**
+	 * Secondary line below the title. Use to explain why the state occurred or
+	 * suggest the next action. Rendered in `--ink-3` (flips with dark mode).
+	 */
 	description?: ReactNode;
+	/**
+	 * CTA slot. Pass one or two `<Button>` elements (or any ReactNode).
+	 * Rendered as a flex row below the description.
+	 * Common patterns: single primary Button, primary + ghost pair.
+	 */
 	children?: ReactNode;
 }
 
@@ -42,7 +59,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(function E
 	return (
 		<div
 			ref={ref}
-			className={`ds-atom-empty${className ? ` ${className}` : ""}`}
+			className={["ds-atom-empty", className].filter(Boolean).join(" ")}
 			style={{ ...baseStyle, ...style }}
 			{...rest}
 		>

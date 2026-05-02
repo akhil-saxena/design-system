@@ -4,12 +4,21 @@ import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "./icons";
 export type AlertBannerTone = "info" | "success" | "warning" | "error";
 
 export interface AlertBannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+	/** Controls visibility; component returns null when false. Caller manages open state. */
 	open: boolean;
+	/** Callback when the dismiss X button is clicked; also enables the X button by default. */
 	onDismiss?: () => void;
+	/** Visual tone variant for the banner background and icon.
+	 * @default "info"
+	 */
 	tone?: AlertBannerTone;
+	/** Required heading text rendered in bold. Accepts ReactNode for rich content. */
 	title: ReactNode;
+	/** Optional secondary body text beneath the title. */
 	description?: ReactNode;
+	/** Overrides `description` when present — use for advanced layouts with embedded buttons. */
 	children?: ReactNode;
+	/** Whether to show the dismiss X button. Defaults to `!!onDismiss`. Pass `false` to suppress it. */
 	dismissible?: boolean;
 }
 

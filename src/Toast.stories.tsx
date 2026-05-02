@@ -44,9 +44,63 @@ import { useEffect, useRef } from "react";
 import { Button } from "./Button";
 import { ToastProvider, useToast } from "./Toast";
 
+const SRC = {
+	Default: `// Mount once at app root
+function App() {
+  return (
+    <ToastProvider>
+      <YourApp />
+    </ToastProvider>
+  );
+}
+
+// Inside any component
+function SaveButton() {
+  const toast = useToast();
+  return (
+    <div style={{ display: "flex", gap: 8 }}>
+      <Button onClick={() => toast.success("Application saved successfully")}>Success</Button>
+      <Button variant="danger" onClick={() => toast.error("Failed to save — please retry")}>Error</Button>
+      <Button variant="secondary" onClick={() => toast.info("New feature available")}>Info</Button>
+      <Button variant="ghost" onClick={() => toast.warning("Almost out of free tier")}>Warning</Button>
+    </div>
+  );
+}`,
+	Tones: `const toast = useToast();
+toast.success("Saved successfully", { duration: Infinity });
+toast.error("Failed to save — please retry", { duration: Infinity });
+toast.info("New feature available", { duration: Infinity });
+toast.warning("Almost out of free tier", { duration: Infinity });`,
+	Stacking: `const toast = useToast();
+// Fire 3 toasts (4th drops the oldest)
+toast.info("First", { duration: Infinity });
+toast.success("Second", { duration: Infinity });
+toast.warning("Third", { duration: Infinity });
+toast.error("Fourth — drops oldest", { duration: Infinity });`,
+	AutoDismiss: `const toast = useToast();
+// Auto-dismisses after 3s (default duration)
+toast.success("Auto-dismisses in 3s (default)");`,
+	Persistent: `const toast = useToast();
+toast.warning("Persistent — manual dismiss only", { duration: Infinity });`,
+	DarkMode: `const toast = useToast();
+toast.success("Saved (dark)", { duration: Infinity });
+toast.error("Failed (dark)", { duration: Infinity });
+toast.info("Info (dark)", { duration: Infinity });
+toast.warning("Warning (dark)", { duration: Infinity });`,
+};
+
 const meta: Meta = {
 	title: "Feedback/Toast",
-	parameters: { layout: "fullscreen" },
+	tags: ["autodocs"],
+	parameters: {
+		layout: "fullscreen",
+		docs: {
+			description: {
+				component:
+					"Context-based toast notification system; wrap the app with `ToastProvider` and call `useToast()` to imperatively show info, success, warning, or error toasts.",
+			},
+		},
+	},
 	decorators: [
 		(Story) => (
 			<ToastProvider>
@@ -80,6 +134,7 @@ function ToneTriggers() {
 }
 
 export const Default: Story = {
+	parameters: { docs: { source: { code: SRC.Default } } },
 	render: () => <ToneTriggers />,
 };
 
@@ -103,6 +158,7 @@ function FireOnMount({
 }
 
 export const Tones: Story = {
+	parameters: { docs: { source: { code: SRC.Tones } } },
 	render: () => (
 		<>
 			<FireOnMount
@@ -167,6 +223,7 @@ function StackingDemo() {
 }
 
 export const Stacking: Story = {
+	parameters: { docs: { source: { code: SRC.Stacking } } },
 	render: () => <StackingDemo />,
 };
 
@@ -178,6 +235,7 @@ function AutoTrigger() {
 }
 
 export const AutoDismiss: Story = {
+	parameters: { docs: { source: { code: SRC.AutoDismiss } } },
 	render: () => <AutoTrigger />,
 };
 
@@ -197,11 +255,19 @@ function PersistTrigger() {
 }
 
 export const Persistent: Story = {
+	parameters: { docs: { source: { code: SRC.Persistent } } },
 	render: () => <PersistTrigger />,
 };
 
 export const DarkMode: Story = {
-	globals: { theme: "dark" },
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
 	render: () => (
 		<>
 			<FireOnMount tone="success" message="Saved (dark)" duration={Number.POSITIVE_INFINITY} />

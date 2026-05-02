@@ -21,6 +21,12 @@ export interface BottomSheetProps {
 	children: ReactNode;
 	height?: BottomSheetHeight;
 	closeOnBackdropClick?: boolean;
+	/**
+	 * Force dark-mode rendering of the sheet panel independent of the page theme.
+	 * Useful when the trigger lives inside a `.dark` scoped container (e.g. Storybook Docs dark story).
+	 * Defaults to detecting `html.dark` (Canvas dark mode toggle).
+	 */
+	dark?: boolean;
 	className?: string;
 	style?: CSSProperties;
 }
@@ -63,10 +69,14 @@ export function BottomSheet({
 	children,
 	height = "half",
 	closeOnBackdropClick = true,
+	dark,
 	className,
 	style,
 }: BottomSheetProps) {
-	const panelRef = useRef<HTMLDivElement>(null);
+	// Callback-ref pattern: panel state flips from null to the DOM node when
+	// the portal commits. Passing the node (not a RefObject) into useFocusTrap
+	// guarantees the trap engages exactly when the panel attaches.
+	const [panelNode, setPanelNode] = useState<HTMLDivElement | null>(null);
 	const generatedTitleId = useId();
 	const titleId = title ? generatedTitleId : undefined;
 	// Hoisted constant so biome's lint/a11y/useSemanticElements rule (which
@@ -75,13 +85,7 @@ export function BottomSheet({
 	// + DSPortal mounting.
 	const dialogRole = "dialog" as const;
 
-	// DSPortal gates on a mount tick - see component docstring.
-	const [portalMounted, setPortalMounted] = useState(false);
-	useEffect(() => {
-		setPortalMounted(true);
-	}, []);
-
-	useFocusTrap(panelRef, open && portalMounted);
+	useFocusTrap(panelNode, open);
 
 	// Swipe-to-close gesture (v0.5.1 patch). Tracks pointerdown Y and current
 	// translateY delta; on pointerup, closes if delta exceeds threshold else
@@ -91,12 +95,11 @@ export function BottomSheet({
 	const [dragging, setDragging] = useState(false);
 
 	function handleHandlePointerDown(e: ReactPointerEvent<HTMLDivElement>) {
-		const panel = panelRef.current;
-		if (!panel) return;
+		if (!panelNode) return;
 		dragStateRef.current = {
 			startY: e.clientY,
 			pointerId: e.pointerId,
-			panelH: panel.getBoundingClientRect().height,
+			panelH: panelNode.getBoundingClientRect().height,
 		};
 		setDragging(true);
 		try {
@@ -145,23 +148,26 @@ export function BottomSheet({
 
 	if (!open) return null;
 
+	// dark prop wins; fall back to <html class="dark"> for Canvas dark mode.
+	const isDark = dark ?? document.documentElement.classList.contains("dark");
+
 	function handleBackdropClick(e: ReactMouseEvent<HTMLDivElement>) {
 		if (e.target === e.currentTarget && closeOnBackdropClick) {
 			onClose();
 		}
 	}
 
-	return (
-		<DSPortal>
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above on `document` (handles all focus contexts, including the panel) */}
+	const sheetEl = (
+		<>
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler on `document` */}
 			<div
 				className="ds-atom-bottomsheet-backdrop"
 				data-testid="bottomsheet-backdrop"
 				onClick={handleBackdropClick}
 			>
 				<div
-					ref={panelRef}
-					className={`ds-atom-bottomsheet${className ? ` ${className}` : ""}`}
+					ref={setPanelNode}
+					className={["ds-atom-bottomsheet", className].filter(Boolean).join(" ")}
 					data-height={height}
 					data-dragging={dragging ? "true" : undefined}
 					role={dialogRole}
@@ -190,6 +196,8 @@ export function BottomSheet({
 					{footer ? <footer className="ds-atom-bottomsheet-ft">{footer}</footer> : null}
 				</div>
 			</div>
-		</DSPortal>
+		</>
 	);
+
+	return <DSPortal>{isDark ? <div className="dark">{sheetEl}</div> : sheetEl}</DSPortal>;
 }

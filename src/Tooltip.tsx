@@ -20,9 +20,17 @@ import { DSPortal } from "./_internals/DSPortal";
 export type TooltipPlacement = "auto" | "top" | "right" | "bottom" | "left";
 
 export interface TooltipProps {
+	/** Content rendered inside the tooltip surface; accepts any ReactNode. */
 	content: ReactNode;
+	/** Preferred placement relative to the trigger; `"auto"` picks the side with the most viewport room.
+	 * @default "auto"
+	 */
 	placement?: TooltipPlacement;
+	/** Milliseconds to wait after mouseenter/focus before showing the tooltip.
+	 * @default 150
+	 */
 	delay?: number;
+	/** The single trigger element; Tooltip clones it to attach event handlers and `aria-describedby`. */
 	children: ReactElement;
 }
 
@@ -177,6 +185,16 @@ export function Tooltip({ content, placement = "auto", delay = 150, children }: 
 				left = window.scrollX + tRect.left - sRect.width - GAP;
 				break;
 		}
+		// Clamp to viewport edges so tooltip never exits the screen.
+		const MARGIN = 8;
+		top = Math.max(
+			MARGIN,
+			Math.min(top, window.scrollY + window.innerHeight - sRect.height - MARGIN),
+		);
+		left = Math.max(
+			MARGIN,
+			Math.min(left, window.scrollX + window.innerWidth - sRect.width - MARGIN),
+		);
 		setPos({ top, left });
 	}, [isOpen, placement, surfaceEl]);
 

@@ -28,10 +28,65 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { StickyNote } from "./StickyNote";
 
+const SRC = {
+	Default: `<StickyNote>
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>
+    Reach out to David before screening. Research Jetpack vs WP.com split.
+  </div>
+  <div style={{ marginTop: 10, fontFamily: "var(--mono)", fontSize: 9.5, color: "rgba(41,37,36,.55)", textTransform: "uppercase" }}>
+    Click to expand
+  </div>
+</StickyNote>`,
+	Rotations: `<StickyNote rotation="left">
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Left tilt — rotate(-0.6deg).</div>
+</StickyNote>
+<StickyNote rotation="right">
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Right tilt — rotate(0.4deg). Default.</div>
+</StickyNote>
+<StickyNote rotation="none">
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>No tilt — rotate(0deg).</div>
+</StickyNote>`,
+	Group: `<StickyNote rotation="right">
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Reach out to David before screening.</div>
+</StickyNote>
+<StickyNote rotation="right">
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Prep 3 questions for Maya.</div>
+</StickyNote>
+<StickyNote rotation="left">
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Follow up if no reply by May 2.</div>
+</StickyNote>`,
+	Playground: `<StickyNote rotation="right">
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Playground note — tweak rotation in controls.</div>
+</StickyNote>`,
+	DarkMode: `<StickyNote rotation="left">
+  <div style={{ fontSize: 13, lineHeight: 1.5 }}>Sticky notes stay yellow in dark mode — handoff invariant.</div>
+</StickyNote>`,
+};
+
 const meta: Meta<typeof StickyNote> = {
 	title: "Surfaces/StickyNote",
 	component: StickyNote,
-	parameters: { layout: "padded" },
+	tags: ["autodocs"],
+	parameters: {
+		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"Yellow-gradient note surface with a slight static rotation; always renders with dark text regardless of the active color scheme.",
+			},
+		},
+	},
+	argTypes: {
+		rotation: {
+			control: "select",
+			options: ["left", "right", "none"],
+			description:
+				"Tilts the note surface to mimic a hand-pinned look. `left` = −2°, `right` = +2° (default), `none` = flat. Use mixed rotations when showing multiple notes side-by-side.",
+		},
+		children: { control: false, description: "Arbitrary JSX content rendered inside the note." },
+		className: { control: false },
+		style: { control: false },
+	},
 };
 
 export default meta;
@@ -47,6 +102,7 @@ const hintStyle = {
 };
 
 export const Default: Story = {
+	parameters: { docs: { source: { code: SRC.Default } } },
 	args: {
 		children: (
 			<>
@@ -60,6 +116,7 @@ export const Default: Story = {
 };
 
 export const Rotations: Story = {
+	parameters: { docs: { source: { code: SRC.Rotations } } },
 	render: () => (
 		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 14, padding: 20 }}>
 			<StickyNote rotation="left">
@@ -79,6 +136,7 @@ export const Rotations: Story = {
 };
 
 export const Group: Story = {
+	parameters: { docs: { source: { code: SRC.Group } } },
 	render: () => (
 		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 14, padding: 20 }}>
 			<StickyNote rotation="right">
@@ -105,24 +163,47 @@ export const Group: Story = {
 };
 
 export const Playground: Story = {
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Select `rotation` in the Controls panel — compare the three options side-by-side in the Rotations story above to see the tilt effect clearly.",
+			},
+			source: { code: SRC.Playground },
+		},
+	},
 	args: {
 		rotation: "right",
 		children: (
 			<>
 				<div style={{ fontSize: 13, lineHeight: 1.5 }}>
-					Playground note — tweak rotation in controls.
+					Playground note — change rotation in Controls.
 				</div>
 				<div style={hintStyle}>playground</div>
 			</>
 		),
 	},
+	decorators: [
+		(Story) => (
+			<div style={{ padding: 24 }}>
+				<Story />
+			</div>
+		),
+	],
 	argTypes: {
 		rotation: { control: "select", options: ["left", "right", "none"] },
 	},
 };
 
 export const DarkMode: Story = {
-	globals: { theme: "dark" },
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
 	render: () => (
 		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 14, padding: 20 }}>
 			<StickyNote rotation="left">

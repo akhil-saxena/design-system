@@ -9,12 +9,23 @@ export interface MultiSelectOption {
 }
 
 export interface MultiSelectProps {
+	/** Controlled array of selected option values. */
 	value: string[];
+	/** Called with the full updated selection array after each toggle or remove. */
 	onChange: (vs: string[]) => void;
+	/** Full list of available options shown in the dropdown. */
 	options: MultiSelectOption[];
+	/** Placeholder text shown in the trigger when nothing is selected.
+	 * @default "Select…"
+	 */
 	placeholder?: string;
+	/** When true, disables the trigger and prevents interaction.
+	 * @default false
+	 */
 	disabled?: boolean;
+	/** Additional className applied to the trigger button. */
 	className?: string;
+	/** Inline styles applied to the trigger button. */
 	style?: CSSProperties;
 }
 

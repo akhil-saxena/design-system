@@ -2,6 +2,7 @@ import {
 	type CSSProperties,
 	type ReactNode,
 	type RefObject,
+	useCallback,
 	useEffect,
 	useLayoutEffect,
 	useRef,
@@ -9,6 +10,7 @@ import {
 } from "react";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { DSPortal } from "./DSPortal";
+import { smartAnchorPos } from "./floatingPos";
 
 export type DSDropdownPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end";
 
@@ -66,39 +68,43 @@ export function DSDropdown({
 	};
 	const [pos, setPos] = useState<{ top: number; left: number; width?: number } | null>(null);
 
-	// Position computation — gated on `panel` so it re-runs after DSPortal mounts.
+	// Position computation — uses smartAnchorPos for auto-flip + viewport clamping.
+	// Closes automatically when the anchor scrolls fully out of the viewport.
+	const computePos = useCallback(() => {
+		const anchor = anchorRef.current;
+		if (!anchor || !panel) return;
+		const a = anchor.getBoundingClientRect();
+		// Anchor fully outside viewport — close.
+		if (a.bottom < 0 || a.top > window.innerHeight || a.right < 0 || a.left > window.innerWidth) {
+			onOpenChange(false);
+			return;
+		}
+		const p = panel.getBoundingClientRect();
+		const side = placement.startsWith("top") ? "top" : "bottom";
+		const align = placement.endsWith("end") ? "end" : "start";
+		const { top, left } = smartAnchorPos(a, { width: p.width, height: p.height }, side, align, 4);
+		setPos({ top, left, width: matchAnchorWidth ? a.width : undefined });
+	}, [anchorRef, panel, placement, matchAnchorWidth, onOpenChange]);
+
+	// Compute on open / panel mount.
 	useLayoutEffect(() => {
 		if (!open) {
 			setPos(null);
 			return;
 		}
-		const anchor = anchorRef.current;
-		if (!anchor || !panel) return;
-		const a = anchor.getBoundingClientRect();
-		const p = panel.getBoundingClientRect();
-		const offset = 4;
-		let top = 0;
-		let left = 0;
-		switch (placement) {
-			case "bottom-start":
-				top = a.bottom + offset;
-				left = a.left;
-				break;
-			case "bottom-end":
-				top = a.bottom + offset;
-				left = a.right - p.width;
-				break;
-			case "top-start":
-				top = a.top - p.height - offset;
-				left = a.left;
-				break;
-			case "top-end":
-				top = a.top - p.height - offset;
-				left = a.right - p.width;
-				break;
-		}
-		setPos({ top, left, width: matchAnchorWidth ? a.width : undefined });
-	}, [open, anchorRef, placement, matchAnchorWidth, panel]);
+		computePos();
+	}, [open, computePos]);
+
+	// Recompute on scroll or resize so the dropdown tracks the anchor while open.
+	useEffect(() => {
+		if (!open) return;
+		window.addEventListener("scroll", computePos, true);
+		window.addEventListener("resize", computePos);
+		return () => {
+			window.removeEventListener("scroll", computePos, true);
+			window.removeEventListener("resize", computePos);
+		};
+	}, [open, computePos]);
 
 	// Outside-click — close (Popover.tsx line 95 pattern).
 	useClickOutside(panelRef, () => onOpenChange(false), open);
@@ -164,26 +170,30 @@ export function DSDropdown({
 
 	if (!open) return null;
 
-	return (
-		<DSPortal>
-			<div
-				ref={setPanelRef}
-				className={`ds-atom-dropdown${className ? ` ${className}` : ""}`}
-				data-placement={placement}
-				style={{
-					position: "fixed",
-					top: pos?.top ?? -9999,
-					left: pos?.left ?? -9999,
-					width: pos?.width,
-					maxHeight,
-					overflowY: "auto",
-					visibility: pos ? "visible" : "hidden",
-					zIndex: 1100,
-					...style,
-				}}
-			>
-				{children}
-			</div>
-		</DSPortal>
+	// Inherit dark context from the anchor so portal-mounted panel follows the
+	// same theme as the trigger even when <html> doesn't have .dark (e.g. Docs page).
+	const isDarkCtx = anchorRef.current?.closest(".dark") != null;
+
+	const dropdownEl = (
+		<div
+			ref={setPanelRef}
+			className={["ds-atom-dropdown", className].filter(Boolean).join(" ")}
+			data-placement={placement}
+			style={{
+				position: "fixed",
+				top: pos?.top ?? -9999,
+				left: pos?.left ?? -9999,
+				width: pos?.width,
+				maxHeight,
+				overflowY: "auto",
+				visibility: pos ? "visible" : "hidden",
+				zIndex: 1100,
+				...style,
+			}}
+		>
+			{children}
+		</div>
 	);
+
+	return <DSPortal>{isDarkCtx ? <div className="dark">{dropdownEl}</div> : dropdownEl}</DSPortal>;
 }

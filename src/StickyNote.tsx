@@ -3,7 +3,11 @@ import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } f
 export type StickyNoteRotation = "left" | "right" | "none";
 
 export interface StickyNoteProps extends HTMLAttributes<HTMLDivElement> {
+	/** Static rotation applied to the note surface for a handwritten feel.
+	 * @default "right"
+	 */
 	rotation?: StickyNoteRotation;
+	/** Arbitrary JSX content rendered inside the note; compose freely. */
 	children: ReactNode;
 }
 

@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { InfiniteList } from "./InfiniteList";
+import { Skeleton } from "./Skeleton";
 
 const meta: Meta<typeof InfiniteList> = {
 	title: "Primitives/InfiniteList",
 	component: InfiniteList,
+	tags: ["autodocs"],
 	parameters: {
 		docs: {
 			description: {
@@ -12,6 +14,31 @@ const meta: Meta<typeof InfiniteList> = {
 					"Scrollable list container that fires `onLoadMore` when its bottom sentinel intersects the viewport (IntersectionObserver, rootMargin=200px). Virtualization is the consumer's responsibility.",
 			},
 		},
+	},
+	argTypes: {
+		items: {
+			control: false,
+			description: "Consumer-managed array of items; InfiniteList never paginates internally.",
+		},
+		renderItem: { control: false, description: "Render function called for each item." },
+		hasMore: { control: "boolean", description: "Whether more items are available to load." },
+		loading: { control: "boolean", description: "Whether a fetch is currently in flight." },
+		onLoadMore: { control: false, description: "Called when the sentinel enters the viewport." },
+		loadingSlot: {
+			control: false,
+			description: "Custom loading indicator; replaces the default 3-Skeleton row.",
+		},
+		endSlot: {
+			control: false,
+			description: "Custom end-of-list message; replaces the default 'End of list' text.",
+		},
+		rootMargin: {
+			control: "text",
+			description: "IntersectionObserver rootMargin for pre-fetching.",
+		},
+		ariaLabel: { control: "text", description: "Accessible label for the list region." },
+		className: { control: false },
+		style: { control: false },
 	},
 };
 
@@ -45,9 +72,105 @@ function ItemRow({ label, sub }: { label: string; sub: string }) {
 	);
 }
 
+/* Skeleton shaped to match ItemRow — same padding, same two-line layout */
+function CardSkeleton() {
+	return (
+		<div
+			style={{
+				padding: "10px 14px",
+				borderBottom: "1px solid var(--rule)",
+				display: "flex",
+				flexDirection: "column",
+				gap: 6,
+				background: "var(--surf-1)",
+				borderRadius: 6,
+			}}
+		>
+			<Skeleton shape="text" width="55%" height={13} />
+			<Skeleton shape="text" width="35%" height={11} />
+		</div>
+	);
+}
+
+// ─── Source snippets ─────────────────────────────────────────────────────────
+
+const SRC = {
+	default: `const [items, setItems] = useState(makeItems(0, 8));
+const [loading, setLoading] = useState(false);
+const [hasMore, setHasMore] = useState(true);
+
+const onLoadMore = () => {
+  if (loading) return;
+  setLoading(true);
+  fetchNextPage().then((next) => {
+    setItems((prev) => [...prev, ...next]);
+    setLoading(false);
+    if (items.length >= 40) setHasMore(false);
+  });
+};
+
+<InfiniteList
+  items={items}
+  renderItem={(item) => <ItemRow label={item.label} sub={item.sub} />}
+  hasMore={hasMore}
+  loading={loading}
+  onLoadMore={onLoadMore}
+  ariaLabel="Application list"
+/>`,
+
+	loading: `<InfiniteList
+  items={existingItems}
+  renderItem={(item) => <ItemRow label={item.label} sub={item.sub} />}
+  hasMore
+  loading
+  onLoadMore={onLoadMore}
+  ariaLabel="Application list"
+  loadingSlot={
+    <>
+      <CardSkeleton />
+      <CardSkeleton />
+      <CardSkeleton />
+    </>
+  }
+/>`,
+
+	endOfList: `<InfiniteList
+  items={items}
+  renderItem={(item) => <ItemRow label={item.label} sub={item.sub} />}
+  hasMore={false}
+  loading={false}
+  onLoadMore={() => {}}
+  ariaLabel="Application list"
+/>`,
+
+	customSlots: `<InfiniteList
+  items={items}
+  renderItem={(item) => <ItemRow label={item.label} sub={item.sub} />}
+  hasMore={false}
+  loading={false}
+  onLoadMore={() => {}}
+  ariaLabel="Application list"
+  endSlot={
+    <div style={{ padding: 16, textAlign: "center", color: "var(--amber)", fontWeight: 600 }}>
+      You have reached the end
+    </div>
+  }
+/>`,
+
+	dark: `<InfiniteList
+  items={items}
+  renderItem={(item) => <ItemRow label={item.label} sub={item.sub} />}
+  hasMore={false}
+  loading={false}
+  onLoadMore={() => {}}
+  ariaLabel="Application list"
+/>`,
+};
+
 /* ─── Default ─────────────────────────────────────────────────── */
 export const Default: Story = {
 	name: "Default (scroll to load)",
+	parameters: { docs: { source: { code: SRC.default } } },
 	render: () => {
 		const PAGE = 8;
 		const [items, setItems] = useState(makeItems(0, PAGE));
@@ -68,7 +191,13 @@ export const Default: Story = {
 
 		return (
 			<div
-				style={{ height: 320, overflowY: "auto", border: "1px solid var(--rule)", borderRadius: 8 }}
+				style={{
+					height: 320,
+					overflowY: "auto",
+					border: "1px solid var(--rule)",
+					borderRadius: 8,
+					padding: 8,
+				}}
 			>
 				<InfiniteList
 					items={items}
@@ -86,6 +215,7 @@ export const Default: Story = {
 /* ─── LoadingInProgress ───────────────────────────────────────── */
 export const LoadingInProgress: Story = {
 	name: "Loading in progress",
+	parameters: { docs: { source: { code: SRC.loading } } },
 	render: () => (
 		<div style={{ width: 400 }}>
 			<InfiniteList
@@ -95,6 +225,13 @@ export const LoadingInProgress: Story = {
 				loading
 				onLoadMore={() => {}}
 				ariaLabel="Application list"
+				loadingSlot={
+					<>
+						<CardSkeleton />
+						<CardSkeleton />
+						<CardSkeleton />
+					</>
+				}
 			/>
 		</div>
 	),
@@ -103,6 +240,7 @@ export const LoadingInProgress: Story = {
 /* ─── EndOfList ──────────────────────────────────────────────── */
 export const EndOfList: Story = {
 	name: "End of list",
+	parameters: { docs: { source: { code: SRC.endOfList } } },
 	render: () => (
 		<div style={{ width: 400 }}>
 			<InfiniteList
@@ -120,6 +258,7 @@ export const EndOfList: Story = {
 /* ─── LongList ───────────────────────────────────────────────── */
 export const LongList: Story = {
 	name: "Long list (200 items)",
+	parameters: { docs: { source: { code: SRC.default } } },
 	render: () => {
 		const PAGE = 20;
 		const [items, setItems] = useState(makeItems(0, PAGE));
@@ -140,7 +279,13 @@ export const LongList: Story = {
 
 		return (
 			<div
-				style={{ height: 400, overflowY: "auto", border: "1px solid var(--rule)", borderRadius: 8 }}
+				style={{
+					height: 400,
+					overflowY: "auto",
+					border: "1px solid var(--rule)",
+					borderRadius: 8,
+					padding: 8,
+				}}
 			>
 				<InfiniteList
 					items={items}
@@ -158,6 +303,7 @@ export const LongList: Story = {
 /* ─── CustomSlots ────────────────────────────────────────────── */
 export const CustomSlots: Story = {
 	name: "Custom loading + end slots",
+	parameters: { docs: { source: { code: SRC.customSlots } } },
 	render: () => (
 		<div style={{ width: 400 }}>
 			<InfiniteList
@@ -187,13 +333,17 @@ export const CustomSlots: Story = {
 
 /* ─── DarkMode ───────────────────────────────────────────────── */
 export const DarkMode: Story = {
-	name: "Dark mode — end of list",
-	parameters: { backgrounds: { default: "dark" } },
+	name: "Dark mode",
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
+	parameters: { docs: { source: { code: SRC.dark } } },
 	render: () => (
-		<div
-			className="dark"
-			style={{ width: 400, padding: 16, background: "var(--surf-0, #0f172a)", borderRadius: 8 }}
-		>
+		<div style={{ width: 400, padding: 16, background: "var(--surf-0, #0f172a)", borderRadius: 8 }}>
 			<InfiniteList
 				items={makeItems(0, 4)}
 				renderItem={(item) => (

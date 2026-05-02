@@ -4,26 +4,39 @@ import { Popover } from "./Popover";
 import { ChevronDown } from "./icons";
 
 export interface SplitButtonAction {
+	/** Display label for this action. */
 	label: string;
+	/** Optional icon rendered before the label. */
 	icon?: ReactNode;
+	/** Handler called when this action is selected. */
 	onClick: () => void;
 	/**
-	 * Per-action variant override (v0.5.1 patch). When set, this action's
-	 * appearance — both as the primary face when selected AND in the menu —
-	 * uses this variant instead of the SplitButton-level default.
-	 * Defaults to the SplitButton-level `variant`.
+	 * Per-action variant override. Drives the primary face appearance when selected
+	 * AND adds a left-border color hint in the menu. Defaults to the SplitButton-level `variant`.
 	 */
 	variant?: ButtonVariant;
+	/**
+	 * Semantic tone applied to this menu item. Overrides the variant color in the dropdown only —
+	 * does not affect the primary face. Use for signalling intent (e.g. `"danger"` for Delete).
+	 * - `"danger"` → red text
+	 * - `"warning"` → amber text
+	 * - `"success"` → green text
+	 */
+	tone?: "danger" | "warning" | "success";
 }
 
 export interface SplitButtonProps {
+	/** Non-empty array of actions; the first element is shown as the primary face on mount. */
 	actions: [SplitButtonAction, ...SplitButtonAction[]];
-	/**
-	 * Default variant for actions that don't specify their own. Expanded in
-	 * v0.5.1 from `'primary' | 'secondary'` to the full Button variant set.
+	/** Default visual variant applied to actions that don't set their own `variant`.
+	 * @default "primary"
 	 */
 	variant?: ButtonVariant;
+	/** Size token applied to both the primary face and the chevron trigger.
+	 * @default "md"
+	 */
 	size?: "sm" | "md" | "lg";
+	/** Additional className applied to the root wrapper element. */
 	className?: string;
 }
 
@@ -55,10 +68,18 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
 	const chevronRef = useRef<HTMLButtonElement | null>(null);
 	const current = actions[currentIdx] ?? actions[0];
 
-	// Effective variant for the primary face = current action's variant, else
-	// SplitButton-level default. Per-action variants drive both primary face
-	// and menu-item color hints.
-	const primaryVariant: ButtonVariant = current.variant ?? variant;
+	// Effective variant for the primary face:
+	//   1. explicit per-action variant wins
+	//   2. tone maps to a variant so the face reflects the selected action's intent:
+	//      danger → "danger" (red), warning/success → "secondary" (neutral, not amber CTA)
+	//   3. falls back to SplitButton-level variant
+	const toneVariantMap: Record<NonNullable<typeof current.tone>, ButtonVariant> = {
+		danger: "danger",
+		warning: "secondary",
+		success: "secondary",
+	};
+	const toneVariant = current.tone ? toneVariantMap[current.tone] : undefined;
+	const primaryVariant: ButtonVariant = current.variant ?? toneVariant ?? variant;
 
 	function handlePrimary() {
 		current.onClick();
@@ -121,6 +142,7 @@ export const SplitButton = forwardRef<HTMLDivElement, SplitButtonProps>(function
 								role="menuitem"
 								className={`ds-atom-split-menuitem${i === currentIdx ? " is-current" : ""}`}
 								data-action-variant={explicitVariant}
+								data-tone={a.tone}
 								onClick={() => handleSelect(i)}
 							>
 								{a.icon ? <span className="ds-atom-split-icon">{a.icon}</span> : null}

@@ -36,10 +36,78 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Tooltip } from "./Tooltip";
 
+const SRC = {
+	Default: `<Tooltip content="Star this application">
+  <button type="button" aria-label="Star">★</button>
+</Tooltip>`,
+	AllPlacements: `<Tooltip content="Top placement" placement="top">
+  <button type="button">top</button>
+</Tooltip>
+<Tooltip content="Right placement" placement="right">
+  <button type="button">right</button>
+</Tooltip>
+<Tooltip content="Bottom placement" placement="bottom">
+  <button type="button">bottom</button>
+</Tooltip>
+<Tooltip content="Left placement" placement="left">
+  <button type="button">left</button>
+</Tooltip>`,
+	WithIcon: `<Tooltip content="Star this application">
+  <button type="button" aria-label="Star">★</button>
+</Tooltip>
+<Tooltip content="Archive">
+  <button type="button" aria-label="Archive">📦</button>
+</Tooltip>
+<Tooltip content="Delete application">
+  <button type="button" aria-label="Delete">🗑</button>
+</Tooltip>`,
+	LongContent: `<Tooltip content="A longer tooltip with more text — wraps if max-width reached, otherwise stays single-line." placement="top">
+  <button type="button">top</button>
+</Tooltip>`,
+	Playground: `<Tooltip content="Playground tooltip" placement="top" delay={150}>
+  <button type="button">Hover me</button>
+</Tooltip>`,
+	DarkMode: `<Tooltip content="Top — dark mode" placement="top">
+  <button type="button">top</button>
+</Tooltip>
+<Tooltip content="Right — dark mode" placement="right">
+  <button type="button">right</button>
+</Tooltip>`,
+};
+
 const meta: Meta<typeof Tooltip> = {
 	title: "Surfaces/Tooltip",
 	component: Tooltip,
-	parameters: { layout: "centered" },
+	tags: ["autodocs"],
+	parameters: {
+		layout: "centered",
+		docs: {
+			description: {
+				component:
+					"Lightweight hover/focus overlay that shows a short text label anchored to its trigger, with configurable placement and delay.",
+			},
+		},
+	},
+	argTypes: {
+		content: {
+			control: false,
+			description: "Content rendered inside the tooltip surface; accepts any ReactNode.",
+		},
+		placement: {
+			control: "select",
+			options: ["auto", "top", "right", "bottom", "left"],
+			description:
+				"Preferred placement relative to the trigger; auto picks the side with the most viewport room.",
+		},
+		delay: {
+			control: "number",
+			description: "Milliseconds to wait after mouseenter/focus before showing the tooltip.",
+		},
+		children: {
+			control: false,
+			description: "The single trigger element; Tooltip clones it to attach event handlers.",
+		},
+	},
 };
 
 export default meta;
@@ -91,6 +159,7 @@ function AlwaysOpenTooltip({
 }
 
 export const Default: Story = {
+	parameters: { docs: { source: { code: SRC.Default } } },
 	render: () => (
 		<div style={{ padding: 60, display: "inline-block" }}>
 			<Tooltip content="Star this application">
@@ -103,6 +172,7 @@ export const Default: Story = {
 };
 
 export const AllPlacements: Story = {
+	parameters: { docs: { source: { code: SRC.AllPlacements } } },
 	render: () => (
 		<div
 			style={{
@@ -121,6 +191,7 @@ export const AllPlacements: Story = {
 };
 
 export const WithIcon: Story = {
+	parameters: { docs: { source: { code: SRC.WithIcon } } },
 	render: () => (
 		<div style={{ display: "flex", gap: 20, padding: 60 }}>
 			<Tooltip content="Star this application">
@@ -143,6 +214,7 @@ export const WithIcon: Story = {
 };
 
 export const LongContent: Story = {
+	parameters: { docs: { source: { code: SRC.LongContent } } },
 	render: () => (
 		<div style={{ padding: 80, display: "inline-block" }}>
 			<AlwaysOpenTooltip
@@ -154,6 +226,7 @@ export const LongContent: Story = {
 };
 
 export const Playground: Story = {
+	parameters: { docs: { source: { code: SRC.Playground } } },
 	render: (args) => (
 		<div style={{ padding: 80 }}>
 			<Tooltip content={args.content} placement={args.placement} delay={args.delay}>
@@ -178,10 +251,17 @@ export const Playground: Story = {
 };
 
 export const DarkMode: Story = {
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	// Storybook v8 preview decorator reads context.globals.theme — must be
 	// top-level globals (NOT parameters.globals). Matches Wave 1 atom pattern
 	// (Card.stories.tsx, StickyNote.stories.tsx) that fixed this in commit 5c1f8ec.
-	globals: { theme: "dark" },
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
 	render: () => (
 		<div
 			style={{

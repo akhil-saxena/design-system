@@ -4,23 +4,39 @@ import {
 	type ReactNode,
 	useEffect,
 	useId,
-	useRef,
+	useState,
 } from "react";
+import { Button } from "./Button";
 import { DSPortal } from "./_internals/DSPortal";
 import { useFocusTrap } from "./hooks/useFocusTrap";
+import { X } from "./icons";
 
 export type SheetSide = "right" | "left";
 
 export interface SheetProps {
+	/** Controls visibility; returns null when false. */
 	open: boolean;
+	/** Called when the user closes the sheet via Escape or backdrop click. */
 	onClose: () => void;
+	/** Which edge the panel slides in from.
+	 * @default "right"
+	 */
 	side?: SheetSide;
+	/** Heading rendered in the sheet header; auto-wired to `aria-labelledby`. */
 	title?: ReactNode;
+	/** Short description rendered above children; auto-wired to `aria-describedby`. */
 	description?: string;
+	/** Content for the footer slot (typically action buttons). */
 	footer?: ReactNode;
+	/** Main body content of the sheet. */
 	children: ReactNode;
+	/** Whether clicking the backdrop calls `onClose`.
+	 * @default true
+	 */
 	closeOnBackdropClick?: boolean;
+	/** Additional className applied to the sheet panel. */
 	className?: string;
+	/** Inline styles applied to the sheet panel. */
 	style?: CSSProperties;
 }
 
@@ -56,7 +72,7 @@ export function Sheet({
 	className,
 	style,
 }: SheetProps) {
-	const panelRef = useRef<HTMLDivElement>(null);
+	const [panel, setPanel] = useState<HTMLDivElement | null>(null);
 	const generatedTitleId = useId();
 	const generatedDescId = useId();
 	const titleId = title ? generatedTitleId : undefined;
@@ -66,8 +82,9 @@ export function Sheet({
 	// element doesn't honor non-modal backdrop click + DSPortal mounting.
 	const dialogRole = "dialog" as const;
 
-	// Focus trap (Tab cycling + restore on close).
-	useFocusTrap(panelRef, open);
+	// Focus trap (Tab cycling + restore on close). Pass the live node (not a
+	// RefObject) so the trap engages exactly when the portal commits the panel.
+	useFocusTrap(panel, open);
 
 	// Escape closes (useFocusTrap from Wave 0 only handles Tab).
 	useEffect(() => {
@@ -81,39 +98,48 @@ export function Sheet({
 
 	if (!open) return null;
 
+	const isDark = document.documentElement.classList.contains("dark");
+
 	function handleBackdropClick(e: ReactMouseEvent<HTMLDivElement>) {
 		if (e.target === e.currentTarget && closeOnBackdropClick) {
 			onClose();
 		}
 	}
 
-	return (
-		<DSPortal>
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above on `document` (handles all focus contexts, including the panel) */}
-			<div className="ds-atom-sheet-backdrop" onClick={handleBackdropClick}>
-				<div
-					ref={panelRef}
-					className={`ds-atom-sheet${className ? ` ${className}` : ""}`}
-					data-side={side}
-					role={dialogRole}
-					aria-modal="true"
-					aria-labelledby={titleId}
-					aria-describedby={descId}
-					style={style}
-					tabIndex={-1}
-				>
-					{title ? (
-						<header id={titleId} className="ds-atom-sheet-hd">
-							{title}
-						</header>
-					) : null}
-					<div className="ds-atom-sheet-body">
-						{description ? <div id={descId}>{description}</div> : null}
-						{children}
-					</div>
-					{footer ? <footer className="ds-atom-sheet-ft">{footer}</footer> : null}
+	const sheetEl = (
+		// biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close via document Escape handler
+		<div className="ds-atom-sheet-backdrop" onClick={handleBackdropClick}>
+			<div
+				ref={setPanel}
+				className={["ds-atom-sheet", className].filter(Boolean).join(" ")}
+				data-side={side}
+				role={dialogRole}
+				aria-modal="true"
+				aria-labelledby={titleId}
+				aria-describedby={descId}
+				style={style}
+				tabIndex={-1}
+			>
+				<header id={titleId} className="ds-atom-sheet-hd">
+					<span className="ds-atom-sheet-hd-title">{title}</span>
+					<Button
+						variant="ghost"
+						size="sm"
+						aria-label="Close"
+						onClick={onClose}
+						style={{ marginLeft: "auto", flexShrink: 0 }}
+					>
+						<X size={16} />
+					</Button>
+				</header>
+				<div className="ds-atom-sheet-body">
+					{description ? <div id={descId}>{description}</div> : null}
+					{children}
 				</div>
+				{footer ? <footer className="ds-atom-sheet-ft">{footer}</footer> : null}
 			</div>
-		</DSPortal>
+		</div>
 	);
+
+	return <DSPortal>{isDark ? <div className="dark">{sheetEl}</div> : sheetEl}</DSPortal>;
 }

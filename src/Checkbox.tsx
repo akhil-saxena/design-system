@@ -3,11 +3,10 @@ import { useComposedRefs } from "./hooks/useComposedRefs";
 import { Check } from "./icons";
 
 export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+	/** Visible text label rendered beside the checkbox. */
 	label?: string;
-	/** When true, sets the native DOM `indeterminate` property on the underlying
-	 *  `<input type="checkbox">`. Required by Table.SelectAllCell (Plan 17-11)
-	 *  for the "some rows selected" state. Cannot be expressed as a JSX attribute
-	 *  (HTML spec: indeterminate is a DOM property only). */
+	/** When true, sets the native DOM `indeterminate` property (the "some selected" tri-state).
+	 * Cannot be expressed as a JSX attribute — set imperatively via a DOM property. */
 	indeterminate?: boolean;
 }
 
@@ -38,7 +37,7 @@ const boxStyle: CSSProperties = {
 	width: 18,
 	height: 18,
 	borderRadius: 5,
-	border: "2px solid var(--ink-5)",
+	border: "2px solid var(--ink-4)",
 	display: "inline-flex",
 	alignItems: "center",
 	justifyContent: "center",
@@ -65,7 +64,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
 
 	return (
 		<label
-			className={`ds-atom-checkbox-label${disabled ? " is-disabled" : ""}${className ? ` ${className}` : ""}`}
+			className={["ds-atom-checkbox-label", disabled ? "is-disabled" : "", className ?? ""]
+				.filter(Boolean)
+				.join(" ")}
 			style={{
 				...labelStyle,
 				...(disabled ? { cursor: "not-allowed", opacity: 0.4 } : {}),
@@ -83,7 +84,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
 				<Check
 					size={12}
 					strokeWidth={3}
-					color="var(--cream)"
+					color="#1c1917"
 					style={{ display: "none" }}
 					className="ds-atom-checkbox-check"
 				/>

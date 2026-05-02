@@ -33,18 +33,121 @@
 
 import type { Meta, StoryObj } from "@storybook/react";
 import { useRef } from "react";
+import { Avatar } from "./Avatar";
 import { Button } from "./Button";
 import { HoverCard } from "./HoverCard";
+
+const SRC = {
+	UserProfilePreview: `const ref = useRef(null);
+return (
+  <p>
+    Hover{" "}
+    <span ref={ref} style={{ color: "var(--amber-d)", fontWeight: 600, cursor: "pointer" }}>
+      @anya.patel
+    </span>{" "}
+    to see her profile.
+    <HoverCard anchorRef={ref}>
+      <div style={{ fontWeight: 700 }}>Anya Patel</div>
+      <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Recruiter · Stripe</div>
+      <div style={{ fontSize: 12, lineHeight: 1.5, marginTop: 8 }}>
+        Senior recruiter focused on staff+ engineering.
+      </div>
+    </HoverCard>
+  </p>
+);`,
+	LinkPreview: `const ref = useRef(null);
+return (
+  <p>
+    Applied to{" "}
+    <a ref={ref} href="#" style={{ color: "var(--blue)", fontWeight: 600 }}>
+      Staff Engineer at Stripe
+    </a>{" "}
+    two weeks ago.
+    <HoverCard anchorRef={ref}>
+      <div style={{ fontWeight: 700 }}>Staff Engineer</div>
+      <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Stripe · San Francisco</div>
+    </HoverCard>
+  </p>
+);`,
+	WithImage: `const ref = useRef(null);
+return (
+  <div>
+    <Button ref={ref} variant="secondary">Hover for preview</Button>
+    <HoverCard anchorRef={ref}>
+      <div style={{ width: 280, height: 140, borderRadius: 8, background: "linear-gradient(135deg, #b45309, #f59e0b)", marginBottom: 8 }} />
+      <div style={{ fontWeight: 700 }}>Resume preview</div>
+      <div style={{ fontSize: 11, color: "var(--ink-3)" }}>PDF · 2 pages · 245 KB</div>
+    </HoverCard>
+  </div>
+);`,
+	ButtonAnchor: `const ref = useRef(null);
+return (
+  <div>
+    <Button ref={ref} variant="primary">Hover the Button</Button>
+    <HoverCard anchorRef={ref}>
+      <div style={{ fontWeight: 700, marginBottom: 4 }}>Button-anchored card</div>
+      <div style={{ fontSize: 12, lineHeight: 1.5, color: "var(--ink-2)" }}>
+        HoverCard's anchorRef accepts any element, including design-system Button.
+      </div>
+    </HoverCard>
+  </div>
+);`,
+	DarkMode: `const ref = useRef(null);
+return (
+  <p>
+    Hover <span ref={ref} style={{ color: "var(--amber-d)", fontWeight: 600, cursor: "pointer" }}>@user</span>.
+    <HoverCard anchorRef={ref}>
+      <div style={{ fontWeight: 700, marginBottom: 4 }}>User Profile</div>
+      <div style={{ fontSize: 12 }}>HoverCard renders themed via :root.dark CSS overrides.</div>
+    </HoverCard>
+  </p>
+);`,
+};
 
 const meta: Meta<typeof HoverCard> = {
 	title: "Surfaces/HoverCard",
 	component: HoverCard,
-	parameters: { layout: "padded" },
+	tags: ["autodocs"],
+	parameters: {
+		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"Anchor-positioned popover that opens on hover or focus delay, used to show rich preview content without a click.",
+			},
+		},
+	},
+	argTypes: {
+		anchorRef: {
+			control: false,
+			description: "Ref to the trigger element; HoverCard installs mouse/click listeners on it.",
+		},
+		children: { control: false, description: "Rich card content rendered inside the panel." },
+		placement: {
+			control: "select",
+			options: ["bottom-start", "bottom-end", "top-start", "top-end"],
+			description: "Panel placement relative to the anchor.",
+		},
+		offset: {
+			control: "number",
+			description: "Gap in pixels between the anchor edge and the panel.",
+		},
+		openDelay: {
+			control: "number",
+			description: "Milliseconds to wait after mouseenter before opening.",
+		},
+		closeDelay: {
+			control: "number",
+			description: "Milliseconds to wait after mouseleave before closing.",
+		},
+		className: { control: false },
+	},
 };
 export default meta;
 type Story = StoryObj<typeof HoverCard>;
 
 export const UserProfilePreview: Story = {
+	parameters: { docs: { source: { code: SRC.UserProfilePreview } } },
 	render: () => {
 		const ref = useRef<HTMLSpanElement>(null);
 		return (
@@ -64,42 +167,22 @@ export const UserProfilePreview: Story = {
 				to see her profile.
 				<HoverCard anchorRef={ref}>
 					<div style={{ display: "flex", gap: 12, marginBottom: 10 }}>
-						<div
-							style={{
-								width: 44,
-								height: 44,
-								borderRadius: "50%",
-								background: "linear-gradient(135deg, #f59e0b, #b45309)",
-								display: "flex",
-								alignItems: "center",
-								justifyContent: "center",
-								color: "#fff",
-								fontWeight: 700,
-							}}
-						>
-							AP
-						</div>
+						<Avatar name="Anya Patel" size={40} gradient />
 						<div>
 							<div style={{ fontWeight: 700 }}>Anya Patel</div>
 							<div style={{ fontSize: 11, color: "var(--ink-3)" }}>Recruiter · Stripe</div>
 						</div>
 					</div>
-					<div
-						style={{
-							fontSize: 12,
-							lineHeight: 1.5,
-							marginBottom: 10,
-						}}
-					>
+					<div style={{ fontSize: 12, lineHeight: 1.5, marginBottom: 10 }}>
 						Senior recruiter focused on staff+ engineering. Met at SF Tech Mixer.
 					</div>
 					<div style={{ display: "flex", gap: 6 }}>
-						<button type="button" style={{ fontSize: 11, padding: "4px 10px" }}>
+						<Button size="xs" variant="secondary">
 							Message
-						</button>
-						<button type="button" style={{ fontSize: 11, padding: "4px 10px" }}>
+						</Button>
+						<Button size="xs" variant="ghost">
 							Profile
-						</button>
+						</Button>
 					</div>
 				</HoverCard>
 			</p>
@@ -108,6 +191,7 @@ export const UserProfilePreview: Story = {
 };
 
 export const LinkPreview: Story = {
+	parameters: { docs: { source: { code: SRC.LinkPreview } } },
 	render: () => {
 		const ref = useRef<HTMLAnchorElement>(null);
 		return (
@@ -138,6 +222,7 @@ export const LinkPreview: Story = {
 };
 
 export const WithImage: Story = {
+	parameters: { docs: { source: { code: SRC.WithImage } } },
 	render: () => {
 		const ref = useRef<HTMLButtonElement>(null);
 		return (
@@ -164,6 +249,7 @@ export const WithImage: Story = {
 };
 
 export const ButtonAnchor: Story = {
+	parameters: { docs: { source: { code: SRC.ButtonAnchor } } },
 	render: () => {
 		const ref = useRef<HTMLButtonElement>(null);
 		return (
@@ -184,7 +270,14 @@ export const ButtonAnchor: Story = {
 };
 
 export const DarkMode: Story = {
-	globals: { theme: "dark" },
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
 	render: () => {
 		const ref = useRef<HTMLSpanElement>(null);
 		return (

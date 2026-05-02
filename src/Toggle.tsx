@@ -1,6 +1,7 @@
 import { type CSSProperties, type InputHTMLAttributes, forwardRef } from "react";
 
 export interface ToggleProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+	/** Visible text label rendered beside the toggle track. */
 	label?: string;
 }
 

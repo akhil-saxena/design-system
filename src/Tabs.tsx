@@ -40,16 +40,25 @@ export interface TabItem {
 }
 
 export interface TabsProps {
+	/** Array of tab definitions including id, label, optional count badge, disabled flag, and panel content. */
 	tabs: TabItem[];
-	/** Controlled — id of the active tab */
+	/** Controlled id of the currently active tab. */
 	value: string;
+	/** Called with the tab id when the user activates a different tab. */
 	onChange: (id: string) => void;
-	/** @default "underline" */
+	/** Visual style of the tab triggers.
+	 * @default "underline"
+	 */
 	variant?: "underline" | "pill";
-	/** @default "automatic" */
+	/** Whether selecting a tab happens on arrow-key press (`"automatic"`) or only on Enter/Space (`"manual"`).
+	 * @default "automatic"
+	 */
 	activationMode?: "automatic" | "manual";
+	/** Accessible label for the `role="tablist"` element (required). */
 	ariaLabel: string;
+	/** Additional className applied to the root wrapper element. */
 	className?: string;
+	/** Inline styles applied to the root wrapper element. */
 	style?: CSSProperties;
 }
 
@@ -78,26 +87,55 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 	const [overflowOpen, setOverflowOpen] = useState(false);
 	const [overflowActiveIndex, setOverflowActiveIndex] = useState(0);
 
-	// ResizeObserver — measure tab widths and compute how many fit
+	// ResizeObserver — compute how many tabs fit in the available width.
+	//
+	// Key: we observe the ROOT element (stable container width), NOT the
+	// tablist itself. The tablist shrinks when fewer tabs render, which
+	// would cause a ResizeObserver feedback loop if observed directly.
+	//
+	// Two-pass algorithm prevents the "More appears → layout shifts →
+	// More disappears" oscillation:
+	//   Pass 1 — does every tab fit with no More button?
+	//   Pass 2 — if not, reserve MORE_WIDTH before measuring.
 	useLayoutEffect(() => {
-		if (!tablistRef.current) return;
+		if (!rootRef.current || !tablistRef.current) return;
+		const root = rootRef.current;
 		const tablist = tablistRef.current;
-		const ro = new ResizeObserver(() => {
-			const containerWidth = tablist.clientWidth;
-			const tabButtons = tablist.querySelectorAll<HTMLButtonElement>("[role='tab']");
+		const MORE_WIDTH = 44;
+
+		const measure = () => {
+			const containerWidth = root.clientWidth;
+			// Query ALL tab buttons — even hidden ones — by querying original tabs
+			// count. We always render all tabs initially then hide via visibleCount.
+			// Use stored widths by measuring while all are in DOM on first pass.
+			const tabButtons = Array.from(tablist.querySelectorAll<HTMLButtonElement>("[role='tab']"));
+
+			// Total width of all currently-visible tab buttons (may be a subset)
+			// Add an estimated width for hidden tabs using average of visible ones.
+			const visibleTotal = tabButtons.reduce((s, b) => s + b.offsetWidth, 0);
+			const avgWidth = tabButtons.length > 0 ? visibleTotal / tabButtons.length : 0;
+			const estimatedTotal = visibleTotal + avgWidth * (tabs.length - tabButtons.length);
+
+			// Pass 1: all tabs fit?
+			if (estimatedTotal <= containerWidth) {
+				setVisibleCount(tabs.length);
+				return;
+			}
+
+			// Pass 2: overflow — fit as many as possible within available width
+			const available = containerWidth - MORE_WIDTH;
 			let cumulative = 0;
-			const moreWidth = 40; // reserved width for the More button
-			let nextVisible = tabs.length;
-			for (let i = 0; i < tabButtons.length; i++) {
-				cumulative += tabButtons[i]!.offsetWidth;
-				if (cumulative + moreWidth > containerWidth) {
-					nextVisible = i;
-					break;
-				}
+			let nextVisible = 0;
+			for (const btn of tabButtons) {
+				if (cumulative + btn.offsetWidth > available) break;
+				cumulative += btn.offsetWidth;
+				nextVisible += 1;
 			}
 			setVisibleCount(nextVisible);
-		});
-		ro.observe(tablist);
+		};
+
+		const ro = new ResizeObserver(measure);
+		ro.observe(root);
 		return () => ro.disconnect();
 	}, [tabs.length]);
 

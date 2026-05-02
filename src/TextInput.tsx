@@ -1,11 +1,15 @@
 import { type CSSProperties, type InputHTMLAttributes, type ReactNode, forwardRef } from "react";
 
 export interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "prefix"> {
+	/** When true, applies error-state border color to the input or wrapper. */
 	error?: boolean;
+	/** Leading icon rendered inside the wrapper (Lucide recommended size 14–16). */
 	icon?: ReactNode;
+	/** Static text or node rendered before the input (e.g. `"https://"`). */
 	prefix?: ReactNode;
+	/** Static text or node rendered after the input (e.g. `".com"`). */
 	suffix?: ReactNode;
-	/** Trailing keyboard-shortcut hint (e.g., '⌘K', '/'), styled as a mono pill. */
+	/** Trailing keyboard-shortcut hint (e.g. `"⌘K"`) styled as a monospace pill. */
 	kbd?: ReactNode;
 }
 
@@ -14,12 +18,13 @@ const baseInputStyle: CSSProperties = {
 	padding: "8px 10px",
 	borderRadius: 8,
 	border: "1px solid var(--rule)",
-	background: "rgba(255,255,255,.6)",
+	background: "var(--cream)",
 	color: "var(--ink)",
 	fontFamily: "var(--font)",
 	outline: "none",
-	transition: "border-color .15s",
+	transition: "border-color .15s, box-shadow .15s",
 	width: "100%",
+	boxSizing: "border-box",
 };
 
 const wrapStyle: CSSProperties = {
@@ -29,8 +34,9 @@ const wrapStyle: CSSProperties = {
 	padding: "0 10px",
 	borderRadius: 8,
 	border: "1px solid var(--rule)",
-	background: "rgba(255,255,255,.6)",
-	transition: "border-color .15s",
+	background: "var(--cream)",
+	transition: "border-color .15s, box-shadow .15s",
+	boxSizing: "border-box",
 };
 
 const innerInputStyle: CSSProperties = {

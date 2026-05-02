@@ -29,10 +29,19 @@ export interface TimelineEvent {
 }
 
 export interface TimelineProps {
+	/** Ordered array of events rendered as dots connected by a line. */
 	events: TimelineEvent[];
-	orientation?: "horizontal" | "vertical"; // default horizontal
+	/** Layout direction of the timeline.
+	 * @default "horizontal"
+	 */
+	orientation?: "horizontal" | "vertical";
+	/** Additional className applied to the root `<ol>` element. */
 	className?: string;
+	/** Inline styles applied to the root `<ol>` element. */
 	style?: CSSProperties;
+	/** Accessible label for the `<ol>` list.
+	 * @default "Timeline"
+	 */
 	ariaLabel?: string;
 }
 

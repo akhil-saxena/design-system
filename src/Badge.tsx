@@ -3,11 +3,13 @@ import { type CSSProperties, type HTMLAttributes, forwardRef } from "react";
 export type BadgeTone = "upcoming" | "passed" | "pending" | "done" | "count" | "neutral";
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
+	/** Color tone of the badge, mapping to a semantic status.
+	 * @default "neutral"
+	 */
 	tone?: BadgeTone;
-	/** When true, renders a small leading colored dot inside the badge.
-	 * Color defaults to the tone's vivid; override via `dotColor`. */
+	/** When true, renders a small leading colored dot inside the badge; color defaults to the tone's vivid value. */
 	dot?: boolean;
-	/** Override the dot color (CSS color string). Falls back to tone-mapped vivid. */
+	/** Override the dot color with any CSS color string; falls back to the tone-mapped vivid color. */
 	dotColor?: string;
 }
 

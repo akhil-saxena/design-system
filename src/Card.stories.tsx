@@ -33,16 +33,94 @@ import { Button } from "./Button";
 import { Card } from "./Card";
 import { RollingNumber } from "./RollingNumber";
 
+const SRC = {
+	Default: `<Card>
+  <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
+    Standard Glass
+  </div>
+  <div style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.5 }}>
+    Default card with backdrop blur and translucent border.
+  </div>
+</Card>`,
+	Variants: `<Card variant="glass">Glass — default surface with backdrop blur.</Card>
+<Card variant="amber">Amber — CTA highlight surface.</Card>
+<Card variant="dark">Dark — always-dark surface.</Card>
+<Card variant="kanban">Kanban — hover-lift compact card.</Card>`,
+	Composed: `<Card variant="glass" style={{ padding: 0, maxWidth: 480 }}>
+  <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--rule)" }}>
+    Section Header
+  </div>
+  <div style={{ padding: "16px 20px", fontSize: 13, color: "var(--ink-2)" }}>
+    Freely-composed body content.
+  </div>
+  <div style={{ padding: "12px 20px", borderTop: "1px solid var(--rule)" }}>
+    Footer slot — also just a child div.
+  </div>
+</Card>`,
+	KanbanCard: `<Card variant="kanban">
+  <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 13 }}>Stripe</div>
+  <div style={{ fontSize: 11.5, color: "var(--ink-2)", marginTop: 1 }}>Staff Engineer</div>
+</Card>`,
+	ApplicationCard: `<Card variant="glass" style={{ maxWidth: 360, padding: 20 }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+    <div style={{ width: 40, height: 40, borderRadius: 8, background: "linear-gradient(135deg, #635bff, #4338ca)" }} />
+    <div style={{ flex: 1 }}>
+      <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 15 }}>Stripe</div>
+      <div style={{ fontSize: 12, color: "var(--ink-3)" }}>Staff Engineer</div>
+    </div>
+    <Badge tone="amber">Applied</Badge>
+  </div>
+  <div style={{ display: "flex", gap: 8 }}>
+    <Button variant="primary" size="sm">Mark Interviewing</Button>
+    <Button variant="ghost" size="sm">Pin</Button>
+  </div>
+</Card>`,
+	StatCard: `<Card variant="glass">
+  <div>Total Applications</div>
+  <div style={{ fontFamily: "var(--display)", fontWeight: 800, fontSize: 32 }}>
+    <RollingNumber value={42} />
+  </div>
+  <div style={{ fontSize: 11, color: "var(--green)" }}>+8 this week</div>
+</Card>`,
+	Playground: `<Card variant="glass">
+  Playground card content. Tweak the variant via the controls panel.
+</Card>`,
+	DarkMode: `<Card variant="glass">Glass (dark mode)</Card>
+<Card variant="amber">Amber (dark mode)</Card>
+<Card variant="dark">Dark (always)</Card>
+<Card variant="kanban">Kanban (dark)</Card>`,
+};
+
 const meta: Meta<typeof Card> = {
 	title: "Surfaces/Card",
 	component: Card,
-	parameters: { layout: "padded" },
+	tags: ["autodocs"],
+	parameters: {
+		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"Surface primitive with glass, amber, dark, and kanban variants; accepts arbitrary children and forwards its ref to the root div.",
+			},
+		},
+	},
+	argTypes: {
+		variant: {
+			control: "select",
+			options: ["glass", "amber", "dark", "kanban"],
+			description: "Surface style variant controlling background, border, and hover behavior.",
+		},
+		children: { control: false },
+		className: { control: false },
+		style: { control: false },
+	},
 };
 
 export default meta;
 type Story = StoryObj<typeof Card>;
 
 export const Default: Story = {
+	parameters: { docs: { source: { code: SRC.Default } } },
 	args: {
 		children: (
 			<>
@@ -65,6 +143,7 @@ export const Default: Story = {
 };
 
 export const Variants: Story = {
+	parameters: { docs: { source: { code: SRC.Variants } } },
 	render: () => (
 		<div
 			style={{
@@ -137,6 +216,7 @@ export const Variants: Story = {
 };
 
 export const Composed: Story = {
+	parameters: { docs: { source: { code: SRC.Composed } } },
 	render: () => (
 		<Card variant="glass" style={{ padding: 0, maxWidth: 480 }}>
 			<div
@@ -187,6 +267,7 @@ export const Composed: Story = {
 };
 
 export const KanbanCard: Story = {
+	parameters: { docs: { source: { code: SRC.KanbanCard } } },
 	render: () => (
 		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 12 }}>
 			<Card variant="kanban">
@@ -210,6 +291,7 @@ export const KanbanCard: Story = {
 };
 
 export const ApplicationCard: Story = {
+	parameters: { docs: { source: { code: SRC.ApplicationCard } } },
 	render: () => (
 		<Card variant="glass" style={{ maxWidth: 360, padding: 20 }}>
 			<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
@@ -260,6 +342,7 @@ export const ApplicationCard: Story = {
 };
 
 export const StatCard: Story = {
+	parameters: { docs: { source: { code: SRC.StatCard } } },
 	render: () => (
 		<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 220px)", gap: 12 }}>
 			<Card variant="glass">
@@ -327,13 +410,21 @@ export const Playground: Story = {
 		variant: "glass",
 		children: "Playground card content. Tweak the variant via the controls panel.",
 	},
+	parameters: { docs: { source: { code: SRC.Playground } } },
 	argTypes: {
 		variant: { control: "select", options: ["glass", "amber", "dark", "kanban"] },
 	},
 };
 
 export const DarkMode: Story = {
-	globals: { theme: "dark" },
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
 	render: () => (
 		<div
 			style={{

@@ -33,7 +33,8 @@
 			"storybook-static",
 			"test-results",
 			"playwright-report",
-			"coverage"
+			"coverage",
+			"design_handoff"
 		]
 	}
 }

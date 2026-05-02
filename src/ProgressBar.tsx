@@ -1,9 +1,19 @@
 import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } from "react";
 
 export interface ProgressBarProps extends HTMLAttributes<HTMLDivElement> {
+	/** Current progress value; clamped to [0, max] internally.
+	 * @default 0
+	 */
 	value?: number;
+	/** Maximum value used to compute the fill percentage.
+	 * @default 100
+	 */
 	max?: number;
+	/** When true, renders an animated 3-dot pulse instead of a determinate fill bar.
+	 * @default false
+	 */
 	loading?: boolean;
+	/** Accessible label; string values also render visually above the bar. */
 	label?: ReactNode;
 }
 

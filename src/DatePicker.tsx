@@ -12,41 +12,37 @@ import { addMonths, isSameDay, isToday, startOfMonth } from "./_internals/dateUt
 import { ChevronLeft, ChevronRight } from "./icons";
 
 export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
+	/** Controlled selected date; pass `null` for no selection. */
 	value: Date | null;
+	/** Called when the user clicks a calendar day cell with the selected Date. */
 	onChange: (d: Date) => void;
+	/** Called when the user navigates to a different month, with the first day of that month. */
 	onMonthChange?: (d: Date) => void;
+	/** Predicate that returns true for dates that should be disabled (unclickable). */
 	disabled?: (d: Date) => boolean;
+	/** Array of dates that receive an event-dot indicator on their cell. */
 	events?: Date[];
+	/** When true, all dates before today are disabled.
+	 * @default false
+	 */
 	disablePast?: boolean;
+	/** When true, all dates after today are disabled.
+	 * @default false
+	 */
 	disableFuture?: boolean;
+	/** When true, renders a 12-hour time picker row below the grid.
+	 * @default false
+	 */
 	showTime?: boolean;
-	/**
-	 * Optional predicate. When provided, cells where `inRange(d)` returns true
-	 * carry the `is-in-range` modifier class (between-state amber-light bg).
-	 * Backward-compatible API addition consumed by DateRangePicker (16-06).
-	 */
+	/** Predicate for cells that fall within an in-progress date range; adds the amber-light between-state bg. Consumed by DateRangePicker. */
 	inRange?: (d: Date) => boolean;
-	/**
-	 * Initial month to display when uncontrolled (i.e. `value` is null).
-	 * Consumed by DateRangePicker (16-06) right calendar to default to month+1.
-	 */
+	/** Initial month displayed when `value` is null; useful for range-picker right calendar. */
 	defaultMonth?: Date;
-	/**
-	 * Optional override for cell-selected detection. When provided, replaces
-	 * the default `value && isSameDay(date, value)` logic. Use case:
-	 * DateRangePicker marks BOTH start AND end as selected. v0.5.2.
-	 */
+	/** Override cell-selected detection; DateRangePicker uses this to highlight both range endpoints. */
 	isCellSelected?: (d: Date) => boolean;
-	/**
-	 * Optional predicates marking a cell as the START or END of a range.
-	 * When true, adds `.is-range-start` / `.is-range-end` modifier class for
-	 * the half-cell light-amber pseudo-element that visually extends the
-	 * in-range bg under the rounded selected pill. v0.5.3 patch.
-	 *
-	 * Used by DateRangePicker. Apply only for REAL ranges (start !== end).
-	 * 1-day ranges render as standalone selected — neither flag fires.
-	 */
+	/** Marks a cell as the start of a range for edge-pill visual polish; used by DateRangePicker. */
 	isRangeStart?: (d: Date) => boolean;
+	/** Marks a cell as the end of a range for edge-pill visual polish; used by DateRangePicker. */
 	isRangeEnd?: (d: Date) => boolean;
 }
 

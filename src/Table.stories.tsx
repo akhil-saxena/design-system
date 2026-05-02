@@ -17,23 +17,29 @@ const users: User[] = [
 	{ id: 5, name: "Eva Lopez", role: "Marketing", joinDate: "2022-07-12" },
 ];
 
-// ── Story components (must be named functions for hook rules) ─────────────────
+const wrap = (children: React.ReactNode, maxHeight?: number) => (
+	<div
+		style={{
+			border: "1px solid var(--rule)",
+			borderRadius: 8,
+			overflow: maxHeight ? "hidden" : "auto",
+			...(maxHeight ? { maxHeight } : {}),
+		}}
+	>
+		{children}
+	</div>
+);
+
+// ── Story components ──────────────────────────────────────────────────────────
 
 function SortableTable({
 	density,
 	sticky,
-}: Readonly<{
-	density?: "cozy" | "comfortable" | "spacious";
-	sticky?: boolean;
-}>) {
-	const { sorted, sortCol, sortDir, toggleSort } = useSortableTable(users, {
-		defaultCol: "name",
-	});
-
+}: Readonly<{ density?: "cozy" | "comfortable" | "spacious"; sticky?: boolean }>) {
+	const { sorted, sortCol, sortDir, toggleSort } = useSortableTable(users, { defaultCol: "name" });
 	const cellDir = (col: keyof User) => (sortCol === col ? sortDir : null);
-
-	return (
-		<div style={sticky ? { maxHeight: "200px", overflowY: "auto" } : undefined}>
+	return wrap(
+		<div style={sticky ? { maxHeight: 200, overflowY: "auto" } : undefined}>
 			<Table.Root density={density} sticky={sticky} ariaLabel="User list">
 				<Table.Header>
 					<Table.Row>
@@ -70,14 +76,14 @@ function SortableTable({
 					))}
 				</Table.Body>
 			</Table.Root>
-		</div>
+		</div>,
 	);
 }
 
 function SelectionTable() {
 	const ids = users.map((u) => u.id);
 	const { isAllSelected, isIndeterminate, isSelected, toggle, toggleAll } = useTableSelection(ids);
-	return (
+	return wrap(
 		<Table.Root multiSelectable ariaLabel="Selectable user list">
 			<Table.Header>
 				<Table.Row>
@@ -101,14 +107,14 @@ function SelectionTable() {
 					</Table.Row>
 				))}
 			</Table.Body>
-		</Table.Root>
+		</Table.Root>,
 	);
 }
 
 function SingleSelectionTable() {
 	const ids = users.map((u) => u.id);
 	const { isSelected, toggle } = useTableSelection(ids, { mode: "single" });
-	return (
+	return wrap(
 		<Table.Root ariaLabel="Single-select user list">
 			<Table.Header>
 				<Table.Row>
@@ -126,7 +132,7 @@ function SingleSelectionTable() {
 					</Table.Row>
 				))}
 			</Table.Body>
-		</Table.Root>
+		</Table.Root>,
 	);
 }
 
@@ -137,7 +143,7 @@ function ResizableTable() {
 		joinDate: 120,
 		status: 100,
 	});
-	return (
+	return wrap(
 		<Table.Root ariaLabel="Resizable column table" style={{ tableLayout: "fixed", width: "100%" }}>
 			<Table.Header>
 				<Table.Row>
@@ -181,21 +187,16 @@ function ResizableTable() {
 					</Table.Row>
 				))}
 			</Table.Body>
-		</Table.Root>
+		</Table.Root>,
 	);
 }
 
-const allRows23 = Array.from({ length: 23 }, (_, i) => {
-	let role: string;
-	if (i % 3 === 0) {
-		role = "Engineer";
-	} else if (i % 3 === 1) {
-		role = "Designer";
-	} else {
-		role = "Product";
-	}
-	return { id: i + 1, name: `User ${i + 1}`, role, joinDate: `2023-0${(i % 9) + 1}-01` };
-});
+const allRows23 = Array.from({ length: 23 }, (_, i) => ({
+	id: i + 1,
+	name: `User ${i + 1}`,
+	role: ["Engineer", "Designer", "Product"][i % 3] as string,
+	joinDate: `2023-0${(i % 9) + 1}-01`,
+}));
 
 function PaginationTable() {
 	const [page, setPage] = useState(1);
@@ -204,24 +205,26 @@ function PaginationTable() {
 	const pageRows = allRows23.slice((page - 1) * pageSize, page * pageSize);
 	return (
 		<div>
-			<Table.Root ariaLabel="Paginated user list">
-				<Table.Header>
-					<Table.Row>
-						<Table.HeaderCell>Name</Table.HeaderCell>
-						<Table.HeaderCell>Role</Table.HeaderCell>
-						<Table.HeaderCell>Join Date</Table.HeaderCell>
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
-					{pageRows.map((u) => (
-						<Table.Row key={u.id}>
-							<Table.Cell>{u.name}</Table.Cell>
-							<Table.Cell>{u.role}</Table.Cell>
-							<Table.Cell>{u.joinDate}</Table.Cell>
+			{wrap(
+				<Table.Root ariaLabel="Paginated user list">
+					<Table.Header>
+						<Table.Row>
+							<Table.HeaderCell>Name</Table.HeaderCell>
+							<Table.HeaderCell>Role</Table.HeaderCell>
+							<Table.HeaderCell>Join Date</Table.HeaderCell>
 						</Table.Row>
-					))}
-				</Table.Body>
-			</Table.Root>
+					</Table.Header>
+					<Table.Body>
+						{pageRows.map((u) => (
+							<Table.Row key={u.id}>
+								<Table.Cell>{u.name}</Table.Cell>
+								<Table.Cell>{u.role}</Table.Cell>
+								<Table.Cell>{u.joinDate}</Table.Cell>
+							</Table.Row>
+						))}
+					</Table.Body>
+				</Table.Root>,
+			)}
 			<Table.Pagination
 				page={page}
 				pageCount={pageCount}
@@ -236,14 +239,9 @@ function PaginationTable() {
 function PaginationManyPagesDemo() {
 	const [page, setPage] = useState(10);
 	return (
-		<div style={{ padding: "16px" }}>
+		<div style={{ padding: 16 }}>
 			<p
-				style={{
-					marginBottom: "12px",
-					fontFamily: "var(--font)",
-					fontSize: 13,
-					color: "var(--ink-2)",
-				}}
+				style={{ marginBottom: 12, fontFamily: "var(--font)", fontSize: 13, color: "var(--ink-2)" }}
 			>
 				20 pages — middle page shows both ellipses
 			</p>
@@ -252,104 +250,71 @@ function PaginationManyPagesDemo() {
 	);
 }
 
-/**
- * Correct usage: Table.Pagination as a sibling of Table.Root (NOT nested inside).
- * `<nav>` inside `<table>` is invalid HTML — always place them as siblings in a wrapper div.
- */
-function PaginationOutsideTableDemo() {
-	const [page, setPage] = useState(1);
-	const pageSize = 3;
-	const pageCount = Math.ceil(users.length / pageSize);
-	const pageRows = users.slice((page - 1) * pageSize, page * pageSize);
-	return (
-		// GOOD: Table.Root and Table.Pagination are siblings inside a wrapper div.
-		<div>
-			<Table.Root ariaLabel="Sibling pagination demo">
-				<Table.Header>
-					<Table.Row>
-						<Table.HeaderCell>Name</Table.HeaderCell>
-						<Table.HeaderCell>Role</Table.HeaderCell>
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
-					{pageRows.map((u) => (
-						<Table.Row key={u.id}>
-							<Table.Cell>{u.name}</Table.Cell>
-							<Table.Cell>{u.role}</Table.Cell>
-						</Table.Row>
-					))}
-				</Table.Body>
-			</Table.Root>
-			{/* Table.Pagination is a SIBLING — not a child of Table.Root */}
-			<Table.Pagination page={page} pageCount={pageCount} onPageChange={setPage} />
-		</div>
-	);
-}
-
-const combinedRows = Array.from({ length: 15 }, (_, i) => {
-	const role = i % 2 === 0 ? "Engineer" : "Designer";
-	return { id: i + 1, name: `User ${i + 1}`, role, joinDate: `2023-0${(i % 9) + 1}-01` };
-});
+const combinedRows = Array.from({ length: 15 }, (_, i) => ({
+	id: i + 1,
+	name: `User ${i + 1}`,
+	role: i % 2 === 0 ? "Engineer" : "Designer",
+	joinDate: `2023-0${(i % 9) + 1}-01`,
+}));
 
 function CombinedTable() {
 	const [page, setPage] = useState(1);
 	const pageSize = 5;
 	const pageCount = Math.ceil(combinedRows.length / pageSize);
 	const pageRows = combinedRows.slice((page - 1) * pageSize, page * pageSize);
-
 	const ids = pageRows.map((r) => r.id);
 	const { isAllSelected, isIndeterminate, isSelected, toggle, toggleAll } = useTableSelection(ids);
 	const { widths, startResize } = useResizableColumns({ name: 160, role: 120, joinDate: 120 });
-
 	return (
 		<div>
-			<Table.Root
-				multiSelectable
-				ariaLabel="Combined table"
-				style={{ tableLayout: "fixed", width: "100%" }}
-			>
-				<Table.Header>
-					<Table.Row>
-						<Table.SelectAllCell
-							isAllSelected={isAllSelected}
-							isIndeterminate={isIndeterminate}
-							onToggleAll={toggleAll}
-						/>
-						<Table.HeaderCell
-							resizable
-							width={widths.name}
-							onResizeStart={(e) => startResize("name", e)}
-						>
-							Name
-						</Table.HeaderCell>
-						<Table.HeaderCell
-							resizable
-							width={widths.role}
-							onResizeStart={(e) => startResize("role", e)}
-						>
-							Role
-						</Table.HeaderCell>
-						<Table.HeaderCell
-							resizable
-							width={widths.joinDate}
-							onResizeStart={(e) => startResize("joinDate", e)}
-						>
-							Join Date
-						</Table.HeaderCell>
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
-					{pageRows.map((u) => (
-						<Table.Row key={u.id} selected={isSelected(u.id)}>
-							<Table.SelectCell selected={isSelected(u.id)} onToggle={() => toggle(u.id)} />
-							<Table.Cell>{u.name}</Table.Cell>
-							<Table.Cell>{u.role}</Table.Cell>
-							<Table.Cell>{u.joinDate}</Table.Cell>
+			{wrap(
+				<Table.Root
+					multiSelectable
+					ariaLabel="Combined table"
+					style={{ tableLayout: "fixed", width: "100%" }}
+				>
+					<Table.Header>
+						<Table.Row>
+							<Table.SelectAllCell
+								isAllSelected={isAllSelected}
+								isIndeterminate={isIndeterminate}
+								onToggleAll={toggleAll}
+							/>
+							<Table.HeaderCell
+								resizable
+								width={widths.name}
+								onResizeStart={(e) => startResize("name", e)}
+							>
+								Name
+							</Table.HeaderCell>
+							<Table.HeaderCell
+								resizable
+								width={widths.role}
+								onResizeStart={(e) => startResize("role", e)}
+							>
+								Role
+							</Table.HeaderCell>
+							<Table.HeaderCell
+								resizable
+								width={widths.joinDate}
+								onResizeStart={(e) => startResize("joinDate", e)}
+							>
+								Join Date
+							</Table.HeaderCell>
 						</Table.Row>
-					))}
-				</Table.Body>
-			</Table.Root>
-			{/* Pagination as sibling of Table.Root */}
+					</Table.Header>
+					<Table.Body>
+						{pageRows.map((u) => (
+							<Table.Row key={u.id} selected={isSelected(u.id)}>
+								<Table.SelectCell selected={isSelected(u.id)} onToggle={() => toggle(u.id)} />
+								<Table.Cell>{u.name}</Table.Cell>
+								<Table.Cell>{u.role}</Table.Cell>
+								<Table.Cell>{u.joinDate}</Table.Cell>
+							</Table.Row>
+						))}
+					</Table.Body>
+				</Table.Root>,
+			)}
 			<Table.Pagination
 				page={page}
 				pageCount={pageCount}
@@ -364,33 +329,10 @@ function CombinedTable() {
 function PlaygroundTable({
 	density,
 	sticky,
-}: Readonly<{
-	density?: "cozy" | "comfortable" | "spacious";
-	sticky?: boolean;
-}>) {
-	const [sortCol, setSortCol] = useState<keyof User | null>(null);
-	const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-
-	function toggleSort(col: keyof User) {
-		if (sortCol === col) {
-			setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-		} else {
-			setSortCol(col);
-			setSortDir("asc");
-		}
-	}
-
-	const sorted = [...users].sort((a, b) => {
-		if (!sortCol) return 0;
-		const av = a[sortCol];
-		const bv = b[sortCol];
-		const cmp = av < bv ? -1 : av > bv ? 1 : 0;
-		return sortDir === "asc" ? cmp : -cmp;
-	});
-
+}: Readonly<{ density?: "cozy" | "comfortable" | "spacious"; sticky?: boolean }>) {
+	const { sorted, sortCol, sortDir, toggleSort } = useSortableTable(users, { defaultCol: "name" });
 	const cellDir = (col: keyof User) => (sortCol === col ? sortDir : null);
-
-	return (
+	return wrap(
 		<Table.Root density={density ?? "comfortable"} sticky={sticky} ariaLabel="Playground table">
 			<Table.Header>
 				<Table.Row>
@@ -426,19 +368,186 @@ function PlaygroundTable({
 					</Table.Row>
 				))}
 			</Table.Body>
-		</Table.Root>
+		</Table.Root>,
 	);
 }
+
+// ── Source snippets ───────────────────────────────────────────────────────────
+
+const SRC = {
+	default: `// Sortable table — click any header to sort
+const { sorted, sortCol, sortDir, toggleSort } = useSortableTable(users, { defaultCol: "name" });
+
+<div style={{ border: "1px solid var(--rule)", borderRadius: 8, overflow: "auto" }}>
+  <Table.Root ariaLabel="User list">
+    <Table.Header>
+      <Table.Row>
+        <Table.HeaderCell sortable sortDir={sortCol === "name" ? sortDir : null} onToggleSort={() => toggleSort("name")}>
+          Name
+        </Table.HeaderCell>
+        <Table.HeaderCell sortable sortDir={sortCol === "role" ? sortDir : null} onToggleSort={() => toggleSort("role")}>
+          Role
+        </Table.HeaderCell>
+      </Table.Row>
+    </Table.Header>
+    <Table.Body>
+      {sorted.map((u) => (
+        <Table.Row key={u.id}>
+          <Table.Cell>{u.name}</Table.Cell>
+          <Table.Cell>{u.role}</Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table.Root>
+</div>`,
+
+	selection: `const ids = users.map((u) => u.id);
+const { isAllSelected, isIndeterminate, isSelected, toggle, toggleAll } = useTableSelection(ids);
+
+<div style={{ border: "1px solid var(--rule)", borderRadius: 8, overflow: "auto" }}>
+  <Table.Root multiSelectable ariaLabel="Selectable user list">
+    <Table.Header>
+      <Table.Row>
+        <Table.SelectAllCell isAllSelected={isAllSelected} isIndeterminate={isIndeterminate} onToggleAll={toggleAll} />
+        <Table.HeaderCell>Name</Table.HeaderCell>
+        <Table.HeaderCell>Role</Table.HeaderCell>
+      </Table.Row>
+    </Table.Header>
+    <Table.Body>
+      {users.map((u) => (
+        <Table.Row key={u.id} selected={isSelected(u.id)}>
+          <Table.SelectCell selected={isSelected(u.id)} onToggle={() => toggle(u.id)} />
+          <Table.Cell>{u.name}</Table.Cell>
+          <Table.Cell>{u.role}</Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table.Root>
+</div>`,
+
+	resizable: `const { widths, startResize } = useResizableColumns({ name: 160, role: 120, joinDate: 120 });
+
+<div style={{ border: "1px solid var(--rule)", borderRadius: 8, overflow: "auto" }}>
+  <Table.Root ariaLabel="Resizable table" style={{ tableLayout: "fixed", width: "100%" }}>
+    <Table.Header>
+      <Table.Row>
+        <Table.HeaderCell resizable width={widths.name} onResizeStart={(e) => startResize("name", e)}>Name</Table.HeaderCell>
+        <Table.HeaderCell resizable width={widths.role} onResizeStart={(e) => startResize("role", e)}>Role</Table.HeaderCell>
+      </Table.Row>
+    </Table.Header>
+    <Table.Body>
+      {users.map((u) => (
+        <Table.Row key={u.id}>
+          <Table.Cell>{u.name}</Table.Cell>
+          <Table.Cell>{u.role}</Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table.Root>
+</div>`,
+
+	sticky: `// Wrap in a constrained-height div to make sticky header visible
+<div style={{ maxHeight: 200, overflowY: "auto", border: "1px solid var(--rule)", borderRadius: 8 }}>
+  <Table.Root sticky ariaLabel="Sticky header table">
+    <Table.Header>
+      <Table.Row>
+        <Table.HeaderCell>Name</Table.HeaderCell>
+        <Table.HeaderCell>Role</Table.HeaderCell>
+      </Table.Row>
+    </Table.Header>
+    <Table.Body>
+      {users.map((u) => (
+        <Table.Row key={u.id}>
+          <Table.Cell>{u.name}</Table.Cell>
+          <Table.Cell>{u.role}</Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table.Root>
+</div>`,
+
+	pagination: `// Table.Pagination must be a SIBLING of Table.Root — not nested inside.
+// <nav> inside <table> is invalid HTML.
+const [page, setPage] = useState(1);
+const pageRows = allRows.slice((page - 1) * 5, page * 5);
+
+<div>
+  <div style={{ border: "1px solid var(--rule)", borderRadius: 8, overflow: "auto" }}>
+    <Table.Root ariaLabel="Paginated user list">
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell>Name</Table.HeaderCell>
+          <Table.HeaderCell>Role</Table.HeaderCell>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {pageRows.map((u) => (
+          <Table.Row key={u.id}>
+            <Table.Cell>{u.name}</Table.Cell>
+            <Table.Cell>{u.role}</Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table.Root>
+  </div>
+  <Table.Pagination page={page} pageCount={pageCount} onPageChange={setPage} pageSize={5} total={allRows.length} />
+</div>`,
+
+	combined: `const { isAllSelected, isIndeterminate, isSelected, toggle, toggleAll } = useTableSelection(ids);
+const { widths, startResize } = useResizableColumns({ name: 160, role: 120 });
+
+<div>
+  <div style={{ border: "1px solid var(--rule)", borderRadius: 8, overflow: "auto" }}>
+    <Table.Root multiSelectable style={{ tableLayout: "fixed", width: "100%" }} ariaLabel="Combined table">
+      <Table.Header>
+        <Table.Row>
+          <Table.SelectAllCell isAllSelected={isAllSelected} isIndeterminate={isIndeterminate} onToggleAll={toggleAll} />
+          <Table.HeaderCell resizable width={widths.name} onResizeStart={(e) => startResize("name", e)}>Name</Table.HeaderCell>
+          <Table.HeaderCell resizable width={widths.role} onResizeStart={(e) => startResize("role", e)}>Role</Table.HeaderCell>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {pageRows.map((u) => (
+          <Table.Row key={u.id} selected={isSelected(u.id)}>
+            <Table.SelectCell selected={isSelected(u.id)} onToggle={() => toggle(u.id)} />
+            <Table.Cell>{u.name}</Table.Cell>
+            <Table.Cell>{u.role}</Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table.Root>
+  </div>
+  <Table.Pagination page={page} pageCount={pageCount} onPageChange={setPage} pageSize={5} total={rows.length} />
+</div>`,
+};
 
 // ── Meta ──────────────────────────────────────────────────────────────────────
 
 const meta: Meta<typeof Table.Root> = {
 	title: "Primitives/Table",
 	component: Table.Root,
+	tags: ["autodocs"],
 	parameters: {
 		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"Compound-API data table. `Table.Root` wraps a `<table>`. Always wrap it in a `<div>` with `border` + `borderRadius` for the container chrome. `Table.Pagination` must be a **sibling** of `Table.Root`, never nested inside — `<nav>` inside `<table>` is invalid HTML.",
+			},
+		},
 	},
-	tags: ["autodocs"],
+	argTypes: {
+		density: {
+			control: "select",
+			options: ["cozy", "comfortable", "spacious"],
+			description: "Row height preset.",
+		},
+		sticky: { control: "boolean", description: "Pin the header row on scroll." },
+		multiSelectable: { control: "boolean", description: "Enable multi-row checkbox selection." },
+		ariaLabel: { control: "text" },
+		style: { control: false },
+		children: { control: false },
+	},
 };
 
 export default meta;
@@ -446,118 +555,209 @@ type Story = StoryObj<typeof Table.Root>;
 
 // ── Stories ───────────────────────────────────────────────────────────────────
 
-/** Default table with sortable columns. Click any header to sort. */
 export const Default: Story = {
+	parameters: {
+		docs: {
+			description: { story: "Sortable columns. Click any header to toggle sort direction." },
+			source: { code: SRC.default },
+		},
+	},
 	render: () => <SortableTable />,
 };
 
-/** Cozy density — 32px row height, tight padding. */
 export const DensityCozy: Story = {
+	name: "Density — Cozy",
+	parameters: {
+		docs: {
+			description: { story: "32 px row height, tight padding." },
+			source: { code: SRC.default },
+		},
+	},
 	render: () => <SortableTable density="cozy" />,
 };
 
-/** Comfortable density — 40px row height (default). */
 export const DensityComfortable: Story = {
+	name: "Density — Comfortable",
+	parameters: {
+		docs: { description: { story: "40 px row height (default)." }, source: { code: SRC.default } },
+	},
 	render: () => <SortableTable density="comfortable" />,
 };
 
-/** Spacious density — 48px row height, generous padding. */
 export const DensitySpacious: Story = {
+	name: "Density — Spacious",
+	parameters: {
+		docs: {
+			description: { story: "48 px row height, generous padding." },
+			source: { code: SRC.default },
+		},
+	},
 	render: () => <SortableTable density="spacious" />,
 };
 
-/** Sticky header — scroll the container and the header stays pinned. */
 export const StickyHeader: Story = {
+	name: "Sticky header",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Scroll the container — header stays pinned. Requires a max-height overflow wrapper.",
+			},
+			source: { code: SRC.sticky },
+		},
+	},
 	render: () => <SortableTable sticky />,
 };
 
-/** Table without sortable headers — plain chrome. */
 export const NoSort: Story = {
-	render: () => (
-		<Table.Root ariaLabel="Static user list">
-			<Table.Header>
-				<Table.Row>
-					<Table.HeaderCell>Name</Table.HeaderCell>
-					<Table.HeaderCell>Role</Table.HeaderCell>
-					<Table.HeaderCell>Join Date</Table.HeaderCell>
-				</Table.Row>
-			</Table.Header>
-			<Table.Body>
-				{users.map((u) => (
-					<Table.Row key={u.id}>
-						<Table.Cell>{u.name}</Table.Cell>
-						<Table.Cell>{u.role}</Table.Cell>
-						<Table.Cell>{u.joinDate}</Table.Cell>
+	name: "No sort",
+	parameters: {
+		docs: {
+			description: { story: "Plain table without sortable headers." },
+			source: { code: SRC.default },
+		},
+	},
+	render: () =>
+		wrap(
+			<Table.Root ariaLabel="Static user list">
+				<Table.Header>
+					<Table.Row>
+						<Table.HeaderCell>Name</Table.HeaderCell>
+						<Table.HeaderCell>Role</Table.HeaderCell>
+						<Table.HeaderCell>Join Date</Table.HeaderCell>
 					</Table.Row>
-				))}
-			</Table.Body>
-		</Table.Root>
-	),
+				</Table.Header>
+				<Table.Body>
+					{users.map((u) => (
+						<Table.Row key={u.id}>
+							<Table.Cell>{u.name}</Table.Cell>
+							<Table.Cell>{u.role}</Table.Cell>
+							<Table.Cell>{u.joinDate}</Table.Cell>
+						</Table.Row>
+					))}
+				</Table.Body>
+			</Table.Root>,
+		),
 };
 
-/** Multi-select — checkbox column with select-all, indeterminate state, per-row selection. */
 export const Selection: Story = {
+	name: "Multi-select",
+	parameters: {
+		docs: {
+			description: {
+				story: "Checkbox column with select-all, indeterminate state, and per-row toggle.",
+			},
+			source: { code: SRC.selection },
+		},
+	},
 	render: () => <SelectionTable />,
 };
 
-/** Single-select mode — only one row can be selected at a time. */
 export const SingleSelection: Story = {
+	name: "Single-select",
+	parameters: {
+		docs: {
+			description: { story: "Only one row selectable at a time." },
+			source: { code: SRC.selection },
+		},
+	},
 	render: () => <SingleSelectionTable />,
 };
 
-/** Resizable columns — drag any header right edge to resize. Min 60px. */
 export const Resizable: Story = {
+	name: "Resizable columns",
+	parameters: {
+		docs: {
+			description: { story: "Drag the right edge of any header to resize. Min 60 px enforced." },
+			source: { code: SRC.resizable },
+		},
+	},
 	render: () => <ResizableTable />,
 };
 
-/** Pagination — 23-row dataset paged 5 at a time; Table.Pagination is a sibling of Table.Root. */
 export const Pagination: Story = {
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"23-row dataset paged 5 at a time. `Table.Pagination` is a sibling of `Table.Root` — never nested inside.",
+			},
+			source: { code: SRC.pagination },
+		},
+	},
 	render: () => <PaginationTable />,
 };
 
-/** Pagination with many pages — pageCount=20, demonstrates both-ellipsis truncation. */
 export const PaginationManyPages: Story = {
+	name: "Pagination — many pages",
+	parameters: {
+		docs: {
+			description: {
+				story: "pageCount=20 at page 10 — demonstrates the both-ellipses truncation pattern.",
+			},
+			source: { code: SRC.pagination },
+		},
+	},
 	render: () => <PaginationManyPagesDemo />,
 };
 
-/**
- * Correct usage: Table.Pagination rendered as a SIBLING of Table.Root, not nested inside.
- * `<nav>` inside `<table>` is invalid HTML — wrap both in a `<div>` and place as siblings.
- * This story is the canonical reference for the correct sibling pattern.
- */
 export const PaginationOutsideTable: Story = {
-	render: () => <PaginationOutsideTableDemo />,
+	name: "Pagination as sibling",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Canonical do/don't: `Table.Pagination` wrapped in the same `<div>` as `Table.Root`, not inside the table itself.",
+			},
+			source: { code: SRC.pagination },
+		},
+	},
+	render: () => <PaginationTable />,
 };
 
-/** Combined — Selection + Resizable + Pagination together (Pagination as sibling-of-Root). */
 export const Combined: Story = {
+	name: "Combined — selection + resizable + pagination",
+	parameters: {
+		docs: {
+			description: {
+				story: "All three features together. Pagination is always a sibling of Table.Root.",
+			},
+			source: { code: SRC.combined },
+		},
+	},
 	render: () => <CombinedTable />,
 };
 
-/** Dark mode — verified against v0.5.6 token fixes. */
 export const DarkMode: Story = {
-	render: () => <SortableTable />,
-	parameters: {
-		backgrounds: { default: "dark" },
-		themes: { default: "dark" },
-	},
+	name: "Dark mode",
 	decorators: [
 		(Story) => (
-			<div className="dark" style={{ background: "var(--surface-1, #1a1a1a)", padding: "16px" }}>
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
 				<Story />
 			</div>
 		),
 	],
+	parameters: {
+		docs: {
+			description: {
+				story: "Table tokens follow dark surface — header, row hover, sort indicator.",
+			},
+			source: { code: SRC.default },
+		},
+	},
+	render: () => <SortableTable />,
 };
 
-/** Playground — all props controllable via Storybook controls. */
 export const Playground: Story = {
+	parameters: {
+		docs: {
+			description: { story: "Toggle density and sticky header via the Controls panel." },
+			source: { code: SRC.default },
+		},
+	},
 	render: (args) => <PlaygroundTable density={args.density} sticky={args.sticky} />,
 	argTypes: {
-		density: {
-			control: { type: "select" },
-			options: ["cozy", "comfortable", "spacious"],
-		},
+		density: { control: { type: "select" }, options: ["cozy", "comfortable", "spacious"] },
 		sticky: { control: "boolean" },
 	},
 };

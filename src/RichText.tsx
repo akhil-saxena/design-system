@@ -48,13 +48,32 @@
  * `Underline` icon component imported from ./icons.
  */
 
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import UnderlineExtension from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import css from "highlight.js/lib/languages/css";
+import javascript from "highlight.js/lib/languages/javascript";
+import json from "highlight.js/lib/languages/json";
+import python from "highlight.js/lib/languages/python";
+import typescript from "highlight.js/lib/languages/typescript";
+import xml from "highlight.js/lib/languages/xml";
+import { createLowlight } from "lowlight";
+
+const lowlight = createLowlight();
+lowlight.register("html", xml);
+lowlight.register("css", css);
+lowlight.register("js", javascript);
+lowlight.register("javascript", javascript);
+lowlight.register("ts", typescript);
+lowlight.register("typescript", typescript);
+lowlight.register("json", json);
+lowlight.register("python", python);
 import { type CSSProperties, type ReactNode, forwardRef, useEffect, useRef, useState } from "react";
 import { Button } from "./Button";
+import { Select } from "./Select";
 import { DSDropdown } from "./_internals/DSDropdown";
 import { DSPortal } from "./_internals/DSPortal";
 import {
@@ -67,28 +86,53 @@ import {
 	List,
 	ListOrdered,
 	Minus,
+	Moon,
 	Quote,
 	Strikethrough,
+	Sun,
 	Underline,
 } from "./icons";
 
 // ─── Public types ──────────────────────────────────────────────────────────
 
 export interface RichTextProps {
-	/** HTML string (default) or TipTap JSON Doc when outputFormat="json" */
+	/** Controlled HTML string (default) or TipTap JSON Doc object when `outputFormat="json"`. */
 	value: string | object;
+	/** Called on every editor change with the updated HTML string or JSON Doc. */
 	onChange: (value: string | object) => void;
+	/** Placeholder text shown in the empty editor surface. */
 	placeholder?: string;
+	/** When true, hides the toolbar and makes the editor non-editable.
+	 * @default false
+	 */
 	readOnly?: boolean;
-	/** default "html" — "json" swaps onUpdate to emit editor.getJSON() */
+	/** Output format emitted to `onChange`; `"html"` emits a string, `"json"` emits a TipTap Doc object.
+	 * @default "html"
+	 */
 	outputFormat?: "html" | "json";
-	/** Override the default toolbar with a custom ReactNode */
+	/** Replace the default toolbar with a custom ReactNode; pass `null` to suppress the toolbar entirely. */
 	toolbar?: ReactNode;
-	/** Additional className for the editor surface wrapper (.ds-atom-richtext-surface) */
+	/** Additional className applied to the inner editor surface wrapper. */
 	className?: string;
+	/** Accessible label for the editor region.
+	 * @default "Rich text editor"
+	 */
 	ariaLabel?: string;
+	/** Inline styles applied to the outer root wrapper. */
 	style?: CSSProperties;
 }
+
+// ─── Supported languages for the code block language selector ────────────────
+
+const CODE_LANGUAGES = [
+	{ value: "plaintext", label: "Plain text" },
+	{ value: "javascript", label: "JavaScript" },
+	{ value: "typescript", label: "TypeScript" },
+	{ value: "html", label: "HTML" },
+	{ value: "css", label: "CSS" },
+	{ value: "json", label: "JSON" },
+	{ value: "python", label: "Python" },
+] as const;
 
 // ─── Heading menu items ────────────────────────────────────────────────────
 
@@ -128,6 +172,7 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 	// Heading dropdown state
 	const [headingOpen, setHeadingOpen] = useState(false);
 	const [headingActiveIndex, setHeadingActiveIndex] = useState(0);
+	const [codeBlockDark, setCodeBlockDark] = useState(false);
 
 	// ── TipTap editor instance ─────────────────────────────────────────────
 	const editor = useEditor({
@@ -135,7 +180,8 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 			// Disable StarterKit's bundled Link and Underline so we can configure them ourselves.
 			// StarterKit v3.22 includes both by default — providing false opts them out,
 			// then we add our own configured versions below (avoids "Duplicate extension" warning).
-			StarterKit.configure({ link: false, underline: false }),
+			StarterKit.configure({ link: false, underline: false, codeBlock: false }),
+			CodeBlockLowlight.configure({ lowlight, defaultLanguage: "plaintext" }),
 			Link.configure({ openOnClick: false, autolink: true }),
 			Placeholder.configure({ placeholder: placeholder ?? "" }),
 			// NOTE: UnderlineExtension — renamed import to avoid collision with Underline icon
@@ -247,6 +293,30 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 			>
 				<Code size={16} />
 			</Button>
+
+			{/* Language selector + dark toggle — only visible when cursor is inside a code block */}
+			{isActive("codeBlock") && (
+				<>
+					<Select
+						options={CODE_LANGUAGES.map((l) => ({ value: l.value, label: l.label }))}
+						value={editor?.getAttributes("codeBlock").language ?? "plaintext"}
+						onChange={(lang) =>
+							editor?.chain().focus().updateAttributes("codeBlock", { language: lang }).run()
+						}
+						style={{ height: 28, width: "fit-content", minWidth: 110, fontSize: 11 }}
+					/>
+					<Button
+						variant="ghost"
+						size="sm"
+						aria-label={codeBlockDark ? "Switch code block to light" : "Switch code block to dark"}
+						aria-pressed={codeBlockDark}
+						data-active={codeBlockDark || undefined}
+						onClick={() => setCodeBlockDark((d) => !d)}
+					>
+						{codeBlockDark ? <Sun size={16} /> : <Moon size={16} />}
+					</Button>
+				</>
+			)}
 
 			<span className="ds-atom-richtext-toolbar-divider" aria-hidden="true" />
 
@@ -396,9 +466,6 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 						top: linkBtnRef.current.getBoundingClientRect().bottom + 4,
 						left: linkBtnRef.current.getBoundingClientRect().left,
 						margin: 0,
-						padding: 0,
-						border: "none",
-						background: "none",
 					}}
 				>
 					<input
@@ -470,7 +537,10 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 	return (
 		<div ref={ref} className="ds-atom-richtext" style={style} aria-label={ariaLabel}>
 			{!readOnly && (toolbar ?? defaultToolbar)}
-			<div className={`ds-atom-richtext-surface${className ? ` ${className}` : ""}`}>
+			<div
+				className={["ds-atom-richtext-surface", className].filter(Boolean).join(" ")}
+				data-code-dark={codeBlockDark || undefined}
+			>
 				<EditorContent editor={editor} />
 			</div>
 			{linkPopover}

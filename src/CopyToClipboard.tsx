@@ -3,9 +3,19 @@ import { Check, Copy } from "./icons";
 
 export interface CopyToClipboardProps
 	extends Omit<HTMLAttributes<HTMLButtonElement>, "onCopy" | "onError"> {
+	/** The string value written to the clipboard on click. */
 	value: string;
+	/** Display text shown inside the button; falls back to `value` when omitted. */
 	label?: string;
+	/**
+	 * Text shown in place of `label`/`value` for 2 s after a successful copy.
+	 * Omit to keep the original label visible (icon-swap + green border only).
+	 * @example copiedLabel="Copied!"
+	 */
+	copiedLabel?: string;
+	/** Called after a successful clipboard write; use to trigger a Toast or other feedback. */
 	onCopy?: () => void;
+	/** Called when the clipboard API fails (e.g. insecure context or permission denied). */
 	onError?: (err: Error) => void;
 }
 
@@ -17,7 +27,10 @@ export interface CopyToClipboardProps
  * stays as Copy, calls onError?(err). NO internal Toast dep.
  */
 export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProps>(
-	function CopyToClipboard({ value, label, onCopy, onError, className, style, ...rest }, ref) {
+	function CopyToClipboard(
+		{ value, label, copiedLabel, onCopy, onError, className, style, ...rest },
+		ref,
+	) {
 		const [copied, setCopied] = useState(false);
 		const timerRef = useRef<number | null>(null);
 
@@ -31,8 +44,7 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 		}, []);
 
 		const handleClick = useCallback(async () => {
-			try {
-				await navigator.clipboard.writeText(value);
+			const showCopied = () => {
 				setCopied(true);
 				onCopy?.();
 				if (timerRef.current !== null) window.clearTimeout(timerRef.current);
@@ -40,10 +52,14 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 					setCopied(false);
 					timerRef.current = null;
 				}, 2000);
+			};
+
+			try {
+				await navigator.clipboard.writeText(value);
+				showCopied();
 			} catch (err) {
 				const error = err instanceof Error ? err : new Error(String(err));
-				console.warn(error);
-				setCopied(false);
+				console.warn("[CopyToClipboard] clipboard unavailable:", error.message);
 				onError?.(error);
 			}
 		}, [value, onCopy, onError]);
@@ -59,7 +75,9 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 				onClick={handleClick}
 				{...rest}
 			>
-				<span className="ds-atom-copy-value">{label ?? value}</span>
+				<span className="ds-atom-copy-value">
+					{copied && copiedLabel ? copiedLabel : (label ?? value)}
+				</span>
 				{copied ? (
 					<Check
 						size={14}

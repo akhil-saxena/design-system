@@ -9,10 +9,17 @@ export interface LightboxItem {
 }
 
 export interface LightboxProps {
+	/** Controls visibility; component returns null when false. */
 	open: boolean;
+	/** Called when the user clicks the close button or presses Escape. */
 	onClose: () => void;
+	/** Ordered array of images to display; must be non-empty when open. */
 	items: LightboxItem[];
+	/** Controlled index of the currently displayed image.
+	 * @default 0
+	 */
 	activeIndex?: number;
+	/** Called when the user navigates to a different image with the new index. */
 	onIndexChange?: (index: number) => void;
 }
 

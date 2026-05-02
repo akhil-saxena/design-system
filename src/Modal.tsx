@@ -5,26 +5,41 @@ import {
 	type RefObject,
 	useEffect,
 	useId,
-	useRef,
 	useState,
 } from "react";
 import { Button } from "./Button";
 import { DSPortal } from "./_internals/DSPortal";
 import { useFocusTrap } from "./hooks/useFocusTrap";
+import { X } from "./icons";
 
 export type ModalRole = "dialog" | "alertdialog";
 
 export interface ModalProps {
+	/** Controls visibility; returns null when false. */
 	open: boolean;
+	/** Called when the user closes the modal via Escape or backdrop click. */
 	onClose: () => void;
+	/** Heading rendered in the modal header; auto-wired to `aria-labelledby`. */
 	title?: ReactNode;
+	/** Short description rendered above children; auto-wired to `aria-describedby`. */
 	description?: string;
+	/** Content for the footer slot (typically action buttons). */
 	footer?: ReactNode;
+	/** Main body content of the modal. */
 	children?: ReactNode;
+	/** Whether clicking the backdrop calls `onClose`.
+	 * @default true
+	 */
 	closeOnBackdropClick?: boolean;
+	/** ARIA role — use `"alertdialog"` for destructive confirmations.
+	 * @default "dialog"
+	 */
 	role?: ModalRole;
+	/** Ref to the element that should receive focus when the modal opens; defaults to the panel itself. */
 	initialFocus?: RefObject<HTMLElement | null>;
+	/** Additional className applied to the modal panel. */
 	className?: string;
+	/** Inline styles applied to the modal panel. */
 	style?: CSSProperties;
 }
 
@@ -63,22 +78,16 @@ export function Modal({
 	className,
 	style,
 }: ModalProps) {
-	const panelRef = useRef<HTMLDivElement>(null);
+	// Callback-ref pattern: panel state flips from null to the DOM node when
+	// React commits it. Passing the node (not a RefObject) into useFocusTrap
+	// guarantees the trap engages exactly when the portal commits its child.
+	const [panel, setPanel] = useState<HTMLDivElement | null>(null);
 	const generatedTitleId = useId();
 	const generatedDescId = useId();
 	const titleId = title ? generatedTitleId : undefined;
 	const descId = description ? generatedDescId : undefined;
 
-	// DSPortal gates its children on a mount tick (SSR-safety) — so panelRef
-	// is null on the initial render. Tracking a local mount flag and feeding
-	// it into useFocusTrap's `active` arg ensures the trap re-runs once the
-	// portal commits the panel into the DOM and panelRef.current is populated.
-	const [portalMounted, setPortalMounted] = useState(false);
-	useEffect(() => {
-		setPortalMounted(true);
-	}, []);
-
-	useFocusTrap(panelRef, open && portalMounted);
+	useFocusTrap(panel, open);
 
 	useEffect(() => {
 		if (!open) return;
@@ -110,7 +119,7 @@ export function Modal({
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above on `document` (handles all focus contexts, including the panel) */}
 			<div className="ds-atom-modal-backdrop" onClick={handleBackdropClick}>
 				<div
-					ref={panelRef}
+					ref={setPanel}
 					className={`ds-atom-modal${className ? ` ${className}` : ""}`}
 					role={role}
 					aria-modal="true"
@@ -119,11 +128,18 @@ export function Modal({
 					style={style}
 					tabIndex={-1}
 				>
-					{title ? (
-						<header id={titleId} className="ds-atom-modal-hd">
-							{title}
-						</header>
-					) : null}
+					<header id={titleId} className="ds-atom-modal-hd">
+						<span className="ds-atom-modal-hd-title">{title}</span>
+						<Button
+							variant="ghost"
+							size="sm"
+							aria-label="Close"
+							onClick={onClose}
+							style={{ marginLeft: "auto", flexShrink: 0 }}
+						>
+							<X size={16} />
+						</Button>
+					</header>
 					<div className="ds-atom-modal-body">
 						{description ? <div id={descId}>{description}</div> : null}
 						{children}
@@ -138,13 +154,27 @@ export function Modal({
 // ─── ConfirmDialog — same-file variant export (D-287, D-356) ─────────
 
 export interface ConfirmDialogProps {
+	/** Controls visibility; returns null when false. */
 	open: boolean;
+	/** Called when the user dismisses or cancels the dialog. */
 	onClose: () => void;
+	/** Heading text for the confirmation dialog. */
 	title: ReactNode;
+	/** Supplemental explanation shown below the title; string gets `aria-describedby`, ReactNode renders as children. */
 	description?: ReactNode;
+	/** Label for the confirm action button.
+	 * @default "Confirm"
+	 */
 	confirmLabel?: string;
+	/** Label for the cancel action button.
+	 * @default "Cancel"
+	 */
 	cancelLabel?: string;
+	/** When true, uses `role="alertdialog"`, disables backdrop close, and styles confirm as `danger`.
+	 * @default false
+	 */
 	danger?: boolean;
+	/** Called when the user clicks the confirm button. */
 	onConfirm: () => void;
 }
 

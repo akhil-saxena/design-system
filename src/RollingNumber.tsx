@@ -1,12 +1,29 @@
 import { type CSSProperties, useEffect, useRef } from "react";
 
+export type RollingNumberVariant = "default" | "dark" | "light";
+
 export interface RollingNumberProps {
+	/** Numeric value to display; digit columns animate vertically when the value changes. */
 	value: number;
+	/** Custom formatter applied before splitting into individual characters; defaults to `String(value)`. */
 	format?: (value: number) => string;
+	/** Static text prepended before the formatted number (e.g. `"$"`). */
 	prefix?: string;
+	/** Static text appended after the formatted number (e.g. `" pts"`). */
 	suffix?: string;
+	/**
+	 * Visual background treatment.
+	 * - `"default"` — no background, inherits from parent (current behaviour).
+	 * - `"dark"` — black background per digit cell with white text; ideal for counters and clocks.
+	 * - `"light"` — cream background per digit cell with dark text; for use on dark surfaces.
+	 * @default "default"
+	 */
+	variant?: RollingNumberVariant;
+	/** Accessible label for the `aria-live` region; defaults to the full rendered display string. */
 	ariaLabel?: string;
+	/** Additional className applied to the root `<span>` element. */
 	className?: string;
+	/** Inline styles applied to the root `<span>` element. */
 	style?: CSSProperties;
 }
 
@@ -17,6 +34,7 @@ export function RollingNumber({
 	format,
 	prefix,
 	suffix,
+	variant = "default",
 	ariaLabel,
 	className,
 	style,
@@ -33,7 +51,8 @@ export function RollingNumber({
 
 	return (
 		<span
-			className={`ds-atom-rolling${className ? ` ${className}` : ""}`}
+			className={["ds-atom-rolling", className].filter(Boolean).join(" ")}
+			data-variant={variant === "default" ? undefined : variant}
 			style={style}
 			aria-live="polite"
 			aria-label={ariaLabel ?? display}

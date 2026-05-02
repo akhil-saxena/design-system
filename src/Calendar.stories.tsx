@@ -14,22 +14,133 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Calendar, type CalendarEvent } from "./Calendar";
 
+const SRC = {
+	MonthDefault: `<Calendar
+  selectedDate={new Date(2026, 3, 1)}
+  onSelectedDateChange={() => {}}
+/>`,
+	MonthWithEvents: `const [selected, setSelected] = useState(new Date(2026, 3, 1));
+return (
+  <Calendar
+    events={events}
+    selectedDate={selected}
+    onSelectedDateChange={setSelected}
+  />
+);`,
+	MonthOverflowChips: `const [selected, setSelected] = useState(new Date(2026, 3, 1));
+return (
+  <Calendar
+    events={events}
+    selectedDate={selected}
+    onSelectedDateChange={setSelected}
+    maxVisibleEventsPerDay={3}
+  />
+);`,
+	MultiDayEvent: `const [selected, setSelected] = useState(new Date(2026, 3, 1));
+return (
+  <Calendar
+    events={[
+      { id: "m1", date: new Date(2026, 3, 5), endDate: new Date(2026, 3, 8), label: "Sprint 12", color: "var(--purple-vivid)" },
+      { id: "m2", date: new Date(2026, 3, 20), endDate: new Date(2026, 3, 22), label: "Hackathon", color: "var(--green-vivid)" },
+    ]}
+    selectedDate={selected}
+    onSelectedDateChange={setSelected}
+  />
+);`,
+	WeekView: `const [selected, setSelected] = useState(new Date(2026, 3, 6));
+return (
+  <Calendar
+    defaultView="week"
+    events={events}
+    selectedDate={selected}
+    onSelectedDateChange={setSelected}
+  />
+);`,
+	DayView: `const [selected, setSelected] = useState(new Date(2026, 3, 15));
+return (
+  <Calendar
+    defaultView="day"
+    events={events}
+    selectedDate={selected}
+    onSelectedDateChange={setSelected}
+  />
+);`,
+	AgendaSlot: `<div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}>
+  <Calendar events={events} selectedDate={selectedDate} onSelectedDateChange={() => {}} />
+  <div>
+    <h3>Upcoming</h3>
+    <Calendar.Agenda events={events} />
+  </div>
+</div>`,
+	SundayFirst: `<Calendar
+  selectedDate={new Date(2026, 3, 1)}
+  onSelectedDateChange={() => {}}
+  weekStart={0}
+/>`,
+	DarkMode: `const [selected, setSelected] = useState(new Date(2026, 3, 1));
+return (
+  <Calendar
+    events={events}
+    selectedDate={selected}
+    onSelectedDateChange={setSelected}
+  />
+);`,
+	Playground: `const [selected, setSelected] = useState(null);
+const [view, setView] = useState("month");
+return (
+  <Calendar
+    view={view}
+    onViewChange={setView}
+    events={events}
+    selectedDate={selected}
+    onSelectedDateChange={setSelected}
+  />
+);`,
+};
+
 const meta: Meta<typeof Calendar> = {
 	title: "Atoms/Calendar",
 	component: Calendar,
-	parameters: { layout: "padded" },
+	tags: ["autodocs"],
+	parameters: {
+		layout: "padded",
+		docs: {
+			description: {
+				component:
+					"Full-featured calendar with month, week, and day views; supports event chips, multi-day events, overflow, and an optional Agenda slot.",
+			},
+		},
+	},
 	argTypes: {
 		defaultView: {
-			control: "radio",
+			control: "select",
 			options: ["month", "week", "day"],
+			description: "Initial view when uncontrolled.",
+		},
+		view: {
+			control: "select",
+			options: ["month", "week", "day"],
+			description: "Controlled active view; omit for uncontrolled.",
 		},
 		weekStart: {
-			control: "radio",
+			control: "select",
 			options: [0, 1],
+			description: "Day the week starts on: 0 = Sunday, 1 = Monday.",
 		},
 		maxVisibleEventsPerDay: {
-			control: { type: "number", min: 1, max: 10 },
+			control: "number",
+			description: "Maximum event chips shown per day cell before a '+N more' overflow trigger.",
 		},
+		ariaLabel: { control: "text", description: "Accessible label for the calendar region." },
+		events: { control: false, description: "Array of events to display as chips on day cells." },
+		selectedDate: {
+			control: false,
+			description: "Controlled selected date; highlighted in amber.",
+		},
+		onSelectedDateChange: { control: false },
+		onViewChange: { control: false },
+		className: { control: false },
+		style: { control: false },
 	},
 };
 export default meta;
@@ -183,9 +294,11 @@ export const MonthDefault: Story = {
 		selectedDate: APRIL_2026,
 		onSelectedDateChange: () => {},
 	},
+	parameters: { docs: { source: { code: SRC.MonthDefault } } },
 };
 
 export const MonthWithEvents: Story = {
+	parameters: { docs: { source: { code: SRC.MonthWithEvents } } },
 	render: () => {
 		const [selected, setSelected] = useState<Date>(APRIL_2026);
 		return (
@@ -196,6 +309,7 @@ export const MonthWithEvents: Story = {
 
 export const MonthOverflowChips: Story = {
 	name: "Month — Overflow Chips (+N more)",
+	parameters: { docs: { source: { code: SRC.MonthOverflowChips } } },
 	render: () => {
 		const [selected, setSelected] = useState<Date>(APRIL_2026);
 		return (
@@ -211,6 +325,7 @@ export const MonthOverflowChips: Story = {
 
 export const MultiDayEvent: Story = {
 	name: "Month — Multi-day events",
+	parameters: { docs: { source: { code: SRC.MultiDayEvent } } },
 	render: () => {
 		const [selected, setSelected] = useState<Date>(APRIL_2026);
 		return (
@@ -225,6 +340,7 @@ export const MultiDayEvent: Story = {
 
 export const WeekView: Story = {
 	name: "Week View",
+	parameters: { docs: { source: { code: SRC.WeekView } } },
 	render: () => {
 		const [selected, setSelected] = useState<Date>(new Date(2026, 3, 6));
 		return (
@@ -240,14 +356,25 @@ export const WeekView: Story = {
 
 export const DayView: Story = {
 	name: "Day View",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Day view with a fixed-height scrollable time grid (`dayViewHeight={480}`). An amber line marks the current time — visible when viewing today.",
+			},
+			source: { code: SRC.DayView },
+		},
+	},
 	render: () => {
-		const [selected, setSelected] = useState<Date>(new Date(2026, 3, 15));
+		// Default to today so the current-time line is visible on load
+		const [selected, setSelected] = useState<Date>(() => new Date());
 		return (
 			<Calendar
 				defaultView="day"
 				events={DAY_EVENTS}
 				selectedDate={selected}
 				onSelectedDateChange={setSelected}
+				dayViewHeight={480}
 			/>
 		);
 	},
@@ -255,6 +382,7 @@ export const DayView: Story = {
 
 export const AgendaSlot: Story = {
 	name: "Calendar.Agenda slot",
+	parameters: { docs: { source: { code: SRC.AgendaSlot } } },
 	render: () => (
 		<div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}>
 			<Calendar events={BASE_EVENTS} selectedDate={APRIL_2026} onSelectedDateChange={() => {}} />
@@ -275,12 +403,14 @@ export const SundayFirst: Story = {
 		onSelectedDateChange: () => {},
 		weekStart: 0,
 	},
+	parameters: { docs: { source: { code: SRC.SundayFirst } } },
 };
 
 export const DarkMode: Story = {
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [
 		(Story) => (
-			<div className="dark" style={{ padding: 24, background: "var(--surface, #111)" }}>
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
 				<Story />
 			</div>
 		),
@@ -294,6 +424,7 @@ export const DarkMode: Story = {
 };
 
 export const Playground: Story = {
+	parameters: { docs: { source: { code: SRC.Playground } } },
 	render: () => {
 		const [selected, setSelected] = useState<Date | null>(null);
 		const [view, setView] = useState<"month" | "week" | "day">("month");

@@ -3,10 +3,32 @@ import { type ButtonHTMLAttributes, type CSSProperties, type ReactNode, forwardR
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
+/**
+ * Props for the Button primitive.
+ *
+ * Extends all native `<button>` attributes (`onClick`, `type`, `aria-*`, etc) via spread.
+ */
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+	/**
+	 * Visual variant.
+	 *
+	 * - `primary` — brand amber CTA. Use for the most-prominent action per surface.
+	 * - `secondary` — outlined cream surface. Use for second-priority actions.
+	 * - `ghost` — transparent, text-only. Use for tertiary, icon-only, or cancel-in-modal.
+	 * - `danger` — red destructive. Use for Delete, Remove, Archive, anything irreversible.
+	 *
+	 * @default "primary"
+	 */
 	variant?: ButtonVariant;
+	/**
+	 * Size token. Most contexts use `md`. Use `xs`/`sm` for dense rows or chip-adjacent UI.
+	 *
+	 * @default "md"
+	 */
 	size?: ButtonSize;
+	/** When true, replaces the icon with a spinner and disables interaction. */
 	loading?: boolean;
+	/** Optional icon rendered before the label. Pass a sized `<Icon>` or lucide component. */
 	icon?: ReactNode;
 }
 
@@ -48,12 +70,12 @@ const variantStyles: Record<ButtonVariant, CSSProperties> = {
 		borderColor: "transparent",
 		color: "var(--ink-2)",
 	},
-	// Danger = red destructive. Use for Delete, Remove, Archive — anything irreversible.
-	// In ConfirmDialog: `<ConfirmDialog danger />` swaps the confirm button to this variant.
+	// Danger = rich crimson, stays vivid in both themes (no pink flip in dark mode).
+	// Same pattern as primary amber: fixed colour, dark border, always-dark text on bg.
 	danger: {
-		background: "var(--red)",
+		background: "#dc2626",
 		color: "#fff",
-		borderColor: "var(--red)",
+		borderColor: "#b91c1c",
 		fontWeight: 600,
 	},
 };
@@ -65,6 +87,20 @@ const sizeStyles: Record<ButtonSize, CSSProperties> = {
 	lg: { fontSize: 14, padding: "10px 20px", borderRadius: 9 },
 };
 
+/**
+ * Primary action element. Use exactly one `primary` per surface as the main CTA;
+ * pair with `secondary` or `ghost` for adjacent actions; reserve `danger` for
+ * destructive operations that cannot be undone.
+ *
+ * Accepts all native `<button>` props via spread (including `onClick`, `aria-*`,
+ * `type`, `form`). Forwards a ref to the underlying element.
+ *
+ * @example
+ * <Button variant="primary" onClick={save}>Save</Button>
+ * <Button variant="secondary" size="sm">Cancel</Button>
+ * <Button variant="danger" icon={<Trash2 size={14} />}>Delete</Button>
+ * <Button variant="primary" loading>Saving…</Button>
+ */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
 	{
 		variant = "primary",

@@ -1,4 +1,4 @@
-import { type RefObject, useEffect } from "react";
+import { useEffect } from "react";
 
 const FOCUSABLE_SELECTOR =
 	"a[href]:not([disabled]), button:not([disabled]), textarea:not([disabled]), " +
@@ -6,19 +6,24 @@ const FOCUSABLE_SELECTOR =
 	"[tabindex]:not([tabindex='-1'])";
 
 /**
- * Trap Tab/Shift+Tab focus inside `ref`'s element while `active` is true.
- * On activation: focuses the first focusable child.
+ * Trap Tab/Shift+Tab focus inside `container` while `active` is true.
+ *
+ * Pass the actual DOM node (use a callback ref + useState pattern in the
+ * caller). This guarantees the effect re-runs as soon as the node attaches,
+ * which is necessary for portal-mounted containers (Modal, Sheet, BottomSheet)
+ * where the node materializes one tick after the parent renders.
+ *
+ * On activation: focuses the first focusable child, OR the container itself
+ * when it has no focusable descendants (container must have `tabIndex={-1}`).
  * On deactivation: restores focus to the previously-focused element.
- * Used by Modal (Phase 14), Sheet (Phase 14), CommandPalette (Phase 17).
+ *
+ * Listens at `document` level so the trap engages even when focus is currently
+ * outside the container (e.g., focus leaked to background, or content has no
+ * focusables and initial focus didn't land inside).
  */
-export function useFocusTrap<T extends HTMLElement>(
-	ref: RefObject<T | null>,
-	active: boolean,
-): void {
+export function useFocusTrap<T extends HTMLElement>(container: T | null, active: boolean): void {
 	useEffect(() => {
-		if (!active) return;
-		const container = ref.current;
-		if (!container) return;
+		if (!active || !container) return;
 		const previouslyFocused = document.activeElement as HTMLElement | null;
 
 		const focusables = () =>
@@ -26,19 +31,33 @@ export function useFocusTrap<T extends HTMLElement>(
 				(el) => !el.hasAttribute("inert"),
 			);
 
-		const first = focusables()[0];
-		first?.focus();
+		const initial = focusables()[0];
+		if (initial) {
+			initial.focus();
+		} else {
+			container.focus();
+		}
 
 		function handleKeyDown(e: KeyboardEvent) {
 			if (e.key !== "Tab") return;
 			const list = focusables();
+			const activeEl = document.activeElement as HTMLElement | null;
+			const activeInside = activeEl ? container.contains(activeEl) : false;
+
 			if (list.length === 0) {
 				e.preventDefault();
+				if (!activeInside) container.focus();
 				return;
 			}
+
 			const firstEl = list[0]!;
-			const lastEl = list[list.length - 1]!;
-			const activeEl = document.activeElement as HTMLElement | null;
+			const lastEl = list.at(-1)!;
+
+			if (!activeInside) {
+				e.preventDefault();
+				(e.shiftKey ? lastEl : firstEl).focus();
+				return;
+			}
 			if (e.shiftKey && activeEl === firstEl) {
 				e.preventDefault();
 				lastEl.focus();
@@ -48,10 +67,10 @@ export function useFocusTrap<T extends HTMLElement>(
 			}
 		}
 
-		container.addEventListener("keydown", handleKeyDown);
+		document.addEventListener("keydown", handleKeyDown);
 		return () => {
-			container.removeEventListener("keydown", handleKeyDown);
+			document.removeEventListener("keydown", handleKeyDown);
 			previouslyFocused?.focus?.();
 		};
-	}, [active, ref]);
+	}, [active, container]);
 }

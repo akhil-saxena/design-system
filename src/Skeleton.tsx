@@ -3,8 +3,18 @@ import { type CSSProperties, type HTMLAttributes, forwardRef } from "react";
 export type SkeletonShape = "text" | "circle" | "pill";
 
 export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
+	/** Shape of the skeleton placeholder.
+	 * - `text` — full-width line at `1.2em` height (default).
+	 * - `circle` — disc sized to `width`; use for avatar placeholders.
+	 * - `pill` — rounded badge/chip-sized shape at `1.5em` height.
+	 * @default "text"
+	 */
 	shape?: SkeletonShape;
+	/** Width of the skeleton; accepts any CSS length or a pixel number.
+	 * @default "100%"
+	 */
 	width?: number | string;
+	/** Height override; defaults are shape-aware (text → 1.2em, circle → width, pill → 1.5em). */
 	height?: number | string;
 }
 
@@ -24,8 +34,10 @@ function shapeDefaultHeight(
 ): string | number | undefined {
 	if (shape === "text") return "1.2em";
 	if (shape === "pill") return "1.5em";
-	// circle: height = width
-	return width ?? "1.2em";
+	// circle: mirror width only when it's a pixel number; percentage widths
+	// cannot be mirrored to height without an explicit parent height, so fall
+	// back to a sensible avatar-sized default (48px).
+	return typeof width === "number" ? width : 48;
 }
 
 /**

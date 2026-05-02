@@ -25,19 +25,31 @@ import { type CSSProperties, type ReactNode, forwardRef, useEffect, useRef } fro
 import { Skeleton } from "./Skeleton";
 
 export interface InfiniteListProps<T = unknown> {
+	/** Consumer-managed array of items; InfiniteList never slices or paginates internally. */
 	items: T[];
+	/** Render function called for each item; returns the list-item content. */
 	renderItem: (item: T, index: number) => ReactNode;
+	/** Whether more items are available to load; controls sentinel and end-slot visibility. */
 	hasMore: boolean;
+	/** Whether a fetch is currently in flight; pauses the IntersectionObserver while true. */
 	loading: boolean;
+	/** Called when the sentinel element enters the viewport; consumer triggers the next page fetch. */
 	onLoadMore: () => void;
-	/** Override the default 3-Skeleton loading indicator */
+	/** Custom loading indicator; replaces the default 3-Skeleton row. */
 	loadingSlot?: ReactNode;
-	/** Override the default "End of list" text */
+	/** Custom end-of-list message; replaces the default "End of list" text. */
 	endSlot?: ReactNode;
-	/** IntersectionObserver rootMargin — default "200px" pre-fetches before sentinel reaches viewport */
+	/** IntersectionObserver rootMargin for pre-fetching before the sentinel reaches the viewport.
+	 * @default "200px"
+	 */
 	rootMargin?: string;
+	/** Additional className applied to the root `<ul>` element. */
 	className?: string;
+	/** Inline styles applied to the root `<ul>` element. */
 	style?: CSSProperties;
+	/** Accessible label for the list region.
+	 * @default "List"
+	 */
 	ariaLabel?: string;
 }
 

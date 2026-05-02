@@ -26,12 +26,19 @@ export interface BreadcrumbItem {
 }
 
 export interface BreadcrumbsProps {
+	/** Ordered list of breadcrumb items; last item is marked as the current page. */
 	items: BreadcrumbItem[];
-	/** Default 4 — shows first item + ellipsis trigger + last (maxVisible-2) items */
+	/** Maximum items shown before collapsing middle items into a "…" overflow menu.
+	 * @default 4
+	 */
 	maxVisible?: number;
-	/** Default "Breadcrumb" */
+	/** Accessible label for the `<nav>` landmark.
+	 * @default "Breadcrumb"
+	 */
 	ariaLabel?: string;
+	/** Additional className applied to the root `<nav>` element. */
 	className?: string;
+	/** Inline styles applied to the root `<nav>` element. */
 	style?: CSSProperties;
 }
 

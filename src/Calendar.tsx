@@ -20,8 +20,9 @@
  * Security: event.label is rendered via JSX text interpolation only.
  * Never dangerouslySetInnerHTML. React escapes all text content. (T-17-12-01)
  */
-import { type CSSProperties, forwardRef, useMemo, useRef, useState } from "react";
+import { type CSSProperties, forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { BottomSheet } from "./BottomSheet";
+import { HoverCard } from "./HoverCard";
 import { Popover } from "./Popover";
 import { SegmentedControl } from "./SegmentedControl";
 import { buildMonthGrid, getWeekDayLabels } from "./_internals/calendarGrid";
@@ -40,16 +41,42 @@ export interface CalendarEvent {
 }
 
 export interface CalendarProps {
+	/** Array of events to display as chips on day cells. */
 	events?: CalendarEvent[];
-	view?: "month" | "week" | "day"; // controlled
-	defaultView?: "month" | "week" | "day"; // uncontrolled (default "month")
+	/** Controlled active view; omit for uncontrolled. */
+	view?: "month" | "week" | "day";
+	/** Initial view when uncontrolled.
+	 * @default "month"
+	 */
+	defaultView?: "month" | "week" | "day";
+	/** Called when the user switches views via the SegmentedControl. */
 	onViewChange?: (v: "month" | "week" | "day") => void;
-	selectedDate?: Date | null; // controlled
+	/** Controlled selected date; highlighted in amber on the grid. */
+	selectedDate?: Date | null;
+	/** Called when a day cell is clicked with the clicked Date. */
 	onSelectedDateChange?: (d: Date) => void;
-	weekStart?: 0 | 1; // default 1 (Monday) per handoff
-	maxVisibleEventsPerDay?: number; // default 3
+	/** Day the week starts on: 0 = Sunday, 1 = Monday.
+	 * @default 1
+	 */
+	weekStart?: 0 | 1;
+	/** Maximum event chips shown per day cell before a "+N more" overflow trigger.
+	 * @default 3
+	 */
+	maxVisibleEventsPerDay?: number;
+	/**
+	 * Fixed height in px for the day-view time grid (the scrollable 24-hour area).
+	 * The all-day row above the grid is unaffected.
+	 * When omitted the grid expands to show all 24 hours.
+	 * @default 480
+	 */
+	dayViewHeight?: number;
+	/** Accessible label for the calendar region.
+	 * @default "Calendar"
+	 */
 	ariaLabel?: string;
+	/** Additional className applied to the root element. */
 	className?: string;
+	/** Inline styles applied to the root element. */
 	style?: CSSProperties;
 }
 
@@ -120,6 +147,61 @@ function eventHour(ev: CalendarEvent): number | null {
 	return h;
 }
 
+// ─── CalendarChip — event chip with HoverCard ────────────────────────────
+
+function CalendarChip({ ev, date }: { ev: CalendarEvent; date: Date }) {
+	const anchorRef = useRef<HTMLSpanElement>(null);
+	const fmt = (d: Date) =>
+		d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+
+	return (
+		<>
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: chip onClick only stops propagation to the parent cell button; keyboard navigation is handled by the parent grid */}
+			<span
+				ref={anchorRef}
+				className="ds-atom-calendar-chip"
+				style={ev.color ? { background: ev.color } : undefined}
+				onClick={(e) => e.stopPropagation()}
+			>
+				{ev.label}
+			</span>
+			<HoverCard anchorRef={anchorRef} placement="bottom-start">
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						gap: 6,
+						minWidth: 160,
+						maxWidth: 240,
+						padding: 4,
+					}}
+				>
+					<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+						<span
+							style={{
+								width: 10,
+								height: 10,
+								borderRadius: "50%",
+								background: ev.color ?? "var(--amber)",
+								flexShrink: 0,
+							}}
+						/>
+						<span style={{ fontWeight: 600, fontSize: 13, color: "var(--ink)", lineHeight: 1.3 }}>
+							{ev.label}
+						</span>
+					</div>
+					<span style={{ fontSize: 12, color: "var(--ink-3)", fontFamily: "var(--font-mono)" }}>
+						{fmt(date)}
+						{ev.endDate && ev.endDate > date
+							? ` – ${fmt(ev.endDate instanceof Date ? ev.endDate : new Date(ev.endDate))}`
+							: ""}
+					</span>
+				</div>
+			</HoverCard>
+		</>
+	);
+}
+
 // ─── Overflow state ───────────────────────────────────────────────────────
 
 interface OverflowState {
@@ -140,6 +222,7 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 		onSelectedDateChange,
 		weekStart = 1,
 		maxVisibleEventsPerDay = 3,
+		dayViewHeight = 480,
 		ariaLabel = "Calendar",
 		className,
 		style,
@@ -172,6 +255,24 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 		events: [],
 	});
 	const overflowAnchorRef = useRef<HTMLButtonElement | null>(null);
+	const dayGridRef = useRef<HTMLDivElement | null>(null);
+
+	// Live current time — updates every minute so the "now" line stays accurate.
+	const [now, setNow] = useState(() => new Date());
+	useEffect(() => {
+		const id = window.setInterval(() => setNow(new Date()), 60_000);
+		return () => window.clearInterval(id);
+	}, []);
+	const HOUR_HEIGHT = 40; // must match .ds-atom-calendar-dayview-hour min-height
+	const nowOffsetPx = ((now.getHours() * 60 + now.getMinutes()) / 60) * HOUR_HEIGHT;
+	const isToday_dayView = sameDay(viewMonth, today);
+
+	// Scroll day view to current hour when it first opens (once, not on every tick).
+	useEffect(() => {
+		if (view !== "day" || !dayGridRef.current) return;
+		const h = new Date().getHours();
+		dayGridRef.current.scrollTop = Math.max(0, (h - 1) * HOUR_HEIGHT);
+	}, [view]);
 
 	// ── Navigation ──
 	const navigate = (delta: 1 | -1) => {
@@ -313,13 +414,7 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 											{cellEvents.length > 0 && (
 												<div className="ds-atom-calendar-cell-events">
 													{visible.map((ev) => (
-														<span
-															key={ev.id}
-															className="ds-atom-calendar-chip"
-															style={ev.color ? { background: ev.color } : undefined}
-														>
-															{ev.label}
-														</span>
+														<CalendarChip key={ev.id} ev={ev} date={cell.date} />
 													))}
 													{overflow > 0 && (
 														// biome-ignore lint/a11y/useSemanticElements: role="button" on <span> prevents nesting <button> inside <button> (HTML spec); keyboard handler below makes it fully accessible
@@ -434,7 +529,21 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 										</ul>
 									</div>
 								)}
-								<div className="ds-atom-calendar-dayview-grid">
+								<div
+									ref={dayGridRef}
+									className="ds-atom-calendar-dayview-grid"
+									style={{ height: dayViewHeight, overflowY: "auto" }}
+								>
+									{/* Current-time indicator — amber line with dot, only for today */}
+									{isToday_dayView && (
+										<div
+											aria-hidden="true"
+											className="ds-atom-calendar-nowline"
+											style={{ top: nowOffsetPx }}
+										>
+											<span className="ds-atom-calendar-nowdot" />
+										</div>
+									)}
 									{hours.map((h) => {
 										const hourEvents = hourlyEvents.filter((ev) => eventHour(ev) === h);
 										return (

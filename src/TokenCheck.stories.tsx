@@ -412,5 +412,16 @@ export default meta;
 
 type Story = StoryObj<typeof TokenCheck>;
 
-export const Light: Story = { globals: { theme: "light" } };
-export const Dark: Story = { globals: { theme: "dark" } };
+const SRC = {
+	Light: "<TokenCheck />",
+	Dark: "<TokenCheck />",
+};
+
+export const Light: Story = {
+	globals: { theme: "light" },
+	parameters: { docs: { source: { code: SRC.Light } } },
+};
+export const Dark: Story = {
+	globals: { backgrounds: { value: "#1c1917" } },
+	parameters: { docs: { source: { code: SRC.Dark } } },
+};

@@ -1,6 +1,7 @@
 import { type CSSProperties, type TextareaHTMLAttributes, forwardRef, useState } from "react";
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+	/** When true, applies error-state border color to the textarea. */
 	error?: boolean;
 }
 
@@ -9,13 +10,14 @@ const baseTextareaStyle: CSSProperties = {
 	padding: "10px 12px",
 	borderRadius: 8,
 	border: "1px solid var(--rule)",
-	background: "rgba(255,255,255,.6)",
+	background: "var(--cream)",
 	color: "var(--ink)",
 	fontFamily: "var(--font)",
 	outline: "none",
-	resize: "vertical",
-	transition: "border-color .15s",
+	resize: "both",
+	transition: "border-color .15s, box-shadow .15s",
 	width: "100%",
+	boxSizing: "border-box",
 	lineHeight: 1.5,
 };
 
@@ -33,7 +35,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
 		<div style={{ position: "relative", width: "100%" }}>
 			<textarea
 				ref={ref}
-				className={`ds-atom-textarea${className ? ` ${className}` : ""}`}
+				className={["ds-atom-textarea", className].filter(Boolean).join(" ")}
 				data-error={error ? "true" : undefined}
 				style={{ ...baseTextareaStyle, ...style }}
 				maxLength={maxLength}

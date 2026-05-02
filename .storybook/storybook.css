@@ -1,10 +1,6 @@
-/* Storybook canvas styles — DEV ONLY (not shipped in dist).
-   Wires the preview iframe body to the design tokens so primitives
-   render against the intended cream-light / cream-dark surface
-   instead of Storybook's default plain white.
-
-   Storybook's iframe injects its own body styles with high specificity,
-   so we use !important to ensure our token-driven background wins. */
+/* Storybook canvas styles — DEV ONLY, not shipped in dist.
+   Wires the preview to design tokens so primitives render against the
+   intended cream surface instead of Storybook's plain white. */
 
 html,
 body {
@@ -15,8 +11,6 @@ body {
 	min-height: 100vh;
 }
 
-/* Storybook's centered layout puts content in #storybook-root inside
-   .sb-show-main. Force these transparent so the body cream shows through. */
 .sb-show-main,
 .sb-main-padded,
 #storybook-root,
@@ -25,6 +19,171 @@ body {
 	color: inherit;
 }
 
-/* When dark mode is toggled (decorator adds .dark to <html>), the cream
-   token flips to #1c1917 via :root.dark cascade in tokens.css. The
-   !important above keeps Storybook's white from leaking back in. */
+/* ── Docs page wrappers ──────────────────────────────────────────────────── */
+
+.sbdocs-wrapper,
+.sbdocs-content,
+.docs-story,
+[class*="docblock-"],
+[class*="story-block"] {
+	background: var(--cream) !important;
+	color: var(--ink) !important;
+}
+
+/* Dark story wrappers inside Docs — override the !important ink colour above
+   so scoped dark sections resolve var(--ink) to the dark-mode value (#f5f3f0). */
+.dark {
+	color: var(--ink) !important;
+}
+
+/* ── Headings + prose inside docs ───────────────────────────────────────── */
+
+.sbdocs-wrapper h1,
+.sbdocs-wrapper h2,
+.sbdocs-wrapper h3,
+.sbdocs-wrapper h4,
+.sbdocs-wrapper p,
+.sbdocs-wrapper label,
+[class*="docblock-"] h1,
+[class*="docblock-"] h2,
+[class*="docblock-"] h3,
+[class*="docblock-"] p,
+[class*="docblock-"] label {
+	color: var(--ink) !important;
+}
+
+/* ── ArgsTable — scoped to Storybook's own docs tables only.
+   :not([class*="ds-atom"]) prevents these rules from touching the
+   Table component's own <table> element which uses .ds-atom-table. */
+
+table:not([class*="ds-atom"]) {
+	background: var(--cream) !important;
+	border-color: var(--rule) !important;
+}
+
+table:not([class*="ds-atom"]) th,
+table:not([class*="ds-atom"]) td {
+	background: var(--cream) !important;
+	color: var(--ink) !important;
+	border-color: var(--rule) !important;
+}
+
+/* Type badges & option pills */
+table:not([class*="ds-atom"]) td code,
+table:not([class*="ds-atom"]) td button {
+	background: var(--cream-2) !important;
+	color: var(--ink) !important;
+	border: 1px solid var(--rule) !important;
+	border-radius: 4px !important;
+	padding: 1px 5px !important;
+}
+
+/* ── Code blocks (source panel + inline) ────────────────────────────────── */
+
+pre,
+pre[class*="language-"],
+[class*="highlight"] {
+	background: var(--cream-2) !important;
+	border: 1px solid var(--rule) !important;
+	border-radius: 6px !important;
+}
+
+pre code,
+pre[class*="language-"] code {
+	background: transparent !important;
+	border: none !important;
+	padding: 0 !important;
+	color: var(--ink) !important;
+	font-family: var(--font-mono, monospace) !important;
+	font-size: 13px !important;
+	line-height: 1.6 !important;
+}
+
+/* Syntax token colors — LIGHT MODE (dark tokens on cream) */
+.token.keyword,
+.token.tag {
+	color: #7c3aed !important;
+}
+.token.string,
+.token.attr-value {
+	color: #15803d !important;
+}
+.token.function,
+.token.attr-name {
+	color: #1d4ed8 !important;
+}
+.token.operator,
+.token.punctuation {
+	color: #57534e !important;
+}
+.token.comment {
+	color: #a8a29e !important;
+	font-style: italic;
+}
+.token.plain-text,
+.token.number {
+	color: var(--ink) !important;
+}
+
+/* ── Dark mode overrides ─────────────────────────────────────────────────── */
+
+:root.dark .sbdocs-wrapper,
+:root.dark .sbdocs-content,
+:root.dark .docs-story,
+:root.dark [class*="docblock-"],
+:root.dark [class*="story-block"] {
+	background: var(--cream) !important;
+	color: var(--ink) !important;
+}
+
+:root.dark table:not([class*="ds-atom"]),
+:root.dark table:not([class*="ds-atom"]) th,
+:root.dark table:not([class*="ds-atom"]) td {
+	background: var(--cream) !important;
+	color: var(--ink) !important;
+	border-color: var(--rule) !important;
+}
+
+:root.dark table:not([class*="ds-atom"]) td code,
+:root.dark table:not([class*="ds-atom"]) td button {
+	background: var(--cream-3) !important;
+	color: var(--ink) !important;
+	border-color: var(--rule) !important;
+}
+
+:root.dark pre,
+:root.dark pre[class*="language-"],
+:root.dark [class*="highlight"] {
+	background: var(--cream-2) !important;
+	border-color: var(--rule) !important;
+}
+
+:root.dark pre code {
+	color: var(--ink) !important;
+}
+
+/* Syntax token colors — DARK MODE (light tokens on dark surface) */
+:root.dark .token.keyword,
+:root.dark .token.tag {
+	color: #c084fc !important;
+}
+:root.dark .token.string,
+:root.dark .token.attr-value {
+	color: #86efac !important;
+}
+:root.dark .token.function,
+:root.dark .token.attr-name {
+	color: #7dd3fc !important;
+}
+:root.dark .token.operator,
+:root.dark .token.punctuation {
+	color: #a8a29e !important;
+}
+:root.dark .token.comment {
+	color: var(--ink-3) !important;
+	font-style: italic;
+}
+:root.dark .token.plain-text,
+:root.dark .token.number {
+	color: var(--ink) !important;
+}

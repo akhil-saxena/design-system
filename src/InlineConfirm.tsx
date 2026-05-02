@@ -2,18 +2,51 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "./Button";
 import { useClickOutside } from "./hooks/useClickOutside";
 
+/** Props injected into the trigger element by InlineConfirm. */
 export interface InlineConfirmTriggerProps {
+	/** Wires the trigger into InlineConfirm's state machine. Spread onto your button. */
 	onClick: () => void;
 }
 
 export interface InlineConfirmProps {
+	/**
+	 * Render-prop returning the trigger element (button, icon-button, etc.).
+	 * Spread the provided `triggerProps` onto your element to wire the click handler.
+	 *
+	 * @example
+	 * trigger={(p) => <Button variant="danger" {...p}>Delete</Button>}
+	 */
 	trigger: (triggerProps: InlineConfirmTriggerProps) => ReactNode;
+	/** Called when the user clicks the confirm button. */
 	onConfirm: () => void;
+	/** Called when the user cancels — via No button, Escape, click-outside, or auto-cancel timeout. */
 	onCancel?: () => void;
+	/**
+	 * Label for the confirm button.
+	 * @default "Yes"
+	 */
 	confirmLabel?: string;
+	/**
+	 * Label for the cancel button.
+	 * @default "No"
+	 */
 	cancelLabel?: string;
+	/**
+	 * Variant for the confirm button. Use `"danger"` for destructive actions and
+	 * `"primary"` for non-destructive confirms (e.g. Send, Submit).
+	 * @default "danger"
+	 */
 	confirmVariant?: "danger" | "primary";
+	/**
+	 * Milliseconds before the prompt auto-cancels. Hover or focus inside the
+	 * prompt row pauses the timer. Pass `Infinity` to disable auto-cancel.
+	 * @default 4000
+	 */
 	autoCancelMs?: number;
+	/**
+	 * Text shown between the trigger state and the confirm/cancel buttons.
+	 * @default "Are you sure?"
+	 */
 	promptText?: ReactNode;
 }
 

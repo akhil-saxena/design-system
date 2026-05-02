@@ -23,11 +23,21 @@ export interface DateRange {
 }
 
 export interface DateRangePickerProps {
+	/** Controlled range with `start` and `end` dates (either may be null while picking). */
 	value: DateRange;
+	/** Called on every click with the updated `{ start, end }` range object. */
 	onChange: (r: DateRange) => void;
+	/** When true, all dates before today are disabled.
+	 * @default false
+	 */
 	disablePast?: boolean;
+	/** When true, all dates after today are disabled.
+	 * @default false
+	 */
 	disableFuture?: boolean;
+	/** Additional className applied to the root wrapper element. */
 	className?: string;
+	/** Inline styles applied to the root wrapper element. */
 	style?: CSSProperties;
 }
 

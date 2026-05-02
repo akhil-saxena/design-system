@@ -17,13 +17,27 @@ export interface SelectOption {
 }
 
 export interface SelectProps {
+	/** Controlled selected option value; pass `null` for no selection. */
 	value: string | null;
+	/** Called with the value string of the option the user selected. */
 	onChange: (v: string) => void;
+	/** Full list of options rendered in the dropdown. */
 	options: SelectOption[];
+	/** Placeholder text shown in the trigger when no option is selected.
+	 * @default "Select…"
+	 */
 	placeholder?: string;
+	/** When true, renders a search input at the top of the dropdown that filters options.
+	 * @default true
+	 */
 	searchable?: boolean;
+	/** When true, disables the trigger button and prevents interaction.
+	 * @default false
+	 */
 	disabled?: boolean;
+	/** Additional className applied to the trigger button. */
 	className?: string;
+	/** Inline styles applied to the trigger button. */
 	style?: CSSProperties;
 }
 

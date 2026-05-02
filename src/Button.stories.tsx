@@ -21,15 +21,54 @@ import { Button } from "./Button";
 const meta: Meta<typeof Button> = {
 	title: "Atoms/Button",
 	component: Button,
-	parameters: { layout: "centered" },
+	tags: ["autodocs"],
+	parameters: {
+		layout: "centered",
+		docs: {
+			description: {
+				component:
+					"Primary action element. Pick one `primary` per surface as the main CTA; pair with `secondary` or `ghost` for adjacent actions; reserve `danger` for destructive operations.",
+			},
+		},
+	},
 	args: { children: "Click me" },
+	argTypes: {
+		variant: {
+			control: "select",
+			options: ["primary", "secondary", "ghost", "danger"],
+			description:
+				"Visual variant — primary for main CTA, secondary for second-priority, ghost for tertiary, danger for destructive actions.",
+		},
+		size: {
+			control: "select",
+			options: ["xs", "sm", "md", "lg"],
+			description: "Size token; most contexts use md.",
+		},
+		loading: {
+			control: "boolean",
+			description: "When true, replaces the icon with a spinner and disables interaction.",
+		},
+		disabled: { control: "boolean", description: "When true, disables the button." },
+		icon: { control: false, description: "Optional icon rendered before the label." },
+		children: { control: false },
+		className: { control: false },
+		style: { control: false },
+	},
 };
 
 export default meta;
 
 type Story = StoryObj<typeof Button>;
 
-export const Default: Story = {};
+export const Default: Story = {
+	parameters: {
+		docs: {
+			description: {
+				story: "Default state — `primary` variant at `md` size with text-only label.",
+			},
+		},
+	},
+};
 
 export const Variants: Story = {
 	render: () => (
@@ -40,6 +79,14 @@ export const Variants: Story = {
 			<Button variant="danger">Danger</Button>
 		</div>
 	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"All four variants side-by-side. `primary` is the brand amber CTA; `secondary` is the outlined cream alternative; `ghost` carries text-only weight; `danger` flags destructive actions.",
+			},
+		},
+	},
 };
 
 export const Sizes: Story = {
@@ -51,11 +98,38 @@ export const Sizes: Story = {
 			<Button size="lg">Large</Button>
 		</div>
 	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Four size tokens. Most contexts use `md`. Use `xs`/`sm` inside dense rows or chip-adjacent UI; `lg` for hero CTAs.",
+			},
+		},
+	},
 };
 
-export const Disabled: Story = { args: { disabled: true } };
+export const Disabled: Story = {
+	args: { disabled: true },
+	parameters: {
+		docs: {
+			description: {
+				story: "Disabled buttons block both pointer and keyboard input and reduce visual contrast.",
+			},
+		},
+	},
+};
 
-export const Loading: Story = { args: { loading: true } };
+export const Loading: Story = {
+	args: { loading: true },
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Loading state replaces icon with a spinner and disables interaction; preserves button width to avoid layout shift.",
+			},
+		},
+	},
+};
 
 export const WithIcon: Story = {
 	render: () => (
@@ -71,6 +145,14 @@ export const WithIcon: Story = {
 			</Button>
 		</div>
 	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Pass an `icon` ReactNode to render before the label. Use 13–14px sizing for `md` buttons; the icon inherits `currentColor` so it follows the variant.",
+			},
+		},
+	},
 };
 
 export const Playground: Story = {
@@ -84,11 +166,18 @@ export const Playground: Story = {
 	argTypes: {
 		variant: {
 			control: { type: "select" },
-			options: ["primary", "amber", "secondary", "ghost", "danger"],
+			options: ["primary", "secondary", "ghost", "danger"],
 		},
 		size: {
 			control: { type: "select" },
 			options: ["xs", "sm", "md", "lg"],
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: "Tweak any prop via the Controls panel below.",
+			},
 		},
 	},
 };
@@ -102,5 +191,19 @@ export const DarkMode: Story = {
 			<Button variant="danger">Danger</Button>
 		</div>
 	),
-	globals: { theme: "dark" },
+	decorators: [
+		(Story) => (
+			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+				<Story />
+			</div>
+		),
+	],
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Same gallery rendered with `theme: dark`. Confirms dark-mode token wiring (no cream-on-cream regressions, amber CTA still legible).",
+			},
+		},
+	},
 };
