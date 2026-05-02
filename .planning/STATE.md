@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
-status: Phase 18 in progress — 18-03 complete (DS-81 Illustrations)
-stopped_at: 18-03 Illustrations — 24 SVG components, 49 tests passing
-last_updated: "2026-05-02T10:41:08Z"
+status: Phase 18 in progress — 18-06 complete (DS-77 InlineEdit + DS-78 SearchAndFilters)
+stopped_at: 18-06 InlineEdit + SearchAndFilters — 21 tests passing (10 + 11)
+last_updated: "2026-05-02T10:55:39Z"
 progress:
   total_phases: 6
   completed_phases: 1
@@ -24,13 +24,13 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 ## Current Position
 
 Phase: 18 (wave-7-layout-patterns-interaction-illustrations) — IN PROGRESS
-Plan: 3 of 10 done (18-00 AppShell infra, 18-01 AppShell, 18-02 AppBar+Footer, 18-03 Illustrations)
-**Phase:** Phase 18 — 3/10 plans complete
+Plan: 7 of 10 done (18-00 AppShell infra, 18-01 AppShell, 18-02 AppBar+Footer, 18-03 Illustrations, 18-04 Wizard+FormValidation-PasswordStrength, 18-05 FormValidation-FieldError+Coachmark, 18-06 InlineEdit+SearchAndFilters)
+**Phase:** Phase 18 — 7/10 plans complete
 **Last shipped:** v0.6.0 (Phase 17 complete)
-**Last anchor commit:** `3884d22 feat(18-03): DS-81 illustrations subpath — 24 SVG React components` on `main`
+**Last anchor commit:** `3f17afb feat(18-06): DS-77 InlineEdit + DS-78 SearchAndFilters` on `main`
 **Working tree:** clean (HoverCard.tsx + useFocusTrap.ts have pre-existing modifications)
 
-**Progress:** [███░░░░░░░] 30%
+**Progress:** [███████░░░] 70%
 
 ## Recovery Notes (2026-04-29)
 
@@ -154,13 +154,19 @@ For phases 13.5–16, treat the git log + commit messages + the `design_handoff/
 - Tree-shake fixture with `--external:lucide-react` yields 1.2KB (correct consumer experience); without external yields ~9.4KB (all 31 wrapped icons bundled). Fixture threshold is consumer-context dependent
 - Visual baselines now in `tests/visual/storybook.spec.ts-snapshots/` (Playwright default adjacent to spec); `tests/visual-baselines/` is separate directory with sample PNGs from planning phase
 
+## Key Decisions (18-06)
+
+- InlineEdit blur always cancels (reverts to original) — matches handoff table-cell UX for click-to-edit in dense lists
+- biome-ignore for `role=` JSX attributes must be placed as inline prop comments inside the element immediately before the `role=` attribute line — a comment before the `<tag` opening or a JSX `{/* */}` comment before the element does not suppress attribute-level lint errors
+- SearchAndFilters dropdown opens on input change only when `suggestions` prop is non-empty and input has a value
+
 ## Blockers / Concerns
 
-- None. Release commit pending human checkpoint approval (visual smoke check + RichText paste test).
+- None.
 
 ## Session Continuity
 
-**Last session:** 2026-04-30T03:52:03.821Z
-**Stopped at:** Phase 17 complete (v0.6.0 shipped, 11 primitives, 644 tests)
+**Last session:** 2026-05-02T10:55:39Z
+**Stopped at:** Completed 18-06 — DS-77 InlineEdit + DS-78 SearchAndFilters (21 tests passing)
 **Resume file:** None
-**Next command:** After checkpoint approval — release commit `chore(release): v0.6.0 — 11 data display primitives + icons subpath + cumulative visual baselines`, then `git tag v0.6.0`, then Phase 18 planning.
+**Next command:** Execute 18-07 (DS-79 Presence) and remaining Phase 18 plans.
