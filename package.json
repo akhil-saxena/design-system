@@ -2,7 +2,7 @@
 	"name": "@akhil-saxena/design-system",
 	"version": "1.2.0",
 	"type": "module",
-	"description": "Design System — accessible React primitives with semantic tokens",
+	"description": "Accessible React primitives with semantic tokens",
 	"license": "MIT",
 	"author": "Akhil Saxena <saxena.akhil42@gmail.com>",
 	"repository": {
