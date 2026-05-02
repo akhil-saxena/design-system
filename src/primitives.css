@@ -4337,3 +4337,45 @@
 	background: var(--surf-2);
 	border-right-color: var(--rule);
 }
+
+/* ─── DS atom: AppBar (DS-72) ──────────────────────────────────────── */
+.ds-atom-appbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 20px;
+	background: var(--surf-2);
+	backdrop-filter: blur(14px);
+	border-bottom: 1px solid transparent;
+	box-shadow: none;
+	transition: all 0.2s ease;
+	font-family: var(--font);
+}
+.ds-atom-appbar[data-scrolled="true"] {
+	background: rgba(255, 255, 255, 0.92);
+	border-bottom-color: var(--rule);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+.ds-atom-appbar-search {
+	background: var(--cream-2);
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	padding: 6px 10px;
+	font-size: 13px;
+	font-family: var(--font);
+	color: var(--ink);
+	outline: none;
+	width: 220px;
+}
+.ds-atom-appbar-search:focus {
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+.dark .ds-atom-appbar[data-scrolled="true"] {
+	background: rgba(28, 25, 23, 0.92);
+}
+.dark .ds-atom-appbar-search {
+	background: var(--cream-2);
+	border-color: var(--rule);
+	color: var(--ink);
+}
