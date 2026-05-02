@@ -50,7 +50,7 @@
 		"check": "biome check .",
 		"format": "biome format --write .",
 		"typecheck": "tsc --noEmit",
-		"prepare": "husky",
+		"prepare": "is-ci || husky",
 		"prepublishOnly": "npm run build && npm test"
 	},
 	"peerDependencies": {
@@ -87,6 +87,7 @@
 		"@vitejs/plugin-react": "^4.3.4",
 		"@vitest/coverage-v8": "^4.1.4",
 		"husky": "^9.1.7",
+		"is-ci": "^4.1.0",
 		"jsdom": "^25.0.1",
 		"lint-staged": "^15.5.2",
 		"react": "^19.2.4",
