@@ -101,3 +101,4 @@ export { Tabs, type TabsProps, type TabItem } from "./Tabs";
 export { Table, type TableRootProps, type TableHeaderCellProps } from "./Table";
 export { Calendar, type CalendarProps, type CalendarEvent } from "./Calendar";
 export { RichText, type RichTextProps } from "./RichText";
+export { AppShell, type AppShellProps } from "./AppShell";
