@@ -36,12 +36,7 @@ function makeTokens(isDark: boolean) {
 		princBody: d("#a8a29e", "#6b6560"),
 		swatchBorder: d("transparent", "#e7e2dc"),
 		swatchLabel: d("#57534e", "#a8a29e"),
-		cardBg: d("#1c1917", "#f5f3f0"),
-		cardBorder: d("1px solid #292524", "1px solid #e7e2dc"),
-		cardLabel: d("#78716c", "#6b6560"),
 		cardPillBg: d("#292524", "#e7e2dc"),
-		cardPillFg: d("#78716c", "#6b6560"),
-		cardLink: d("#d6d3d1", "#57534e"),
 		cardHoverBg: d("#292524", "#e7e2dc"),
 		cardHoverFg: d("#f5f3f0", "#1c1917"),
 		sectionHead: d("#44403c", "#a8a29e"),
@@ -483,97 +478,6 @@ function SwatchRow({ t }: Readonly<{ t: T }>) {
 	);
 }
 
-function BrowseGrid({ t }: Readonly<{ t: T }>) {
-	return (
-		<div
-			style={{
-				display: "grid",
-				gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))",
-				gap: 12,
-			}}
-		>
-			{categories.map(({ name, id, components }) => (
-				<div
-					key={name}
-					style={{
-						padding: "18px 20px 20px",
-						borderRadius: 10,
-						background: t.cardBg,
-						border: t.cardBorder,
-						transition: "background 0.2s",
-					}}
-				>
-					<div
-						style={{
-							fontFamily: MONO,
-							fontSize: 10,
-							fontWeight: 600,
-							letterSpacing: "0.08em",
-							textTransform: "uppercase",
-							color: t.cardLabel,
-							marginBottom: 14,
-							display: "flex",
-							alignItems: "center",
-							gap: 6,
-						}}
-					>
-						{name}
-						<span
-							style={{
-								background: t.cardPillBg,
-								color: t.cardPillFg,
-								borderRadius: 99,
-								padding: "1px 6px",
-								fontSize: 9,
-							}}
-						>
-							{components.length}
-						</span>
-					</div>
-					<ul
-						style={{
-							margin: 0,
-							padding: 0,
-							listStyle: "none",
-							display: "flex",
-							flexDirection: "column",
-							gap: 2,
-						}}
-					>
-						{components.map((label) => (
-							<li key={label}>
-								<a
-									href={`/?path=/docs/${componentStoryId(id, label)}--docs`}
-									target="_parent"
-									style={{
-										display: "block",
-										fontSize: 13,
-										color: t.cardLink,
-										textDecoration: "none",
-										padding: "3px 6px",
-										borderRadius: 5,
-										margin: "0 -6px",
-									}}
-									onMouseEnter={(e) => {
-										e.currentTarget.style.background = t.cardHoverBg;
-										e.currentTarget.style.color = t.cardHoverFg;
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.background = "transparent";
-										e.currentTarget.style.color = t.cardLink;
-									}}
-								>
-									{label}
-								</a>
-							</li>
-						))}
-					</ul>
-				</div>
-			))}
-		</div>
-	);
-}
-
 // ─── OverviewPage ─────────────────────────────────────────────────────────────
 
 export function OverviewPage() {
@@ -646,9 +550,6 @@ export function OverviewPage() {
 
 			<SectionLabel label="At a glance" color={t.sectionHead} />
 			<SwatchRow t={t} />
-
-			<SectionLabel label="Browse components" color={t.sectionHead} />
-			<BrowseGrid t={t} />
 		</div>
 	);
 }
