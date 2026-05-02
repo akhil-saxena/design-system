@@ -4,8 +4,51 @@ import { useEffect, useState } from "react";
 const MONO = "'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace";
 const DISPLAY = "'Archivo', system-ui, sans-serif";
 const SANS = "'Inter', system-ui, sans-serif";
-
 const DARK_BG = "#1c1917";
+const AMBER = "#f59e0b";
+
+// ─── Theme ────────────────────────────────────────────────────────────────────
+
+type T = ReturnType<typeof makeTokens>;
+
+function makeTokens(isDark: boolean) {
+	const d = (dark: string, light: string) => (isDark ? dark : light);
+	return {
+		heroBg: d("#1c1917", "#ffffff"),
+		heroBorder: d("1px solid #292524", "1px solid #e7e2dc"),
+		heroTitle: d("#f5f3f0", "#292524"),
+		heroSub: d("#a8a29e", "#6b6560"),
+		divider: d("#292524", "#e7e2dc"),
+		codeComment: d("#44403c", "#a8a29e"),
+		codeBg: d("#0a0a0a", "#f5f3f0"),
+		codeFg: d("#f5f3f0", "#292524"),
+		statBg: d("#1c1917", "#ffffff"),
+		statBorder: d("1px solid #292524", "1px solid #e7e2dc"),
+		statNum: d("#f5f3f0", "#292524"),
+		statLabel: d("#57534e", "#a8a29e"),
+		gridBg: d("#1c1917", "#ffffff"),
+		gridBorder: d("1px solid #292524", "1px solid #e7e2dc"),
+		gridName: d("#f5f3f0", "#292524"),
+		gridList: d("#78716c", "#6b6560"),
+		princBg: d("#1c1917", "#ffffff"),
+		princBorder: d("1px solid #292524", "1px solid #e7e2dc"),
+		princTitle: d("#f5f3f0", "#292524"),
+		princBody: d("#a8a29e", "#6b6560"),
+		swatchBorder: d("transparent", "#e7e2dc"),
+		swatchLabel: d("#57534e", "#a8a29e"),
+		cardBg: d("#1c1917", "#f5f3f0"),
+		cardBorder: d("1px solid #292524", "1px solid #e7e2dc"),
+		cardLabel: d("#78716c", "#6b6560"),
+		cardPillBg: d("#292524", "#e7e2dc"),
+		cardPillFg: d("#78716c", "#6b6560"),
+		cardLink: d("#d6d3d1", "#57534e"),
+		cardHoverBg: d("#292524", "#e7e2dc"),
+		cardHoverFg: d("#f5f3f0", "#1c1917"),
+		sectionHead: d("#44403c", "#a8a29e"),
+	};
+}
+
+// ─── Dark mode hook ───────────────────────────────────────────────────────────
 
 type GlobalsPayload = { globals: Record<string, unknown> };
 
@@ -18,10 +61,7 @@ function isDarkGlobals(globals: Record<string, unknown>) {
 
 function useDarkMode() {
 	const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
-
 	useEffect(() => {
-		// On a docs-only page the decorator never runs, so we listen to the
-		// Storybook channel directly and apply the dark class ourselves.
 		const channel = addons.getChannel();
 		const onGlobalsUpdated = ({ globals }: GlobalsPayload) => {
 			const dark = isDarkGlobals(globals);
@@ -31,388 +71,571 @@ function useDarkMode() {
 		channel.on("globalsUpdated", onGlobalsUpdated);
 		return () => channel.off("globalsUpdated", onGlobalsUpdated);
 	}, []);
-
 	return isDark;
 }
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
 const categories = [
 	{
 		name: "Inputs",
+		id: "inputs",
 		components: [
-			["Autocomplete", "inputs-autocomplete"],
-			["Badge", "inputs-badge"],
-			["Button", "inputs-button"],
-			["Checkbox", "inputs-checkbox"],
-			["Chip", "inputs-chip"],
-			["DatePicker", "inputs-datepicker"],
-			["DateRangePicker", "inputs-daterangepicker"],
-			["MultiSelect", "inputs-multiselect"],
-			["NumberStepper", "inputs-numberstepper"],
-			["Radio", "inputs-radio"],
-			["RangeSlider", "inputs-rangeslider"],
-			["Select", "inputs-select"],
-			["StarRating", "inputs-starrating"],
-			["TextInput", "inputs-textinput"],
-			["Textarea", "inputs-textarea"],
-			["Toggle", "inputs-toggle"],
+			"Autocomplete",
+			"Badge",
+			"Button",
+			"Checkbox",
+			"Chip",
+			"DatePicker",
+			"DateRangePicker",
+			"MultiSelect",
+			"NumberStepper",
+			"Radio",
+			"RangeSlider",
+			"Select",
+			"StarRating",
+			"TextInput",
+			"Textarea",
+			"Toggle",
 		],
 	},
 	{
 		name: "Overlays",
+		id: "overlays",
 		components: [
-			["BottomSheet", "overlays-bottomsheet"],
-			["Card", "overlays-card"],
-			["HoverCard", "overlays-hovercard"],
-			["Lightbox", "overlays-lightbox"],
-			["Modal", "overlays-modal"],
-			["Popover", "overlays-popover"],
-			["Sheet", "overlays-sheet"],
-			["StickyNote", "overlays-stickynote"],
-			["Tooltip", "overlays-tooltip"],
+			"BottomSheet",
+			"Card",
+			"HoverCard",
+			"Lightbox",
+			"Modal",
+			"Popover",
+			"Sheet",
+			"StickyNote",
+			"Tooltip",
 		],
 	},
 	{
 		name: "Data Display",
+		id: "data-display",
 		components: [
-			["Accordion", "data-display-accordion"],
-			["Breadcrumbs", "data-display-breadcrumbs"],
-			["Calendar", "data-display-calendar"],
-			["Carousel", "data-display-carousel"],
-			["InfiniteList", "data-display-infinitelist"],
-			["SegmentedControl", "data-display-segmentedcontrol"],
-			["Table", "data-display-table"],
-			["Tabs", "data-display-tabs"],
-			["Timeline", "data-display-timeline"],
+			"Accordion",
+			"Breadcrumbs",
+			"Calendar",
+			"Carousel",
+			"InfiniteList",
+			"SegmentedControl",
+			"Table",
+			"Tabs",
+			"Timeline",
 		],
 	},
 	{
 		name: "Feedback",
-		components: [
-			["AlertBanner", "feedback-alertbanner"],
-			["EmptyState", "feedback-emptystate"],
-			["InlineConfirm", "feedback-inlineconfirm"],
-			["ProgressBar", "feedback-progressbar"],
-			["Skeleton", "feedback-skeleton"],
-			["Toast", "feedback-toast"],
-		],
+		id: "feedback",
+		components: ["AlertBanner", "EmptyState", "InlineConfirm", "ProgressBar", "Skeleton", "Toast"],
 	},
 	{
 		name: "Interaction",
+		id: "interaction",
 		components: [
-			["CopyToClipboard", "interaction-copytoclipboard"],
-			["InlineEdit", "interaction-inlineedit"],
-			["RichText", "interaction-richtext"],
-			["SearchAndFilters", "interaction-searchandfilters"],
-			["Sortable", "interaction-sortable"],
-			["SplitButton", "interaction-splitbutton"],
+			"CopyToClipboard",
+			"InlineEdit",
+			"RichText",
+			"SearchAndFilters",
+			"Sortable",
+			"SplitButton",
 		],
 	},
+	{ name: "Layout", id: "layout", components: ["AppBar", "AppShell", "Footer"] },
+	{ name: "Display", id: "display", components: ["Avatar", "RollingNumber"] },
+	{ name: "Patterns", id: "patterns", components: ["Coachmark", "FormValidation", "Wizard"] },
+	{ name: "Foundation", id: "foundation", components: ["TokenCheck"] },
+];
+
+const componentStoryId = (categoryId: string, name: string) =>
+	`${categoryId}-${name.toLowerCase().replaceAll(" ", "")}`;
+
+const TOTAL = categories.reduce((s, c) => s + c.components.length, 0);
+
+const SWATCHES = [
+	{ name: "cream", value: "#f5f3f0", light: true },
+	{ name: "cream-2", value: "#ece8e3", light: true },
+	{ name: "cream-3", value: "#e7e2dc", light: true },
+	{ name: "amber", value: "#f59e0b", light: false },
+	{ name: "amber-d", value: "#b45309", light: false },
+	{ name: "ink", value: "#292524", light: false },
+	{ name: "ink-2", value: "#57534e", light: false },
+	{ name: "ink-3", value: "#6b6560", light: false },
+];
+
+const PRINCIPLES = [
 	{
-		name: "Layout",
-		components: [
-			["AppBar", "layout-appbar"],
-			["AppShell", "layout-appshell"],
-			["Footer", "layout-footer"],
-		],
+		n: "01",
+		title: "Calm by default",
+		body: "Cream backgrounds, ink text, amber only when something needs attention. The interface should feel like a notebook, not a dashboard.",
 	},
 	{
-		name: "Display",
-		components: [
-			["Avatar", "display-avatar"],
-			["RollingNumber", "display-rollingnumber"],
-		],
+		n: "02",
+		title: "Editorial type",
+		body: "Archivo for display, system sans for body, JetBrains Mono for data and labels. Use weight, not color, to create hierarchy.",
 	},
 	{
-		name: "Patterns",
-		components: [
-			["Coachmark", "patterns-coachmark"],
-			["FormValidation", "patterns-formvalidation"],
-			["Wizard", "patterns-wizard"],
-		],
-	},
-	{
-		name: "Foundation",
-		components: [["TokenCheck", "foundation-tokencheck"]],
+		n: "03",
+		title: "Considered motion",
+		body: "120–280ms, custom easing, never gratuitous. Animation explains state changes — it never decorates them.",
 	},
 ];
 
-function CodeBlock({
-	children,
-	bg,
-	fg,
-}: Readonly<{ children: React.ReactNode; bg: string; fg: string }>) {
+const INSTALL_STEPS = [
+	{
+		n: 1,
+		label: "Install",
+		code: () => (
+			<>
+				<span style={{ color: AMBER }}>npm</span>
+				{" install @akhil-saxena/design-system"}
+			</>
+		),
+	},
+	{
+		n: 2,
+		label: "Import styles",
+		code: () => (
+			<>
+				<span style={{ color: "#a78bfa" }}>import</span>
+				{" '@akhil-saxena/design-system/tokens.css';"}
+				<br />
+				<span style={{ color: "#a78bfa" }}>import</span>
+				{" '@akhil-saxena/design-system/primitives.css';"}
+			</>
+		),
+	},
+	{
+		n: 3,
+		label: "Use components",
+		code: () => (
+			<>
+				<span style={{ color: "#a78bfa" }}>import</span>
+				{" { Button } "}
+				<span style={{ color: "#a78bfa" }}>from</span>
+				{" '@akhil-saxena/design-system';"}
+			</>
+		),
+	},
+] as const;
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function SectionLabel({ label, color }: Readonly<{ label: string; color: string }>) {
 	return (
 		<div
 			style={{
-				background: bg,
-				borderRadius: 8,
-				padding: "10px 14px",
 				fontFamily: MONO,
-				fontSize: 13,
-				lineHeight: 1.7,
-				color: fg,
-				transition: "background 0.2s, color 0.2s",
+				fontSize: 11,
+				fontWeight: 700,
+				letterSpacing: "0.1em",
+				textTransform: "uppercase",
+				color,
+				marginBottom: 16,
 			}}
 		>
-			{children}
+			{label}
 		</div>
 	);
 }
 
-function StepLabel({ n, label, isDark }: Readonly<{ n: number; label: string; isDark: boolean }>) {
+function HeroInstall({ t }: Readonly<{ t: T }>) {
 	return (
 		<div
 			style={{
+				borderTop: `1px solid ${t.divider}`,
+				paddingTop: 28,
 				display: "flex",
-				alignItems: "center",
-				gap: 8,
-				marginBottom: 8,
+				flexDirection: "column",
+				gap: 16,
 			}}
 		>
-			<span
-				style={{
-					fontFamily: MONO,
-					fontSize: 10,
-					fontWeight: 700,
-					color: "#f59e0b",
-					background: "rgba(245,158,11,0.15)",
-					borderRadius: 99,
-					padding: "2px 8px",
-				}}
-			>
-				{n}
-			</span>
-			<span
-				style={{
-					fontFamily: MONO,
-					fontSize: 12,
-					color: isDark ? "#a8a29e" : "#78716c",
-				}}
-			>
-				{label}
-			</span>
-		</div>
-	);
-}
-
-export function OverviewPage() {
-	const isDark = useDarkMode();
-
-	const hero = {
-		bg: isDark ? "#1c1917" : "#ffffff",
-		border: isDark ? "none" : "1px solid #e7e2dc",
-		title: isDark ? "#f5f3f0" : "#1c1917",
-		subtitle: isDark ? "#a8a29e" : "#78716c",
-		divider: isDark ? "#292524" : "#e7e2dc",
-		sectionLabel: isDark ? "#57534e" : "#a8a29e",
-		codeBg: isDark ? "#0a0a0a" : "#f5f3f0",
-		codeText: isDark ? "#f5f3f0" : "#1c1917",
-		codeComment: isDark ? "#57534e" : "#a8a29e",
-	};
-
-	const card = {
-		bg: isDark ? "#292524" : "#f5f3f0",
-		border: isDark ? "1px solid #44403c" : "1px solid #e7e2dc",
-		label: isDark ? "#a8a29e" : "#78716c",
-		pillBg: isDark ? "#44403c" : "#e7e2dc",
-		pillFg: isDark ? "#a8a29e" : "#78716c",
-		linkFg: isDark ? "#d6d3d1" : "#57534e",
-		linkHoverBg: isDark ? "#44403c" : "#e7e2dc",
-		linkHoverFg: isDark ? "#f5f3f0" : "#1c1917",
-	};
-
-	return (
-		<div
-			style={{
-				fontFamily: SANS,
-				color: "#1c1917",
-				maxWidth: 900,
-				padding: "8px 0 64px",
-			}}
-		>
-			{/* ── Hero ──────────────────────────────────────────────── */}
 			<div
 				style={{
-					background: hero.bg,
-					border: hero.border,
-					borderRadius: 14,
-					padding: "44px 48px 48px",
-					marginBottom: 40,
-					transition: "background 0.2s, border-color 0.2s",
+					fontFamily: MONO,
+					fontSize: 11,
+					fontWeight: 600,
+					letterSpacing: "0.08em",
+					textTransform: "uppercase",
+					color: t.codeComment,
 				}}
 			>
-				<div
-					style={{
-						fontFamily: DISPLAY,
-						fontWeight: 800,
-						fontSize: 72,
-						letterSpacing: "-0.04em",
-						lineHeight: 0.92,
-						color: hero.title,
-						marginBottom: 24,
-						transition: "color 0.2s",
-					}}
-				>
-					Design
-					<br />
-					System
+				Installation · npm
+			</div>
+			{INSTALL_STEPS.map(({ n, label, code }) => (
+				<div key={n}>
+					<div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
+						<span
+							style={{
+								fontFamily: MONO,
+								fontSize: 10,
+								fontWeight: 700,
+								color: AMBER,
+								background: "rgba(245,158,11,0.15)",
+								borderRadius: 99,
+								padding: "2px 8px",
+							}}
+						>
+							{n}
+						</span>
+						<span style={{ fontFamily: MONO, fontSize: 12, color: t.heroSub }}>{label}</span>
+					</div>
+					<div
+						style={{
+							background: t.codeBg,
+							borderRadius: 8,
+							padding: "10px 14px",
+							fontFamily: MONO,
+							fontSize: 13,
+							lineHeight: 1.7,
+							color: t.codeFg,
+							transition: "background 0.2s, color 0.2s",
+						}}
+					>
+						{code()}
+					</div>
 				</div>
-				<div
-					style={{
-						fontSize: 15,
-						color: hero.subtitle,
-						lineHeight: 1.7,
-						maxWidth: 480,
-						marginBottom: 36,
-						transition: "color 0.2s",
-					}}
-				>
-					A collection of reusable React components built on a consistent token system. Click any
-					component below to open its docs.
-				</div>
+			))}
+		</div>
+	);
+}
 
+function StatsStrip({ t }: Readonly<{ t: T }>) {
+	const stats = [
+		{ value: TOTAL, label: "Components" },
+		{ value: categories.length, label: "Categories" },
+		{ value: 3, label: "Patterns" },
+		{ value: "1.1.0", label: "Version" },
+	] as const;
+	return (
+		<div
+			style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 48 }}
+		>
+			{stats.map(({ value, label }) => (
 				<div
+					key={label}
 					style={{
-						borderTop: `1px solid ${hero.divider}`,
-						paddingTop: 32,
+						background: t.statBg,
+						border: t.statBorder,
+						borderRadius: 12,
+						padding: "20px 24px",
+						transition: "background 0.2s",
+					}}
+				>
+					<div
+						style={{
+							fontFamily: DISPLAY,
+							fontWeight: 800,
+							fontSize: 36,
+							letterSpacing: "-0.03em",
+							color: t.statNum,
+							lineHeight: 1,
+						}}
+					>
+						{value}
+					</div>
+					<div
+						style={{
+							fontFamily: MONO,
+							fontSize: 10,
+							fontWeight: 600,
+							letterSpacing: "0.08em",
+							textTransform: "uppercase",
+							color: t.statLabel,
+							marginTop: 6,
+						}}
+					>
+						{label}
+					</div>
+				</div>
+			))}
+		</div>
+	);
+}
+
+function InsideGrid({ t }: Readonly<{ t: T }>) {
+	return (
+		<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 48 }}>
+			{categories.map(({ name, components }) => (
+				<div
+					key={name}
+					style={{
+						background: t.gridBg,
+						border: t.gridBorder,
+						borderRadius: 10,
+						padding: "16px 20px",
 						display: "flex",
-						flexDirection: "column",
-						gap: 20,
-						transition: "border-color 0.2s",
+						alignItems: "baseline",
+						gap: 14,
+						transition: "background 0.2s",
+					}}
+				>
+					<div
+						style={{
+							fontFamily: DISPLAY,
+							fontWeight: 700,
+							fontSize: 14,
+							color: t.gridName,
+							minWidth: 96,
+						}}
+					>
+						{name}
+					</div>
+					<div
+						style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: AMBER, minWidth: 18 }}
+					>
+						{components.length}
+					</div>
+					<div style={{ fontSize: 13, color: t.gridList, lineHeight: 1.5, flex: 1 }}>
+						{components.slice(0, 5).join(", ")}
+						{components.length > 5 ? `, +${components.length - 5}` : ""}
+					</div>
+				</div>
+			))}
+		</div>
+	);
+}
+
+function PrinciplesGrid({ t }: Readonly<{ t: T }>) {
+	return (
+		<div
+			style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 48 }}
+		>
+			{PRINCIPLES.map(({ n, title, body }) => (
+				<div
+					key={n}
+					style={{
+						background: t.princBg,
+						border: t.princBorder,
+						borderRadius: 12,
+						padding: "22px 24px 26px",
+						transition: "background 0.2s",
 					}}
 				>
 					<div
 						style={{
 							fontFamily: MONO,
 							fontSize: 11,
+							fontWeight: 700,
+							color: AMBER,
+							marginBottom: 10,
+						}}
+					>
+						{n}
+					</div>
+					<div
+						style={{
+							fontFamily: DISPLAY,
+							fontWeight: 700,
+							fontSize: 15,
+							color: t.princTitle,
+							marginBottom: 8,
+							letterSpacing: "-0.01em",
+						}}
+					>
+						{title}
+					</div>
+					<div style={{ fontSize: 13, color: t.princBody, lineHeight: 1.65 }}>{body}</div>
+				</div>
+			))}
+		</div>
+	);
+}
+
+function SwatchRow({ t }: Readonly<{ t: T }>) {
+	return (
+		<div style={{ display: "flex", gap: 10, marginBottom: 56, flexWrap: "wrap" }}>
+			{SWATCHES.map(({ name, value, light }) => (
+				<div
+					key={name}
+					style={{ flex: "1 1 72px", display: "flex", flexDirection: "column", gap: 6 }}
+				>
+					<div
+						style={{
+							height: 60,
+							borderRadius: 8,
+							background: value,
+							border: light ? `1px solid ${t.swatchBorder}` : "none",
+						}}
+					/>
+					<div style={{ fontFamily: MONO, fontSize: 10, color: t.swatchLabel }}>{name}</div>
+				</div>
+			))}
+		</div>
+	);
+}
+
+function BrowseGrid({ t }: Readonly<{ t: T }>) {
+	return (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))",
+				gap: 12,
+			}}
+		>
+			{categories.map(({ name, id, components }) => (
+				<div
+					key={name}
+					style={{
+						padding: "18px 20px 20px",
+						borderRadius: 10,
+						background: t.cardBg,
+						border: t.cardBorder,
+						transition: "background 0.2s",
+					}}
+				>
+					<div
+						style={{
+							fontFamily: MONO,
+							fontSize: 10,
 							fontWeight: 600,
 							letterSpacing: "0.08em",
 							textTransform: "uppercase",
-							color: hero.sectionLabel,
-							marginBottom: 4,
+							color: t.cardLabel,
+							marginBottom: 14,
+							display: "flex",
+							alignItems: "center",
+							gap: 6,
 						}}
 					>
-						Installation · npm
+						{name}
+						<span
+							style={{
+								background: t.cardPillBg,
+								color: t.cardPillFg,
+								borderRadius: 99,
+								padding: "1px 6px",
+								fontSize: 9,
+							}}
+						>
+							{components.length}
+						</span>
 					</div>
-
-					<div>
-						<StepLabel n={1} label="Install" isDark={isDark} />
-						<CodeBlock bg={hero.codeBg} fg={hero.codeText}>
-							<span style={{ color: "#f59e0b" }}>npm</span>
-							{" install @akhil-saxena/design-system"}
-						</CodeBlock>
-					</div>
-
-					<div>
-						<StepLabel n={2} label="Import styles in your app entry" isDark={isDark} />
-						<CodeBlock bg={hero.codeBg} fg={hero.codeText}>
-							<span style={{ color: "#a78bfa" }}>import</span>
-							{" '@akhil-saxena/design-system/tokens.css';"}
-							<br />
-							<span style={{ color: "#a78bfa" }}>import</span>
-							{" '@akhil-saxena/design-system/primitives.css';"}
-						</CodeBlock>
-					</div>
-
-					<div>
-						<StepLabel n={3} label="Use components" isDark={isDark} />
-						<CodeBlock bg={hero.codeBg} fg={hero.codeText}>
-							<span style={{ color: "#a78bfa" }}>import</span>
-							{" { Button, TextInput } "}
-							<span style={{ color: "#a78bfa" }}>from</span>
-							{" '@akhil-saxena/design-system';"}
-						</CodeBlock>
-					</div>
+					<ul
+						style={{
+							margin: 0,
+							padding: 0,
+							listStyle: "none",
+							display: "flex",
+							flexDirection: "column",
+							gap: 2,
+						}}
+					>
+						{components.map((label) => (
+							<li key={label}>
+								<a
+									href={`/?path=/docs/${componentStoryId(id, label)}--docs`}
+									target="_parent"
+									style={{
+										display: "block",
+										fontSize: 13,
+										color: t.cardLink,
+										textDecoration: "none",
+										padding: "3px 6px",
+										borderRadius: 5,
+										margin: "0 -6px",
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.background = t.cardHoverBg;
+										e.currentTarget.style.color = t.cardHoverFg;
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.background = "transparent";
+										e.currentTarget.style.color = t.cardLink;
+									}}
+								>
+									{label}
+								</a>
+							</li>
+						))}
+					</ul>
 				</div>
-			</div>
+			))}
+		</div>
+	);
+}
 
-			{/* ── Component grid ────────────────────────────────────── */}
+// ─── OverviewPage ─────────────────────────────────────────────────────────────
+
+export function OverviewPage() {
+	const isDark = useDarkMode();
+	const t = makeTokens(isDark);
+
+	return (
+		<div style={{ fontFamily: SANS, color: t.heroTitle, maxWidth: 960, padding: "8px 0 80px" }}>
+			{/* Hero */}
 			<div
 				style={{
-					display: "grid",
-					gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-					gap: 12,
+					background: t.heroBg,
+					border: t.heroBorder,
+					borderRadius: 14,
+					padding: "44px 48px 48px",
+					marginBottom: 12,
+					transition: "background 0.2s",
 				}}
 			>
-				{categories.map(({ name, components }) => (
-					<div
-						key={name}
-						style={{
-							padding: "18px 20px 20px",
-							borderRadius: 10,
-							background: card.bg,
-							border: card.border,
-							transition: "background 0.2s, border-color 0.2s",
-						}}
-					>
-						<div
-							style={{
-								fontFamily: MONO,
-								fontSize: 10,
-								fontWeight: 600,
-								letterSpacing: "0.08em",
-								textTransform: "uppercase",
-								color: card.label,
-								marginBottom: 14,
-								display: "flex",
-								alignItems: "center",
-								gap: 6,
-							}}
-						>
-							{name}
-							<span
-								style={{
-									background: card.pillBg,
-									color: card.pillFg,
-									borderRadius: 99,
-									padding: "1px 6px",
-									fontSize: 9,
-								}}
-							>
-								{components.length}
-							</span>
-						</div>
-						<ul
-							style={{
-								margin: 0,
-								padding: 0,
-								listStyle: "none",
-								display: "flex",
-								flexDirection: "column",
-								gap: 2,
-							}}
-						>
-							{components.map(([label, id]) => (
-								<li key={id}>
-									<a
-										href={`/?path=/docs/${id}--docs`}
-										target="_parent"
-										style={{
-											display: "block",
-											fontSize: 13,
-											color: card.linkFg,
-											textDecoration: "none",
-											padding: "3px 6px",
-											borderRadius: 5,
-											margin: "0 -6px",
-										}}
-										onMouseEnter={(e) => {
-											e.currentTarget.style.background = card.linkHoverBg;
-											e.currentTarget.style.color = card.linkHoverFg;
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.background = "transparent";
-											e.currentTarget.style.color = card.linkFg;
-										}}
-									>
-										{label}
-									</a>
-								</li>
-							))}
-						</ul>
-					</div>
-				))}
+				<div
+					style={{
+						fontFamily: MONO,
+						fontSize: 11,
+						fontWeight: 700,
+						letterSpacing: "0.1em",
+						textTransform: "uppercase",
+						color: AMBER,
+						marginBottom: 20,
+					}}
+				>
+					@akhil-saxena · design system · v1.1.0
+				</div>
+				<div
+					style={{
+						fontFamily: DISPLAY,
+						fontWeight: 800,
+						fontSize: 64,
+						letterSpacing: "-0.04em",
+						lineHeight: 0.95,
+						color: t.heroTitle,
+						marginBottom: 20,
+					}}
+				>
+					{TOTAL} components.
+					<br />
+					One system.
+				</div>
+				<div
+					style={{
+						fontSize: 15,
+						color: t.heroSub,
+						lineHeight: 1.7,
+						maxWidth: 480,
+						marginBottom: 36,
+					}}
+				>
+					A complete kit for building React UIs — tokens, primitives, patterns, and interactions.
+					Consistent where it matters, flexible where it counts.
+				</div>
+				<HeroInstall t={t} />
 			</div>
+
+			<StatsStrip t={t} />
+
+			<SectionLabel label="What's inside" color={t.sectionHead} />
+			<InsideGrid t={t} />
+
+			<SectionLabel label="Principles" color={t.sectionHead} />
+			<PrinciplesGrid t={t} />
+
+			<SectionLabel label="At a glance" color={t.sectionHead} />
+			<SwatchRow t={t} />
+
+			<SectionLabel label="Browse components" color={t.sectionHead} />
+			<BrowseGrid t={t} />
 		</div>
 	);
 }
