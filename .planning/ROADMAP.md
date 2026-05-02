@@ -167,6 +167,20 @@ Plans:
 | **DS-81** | **Illustrations (subpath)** | `ds-illustrations.jsx` (24 spot SVGs) | New `@akhil-saxena/design-system/illustrations` subpath export. Each illustration a named export. Cream + ink + amber palette only. Used by EmptyState consumers (and standalone). |
 | DS-82 | (reserved) | — | Reserved slot for any v1.0 finishing primitive surfaced during Phase 18 planning. |
 
+**Plans:** 10 plans
+
+Plans:
+- [ ] 18-00-PLAN.md — Wave 0 infra gate: @dnd-kit install + /illustrations tsup entry + package.json exports
+- [ ] 18-01-PLAN.md — DS-71 AppShell: CSS Grid layout + 48px icon-rail collapse + localStorage persistence
+- [ ] 18-02-PLAN.md — DS-72 AppBar (4 variants + scrolled) + DS-73 Footer (compact + expanded)
+- [ ] 18-03-PLAN.md — DS-81 Illustrations: all 24 SVG React components for /illustrations subpath
+- [ ] 18-04-PLAN.md — DS-74 Wizard: multi-step stepper + ProgressBar + validate gate + useFocusTrap
+- [ ] 18-05-PLAN.md — DS-75 FormValidation (PasswordStrength + FieldError + FormErrorSummary) + DS-76 Coachmark
+- [ ] 18-06-PLAN.md — DS-77 InlineEdit (optimistic save + error recovery) + DS-78 SearchAndFilters (DSDropdown + Chip filters)
+- [ ] 18-07-PLAN.md — DS-79 Presence: Avatar presencePosition 4-corner extension
+- [ ] 18-08-PLAN.md — DS-80 Sortable: @dnd-kit list + cross-list DnD + keyboard + amber indicator + reduced-motion
+- [ ] 18-09-PLAN.md — v1.0.0 release: version bump + CHANGELOG + README + visual baselines + git tag
+
 **Success Criteria:**
 1. All v1.0 sections from `design_handoff/README.md` are accounted for (shipped, deferred, or explicit out-of-scope)
 2. v1.0.0 published to GitHub Packages with full CHANGELOG.md
