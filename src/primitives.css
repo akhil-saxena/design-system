@@ -4379,3 +4379,54 @@
 	border-color: var(--rule);
 	color: var(--ink);
 }
+
+/* ─── DS atom: Footer (DS-73) ──────────────────────────────────────── */
+.ds-atom-footer {
+	background: var(--cream);
+	border-top: 1px solid var(--rule);
+	font-family: var(--font);
+	color: var(--ink-3);
+	font-size: 12px;
+}
+.ds-atom-footer[data-variant="compact"] {
+	padding: 20px 24px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.ds-atom-footer[data-variant="expanded"] {
+	padding: 32px 28px 20px;
+}
+.ds-atom-footer-cols {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 24px;
+	margin-bottom: 24px;
+}
+.ds-atom-footer-col-title {
+	font-family: var(--display);
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--ink);
+	margin-bottom: 8px;
+}
+.ds-atom-footer-link {
+	display: block;
+	color: var(--ink-3);
+	font-size: 12px;
+	line-height: 1.8;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	font-family: var(--font);
+	text-decoration: none;
+}
+.ds-atom-footer-link:hover {
+	color: var(--ink);
+}
+.dark .ds-atom-footer {
+	border-top-color: var(--rule);
+}

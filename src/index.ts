@@ -102,3 +102,5 @@ export { Table, type TableRootProps, type TableHeaderCellProps } from "./Table";
 export { Calendar, type CalendarProps, type CalendarEvent } from "./Calendar";
 export { RichText, type RichTextProps } from "./RichText";
 export { AppShell, type AppShellProps } from "./AppShell";
+export { AppBar, type AppBarProps, type AppBarVariant } from "./AppBar";
+export { Footer, type FooterProps, type FooterVariant, type FooterColumn } from "./Footer";
