@@ -10,8 +10,8 @@
 		"url": "https://github.com/akhil-saxena/design-system.git"
 	},
 	"publishConfig": {
-		"registry": "https://npm.pkg.github.com",
-		"access": "restricted"
+		"registry": "https://registry.npmjs.org",
+		"access": "public"
 	},
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",

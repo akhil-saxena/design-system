@@ -224,22 +224,11 @@ export function OverviewPage() {
 							marginBottom: 4,
 						}}
 					>
-						Installation · GitHub Packages
+						Installation · npm
 					</div>
 
 					<div>
-						<StepLabel n={1} label="Authenticate with GitHub Packages" />
-						<CodeBlock>
-							<span style={{ color: "#57534e" }}># ~/.npmrc</span>
-							<br />
-							{"@akhil-saxena:registry=https://npm.pkg.github.com"}
-							<br />
-							{"//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN"}
-						</CodeBlock>
-					</div>
-
-					<div>
-						<StepLabel n={2} label="Install" />
+						<StepLabel n={1} label="Install" />
 						<CodeBlock>
 							<span style={{ color: "#f59e0b" }}>npm</span>
 							{" install @akhil-saxena/design-system"}
@@ -247,7 +236,7 @@ export function OverviewPage() {
 					</div>
 
 					<div>
-						<StepLabel n={3} label="Import styles in your app entry" />
+						<StepLabel n={2} label="Import styles in your app entry" />
 						<CodeBlock>
 							<span style={{ color: "#a78bfa" }}>import</span>
 							{" '@akhil-saxena/design-system/tokens.css';"}
@@ -258,7 +247,7 @@ export function OverviewPage() {
 					</div>
 
 					<div>
-						<StepLabel n={4} label="Use components" />
+						<StepLabel n={3} label="Use components" />
 						<CodeBlock>
 							<span style={{ color: "#a78bfa" }}>import</span>
 							{" { Button, TextInput } "}
