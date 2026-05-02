@@ -385,7 +385,7 @@ export function OverviewPage() {
 							{components.map(([label, id]) => (
 								<li key={id}>
 									<a
-										href={`?path=/docs/${id}--docs`}
+										href={`/?path=/docs/${id}--docs`}
 										target="_parent"
 										style={{
 											display: "block",
