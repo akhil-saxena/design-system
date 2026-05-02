@@ -91,6 +91,14 @@ const meta: Meta<typeof Calendar> = {
 	tags: ["autodocs"],
 	parameters: {
 		layout: "padded",
+		backgrounds: {
+			default: "white",
+			values: [
+				{ name: "white", value: "#ffffff" },
+				{ name: "light", value: "#f5f3f0" },
+				{ name: "dark", value: "#1c1917" },
+			],
+		},
 		docs: {
 			description: {
 				component:

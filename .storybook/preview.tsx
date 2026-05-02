@@ -20,6 +20,23 @@ const DARK_BG = "#1c1917";
 
 const preview: Preview = {
 	parameters: {
+		options: {
+			storySort: {
+				order: [
+					"Overview",
+					"Foundation",
+					"Inputs",
+					"Data Display",
+					"Display",
+					"Feedback",
+					"Interaction",
+					"Layout",
+					"Overlays",
+					"Patterns",
+					"Internals",
+				],
+			},
+		},
 		controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },
 		layout: "centered",
 		backgrounds: {
