@@ -4693,3 +4693,116 @@
 .dark .ds-atom-coachmark-title {
 	color: var(--ink);
 }
+
+/* ─── DS atom: InlineEdit (DS-77) ──────────────────────────────────── */
+.ds-atom-inlineedit {
+	cursor: pointer;
+	border-radius: 4px;
+	padding: 2px 4px;
+	font-family: var(--font);
+	font-size: inherit;
+	color: var(--ink);
+	transition: background 0.15s ease;
+}
+.ds-atom-inlineedit:hover {
+	background: var(--cream-2);
+}
+.ds-atom-inlineedit:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+.ds-atom-inlineedit-wrap {
+	display: inline-flex;
+	flex-direction: column;
+	width: 100%;
+}
+.ds-atom-inlineedit-input {
+	border: 1px solid var(--amber);
+	border-radius: 4px;
+	padding: 2px 6px;
+	font-family: var(--font);
+	font-size: inherit;
+	color: var(--ink);
+	background: var(--cream);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+	outline: none;
+	width: 100%;
+	box-sizing: border-box;
+}
+.ds-atom-inlineedit-input:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+.ds-atom-inlineedit-error {
+	font-size: 11px;
+	color: var(--red);
+	margin-top: 4px;
+}
+.dark .ds-atom-inlineedit:hover {
+	background: var(--cream-3);
+}
+.dark .ds-atom-inlineedit-input {
+	background: var(--cream-2);
+	color: var(--ink);
+}
+
+/* ─── DS atom: SearchAndFilters (DS-78) ────────────────────────────── */
+.ds-atom-searchfilters {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-family: var(--font);
+}
+.ds-atom-searchfilters-bar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.ds-atom-searchfilters-input {
+	flex: 1;
+	padding: 8px 12px;
+	border: 1px solid var(--rule);
+	border-radius: 8px;
+	background: var(--cream-2);
+	color: var(--ink);
+	font-size: 13px;
+	font-family: var(--font);
+	outline: none;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ds-atom-searchfilters-input:focus {
+	border-color: var(--amber);
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+.ds-atom-searchfilters-clear {
+	font-size: 12px;
+	color: var(--ink-3);
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-family: var(--font);
+	white-space: nowrap;
+	padding: 0;
+}
+.ds-atom-searchfilters-clear:hover {
+	color: var(--ink);
+}
+.ds-atom-searchfilters-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+.ds-atom-searchfilters-option {
+	padding: 8px 12px;
+	font-size: 13px;
+	cursor: pointer;
+	color: var(--ink);
+}
+.ds-atom-searchfilters-option[data-active="true"] {
+	background: var(--cream-2);
+}
+.dark .ds-atom-searchfilters-input {
+	background: var(--cream-2);
+	border-color: var(--rule);
+	color: var(--ink);
+}

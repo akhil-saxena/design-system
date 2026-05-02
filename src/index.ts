@@ -115,3 +115,10 @@ export {
 } from "./FormValidation";
 export { Coachmark, type CoachmarkProps } from "./Coachmark";
 export { Wizard, type WizardProps, type WizardStep } from "./Wizard";
+export { InlineEdit, type InlineEditProps } from "./InlineEdit";
+export {
+	SearchAndFilters,
+	type SearchAndFiltersProps,
+	type SearchFilter,
+	type SearchSuggestion,
+} from "./SearchAndFilters";

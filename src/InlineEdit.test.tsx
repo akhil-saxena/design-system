@@ -104,13 +104,15 @@ describe("InlineEdit", () => {
 
 	// Test 8: multiline=true renders a textarea instead of input
 	it("renders a textarea when multiline=true", () => {
-		render(<InlineEdit value="Multi\nline" onSave={vi.fn()} multiline />);
+		render(<InlineEdit value="Multiline text" onSave={vi.fn()} multiline />);
 		fireEvent.click(screen.getByRole("button", { name: /click to edit/i }));
 		expect(screen.queryByRole("textbox")).toBeInTheDocument();
-		// Check it's a textarea specifically
+		// Check it's a textarea specifically (not an input)
 		const textarea = document.querySelector("textarea");
 		expect(textarea).toBeInTheDocument();
-		expect(textarea).toHaveValue("Multi\nline");
+		expect(textarea).toHaveValue("Multiline text");
+		// And no single-line input
+		expect(document.querySelector("input")).toBeNull();
 	});
 
 	// Test 9: disabled=true prevents clicking to edit
