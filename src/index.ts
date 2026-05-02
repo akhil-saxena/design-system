@@ -1,10 +1,10 @@
 // @akhil-saxena/design-system v0.1.0 — barrel exports.
 
-export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from "./Button";
-export { TextInput, type TextInputProps } from "./TextInput";
-export { Textarea, type TextareaProps } from "./Textarea";
-export { Badge, type BadgeProps, type BadgeTone } from "./Badge";
-export { Chip, type ChipProps, type ChipTone } from "./Chip";
+export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from "./inputs/Button";
+export { TextInput, type TextInputProps } from "./inputs/TextInput";
+export { Textarea, type TextareaProps } from "./inputs/Textarea";
+export { Badge, type BadgeProps, type BadgeTone } from "./inputs/Badge";
+export { Chip, type ChipProps, type ChipTone } from "./inputs/Chip";
 export {
 	Avatar,
 	AvatarStack,
@@ -15,18 +15,18 @@ export {
 	type AvatarProps,
 	type AvatarSize,
 	type AvatarStackProps,
-} from "./Avatar";
-export { Checkbox, type CheckboxProps } from "./Checkbox";
-export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from "./Radio";
-export { Toggle, type ToggleProps } from "./Toggle";
-export { NumberStepper, type NumberStepperProps } from "./NumberStepper";
-export { RollingNumber, type RollingNumberProps } from "./RollingNumber";
-export { RangeSlider, type RangeSliderProps } from "./RangeSlider";
-export { StarRating, type StarRatingProps, type StarRatingSize } from "./StarRating";
-export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./StickyNote";
-export { Card, type CardProps, type CardVariant } from "./Card";
+} from "./display/Avatar";
+export { Checkbox, type CheckboxProps } from "./inputs/Checkbox";
+export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from "./inputs/Radio";
+export { Toggle, type ToggleProps } from "./inputs/Toggle";
+export { NumberStepper, type NumberStepperProps } from "./inputs/NumberStepper";
+export { RollingNumber, type RollingNumberProps } from "./display/RollingNumber";
+export { RangeSlider, type RangeSliderProps } from "./inputs/RangeSlider";
+export { StarRating, type StarRatingProps, type StarRatingSize } from "./inputs/StarRating";
+export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./overlays/StickyNote";
+export { Card, type CardProps, type CardVariant } from "./overlays/Card";
 export { DSPortal, type DSPortalProps } from "./_internals/DSPortal";
-export { Tooltip, type TooltipPlacement, type TooltipProps } from "./Tooltip";
+export { Tooltip, type TooltipPlacement, type TooltipProps } from "./overlays/Tooltip";
 export {
 	ContextMenu,
 	Popover,
@@ -35,76 +35,80 @@ export {
 	type PopoverPlacement,
 	type PopoverProps,
 	type PopoverVariant,
-} from "./Popover";
+} from "./overlays/Popover";
 export {
 	ConfirmDialog,
 	Modal,
 	type ConfirmDialogProps,
 	type ModalProps,
 	type ModalRole,
-} from "./Modal";
-export { Sheet, type SheetProps, type SheetSide } from "./Sheet";
-export { HoverCard, type HoverCardPlacement, type HoverCardProps } from "./HoverCard";
+} from "./overlays/Modal";
+export { Sheet, type SheetProps, type SheetSide } from "./overlays/Sheet";
+export { HoverCard, type HoverCardPlacement, type HoverCardProps } from "./overlays/HoverCard";
 export {
 	BottomSheet,
 	type BottomSheetHeight,
 	type BottomSheetProps,
-} from "./BottomSheet";
-export { Lightbox, type LightboxItem, type LightboxProps } from "./Lightbox";
-export { ProgressBar, type ProgressBarProps } from "./ProgressBar";
-export { Skeleton, type SkeletonProps, type SkeletonShape } from "./Skeleton";
+} from "./overlays/BottomSheet";
+export { Lightbox, type LightboxItem, type LightboxProps } from "./overlays/Lightbox";
+export { ProgressBar, type ProgressBarProps } from "./feedback/ProgressBar";
+export { Skeleton, type SkeletonProps, type SkeletonShape } from "./feedback/Skeleton";
 export {
 	InlineConfirm,
 	type InlineConfirmProps,
 	type InlineConfirmTriggerProps,
-} from "./InlineConfirm";
-export { AlertBanner, type AlertBannerProps, type AlertBannerTone } from "./AlertBanner";
-export { EmptyState, type EmptyStateProps } from "./EmptyState";
+} from "./feedback/InlineConfirm";
+export { AlertBanner, type AlertBannerProps, type AlertBannerTone } from "./feedback/AlertBanner";
+export { EmptyState, type EmptyStateProps } from "./feedback/EmptyState";
 export {
 	ToastProvider,
 	useToast,
 	type ToastOptions,
 	type ToastProviderProps,
 	type ToastTone,
-} from "./Toast";
-export { CopyToClipboard, type CopyToClipboardProps } from "./CopyToClipboard";
-export { DatePicker, type DatePickerProps } from "./DatePicker";
+} from "./feedback/Toast";
+export { CopyToClipboard, type CopyToClipboardProps } from "./interaction/CopyToClipboard";
+export { DatePicker, type DatePickerProps } from "./inputs/DatePicker";
 export {
 	SplitButton,
 	type SplitButtonAction,
 	type SplitButtonProps,
-} from "./SplitButton";
-export { MultiSelect, type MultiSelectOption, type MultiSelectProps } from "./MultiSelect";
-export { Select, type SelectOption, type SelectProps } from "./Select";
+} from "./interaction/SplitButton";
+export { MultiSelect, type MultiSelectOption, type MultiSelectProps } from "./inputs/MultiSelect";
+export { Select, type SelectOption, type SelectProps } from "./inputs/Select";
 export {
 	DateRangePicker,
 	type DateRange,
 	type DateRangePickerProps,
-} from "./DateRangePicker";
-export { Autocomplete, type AutocompleteProps } from "./Autocomplete";
+} from "./inputs/DateRangePicker";
+export { Autocomplete, type AutocompleteProps } from "./inputs/Autocomplete";
 
 export {
 	SegmentedControl,
 	type SegmentedControlProps,
 	type SegmentedOption,
-} from "./SegmentedControl";
+} from "./data-display/SegmentedControl";
 
 // Internal Icon wrapper, exposed publicly so consumers can wrap arbitrary lucide icons.
 // Pre-wrapped common icons live in @akhil-saxena/design-system/icons subpath.
 export { Icon, type IconProps } from "./_internals/Icon";
 
-export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from "./Breadcrumbs";
-export { Timeline, type TimelineProps, type TimelineEvent } from "./Timeline";
-export { InfiniteList, type InfiniteListProps } from "./InfiniteList";
-export { Accordion, type AccordionProps, type AccordionItemProps } from "./Accordion";
-export { Carousel, type CarouselProps, type CarouselSlide } from "./Carousel";
-export { Tabs, type TabsProps, type TabItem } from "./Tabs";
-export { Table, type TableRootProps, type TableHeaderCellProps } from "./Table";
-export { Calendar, type CalendarProps, type CalendarEvent } from "./Calendar";
-export { RichText, type RichTextProps } from "./RichText";
-export { AppShell, type AppShellProps } from "./AppShell";
-export { AppBar, type AppBarProps, type AppBarVariant } from "./AppBar";
-export { Footer, type FooterProps, type FooterVariant, type FooterColumn } from "./Footer";
+export {
+	Breadcrumbs,
+	type BreadcrumbItem,
+	type BreadcrumbsProps,
+} from "./data-display/Breadcrumbs";
+export { Timeline, type TimelineProps, type TimelineEvent } from "./data-display/Timeline";
+export { InfiniteList, type InfiniteListProps } from "./data-display/InfiniteList";
+export { Accordion, type AccordionProps, type AccordionItemProps } from "./data-display/Accordion";
+export { Carousel, type CarouselProps, type CarouselSlide } from "./data-display/Carousel";
+export { Tabs, type TabsProps, type TabItem } from "./data-display/Tabs";
+export { Table, type TableRootProps, type TableHeaderCellProps } from "./data-display/Table";
+export { Calendar, type CalendarProps, type CalendarEvent } from "./data-display/Calendar";
+export { RichText, type RichTextProps } from "./interaction/RichText";
+export { AppShell, type AppShellProps } from "./layout/AppShell";
+export { AppBar, type AppBarProps, type AppBarVariant } from "./layout/AppBar";
+export { Footer, type FooterProps, type FooterVariant, type FooterColumn } from "./layout/Footer";
 export {
 	PasswordStrength,
 	FieldError,
@@ -112,16 +116,16 @@ export {
 	type PasswordStrengthProps,
 	type FieldErrorProps,
 	type FormErrorSummaryProps,
-} from "./FormValidation";
-export { Coachmark, type CoachmarkProps } from "./Coachmark";
-export { Wizard, type WizardProps, type WizardStep } from "./Wizard";
-export { InlineEdit, type InlineEditProps } from "./InlineEdit";
+} from "./patterns/FormValidation";
+export { Coachmark, type CoachmarkProps } from "./patterns/Coachmark";
+export { Wizard, type WizardProps, type WizardStep } from "./patterns/Wizard";
+export { InlineEdit, type InlineEditProps } from "./interaction/InlineEdit";
 export {
 	SearchAndFilters,
 	type SearchAndFiltersProps,
 	type SearchFilter,
 	type SearchSuggestion,
-} from "./SearchAndFilters";
+} from "./interaction/SearchAndFilters";
 export {
 	Sortable,
 	SortableItem,
@@ -130,4 +134,4 @@ export {
 	type SortableItemProps,
 	type SortableItemData,
 	type SortableDndContextProps,
-} from "./Sortable";
+} from "./interaction/Sortable";
