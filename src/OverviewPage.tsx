@@ -362,20 +362,37 @@ function InsideGrid({ t }: Readonly<{ t: T }>) {
 					style={{
 						background: t.gridBg,
 						border: t.gridBorder,
-						borderRadius: 10,
-						padding: "16px 20px 18px",
+						borderRadius: 12,
+						padding: "20px 24px",
+						display: "grid",
+						gridTemplateColumns: "140px 1fr",
+						gap: "0 20px",
+						alignItems: "start",
 						transition: "background 0.2s",
 					}}
 				>
-					<div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12 }}>
-						<div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 14, color: t.gridName }}>
+					{/* Left: title + count */}
+					<div>
+						<div
+							style={{
+								fontFamily: DISPLAY,
+								fontWeight: 800,
+								fontSize: 18,
+								letterSpacing: "-0.02em",
+								lineHeight: 1.15,
+								color: t.gridName,
+								marginBottom: 4,
+							}}
+						>
 							{name}
 						</div>
-						<div style={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: AMBER }}>
-							{components.length}
+						<div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: AMBER }}>
+							{components.length} components
 						</div>
 					</div>
-					<div style={{ display: "flex", flexWrap: "wrap", gap: "4px 6px" }}>
+
+					{/* Right: chip links */}
+					<div style={{ display: "flex", flexWrap: "wrap", gap: "5px 6px", paddingTop: 2 }}>
 						{components.map((label) => (
 							<a
 								key={label}
@@ -387,7 +404,7 @@ function InsideGrid({ t }: Readonly<{ t: T }>) {
 									textDecoration: "none",
 									background: t.cardPillBg,
 									borderRadius: 5,
-									padding: "2px 7px",
+									padding: "3px 8px",
 									transition: "background 0.15s, color 0.15s",
 								}}
 								onMouseEnter={(e) => {
