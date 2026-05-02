@@ -386,6 +386,7 @@ export function OverviewPage() {
 								<li key={id}>
 									<a
 										href={`?path=/docs/${id}--docs`}
+										target="_parent"
 										style={{
 											display: "block",
 											fontSize: 13,
