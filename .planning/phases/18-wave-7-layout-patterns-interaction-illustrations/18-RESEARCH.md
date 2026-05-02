@@ -772,27 +772,18 @@ Two illustrations with special care:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **AppShell sidebar expanded width**
-   - What we know: ds-shell.jsx uses `200px` expanded; CONTEXT.md only specifies `48px` collapsed; VS Code / Linear use ~240px.
-   - What's unclear: Is 200px or 240px the canonical expanded width?
-   - Recommendation: Planner uses 240px (closer to Linear aesthetic which is cited in CONTEXT.md specifics) but exposes as a `sidebarWidth` prop defaulting to 240.
+1. **AppShell sidebar expanded width** — **RESOLVED: 240px default, exposed as `sidebarWidth` prop (plan 18-01)**
+   - 240px (closer to Linear aesthetic) with `sidebarWidth` prop defaulting to 240.
 
-2. **AppShell mobile behaviour**
-   - What we know: Single breakpoint at 768px (D-01/CONTEXT deferred). ds-shell.jsx shows a bottom tab bar on mobile but CONTEXT.md defers it.
-   - What's unclear: Below 768px, does the sidebar become hidden (display:none) or stay as 48px icon rail?
-   - Recommendation: Below 768px, hide sidebar entirely (`display: none`). Bottom tab bar is deferred per CONTEXT.md.
+2. **AppShell mobile behaviour** — **RESOLVED: `display: none` below 768px (plan 18-01)**
+   - Below 768px, sidebar is hidden entirely. Bottom tab bar deferred.
 
-3. **Coachmark SpotlightOverlay**
-   - What we know: ds-coachmarks.jsx includes an SVG-mask SpotlightOverlay component that dims the page and highlights the target.
-   - What's unclear: Is the SpotlightOverlay in scope for DS-76 v1.0, or is it just the anchored hint bubble?
-   - Recommendation: Planner decides. The SVG mask spotlight is visually impressive but requires `getBoundingClientRect` + DOM measurement + portal. The hint bubble alone (anchored Popover) is the simpler v1.0 scope.
+3. **Coachmark SpotlightOverlay** — **RESOLVED: hint bubble only, SpotlightOverlay deferred to v1.1 (plan 18-05)**
+   - Anchored Popover-based hint bubble ships. SVG-mask spotlight deferred.
 
-4. **DS-82 reserved slot**
-   - What we know: One slot reserved for any v1.0 finishing primitive surfaced during planning.
-   - What's unclear: What v1.0 gaps exist after DS-71..81 are complete?
-   - Recommendation: Leave as open slot. After planning all 11 known primitives, use DS-82 if any critical finishing work surfaces (e.g., a missing Storybook story baseline, a CSS token gap, a test harness fix).
+4. **DS-82 reserved slot** — **RESOLVED: slot unused — no v1.0 gap identified after planning DS-71..81**
 
 ---
 
