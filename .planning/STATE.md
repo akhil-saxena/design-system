@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0.0
 milestone_name: milestone
-status: Phase 17 complete — awaiting v0.6.0 release checkpoint approval
-stopped_at: Phase 17 complete (v0.6.0 shipped, 11 primitives, 644 tests)
-last_updated: "2026-04-30T03:52:03.826Z"
+status: Phase 18 in progress — 18-03 complete (DS-81 Illustrations)
+stopped_at: 18-03 Illustrations — 24 SVG components, 49 tests passing
+last_updated: "2026-05-02T10:41:08Z"
 progress:
   total_phases: 6
   completed_phases: 1
@@ -23,14 +23,14 @@ See: `design_handoff/README.md` (un-tracked, lives in repo) — authoritative 53
 
 ## Current Position
 
-Phase: 17 (wave-6-icons-data-display) — COMPLETE (awaiting checkpoint approval)
-Plan: 15 of 15 (ALL DONE)
-**Phase:** Phase 17 — All 15 plans complete; v0.6.0 release preflight done
-**Last shipped:** v0.5.6 → **v0.6.0 pending release commit** (awaiting human checkpoint)
-**Last anchor commit:** `6bf800c chore(17-14-01): v0.6.0 preflight` on `main`
-**Working tree:** clean
+Phase: 18 (wave-7-layout-patterns-interaction-illustrations) — IN PROGRESS
+Plan: 3 of 10 done (18-00 AppShell infra, 18-01 AppShell, 18-02 AppBar+Footer, 18-03 Illustrations)
+**Phase:** Phase 18 — 3/10 plans complete
+**Last shipped:** v0.6.0 (Phase 17 complete)
+**Last anchor commit:** `3884d22 feat(18-03): DS-81 illustrations subpath — 24 SVG React components` on `main`
+**Working tree:** clean (HoverCard.tsx + useFocusTrap.ts have pre-existing modifications)
 
-**Progress:** [██████████] 100%
+**Progress:** [███░░░░░░░] 30%
 
 ## Recovery Notes (2026-04-29)
 
