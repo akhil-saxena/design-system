@@ -112,7 +112,8 @@ export const ChildrenEscapeHatch: Story = {
 };
 
 export const DarkMode: Story = {
-	parameters: { backgrounds: { default: "dark" }, docs: { source: { code: SRC.DarkMode } } },
+	globals: { backgrounds: { value: "#1c1917" } },
+	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	render: () => (
 		<div
 			className="dark"
