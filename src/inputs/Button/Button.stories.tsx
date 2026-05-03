@@ -18,7 +18,7 @@ const meta: Meta<typeof Button> = {
 	argTypes: {
 		variant: {
 			control: "select",
-			options: ["primary", "secondary", "ghost", "danger"],
+			options: ["primary", "secondary", "ghost", "tertiary", "danger"],
 			description:
 				"Visual variant - primary for main CTA, secondary for second-priority, ghost for tertiary, danger for destructive actions.",
 		},
@@ -59,6 +59,7 @@ export const Variants: Story = {
 			<Button variant="primary">Primary</Button>
 			<Button variant="secondary">Secondary</Button>
 			<Button variant="ghost">Ghost</Button>
+			<Button variant="tertiary">Tertiary</Button>
 			<Button variant="danger">Danger</Button>
 		</div>
 	),
@@ -144,6 +145,7 @@ export const DarkMode: Story = {
 			<Button variant="primary">Primary</Button>
 			<Button variant="secondary">Secondary</Button>
 			<Button variant="ghost">Ghost</Button>
+			<Button variant="tertiary">Tertiary</Button>
 			<Button variant="danger">Danger</Button>
 		</div>
 	),
