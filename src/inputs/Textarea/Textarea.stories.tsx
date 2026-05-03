@@ -9,7 +9,7 @@ const SRC = {
 	ErrorState: `<Textarea error defaultValue="Required field" />`,
 	Disabled: `<Textarea disabled defaultValue="-" />`,
 	Playground: `// Textarea always fills its container - set any width on the wrapper
-<div style={{ width: 360 }}>
+<div style={{ maxWidth: 360, width: "100%" }}>
   <Textarea placeholder="Playground" rows={5} />
 </div>`,
 	DarkMode: `<Textarea placeholder="Default" rows={3} />

@@ -48,7 +48,9 @@ type Story = StoryObj;
 export const PasswordStrengthAll: Story = {
 	name: "PasswordStrength - all scores",
 	render: () => (
-		<div style={{ display: "flex", flexDirection: "column", gap: 16, width: 220 }}>
+		<div
+			style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 220, width: "100%" }}
+		>
 			{([0, 1, 2, 3, 4] as const).map((score) => (
 				<PasswordStrength key={score} score={score} />
 			))}
@@ -70,7 +72,7 @@ function PasswordDemo() {
 	}
 
 	return (
-		<div style={{ display: "flex", flexDirection: "column", gap: 8, width: 260 }}>
+		<div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 260, width: "100%" }}>
 			<TextInput
 				type="password"
 				placeholder="Enter password"
@@ -90,7 +92,7 @@ export const PasswordStrengthLive: Story = {
 export const FieldErrorStory: Story = {
 	name: "FieldError",
 	render: () => (
-		<div style={{ display: "flex", flexDirection: "column", gap: 8, width: 260 }}>
+		<div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 260, width: "100%" }}>
 			<TextInput placeholder="email@example.com" error />
 			<FieldError message="Please enter a valid email address." />
 		</div>
@@ -100,7 +102,7 @@ export const FieldErrorStory: Story = {
 export const FormErrorSummaryStory: Story = {
 	name: "FormErrorSummary",
 	render: () => (
-		<div style={{ width: 320 }}>
+		<div style={{ maxWidth: 320, width: "100%" }}>
 			<FormErrorSummary
 				errors={[
 					"Name is required.",
@@ -121,7 +123,9 @@ export const DarkMode: Story = {
 		),
 	],
 	render: () => (
-		<div style={{ display: "flex", flexDirection: "column", gap: 16, width: 280 }}>
+		<div
+			style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 280, width: "100%" }}
+		>
 			<PasswordStrength score={2} />
 			<FieldError message="This field is required." />
 			<FormErrorSummary errors={["Name is required.", "Email is invalid."]} />

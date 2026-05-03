@@ -82,7 +82,7 @@ function ControlledSelect({
 }) {
 	const [value, setValue] = useState<string | null>(initialValue);
 	return (
-		<div style={{ width: 240 }}>
+		<div style={{ maxWidth: 240, width: "100%" }}>
 			<Select
 				value={value}
 				onChange={setValue}

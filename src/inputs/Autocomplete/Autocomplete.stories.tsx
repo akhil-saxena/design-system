@@ -141,7 +141,7 @@ function CompanyPicker(props: {
 	const pool = props.pool ?? COMPANIES;
 	const items = filter(pool, value);
 	return (
-		<div style={{ width: 320 }}>
+		<div style={{ maxWidth: 320, width: "100%" }}>
 			<Autocomplete<Company>
 				value={value}
 				onValueChange={setValue}
@@ -238,7 +238,7 @@ export const NoResults: Story = {
 			const [value, setValue] = useState("zzzz");
 			const items = filter(COMPANIES, value);
 			return (
-				<div style={{ width: 320 }}>
+				<div style={{ maxWidth: 320, width: "100%" }}>
 					<Autocomplete<Company>
 						value={value}
 						onValueChange={setValue}

@@ -47,7 +47,7 @@ return (
 const [b, setB] = useState(120000);
 const [c, setC] = useState(78);
 return (
-  <div style={{ display: "flex", flexDirection: "column", gap: 18, width: 320 }}>
+  <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 320, width: "100%" }}>
     <RangeSlider value={a} onChange={setA} min={0} max={100} step={5} ariaLabel="Basic" />
     <RangeSlider value={b} onChange={setB} min={30000} max={300000} step={5000} label="Target salary" valueFormat={(n) => \`$\${n.toLocaleString()}\`} />
     <RangeSlider value={c} onChange={setC} min={0} max={100} label="Fit score" valueFormat={(n) => \`\${n}%\`} />
@@ -106,7 +106,7 @@ export const Basic: Story = {
 	render: () => {
 		const [v, setV] = useState(50);
 		return (
-			<div style={{ width: 320 }}>
+			<div style={{ maxWidth: 320, width: "100%" }}>
 				<RangeSlider
 					value={v}
 					onChange={setV}
@@ -125,7 +125,7 @@ export const WithLabelAndFormat: Story = {
 	render: () => {
 		const [v, setV] = useState(120000);
 		return (
-			<div style={{ width: 320 }}>
+			<div style={{ maxWidth: 320, width: "100%" }}>
 				<RangeSlider
 					value={v}
 					onChange={setV}
@@ -145,7 +145,7 @@ export const FitScore: Story = {
 	render: () => {
 		const [v, setV] = useState(78);
 		return (
-			<div style={{ width: 320 }}>
+			<div style={{ maxWidth: 320, width: "100%" }}>
 				<RangeSlider
 					value={v}
 					onChange={setV}
@@ -163,7 +163,7 @@ export const FitScore: Story = {
 export const Disabled: Story = {
 	parameters: { docs: { source: { code: SRC.Disabled } } },
 	render: () => (
-		<div style={{ width: 320 }}>
+		<div style={{ maxWidth: 320, width: "100%" }}>
 			<RangeSlider
 				value={50}
 				onChange={() => {}}
@@ -180,7 +180,7 @@ export const Disabled: Story = {
 export const AtMin: Story = {
 	parameters: { docs: { source: { code: SRC.AtMin } } },
 	render: () => (
-		<div style={{ width: 320 }}>
+		<div style={{ maxWidth: 320, width: "100%" }}>
 			<RangeSlider value={0} onChange={() => {}} min={0} max={100} ariaLabel="At min" />
 		</div>
 	),
@@ -189,7 +189,7 @@ export const AtMin: Story = {
 export const AtMax: Story = {
 	parameters: { docs: { source: { code: SRC.AtMax } } },
 	render: () => (
-		<div style={{ width: 320 }}>
+		<div style={{ maxWidth: 320, width: "100%" }}>
 			<RangeSlider value={100} onChange={() => {}} min={0} max={100} ariaLabel="At max" />
 		</div>
 	),
@@ -208,7 +208,7 @@ export const Playground: Story = {
 	render: (args) => {
 		const [v, setV] = useState(args.value);
 		return (
-			<div style={{ width: 320 }}>
+			<div style={{ maxWidth: 320, width: "100%" }}>
 				<RangeSlider {...args} value={v} onChange={setV} />
 			</div>
 		);
@@ -229,7 +229,9 @@ export const DarkMode: Story = {
 		const [b, setB] = useState(120000);
 		const [c, setC] = useState(78);
 		return (
-			<div style={{ display: "flex", flexDirection: "column", gap: 18, width: 320 }}>
+			<div
+				style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 320, width: "100%" }}
+			>
 				<RangeSlider value={a} onChange={setA} min={0} max={100} step={5} ariaLabel="Basic" />
 				<RangeSlider
 					value={b}

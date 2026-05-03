@@ -100,7 +100,7 @@ function ControlledHarness({
 }) {
 	const [value, setValue] = useState<string[]>(initial);
 	return (
-		<div style={{ width: 360 }}>
+		<div style={{ maxWidth: 360, width: "100%" }}>
 			<MultiSelect
 				value={value}
 				onChange={setValue}

@@ -216,7 +216,7 @@ export const LoadingInProgress: Story = {
 	name: "Loading in progress",
 	parameters: { docs: { source: { code: SRC.loading } } },
 	render: () => (
-		<div style={{ width: 400 }}>
+		<div style={{ maxWidth: 400, width: "100%" }}>
 			<InfiniteList
 				items={makeItems(0, 5)}
 				renderItem={(item) => <ItemRow label={item.label} sub={item.sub} />}
@@ -241,7 +241,7 @@ export const EndOfList: Story = {
 	name: "End of list",
 	parameters: { docs: { source: { code: SRC.endOfList } } },
 	render: () => (
-		<div style={{ width: 400 }}>
+		<div style={{ maxWidth: 400, width: "100%" }}>
 			<InfiniteList
 				items={makeItems(0, 5)}
 				renderItem={(item) => <ItemRow label={item.label} sub={item.sub} />}
@@ -304,7 +304,7 @@ export const CustomSlots: Story = {
 	name: "Custom loading + end slots",
 	parameters: { docs: { source: { code: SRC.customSlots } } },
 	render: () => (
-		<div style={{ width: 400 }}>
+		<div style={{ maxWidth: 400, width: "100%" }}>
 			<InfiniteList
 				items={makeItems(0, 3)}
 				renderItem={(item) => <ItemRow label={item.label} sub={item.sub} />}
@@ -342,7 +342,15 @@ export const DarkMode: Story = {
 	],
 	parameters: { docs: { source: { code: SRC.dark } } },
 	render: () => (
-		<div style={{ width: 400, padding: 16, background: "var(--surf-0, #0f172a)", borderRadius: 8 }}>
+		<div
+			style={{
+				maxWidth: 400,
+				width: "100%",
+				padding: 16,
+				background: "var(--surf-0, #0f172a)",
+				borderRadius: 8,
+			}}
+		>
 			<InfiniteList
 				items={makeItems(0, 4)}
 				renderItem={(item) => (

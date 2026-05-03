@@ -87,7 +87,7 @@ function SearchDemo() {
 	}
 
 	return (
-		<div style={{ width: 360 }}>
+		<div style={{ maxWidth: 360, width: "100%" }}>
 			<SearchAndFilters
 				suggestions={suggestions}
 				activeFilters={filters}
@@ -114,7 +114,7 @@ export const WithFilters: Story = {
 			{ id: "5", label: "Billing" },
 		]);
 		return (
-			<div style={{ width: 400 }}>
+			<div style={{ maxWidth: 400, width: "100%" }}>
 				<SearchAndFilters
 					activeFilters={filters}
 					onFilterRemove={(f) => setFilters((prev) => prev.filter((x) => x.id !== f.id))}

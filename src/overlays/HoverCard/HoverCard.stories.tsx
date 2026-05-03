@@ -40,7 +40,7 @@ return (
   <div>
     <Button ref={ref} variant="secondary">Hover for preview</Button>
     <HoverCard anchorRef={ref}>
-      <div style={{ width: 280, height: 140, borderRadius: 8, background: "linear-gradient(135deg, #b45309, #f59e0b)", marginBottom: 8 }} />
+      <div style={{ maxWidth: 280, width: "100%", height: 140, borderRadius: 8, background: "linear-gradient(135deg, #b45309, #f59e0b)", marginBottom: 8 }} />
       <div style={{ fontWeight: 700 }}>Resume preview</div>
       <div style={{ fontSize: 11, color: "var(--ink-3)" }}>PDF · 2 pages · 245 KB</div>
     </HoverCard>
@@ -199,7 +199,8 @@ export const WithImage: Story = {
 				<HoverCard anchorRef={ref}>
 					<div
 						style={{
-							width: 280,
+							maxWidth: 280,
+							width: "100%",
 							height: 140,
 							borderRadius: 8,
 							background: "linear-gradient(135deg, #b45309, #f59e0b)",

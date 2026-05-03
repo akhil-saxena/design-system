@@ -70,7 +70,7 @@ return (
 );`,
 	NarrowOverflow: `const [value, setValue] = useState("1");
 return (
-  <div style={{ width: 300 }}>
+  <div style={{ maxWidth: 300, width: "100%" }}>
     <Tabs
       tabs={[
         { id: "1", label: "Dashboard", content: <p>Dashboard</p> },
@@ -283,7 +283,7 @@ export const NarrowOverflow: Story = {
 			{ id: "6", label: "Billing", content: <p>Billing content</p> },
 		];
 		return (
-			<div style={{ width: 300, border: "1px dashed var(--rule)", padding: 8 }}>
+			<div style={{ maxWidth: 300, width: "100%", border: "1px dashed var(--rule)", padding: 8 }}>
 				<p style={{ fontSize: 12, color: "var(--ink-2)", marginBottom: 8 }}>
 					Container fixed at 300px - tabs that don't fit collapse into More button
 				</p>

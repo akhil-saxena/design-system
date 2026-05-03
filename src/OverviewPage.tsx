@@ -43,6 +43,18 @@ function makeTokens(isDark: boolean) {
 	};
 }
 
+// ─── Responsive hook ─────────────────────────────────────────────────────────
+
+function useWindowWidth() {
+	const [width, setWidth] = useState(() => window.innerWidth);
+	useEffect(() => {
+		const handler = () => setWidth(window.innerWidth);
+		window.addEventListener("resize", handler);
+		return () => window.removeEventListener("resize", handler);
+	}, []);
+	return width;
+}
+
 // ─── Dark mode hook ───────────────────────────────────────────────────────────
 
 type GlobalsPayload = { globals: Record<string, unknown> };
@@ -300,7 +312,7 @@ function HeroInstall({ t }: Readonly<{ t: T }>) {
 	);
 }
 
-function StatsStrip({ t }: Readonly<{ t: T }>) {
+function StatsStrip({ t, isMobile }: Readonly<{ t: T; isMobile: boolean }>) {
 	const stats = [
 		{ value: TOTAL, label: "Components" },
 		{ value: categories.length, label: "Categories" },
@@ -309,7 +321,12 @@ function StatsStrip({ t }: Readonly<{ t: T }>) {
 	] as const;
 	return (
 		<div
-			style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 48 }}
+			style={{
+				display: "grid",
+				gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+				gap: 12,
+				marginBottom: 48,
+			}}
 		>
 			{stats.map(({ value, label }) => (
 				<div
@@ -353,9 +370,16 @@ function StatsStrip({ t }: Readonly<{ t: T }>) {
 	);
 }
 
-function InsideGrid({ t }: Readonly<{ t: T }>) {
+function InsideGrid({ t, isMobile }: Readonly<{ t: T; isMobile: boolean }>) {
 	return (
-		<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 48 }}>
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+				gap: 10,
+				marginBottom: 48,
+			}}
+		>
 			{categories.map(({ name, id, components }) => (
 				<div
 					key={name}
@@ -363,10 +387,10 @@ function InsideGrid({ t }: Readonly<{ t: T }>) {
 						background: t.gridBg,
 						border: t.gridBorder,
 						borderRadius: 12,
-						padding: "20px 24px",
+						padding: isMobile ? "16px 18px" : "20px 24px",
 						display: "grid",
-						gridTemplateColumns: "140px 1fr",
-						gap: "0 20px",
+						gridTemplateColumns: isMobile ? "1fr" : "140px 1fr",
+						gap: isMobile ? "10px 0" : "0 20px",
 						alignItems: "start",
 						transition: "background 0.2s",
 					}}
@@ -426,10 +450,19 @@ function InsideGrid({ t }: Readonly<{ t: T }>) {
 	);
 }
 
-function PrinciplesGrid({ t }: Readonly<{ t: T }>) {
+function PrinciplesGrid({
+	t,
+	isMobile,
+	isTablet,
+}: Readonly<{ t: T; isMobile: boolean; isTablet: boolean }>) {
 	return (
 		<div
-			style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 48 }}
+			style={{
+				display: "grid",
+				gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+				gap: 12,
+				marginBottom: 48,
+			}}
 		>
 			{PRINCIPLES.map(({ n, title, body }) => (
 				<div
@@ -500,9 +533,19 @@ function SwatchRow({ t }: Readonly<{ t: T }>) {
 export function OverviewPage() {
 	const isDark = useDarkMode();
 	const t = makeTokens(isDark);
+	const width = useWindowWidth();
+	const isMobile = width < 640;
+	const isTablet = width < 900;
 
 	return (
-		<div style={{ fontFamily: SANS, color: t.heroTitle, maxWidth: 960, padding: "8px 0 80px" }}>
+		<div
+			style={{
+				fontFamily: SANS,
+				color: t.heroTitle,
+				maxWidth: 960,
+				padding: isMobile ? "8px 16px 60px" : "8px 0 80px",
+			}}
+		>
 			{/* Hero */}
 			<div
 				style={{
@@ -557,13 +600,13 @@ export function OverviewPage() {
 				<HeroInstall t={t} />
 			</div>
 
-			<StatsStrip t={t} />
+			<StatsStrip t={t} isMobile={isMobile} />
 
 			<SectionLabel label="What's inside" color={t.sectionHead} />
-			<InsideGrid t={t} />
+			<InsideGrid t={t} isMobile={isMobile} />
 
 			<SectionLabel label="Principles" color={t.sectionHead} />
-			<PrinciplesGrid t={t} />
+			<PrinciplesGrid t={t} isMobile={isMobile} isTablet={isTablet} />
 
 			<SectionLabel label="At a glance" color={t.sectionHead} />
 			<SwatchRow t={t} />
