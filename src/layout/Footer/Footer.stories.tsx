@@ -85,9 +85,8 @@ export const DarkMode: Story = {
 				className="dark"
 				style={{
 					background: "#1c1917",
-					overflow: "hidden",
-					width: "100%",
-					boxSizing: "border-box",
+					overflowX: "auto",
+					minWidth: 0,
 				}}
 			>
 				<Story />

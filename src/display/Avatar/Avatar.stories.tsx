@@ -252,9 +252,8 @@ export const DarkMode: Story = {
 					background: "#1c1917",
 					padding: 24,
 					borderRadius: 8,
-					overflow: "hidden",
-					width: "100%",
-					boxSizing: "border-box",
+					overflowX: "auto",
+					minWidth: 0,
 				}}
 			>
 				<Story />
@@ -343,9 +342,8 @@ export const PresenceDark: Story = {
 					background: "#1c1917",
 					padding: 24,
 					borderRadius: 8,
-					overflow: "hidden",
-					width: "100%",
-					boxSizing: "border-box",
+					overflowX: "auto",
+					minWidth: 0,
 				}}
 			>
 				<Story />
