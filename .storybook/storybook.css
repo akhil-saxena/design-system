@@ -56,6 +56,14 @@ body {
    :not([class*="ds-atom"]) prevents these rules from touching the
    Table component's own <table> element which uses .ds-atom-table. */
 
+/* Make controls/args table scrollable on narrow viewports */
+[class*="docblock-argstable"],
+[class*="controls-"],
+.sbdocs-wrapper div:has(> table:not([class*="ds-atom"])) {
+	overflow-x: auto !important;
+	-webkit-overflow-scrolling: touch;
+}
+
 table:not([class*="ds-atom"]) {
 	background: var(--cream) !important;
 	border-color: var(--rule) !important;
