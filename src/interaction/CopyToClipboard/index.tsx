@@ -43,29 +43,24 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 		}, []);
 
 		const handleClick = useCallback(async () => {
-			const showCopied = () => {
-				setCopied(true);
-				onCopy?.();
-				if (timerRef.current !== null) globalThis.clearTimeout(timerRef.current);
-				timerRef.current = globalThis.setTimeout(() => {
-					setCopied(false);
-					timerRef.current = null;
-				}, 2000);
-			};
+			// Show feedback immediately (optimistic) - clipboard write happens in background.
+			setCopied(true);
+			onCopy?.();
+			if (timerRef.current !== null) globalThis.clearTimeout(timerRef.current);
+			timerRef.current = globalThis.setTimeout(() => {
+				setCopied(false);
+				timerRef.current = null;
+			}, 2000);
 
 			// Try modern Clipboard API first.
 			try {
 				await navigator.clipboard.writeText(value);
-				showCopied();
 				return;
 			} catch {
-				// Clipboard API unavailable in this context (iframe without
-				// clipboard-write permission, insecure context, or browser block).
-				// Fall through to execCommand fallback below.
+				// Fall through to execCommand fallback.
 			}
 
-			// execCommand fallback - works in iframes (e.g. Storybook docs) where
-			// navigator.clipboard is blocked by the clipboard-write permission policy.
+			// execCommand fallback for iframe contexts (Storybook docs, etc.).
 			try {
 				const ta = document.createElement("textarea");
 				ta.value = value;
@@ -73,19 +68,14 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 				document.body.appendChild(ta);
 				ta.focus();
 				ta.select();
-				// eslint-disable-next-line @typescript-eslint/no-deprecated
-				const ok = document.execCommand("copy");
+				const execCommand = document.execCommand.bind(document) as (cmd: string) => boolean;
+				const ok = execCommand("copy");
 				ta.remove();
-				if (ok) {
-					showCopied();
-				} else {
-					const error = new Error("Copy command unavailable");
-					console.warn("[CopyToClipboard]", error.message);
-					onError?.(error);
+				if (!ok) {
+					onError?.(new Error("Copy command unavailable"));
 				}
 			} catch (fallbackErr) {
 				const error = fallbackErr instanceof Error ? fallbackErr : new Error(String(fallbackErr));
-				console.warn("[CopyToClipboard] clipboard unavailable:", error.message);
 				onError?.(error);
 			}
 		}, [value, onCopy, onError]);
@@ -94,7 +84,7 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 			<button
 				ref={ref}
 				type="button"
-				className={`ds-atom-copy${className ? ` ${className}` : ""}`}
+				className={["ds-atom-copy", className].filter(Boolean).join(" ")}
 				data-state={copied ? "copied" : "idle"}
 				aria-label={`Copy ${label ?? value}`}
 				style={style}
