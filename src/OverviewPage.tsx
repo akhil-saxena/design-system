@@ -298,10 +298,12 @@ function HeroInstall({ t }: Readonly<{ t: T }>) {
 							borderRadius: 8,
 							padding: "10px 14px",
 							fontFamily: MONO,
-							fontSize: 13,
+							fontSize: 12,
 							lineHeight: 1.7,
 							color: t.codeFg,
 							transition: "background 0.2s, color 0.2s",
+							overflowX: "auto",
+							whiteSpace: "nowrap",
 						}}
 					>
 						{code()}
@@ -552,9 +554,10 @@ export function OverviewPage() {
 					background: t.heroBg,
 					border: t.heroBorder,
 					borderRadius: 14,
-					padding: "44px 48px 48px",
+					padding: isMobile ? "28px 20px 32px" : "44px 48px 48px",
 					marginBottom: 12,
 					transition: "background 0.2s",
+					overflow: "hidden",
 				}}
 			>
 				<div
@@ -574,9 +577,9 @@ export function OverviewPage() {
 					style={{
 						fontFamily: DISPLAY,
 						fontWeight: 800,
-						fontSize: 64,
+						fontSize: isMobile ? 40 : 64,
 						letterSpacing: "-0.04em",
-						lineHeight: 0.95,
+						lineHeight: 1.05,
 						color: t.heroTitle,
 						marginBottom: 20,
 					}}
@@ -587,11 +590,11 @@ export function OverviewPage() {
 				</div>
 				<div
 					style={{
-						fontSize: 15,
+						fontSize: isMobile ? 14 : 15,
 						color: t.heroSub,
 						lineHeight: 1.7,
-						maxWidth: 480,
-						marginBottom: 36,
+						maxWidth: isMobile ? "100%" : 480,
+						marginBottom: isMobile ? 28 : 36,
 					}}
 				>
 					A complete kit for building React UIs - tokens, primitives, patterns, and interactions.
