@@ -81,7 +81,15 @@ export const Expanded: Story = {
 export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
-			<div className="dark" style={{ background: "#1c1917" }}>
+			<div
+				className="dark"
+				style={{
+					background: "#1c1917",
+					overflow: "hidden",
+					width: "100%",
+					boxSizing: "border-box",
+				}}
+			>
 				<Story />
 			</div>
 		),

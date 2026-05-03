@@ -129,7 +129,17 @@ export const WithFilters: Story = {
 export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
-			<div className="dark" style={{ background: "#1c1917", padding: 32, borderRadius: 8 }}>
+			<div
+				className="dark"
+				style={{
+					background: "#1c1917",
+					padding: 32,
+					borderRadius: 8,
+					overflow: "hidden",
+					width: "100%",
+					boxSizing: "border-box",
+				}}
+			>
 				<Story />
 			</div>
 		),

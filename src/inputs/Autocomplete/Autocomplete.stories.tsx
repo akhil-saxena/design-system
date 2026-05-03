@@ -269,7 +269,17 @@ export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [
 		(Story) => (
-			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+			<div
+				className="dark"
+				style={{
+					background: "#1c1917",
+					padding: 16,
+					borderRadius: 8,
+					overflow: "hidden",
+					width: "100%",
+					boxSizing: "border-box",
+				}}
+			>
 				<Story />
 			</div>
 		),

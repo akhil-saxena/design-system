@@ -246,7 +246,17 @@ export const DarkMode: Story = {
 	},
 	decorators: [
 		(Story) => (
-			<div className="dark" style={{ background: "#1c1917", padding: 24, borderRadius: 8 }}>
+			<div
+				className="dark"
+				style={{
+					background: "#1c1917",
+					padding: 24,
+					borderRadius: 8,
+					overflow: "hidden",
+					width: "100%",
+					boxSizing: "border-box",
+				}}
+			>
 				<Story />
 			</div>
 		),
@@ -327,7 +337,17 @@ export const PresenceDark: Story = {
 	},
 	decorators: [
 		(Story) => (
-			<div className="dark" style={{ background: "#1c1917", padding: 24, borderRadius: 8 }}>
+			<div
+				className="dark"
+				style={{
+					background: "#1c1917",
+					padding: 24,
+					borderRadius: 8,
+					overflow: "hidden",
+					width: "100%",
+					boxSizing: "border-box",
+				}}
+			>
 				<Story />
 			</div>
 		),
