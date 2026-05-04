@@ -61,10 +61,12 @@ export function buildMonthGrid(year: number, month: number, weekStart: 0 | 1 = 0
 	for (let i = 0; i < cells.length; i++) {
 		cells[i]!.weekIndex = Math.floor(i / 7);
 	}
-	// Chunk into 6 weeks of 7
+	// Chunk into weeks of 7, trimming the last week if all cells are out-of-month
 	const weeks: DayCell[][] = [];
 	for (let w = 0; w < 6; w++) {
-		weeks.push(cells.slice(w * 7, (w + 1) * 7));
+		const week = cells.slice(w * 7, (w + 1) * 7);
+		if (week.every((c) => !c.inMonth)) break;
+		weeks.push(week);
 	}
 	return { weeks, cells, weekStart, monthStart };
 }
