@@ -1,6 +1,6 @@
 import { type ButtonHTMLAttributes, type CSSProperties, type ReactNode, forwardRef } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "tertiary" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 /**
@@ -68,13 +68,6 @@ const variantStyles: Record<ButtonVariant, CSSProperties> = {
 	ghost: {
 		background: "transparent",
 		borderColor: "transparent",
-		color: "var(--ink-2)",
-	},
-	// Tertiary = transparent bg with visible border. Use when ghost is too invisible
-	// but secondary is too heavy — e.g. inline secondary actions alongside content.
-	tertiary: {
-		background: "transparent",
-		borderColor: "var(--ink-5)",
 		color: "var(--ink-2)",
 	},
 	// Danger = rich crimson, stays vivid in both themes (no pink flip in dark mode).
