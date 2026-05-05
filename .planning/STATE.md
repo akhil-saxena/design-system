@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-05-05)
 
 ## Current Position
 
-Phase: 17 of 27 (Simple Primitives)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-05-05 — 017-03 complete: RelativeTime component, 11 unit tests, 7 Storybook stories
+Phase: 17 of 27 (Simple Primitives) — COMPLETE
+Plan: 5 of 5 in current phase (phase complete)
+Status: Phase 17 complete — ready for Phase 18 (ConfirmDialog)
+Last activity: 2026-05-05 — 017-05 complete: barrel exports for Kbd + RelativeTime + Pagination, tsc clean, 33 Phase 17 tests green
 
-Progress: [██████░░░░░░░░░░░░░░] ~32% (phases 1–16 of 27 complete, phase 17 in progress 4/5)
+Progress: [██████░░░░░░░░░░░░░░] ~35% (phases 1–17 of 27 complete)
 
 ## Performance Metrics
 
@@ -32,6 +32,7 @@ Progress: [██████░░░░░░░░░░░░░░] ~32% (p
 | 17 plan 02 (Kbd) | 1 | ~8 min | ~8 min |
 | 17 plan 03 (RelativeTime) | 1 | ~8 min | ~8 min |
 | 17 plan 04 (Pagination) | 1 | ~8 min | ~8 min |
+| 17 plan 05 (barrel exports) | 1 | ~12 min | ~12 min |
 
 **Recent Trend:** No data yet for Milestone 2
 
@@ -46,6 +47,9 @@ Progress: [██████░░░░░░░░░░░░░░] ~32% (p
 - RelativeTime: `updateInterval={0}` disables live updates — used in DarkMode story to freeze values
 - Pagination: compact variant shows "N / M" text; full variant shows page buttons with ellipsis
 - Kbd: renders a semantic `<kbd>` element with `ds-atom-kbd` class
+- Barrel exports for new components go immediately after their category peer (not appended at end of src/index.ts)
+- Pagination biome fix: pre-tag items before map to avoid array-index keys on ellipsis; `noUncheckedIndexedAccess` requires `!` on bounds-checked array access despite biome S4325 false positive
+- Phase 17 (Kbd, RelativeTime, Pagination) fully shipped — all 33 tests pass, tsc clean, barrel exports live
 - Phases 24–27 are blocked pending second ingest of: `ds-navigation.jsx`, `ds-notifications.jsx`, `ds-patterns.jsx`, `ds-mediacards.jsx`, `ds-status.jsx`
 - ConfirmDialog uses always-light glass surface (rgba(255,255,255,.97)) — NOT body.dark token-driven
 - DataGrid depends on Badge, Checkbox, Button from Milestone 1 — confirmed shipped
@@ -73,5 +77,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-05
-Stopped at: 017-03-PLAN.md complete — RelativeTime component, 11 unit tests, 7 Storybook stories committed. Plans 017-02 and 017-04 also complete. Ready for 017-05 (barrel exports + verification).
+Stopped at: 017-05-PLAN.md complete — Phase 17 fully complete. Kbd, RelativeTime, Pagination exported from src/index.ts. tsc clean, 33 Phase 17 tests green. Ready for Phase 18 (ConfirmDialog).
 Resume file: None

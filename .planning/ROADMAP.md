@@ -22,7 +22,7 @@
 
 ### Milestone 2 — Advanced Components
 
-- [ ] **Phase 17: Simple Primitives** - Kbd, RelativeTime, and Pagination — three small display/interaction primitives
+- [x] **Phase 17: Simple Primitives** - Kbd, RelativeTime, and Pagination — three small display/interaction primitives
 - [ ] **Phase 18: ConfirmDialog** - ConfirmDialog (4-tone) and TypeToConfirm gate
 - [ ] **Phase 19: DataViz Primitives** - Sparkline, MiniDonut, and MiniBar SVG/CSS charts
 - [ ] **Phase 20: StatCard** - KPI card composing label, value, trend badge, and Sparkline
@@ -55,7 +55,7 @@
 - [x] 017-02-PLAN.md — Implement Kbd component + stories + tests
 - [x] 017-03-PLAN.md — Implement RelativeTime component + stories + tests
 - [x] 017-04-PLAN.md — Implement Pagination component + stories + tests
-- [ ] 017-05-PLAN.md — Add barrel exports to src/index.ts + full verification
+- [x] 017-05-PLAN.md — Add barrel exports to src/index.ts + full verification
 **UI hint**: yes
 
 ### Phase 18: ConfirmDialog
@@ -207,7 +207,7 @@
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1–16. Foundation & Core | Milestone 1 | — | Complete | Before 2026-05-05 |
-| 17. Simple Primitives | Milestone 2 | 4/5 | In progress | - |
+| 17. Simple Primitives | Milestone 2 | 5/5 | Complete | 2026-05-05 |
 | 18. ConfirmDialog | Milestone 2 | 0/TBD | Not started | - |
 | 19. DataViz Primitives | Milestone 2 | 0/TBD | Not started | - |
 | 20. StatCard | Milestone 2 | 0/TBD | Not started | - |
