@@ -34,7 +34,7 @@ describe("StatCard", () => {
 		const { container } = render(<StatCard label="L" value="1" change="+12%" changeDir="up" />);
 		const badge = container.querySelector<HTMLElement>("[data-part='badge']");
 		expect(badge).not.toBeNull();
-		expect(badge!.style.background).toBe("rgba(34,197,94,.1)");
+		expect(badge!.style.background).toBe("rgba(34, 197, 94, 0.1)");
 		expect(badge!.style.color).toBe("var(--green)");
 	});
 
@@ -42,7 +42,7 @@ describe("StatCard", () => {
 		const { container } = render(<StatCard label="L" value="1" change="-5%" changeDir="down" />);
 		const badge = container.querySelector<HTMLElement>("[data-part='badge']");
 		expect(badge).not.toBeNull();
-		expect(badge!.style.background).toBe("rgba(239,68,68,.08)");
+		expect(badge!.style.background).toBe("rgba(239, 68, 68, 0.08)");
 		expect(badge!.style.color).toBe("var(--red)");
 	});
 
