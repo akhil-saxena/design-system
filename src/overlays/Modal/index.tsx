@@ -61,8 +61,6 @@ export interface ModalProps {
  * - closeOnBackdropClick defaults to true; click on backdrop only (not panel) closes
  * - Animations namespaced (ds-atom-modal-fadein, ds-atom-modal-in) to avoid
  *   colliding with consumer-defined keyframes
- *
- * ConfirmDialog ships from this same file as a named variant export (D-287, D-356).
  */
 export function Modal({
 	open,
@@ -147,91 +145,5 @@ export function Modal({
 				</div>
 			</div>
 		</DSPortal>
-	);
-}
-
-// ─── ConfirmDialog - same-file variant export (D-287, D-356) ─────────
-
-export interface ConfirmDialogProps {
-	/** Controls visibility; returns null when false. */
-	open: boolean;
-	/** Called when the user dismisses or cancels the dialog. */
-	onClose: () => void;
-	/** Heading text for the confirmation dialog. */
-	title: ReactNode;
-	/** Supplemental explanation shown below the title; string gets `aria-describedby`, ReactNode renders as children. */
-	description?: ReactNode;
-	/** Label for the confirm action button.
-	 * @default "Confirm"
-	 */
-	confirmLabel?: string;
-	/** Label for the cancel action button.
-	 * @default "Cancel"
-	 */
-	cancelLabel?: string;
-	/** When true, uses `role="alertdialog"`, disables backdrop close, and styles confirm as `danger`.
-	 * @default false
-	 */
-	danger?: boolean;
-	/** Called when the user clicks the confirm button. */
-	onConfirm: () => void;
-}
-
-/**
- * ConfirmDialog - Modal-as-confirmation variant (D-287, D-356).
- *
- *   <ConfirmDialog
- *     open={open}
- *     onClose={close}
- *     onConfirm={doDelete}
- *     title="Delete application?"
- *     description="This cannot be undone."
- *     confirmLabel="Yes, delete"
- *     danger
- *   />
- *
- * When `danger=true`:
- * - role="alertdialog"
- * - closeOnBackdropClick=false (forces explicit Cancel/Confirm)
- * - Confirm button uses Button variant="danger"
- *
- * `description` accepts string or ReactNode. Strings flow to Modal's
- * `description` prop (gets aria-describedby wiring); ReactNode renders
- * inline as Modal children (no auto aria-describedby).
- */
-export function ConfirmDialog({
-	open,
-	onClose,
-	title,
-	description,
-	confirmLabel = "Confirm",
-	cancelLabel = "Cancel",
-	danger = false,
-	onConfirm,
-}: ConfirmDialogProps) {
-	const descriptionString = typeof description === "string" ? description : undefined;
-	const descriptionNode = typeof description !== "string" && description ? description : null;
-
-	return (
-		<Modal
-			open={open}
-			onClose={onClose}
-			title={title}
-			description={descriptionString}
-			role={danger ? "alertdialog" : "dialog"}
-			closeOnBackdropClick={!danger}
-			footer={
-				<>
-					<Button variant="ghost" onClick={onClose}>
-						{cancelLabel}
-					</Button>
-					<Button variant={danger ? "danger" : "primary"} onClick={onConfirm}>
-						{confirmLabel}
-					</Button>
-				</>
-			}
-		>
-			{descriptionNode}
-		</Modal>
 	);
 }

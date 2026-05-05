@@ -38,9 +38,7 @@ export {
 	type PopoverVariant,
 } from "./overlays/Popover";
 export {
-	ConfirmDialog,
 	Modal,
-	type ConfirmDialogProps,
 	type ModalProps,
 	type ModalRole,
 } from "./overlays/Modal";
