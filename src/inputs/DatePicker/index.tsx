@@ -256,7 +256,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 							disabled={isDisabled}
 							onClick={() => handleSelect(date)}
 						>
-							<span>{date.getDate()}</span>
+							<span className="ds-atom-datepicker-cell-num">{date.getDate()}</span>
 							{hasEvent ? (
 								<span className="ds-atom-datepicker-event-dot" aria-hidden="true" />
 							) : null}

@@ -1828,39 +1828,44 @@
 	background: var(--amber-l);
 	border-radius: 0;
 }
-/* v0.5.3 - half-cell light-amber bg behind start/end pills extends the
-   in-range bg under the rounded selected pill, eliminating the notch
-   artifact at range endpoints. Applies only on real ranges (start !== end);
-   1-day ranges render as standalone selected. */
+/* v0.6 — range endpoints: amber-l half-strip on the connected side + amber pill.
+   The cell itself carries the amber-l strip via a CSS gradient; the amber pill is
+   a ::before pseudo-element at z-index:0 painted on top of it. The old z:-1 ::before
+   approach was wrong: a z:-1 pseudo-element goes into the PARENT stacking context,
+   below the cell at z-auto. The cell's solid amber background (from is-selected)
+   painted over it entirely — only tiny corner-notch leaks from border-radius,
+   not the full half-strip the design requires. The new approach:
+     1. Cell background = gradient (transparent | amber-l split at 50%)
+     2. ::before at z:0 = full-inset amber pill with border-radius
+     3. .ds-atom-datepicker-cell-num at z:1 lifts the date number above the pill */
 .ds-atom-datepicker-cell.is-range-start,
 .ds-atom-datepicker-cell.is-range-end {
 	position: relative;
 }
-.ds-atom-datepicker-cell.is-range-start::before {
+.ds-atom-datepicker-cell.is-selected.is-range-start {
+	background: linear-gradient(to right, transparent 50%, var(--amber-l) 50%);
+	border-radius: 0;
+}
+.ds-atom-datepicker-cell.is-selected.is-range-end {
+	background: linear-gradient(to right, var(--amber-l) 50%, transparent 50%);
+	border-radius: 0;
+}
+.ds-atom-datepicker-cell.is-selected.is-range-start::before,
+.ds-atom-datepicker-cell.is-selected.is-range-end::before {
 	content: "";
 	position: absolute;
-	top: 0;
-	bottom: 0;
-	right: 0;
-	width: 50%;
-	background: var(--amber-l);
-	z-index: -1;
+	inset: 0;
+	background: var(--amber);
+	border-radius: 6px;
+	z-index: 0;
 }
-.ds-atom-datepicker-cell.is-range-end::before {
-	content: "";
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	width: 50%;
-	background: var(--amber-l);
-	z-index: -1;
+/* Lift the date number above the amber ::before pill. Applied unconditionally
+   so the number is always above any ::before on the cell. */
+.ds-atom-datepicker-cell-num {
+	position: relative;
+	z-index: 1;
 }
-/* v0.5.5 - hover state preservation for cells with state modifiers.
-   Without these explicit overrides, the generic .ds-atom-datepicker-cell:hover
-   rule wins on source order (equal specificity) and destroys the amber pill,
-   in-range bg, and v0.5.3 half-cell pseudo-elements. Each rule preserves the
-   state visual + adds a subtle hover feedback (filter brightness). */
+/* Hover state preservation. */
 .ds-atom-datepicker-cell.is-selected:hover:not(:disabled) {
 	background: var(--amber);
 	filter: brightness(0.92);
@@ -1869,14 +1874,19 @@
 	background: var(--amber-l);
 	filter: brightness(0.97);
 }
-/* No filter here - filter creates a stacking context that makes z-index:-1
-   ::before render above the cell background, causing a half-cell split.
-   Use explicit slightly-darker amber + filter:none to cancel any filter
-   inherited from the is-selected:hover rule at equal specificity. */
-.ds-atom-datepicker-cell.is-range-start:hover:not(:disabled),
-.ds-atom-datepicker-cell.is-range-end:hover:not(:disabled) {
-	background: #d97706;
+/* Range endpoints on hover: keep the gradient strip, cancel filter (would create
+   a stacking context), darken the pill via ::before. */
+.ds-atom-datepicker-cell.is-selected.is-range-start:hover:not(:disabled) {
+	background: linear-gradient(to right, transparent 50%, var(--amber-l) 50%);
 	filter: none;
+}
+.ds-atom-datepicker-cell.is-selected.is-range-end:hover:not(:disabled) {
+	background: linear-gradient(to right, var(--amber-l) 50%, transparent 50%);
+	filter: none;
+}
+.ds-atom-datepicker-cell.is-selected.is-range-start:hover:not(:disabled)::before,
+.ds-atom-datepicker-cell.is-selected.is-range-end:hover:not(:disabled)::before {
+	background: #d97706;
 }
 /* Today cell hover (only when not also selected/in-range/endpoint) - preserve
    amber dot indicator (rendered via ::after); use amber-l wash for hover feedback. */
@@ -1898,6 +1908,7 @@
 	height: 3px;
 	border-radius: 50%;
 	background: var(--ink-3);
+	z-index: 1;
 }
 .ds-atom-datepicker-cell.is-selected .ds-atom-datepicker-event-dot {
 	background: var(--ink);
@@ -1970,11 +1981,24 @@
 	background: rgba(245, 158, 11, 0.18);
 	filter: brightness(1.08);
 }
-.dark .ds-atom-datepicker-cell.is-range-start:hover:not(:disabled),
-.dark .ds-atom-datepicker-cell.is-range-end:hover:not(:disabled) {
-	/* Same fix: explicit filter:none cancels the brightness from is-selected:hover. */
-	background: #fbbf24;
+/* Dark mode range endpoints: translucent amber strip (matches is-in-range dark bg). */
+.dark .ds-atom-datepicker-cell.is-selected.is-range-start {
+	background: linear-gradient(to right, transparent 50%, rgba(245, 158, 11, 0.18) 50%);
+}
+.dark .ds-atom-datepicker-cell.is-selected.is-range-end {
+	background: linear-gradient(to right, rgba(245, 158, 11, 0.18) 50%, transparent 50%);
+}
+.dark .ds-atom-datepicker-cell.is-selected.is-range-start:hover:not(:disabled) {
+	background: linear-gradient(to right, transparent 50%, rgba(245, 158, 11, 0.18) 50%);
 	filter: none;
+}
+.dark .ds-atom-datepicker-cell.is-selected.is-range-end:hover:not(:disabled) {
+	background: linear-gradient(to right, rgba(245, 158, 11, 0.18) 50%, transparent 50%);
+	filter: none;
+}
+.dark .ds-atom-datepicker-cell.is-selected.is-range-start:hover:not(:disabled)::before,
+.dark .ds-atom-datepicker-cell.is-selected.is-range-end:hover:not(:disabled)::before {
+	background: #fbbf24;
 }
 .dark
 	.ds-atom-datepicker-cell.is-today:not(.is-selected):not(.is-in-range):not(.is-range-start):not(
