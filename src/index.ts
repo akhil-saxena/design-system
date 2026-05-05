@@ -42,6 +42,13 @@ export {
 	type ModalProps,
 	type ModalRole,
 } from "./overlays/Modal";
+export {
+	ConfirmDialog,
+	TypeToConfirm,
+	type ConfirmDialogProps,
+	type ConfirmDialogTone,
+	type TypeToConfirmProps,
+} from "./overlays/ConfirmDialog";
 export { Sheet, type SheetProps, type SheetSide } from "./overlays/Sheet";
 export { HoverCard, type HoverCardPlacement, type HoverCardProps } from "./overlays/HoverCard";
 export {
