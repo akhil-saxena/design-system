@@ -1,0 +1,20 @@
+{
+	"source_path": "/Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-confirmdialog.jsx",
+	"type": "SPEC",
+	"confidence": "high",
+	"manifest_override": true,
+	"title": "Confirmation Dialogs",
+	"summary": "Defines the ConfirmDialog and TypeToConfirm React components for the design system, specifying four tone variants (danger, warn, success, neutral) with their associated colors, icons, and button styles. Includes a type-to-confirm pattern for irreversible destructive actions. Exports all components to the global window object for use across the design system storybook.",
+	"scope": [
+		"ConfirmDialog",
+		"TypeToConfirm",
+		"ConfirmDialogSection",
+		"confirmation dialogs",
+		"tone variants",
+		"design system primitives"
+	],
+	"cross_refs": [],
+	"locked": false,
+	"precedence": null,
+	"notes": ""
+}

@@ -1,0 +1,22 @@
+{
+	"source_path": "/Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-dataviz.jsx",
+	"type": "SPEC",
+	"confidence": "high",
+	"manifest_override": true,
+	"title": "Data Viz — Stats Cards, Sparklines, Donut, Bar Chart, Relative Time, Alert Banners",
+	"summary": "Defines the implementation contracts for six data-visualisation primitives: Sparkline, MiniDonut, MiniBar, RelativeTime, stats-card compositions, and alert banners. Each component exposes a typed prop surface (dimensions, color tokens, data arrays) and precise SVG/CSS geometry that the system must honour.",
+	"scope": [
+		"Sparkline",
+		"MiniDonut",
+		"MiniBar",
+		"RelativeTime",
+		"StatsCards",
+		"AlertBanners",
+		"DataVizSection",
+		"design-system color tokens"
+	],
+	"cross_refs": [],
+	"locked": false,
+	"precedence": null,
+	"notes": ""
+}

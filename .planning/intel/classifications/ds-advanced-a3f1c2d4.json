@@ -1,0 +1,23 @@
+{
+	"source_path": "/Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-advanced.jsx",
+	"type": "SPEC",
+	"confidence": "high",
+	"manifest_override": true,
+	"title": "ds-advanced.jsx",
+	"summary": "Defines implementation contracts for eight advanced design-system components — CommandPalette, Accordion, Breadcrumbs, Pagination, Skeleton, EmptyStates, StarRating, and ContextMenu — specifying their DOM structure, interaction behaviour, CSS class names, and state contracts.",
+	"scope": [
+		"CommandPalette",
+		"Accordion",
+		"Breadcrumbs",
+		"Pagination",
+		"Skeleton",
+		"EmptyStates",
+		"StarRating",
+		"ContextMenu",
+		"design-system"
+	],
+	"cross_refs": [],
+	"locked": false,
+	"precedence": null,
+	"notes": ""
+}

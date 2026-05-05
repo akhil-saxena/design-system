@@ -1,0 +1,27 @@
+{
+	"source_path": "/Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-datagrid.jsx",
+	"type": "SPEC",
+	"confidence": "high",
+	"manifest_override": true,
+	"title": "Data Grid",
+	"summary": "Defines the interactive DataGrid component: a sortable, column-resizable, row-selectable table with bulk-action toolbar, status/priority badge rendering, and paginated footer. Specifies column schema (keys, widths, sortability, alignment), row data shape, status-to-badge mapping, and priority colour tokens. Exports the component via window assignment for global consumption.",
+	"scope": [
+		"DataGrid",
+		"DataGridSection",
+		"sortable columns",
+		"column resizing",
+		"row selection",
+		"bulk actions",
+		"pagination footer",
+		"ds-badge",
+		"ds-checkbox",
+		"ds-table",
+		"ds-btn",
+		"ds-page-btn",
+		"CSS design tokens (--red-vivid, --amber-vivid, --green-vivid, --mono, --ink-3, --ink-4, --rule, --amber)"
+	],
+	"cross_refs": [],
+	"locked": false,
+	"precedence": null,
+	"notes": ""
+}
