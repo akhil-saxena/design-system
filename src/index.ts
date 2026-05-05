@@ -22,6 +22,7 @@ export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from "./inpu
 export { Toggle, type ToggleProps } from "./inputs/Toggle";
 export { NumberStepper, type NumberStepperProps } from "./inputs/NumberStepper";
 export { RollingNumber, type RollingNumberProps } from "./display/RollingNumber";
+export { Sparkline, type SparklineProps } from "./display/Sparkline";
 export { RangeSlider, type RangeSliderProps } from "./inputs/RangeSlider";
 export { StarRating, type StarRatingProps, type StarRatingSize } from "./inputs/StarRating";
 export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./overlays/StickyNote";
