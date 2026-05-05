@@ -23,7 +23,7 @@
 ### Milestone 2 — Advanced Components
 
 - [x] **Phase 17: Simple Primitives** - Kbd, RelativeTime, and Pagination — three small display/interaction primitives
-- [ ] **Phase 18: ConfirmDialog** - ConfirmDialog (4-tone) and TypeToConfirm gate
+- [x] **Phase 18: ConfirmDialog** - ConfirmDialog (4-tone) and TypeToConfirm gate
 - [ ] **Phase 19: DataViz Primitives** - Sparkline, MiniDonut, and MiniBar SVG/CSS charts
 - [ ] **Phase 20: StatCard** - KPI card composing label, value, trend badge, and Sparkline
 - [ ] **Phase 21: ColorPicker** - Full gradient picker with hue/opacity bars, swatches, and inline variant
@@ -74,7 +74,7 @@
 - [x] 018-01-PLAN.md — Remove old ConfirmDialog from Modal/index.tsx + update barrel
 - [x] 018-02-PLAN.md — Implement new ConfirmDialog + TypeToConfirm + tests
 - [x] 018-03-PLAN.md — Add Storybook stories for ConfirmDialog + TypeToConfirm
-- [ ] 018-04-PLAN.md — Barrel exports for new location + full tsc + test suite gate
+- [x] 018-04-PLAN.md — Barrel exports for new location + full tsc + test suite gate
 **UI hint**: yes
 
 ### Phase 19: DataViz Primitives
@@ -218,7 +218,7 @@
 |-------|-----------|----------------|--------|-----------|
 | 1–16. Foundation & Core | Milestone 1 | — | Complete | Before 2026-05-05 |
 | 17. Simple Primitives | Milestone 2 | 5/5 | Complete | 2026-05-05 |
-| 18. ConfirmDialog | Milestone 2 | 3/4 | In progress | 2026-05-05 |
+| 18. ConfirmDialog | Milestone 2 | 4/4 | Complete | 2026-05-05 |
 | 19. DataViz Primitives | Milestone 2 | 0/4 | Not started | - |
 | 20. StatCard | Milestone 2 | 0/2 | Not started | - |
 | 21. ColorPicker | Milestone 2 | 0/TBD | Not started | - |
