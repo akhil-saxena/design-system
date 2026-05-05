@@ -99,7 +99,9 @@
   3. The card uses the `glass` surface class with correct padding and border-radius
   4. StatCard renders correctly in both light and dark mode in Storybook
   5. axe-core scan passes with zero violations
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 020-01-PLAN.md — StatCard component (index.tsx) + unit test suite (StatCard.test.tsx)
+- [ ] 020-02-PLAN.md — StatCard stories (StatCard.stories.tsx) + barrel export to src/index.ts + tsc + full test suite
 **UI hint**: yes
 
 ### Phase 21: ColorPicker
@@ -210,7 +212,7 @@
 | 17. Simple Primitives | Milestone 2 | 5/5 | Complete | 2026-05-05 |
 | 18. ConfirmDialog | Milestone 2 | 0/TBD | Not started | - |
 | 19. DataViz Primitives | Milestone 2 | 0/TBD | Not started | - |
-| 20. StatCard | Milestone 2 | 0/TBD | Not started | - |
+| 20. StatCard | Milestone 2 | 0/2 | Not started | - |
 | 21. ColorPicker | Milestone 2 | 0/TBD | Not started | - |
 | 22. CommandPalette | Milestone 2 | 0/TBD | Not started | - |
 | 23. DataGrid | Milestone 2 | 0/TBD | Not started | - |
