@@ -26,8 +26,8 @@
 - [x] **Phase 18: ConfirmDialog** - ConfirmDialog (4-tone) and TypeToConfirm gate
 - [x] **Phase 19: DataViz Primitives** - Sparkline, MiniDonut, and MiniBar SVG/CSS charts
 - [x] **Phase 20: StatCard** - KPI card composing label, value, trend badge, and Sparkline
-- [ ] **Phase 21: ColorPicker** - Full gradient picker with hue/opacity bars, swatches, and inline variant
-- [ ] **Phase 22: CommandPalette** - Cmd+K modal search with grouped results and keyboard navigation
+- [x] **Phase 21: ColorPicker** - Full gradient picker with hue/opacity bars, swatches, and inline variant
+- [x] **Phase 22: CommandPalette** - Cmd+K modal search with grouped results and keyboard navigation
 - [x] **Phase 23: DataGrid** - Sortable/resizable/selectable table with bulk actions and pagination
 - [ ] **Phase 24: Navigation** *(BLOCKED — awaiting ds-navigation.jsx ingest)* - TreeItem and CollapsibleSidebar
 - [ ] **Phase 25: NotificationCenter** *(BLOCKED — awaiting ds-notifications.jsx ingest)* - Notification panel and bell
