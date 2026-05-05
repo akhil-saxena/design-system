@@ -5064,3 +5064,41 @@
     transform: none;
   }
 }
+
+/* ─── DS atom: ColorPicker ──────────────────────────────────────────────
+   Most ColorPicker styles are inline (consistent with DatePicker / StatCard).
+   This block covers only what cannot be expressed inline:
+   pointer-events passthrough on thumbs, focus rings on keyboard-draggable
+   areas, and button-reset on swatch/strip cells. */
+
+/* Thumbs must not intercept pointer events — the parent track div owns drag. */
+.ds-atom-colorpicker-thumb {
+	pointer-events: none;
+	position: absolute;
+	transform: translate(-50%, -50%);
+}
+
+/* Focus ring on keyboard-draggable areas (role="slider"). */
+.ds-atom-colorpicker-canvas:focus-visible,
+.ds-atom-colorpicker-huebar:focus-visible,
+.ds-atom-colorpicker-opacitybar:focus-visible {
+	outline: none;
+	box-shadow: var(--focus-ring);
+	border-radius: 6px;
+}
+
+/* Preset swatch buttons and tonal strip cell buttons. */
+.ds-atom-colorpicker-swatch,
+.ds-atom-colorpicker-cell {
+	appearance: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	transition: transform 0.12s ease;
+}
+
+.ds-atom-colorpicker-swatch:focus-visible,
+.ds-atom-colorpicker-cell:focus-visible {
+	outline: none;
+	box-shadow: var(--focus-ring);
+}
