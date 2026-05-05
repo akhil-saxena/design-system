@@ -70,7 +70,11 @@
   3. Enter triggers confirm when the confirm button is enabled; Escape triggers cancel from anywhere in the dialog
   4. `TypeToConfirm` disables the confirm button until the user types exactly "DELETE" (or the override word); confirm button turns red when enabled
   5. Both components pass axe-core with zero violations in Storybook across both modes
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 018-01-PLAN.md — Remove old ConfirmDialog from Modal/index.tsx + update barrel
+- [ ] 018-02-PLAN.md — Implement new ConfirmDialog + TypeToConfirm + tests
+- [ ] 018-03-PLAN.md — Add Storybook stories for ConfirmDialog + TypeToConfirm
+- [ ] 018-04-PLAN.md — Barrel exports for new location + full tsc + test suite gate
 **UI hint**: yes
 
 ### Phase 19: DataViz Primitives
@@ -85,7 +89,11 @@
   3. `MiniBar` renders flex-bottom-aligned bars where bar heights are proportional to their values with a 70% max height, value labels above, and optional category labels below
   4. All three accept any CSS color value or token reference and render correctly in both light and dark mode
   5. All three pass axe-core with zero violations in Storybook
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 019-01-PLAN.md — Sparkline component + stories + tests
+- [ ] 019-02-PLAN.md — MiniDonut component + stories + tests
+- [ ] 019-03-PLAN.md — MiniBar component + stories + tests
+- [ ] 019-04-PLAN.md — Barrel exports to src/index.ts + tsc + full test suite
 
 ### Phase 20: StatCard
 **Goal**: Developers can drop a single `StatCard` component onto a dashboard and show a KPI with its trend and history in one unit
@@ -210,8 +218,8 @@
 |-------|-----------|----------------|--------|-----------|
 | 1–16. Foundation & Core | Milestone 1 | — | Complete | Before 2026-05-05 |
 | 17. Simple Primitives | Milestone 2 | 5/5 | Complete | 2026-05-05 |
-| 18. ConfirmDialog | Milestone 2 | 0/TBD | Not started | - |
-| 19. DataViz Primitives | Milestone 2 | 0/TBD | Not started | - |
+| 18. ConfirmDialog | Milestone 2 | 0/4 | Not started | - |
+| 19. DataViz Primitives | Milestone 2 | 0/4 | Not started | - |
 | 20. StatCard | Milestone 2 | 0/2 | Not started | - |
 | 21. ColorPicker | Milestone 2 | 0/TBD | Not started | - |
 | 22. CommandPalette | Milestone 2 | 0/TBD | Not started | - |
