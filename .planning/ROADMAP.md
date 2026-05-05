@@ -72,8 +72,8 @@
   5. Both components pass axe-core with zero violations in Storybook across both modes
 **Plans**: 4 plans
 - [x] 018-01-PLAN.md — Remove old ConfirmDialog from Modal/index.tsx + update barrel
-- [ ] 018-02-PLAN.md — Implement new ConfirmDialog + TypeToConfirm + tests
-- [ ] 018-03-PLAN.md — Add Storybook stories for ConfirmDialog + TypeToConfirm
+- [x] 018-02-PLAN.md — Implement new ConfirmDialog + TypeToConfirm + tests
+- [x] 018-03-PLAN.md — Add Storybook stories for ConfirmDialog + TypeToConfirm
 - [ ] 018-04-PLAN.md — Barrel exports for new location + full tsc + test suite gate
 **UI hint**: yes
 
@@ -218,7 +218,7 @@
 |-------|-----------|----------------|--------|-----------|
 | 1–16. Foundation & Core | Milestone 1 | — | Complete | Before 2026-05-05 |
 | 17. Simple Primitives | Milestone 2 | 5/5 | Complete | 2026-05-05 |
-| 18. ConfirmDialog | Milestone 2 | 0/4 | Not started | - |
+| 18. ConfirmDialog | Milestone 2 | 3/4 | In progress | 2026-05-05 |
 | 19. DataViz Primitives | Milestone 2 | 0/4 | Not started | - |
 | 20. StatCard | Milestone 2 | 0/2 | Not started | - |
 | 21. ColorPicker | Milestone 2 | 0/TBD | Not started | - |

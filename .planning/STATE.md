@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-05-05)
 ## Current Position
 
 Phase: 18 of 27 (ConfirmDialog) — IN PROGRESS
-Plan: 2 of 4 in current phase
-Status: Phase 18 plan 02 complete — 4-tone ConfirmDialog + TypeToConfirm implemented, 15 tests pass, barrel exports live
-Last activity: 2026-05-05 — 018-02 complete: ConfirmDialog + TypeToConfirm components shipped with full test suite
+Plan: 3 of 4 in current phase
+Status: Phase 18 plan 03 complete — Storybook stories for ConfirmDialog and TypeToConfirm shipped (6 exports, DarkMode always-light verification, TypeToConfirm gate demo)
+Last activity: 2026-05-05 — 018-03 complete: ConfirmDialog.stories.tsx with 6 story exports, tsc clean
 
 Progress: [██████░░░░░░░░░░░░░░] ~35% (phases 1–17 of 27 complete)
 
@@ -35,6 +35,7 @@ Progress: [██████░░░░░░░░░░░░░░] ~35% (p
 | 17 plan 05 (barrel exports) | 1 | ~12 min | ~12 min |
 | 18 plan 01 (remove old ConfirmDialog) | 1 | ~5 min | ~5 min |
 | 18 plan 02 (ConfirmDialog + TypeToConfirm) | 1 | ~4 min | ~4 min |
+| 18 plan 03 (ConfirmDialog stories) | 1 | ~5 min | ~5 min |
 
 **Recent Trend:** No data yet for Milestone 2
 
@@ -54,6 +55,7 @@ Progress: [██████░░░░░░░░░░░░░░] ~35% (p
 - Phase 17 (Kbd, RelativeTime, Pagination) fully shipped — all 33 tests pass, tsc clean, barrel exports live
 - Phase 18 plan 01: old binary-danger ConfirmDialog removed from Modal/index.tsx and src/index.ts barrel — namespace clear for new 4-tone component in 018-02
 - Phase 18 plan 02: 4-tone ConfirmDialog + TypeToConfirm shipped — always-light rgba panel, DSPortal + useFocusTrap, document-level keyboard handlers, 15 tests pass, barrel exports live
+- Phase 18 plan 03: Storybook stories shipped — 6 exports (Danger, Warn, Success, Neutral, DarkMode, TypeToConfirmStory); DarkMode story verifies always-light panel in dark wrapper; TypeToConfirmStory demos guardWord=DELETE gate
 - Phases 24–27 are blocked pending second ingest of: `ds-navigation.jsx`, `ds-notifications.jsx`, `ds-patterns.jsx`, `ds-mediacards.jsx`, `ds-status.jsx`
 - ConfirmDialog uses always-light glass surface (rgba(255,255,255,.97)) — NOT body.dark token-driven
 - DataGrid depends on Badge, Checkbox, Button from Milestone 1 — confirmed shipped
@@ -81,5 +83,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-05
-Stopped at: 018-02-PLAN.md complete — ConfirmDialog + TypeToConfirm shipped. 15 tests pass. Barrel exports live. Ready for 018-03 (stories).
+Stopped at: 018-03-PLAN.md complete — ConfirmDialog.stories.tsx shipped. 6 story exports. tsc clean. Ready for 018-04 (if any) or next phase.
 Resume file: None
