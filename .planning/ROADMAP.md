@@ -71,7 +71,7 @@
   4. `TypeToConfirm` disables the confirm button until the user types exactly "DELETE" (or the override word); confirm button turns red when enabled
   5. Both components pass axe-core with zero violations in Storybook across both modes
 **Plans**: 4 plans
-- [ ] 018-01-PLAN.md — Remove old ConfirmDialog from Modal/index.tsx + update barrel
+- [x] 018-01-PLAN.md — Remove old ConfirmDialog from Modal/index.tsx + update barrel
 - [ ] 018-02-PLAN.md — Implement new ConfirmDialog + TypeToConfirm + tests
 - [ ] 018-03-PLAN.md — Add Storybook stories for ConfirmDialog + TypeToConfirm
 - [ ] 018-04-PLAN.md — Barrel exports for new location + full tsc + test suite gate

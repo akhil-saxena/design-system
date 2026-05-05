@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-05-05)
 
 **Core value:** A pixel-precise, fully accessible React + TypeScript design system for JobDash — every component passes axe-core with zero violations, covers light and dark mode, and adheres to the cream/ink/amber visual identity.
-**Current focus:** Phase 17 — Simple Primitives (Kbd, RelativeTime, Pagination)
+**Current focus:** Phase 18 — ConfirmDialog
 
 ## Current Position
 
-Phase: 17 of 27 (Simple Primitives) — COMPLETE
-Plan: 5 of 5 in current phase (phase complete)
-Status: Phase 17 complete — ready for Phase 18 (ConfirmDialog)
-Last activity: 2026-05-05 — 017-05 complete: barrel exports for Kbd + RelativeTime + Pagination, tsc clean, 33 Phase 17 tests green
+Phase: 18 of 27 (ConfirmDialog) — IN PROGRESS
+Plan: 1 of 4 in current phase
+Status: Phase 18 plan 01 complete — ConfirmDialog namespace cleared from Modal; ready for 018-02
+Last activity: 2026-05-05 — 018-01 complete: old ConfirmDialog removed from Modal/index.tsx and barrel, tsc clean
 
 Progress: [██████░░░░░░░░░░░░░░] ~35% (phases 1–17 of 27 complete)
 
@@ -33,6 +33,7 @@ Progress: [██████░░░░░░░░░░░░░░] ~35% (p
 | 17 plan 03 (RelativeTime) | 1 | ~8 min | ~8 min |
 | 17 plan 04 (Pagination) | 1 | ~8 min | ~8 min |
 | 17 plan 05 (barrel exports) | 1 | ~12 min | ~12 min |
+| 18 plan 01 (remove old ConfirmDialog) | 1 | ~5 min | ~5 min |
 
 **Recent Trend:** No data yet for Milestone 2
 
@@ -50,6 +51,7 @@ Progress: [██████░░░░░░░░░░░░░░] ~35% (p
 - Barrel exports for new components go immediately after their category peer (not appended at end of src/index.ts)
 - Pagination biome fix: pre-tag items before map to avoid array-index keys on ellipsis; `noUncheckedIndexedAccess` requires `!` on bounds-checked array access despite biome S4325 false positive
 - Phase 17 (Kbd, RelativeTime, Pagination) fully shipped — all 33 tests pass, tsc clean, barrel exports live
+- Phase 18 plan 01: old binary-danger ConfirmDialog removed from Modal/index.tsx and src/index.ts barrel — namespace clear for new 4-tone component in 018-02
 - Phases 24–27 are blocked pending second ingest of: `ds-navigation.jsx`, `ds-notifications.jsx`, `ds-patterns.jsx`, `ds-mediacards.jsx`, `ds-status.jsx`
 - ConfirmDialog uses always-light glass surface (rgba(255,255,255,.97)) — NOT body.dark token-driven
 - DataGrid depends on Badge, Checkbox, Button from Milestone 1 — confirmed shipped
@@ -77,5 +79,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-05
-Stopped at: 017-05-PLAN.md complete — Phase 17 fully complete. Kbd, RelativeTime, Pagination exported from src/index.ts. tsc clean, 33 Phase 17 tests green. Ready for Phase 18 (ConfirmDialog).
+Stopped at: 018-01-PLAN.md complete — old ConfirmDialog stripped from Modal/index.tsx and barrel. tsc clean. Ready for 018-02 (new ConfirmDialog + TypeToConfirm).
 Resume file: None
