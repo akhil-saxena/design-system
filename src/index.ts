@@ -98,6 +98,8 @@ export {
 	type DateRangePickerProps,
 } from "./inputs/DateRangePicker";
 export { Autocomplete, type AutocompleteProps } from "./inputs/Autocomplete";
+export { ColorPicker, type ColorPickerProps } from "./inputs/ColorPicker";
+export { ColorInput, type ColorInputProps } from "./inputs/ColorPicker/ColorInput";
 
 export {
 	SegmentedControl,
