@@ -4822,3 +4822,110 @@
 	border-color: rgba(255, 255, 255, 0.18);
 	color: var(--ink);
 }
+/* ─── DS atom: RelativeTime ─────────────────────────────────────────
+   Inline relative timestamp. Mono font, cursor-default. Token-driven. */
+.ds-atom-relative-time {
+	font-family: var(--mono);
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--ink-2);
+	cursor: default;
+}
+/* ─── DS atom: Pagination ────────────────────────────────────────────
+   Page navigation: prev/next icon buttons + numbered page buttons + ellipsis. */
+.ds-atom-pagination {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.ds-atom-pagination-list {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.ds-atom-pagination-icbtn {
+	width: 28px;
+	height: 28px;
+	border-radius: 7px;
+	border: 1px solid var(--rule);
+	background: var(--g-bg);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--ink-2);
+	cursor: pointer;
+	transition: all 0.15s;
+	outline: none;
+}
+.ds-atom-pagination-icbtn:hover:not(:disabled) {
+	background: var(--cream-2);
+	border-color: rgba(0, 0, 0, 0.12);
+}
+.ds-atom-pagination-icbtn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+.ds-atom-pagination-icbtn:focus-visible {
+	outline: none;
+	box-shadow: var(--focus-ring);
+	border-color: var(--focus);
+}
+.dark .ds-atom-pagination-icbtn:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: var(--ink-4);
+}
+.ds-atom-pagination-btn {
+	width: 28px;
+	height: 28px;
+	border-radius: 7px;
+	border: 1px solid transparent;
+	background: transparent;
+	font-size: 12px;
+	font-weight: 400;
+	cursor: pointer;
+	color: var(--ink-2);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.12s;
+	font-family: var(--font);
+}
+.ds-atom-pagination-btn:hover:not([aria-current="page"]):not(:disabled) {
+	background: var(--cream-2);
+}
+.ds-atom-pagination-btn[aria-current="page"] {
+	background: var(--ink);
+	color: var(--cream);
+	font-weight: 700;
+	cursor: default;
+}
+.ds-atom-pagination-btn:focus-visible {
+	outline: none;
+	box-shadow: var(--focus-ring);
+	border-color: var(--focus);
+}
+.ds-atom-pagination-ellipsis {
+	width: 28px;
+	height: 28px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	color: var(--ink-4);
+	pointer-events: none;
+	user-select: none;
+}
+.ds-atom-pagination-label {
+	font-family: var(--mono);
+	font-size: 10px;
+	color: var(--ink-4);
+	margin-left: 6px;
+}
+.ds-atom-pagination-count {
+	font-family: var(--mono);
+	font-size: 11px;
+	font-weight: 700;
+}
