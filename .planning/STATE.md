@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-05-05)
 ## Current Position
 
 Phase: 17 of 27 (Simple Primitives)
-Plan: 1 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-05-05 — 017-01 complete: CSS blocks for Kbd, RelativeTime, Pagination appended to primitives.css
+Last activity: 2026-05-05 — 017-03 complete: RelativeTime component, 11 unit tests, 7 Storybook stories
 
-Progress: [██████░░░░░░░░░░░░░░] ~30% (phases 1–16 of 27 complete, phase 17 in progress 1/5)
+Progress: [██████░░░░░░░░░░░░░░] ~32% (phases 1–16 of 27 complete, phase 17 in progress 4/5)
 
 ## Performance Metrics
 
@@ -29,6 +29,9 @@ Progress: [██████░░░░░░░░░░░░░░] ~30% (p
 |-------|-------|-------|----------|
 | 1–16 (Milestone 1) | — | — | — |
 | 17 plan 01 | 1 | ~8 min | ~8 min |
+| 17 plan 02 (Kbd) | 1 | ~8 min | ~8 min |
+| 17 plan 03 (RelativeTime) | 1 | ~8 min | ~8 min |
+| 17 plan 04 (Pagination) | 1 | ~8 min | ~8 min |
 
 **Recent Trend:** No data yet for Milestone 2
 
@@ -38,6 +41,11 @@ Progress: [██████░░░░░░░░░░░░░░] ~30% (p
 
 ### Decisions
 
+- RelativeTime: `globalThis.setInterval/clearInterval` (not `window.*`) for SSR/jsdom compatibility
+- RelativeTime: `diffMin === 0` → `"0m ago"` per spec — no "just now" special case
+- RelativeTime: `updateInterval={0}` disables live updates — used in DarkMode story to freeze values
+- Pagination: compact variant shows "N / M" text; full variant shows page buttons with ellipsis
+- Kbd: renders a semantic `<kbd>` element with `ds-atom-kbd` class
 - Phases 24–27 are blocked pending second ingest of: `ds-navigation.jsx`, `ds-notifications.jsx`, `ds-patterns.jsx`, `ds-mediacards.jsx`, `ds-status.jsx`
 - ConfirmDialog uses always-light glass surface (rgba(255,255,255,.97)) — NOT body.dark token-driven
 - DataGrid depends on Badge, Checkbox, Button from Milestone 1 — confirmed shipped
@@ -65,5 +73,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-05
-Stopped at: 017-01-PLAN.md complete — CSS blocks appended to primitives.css. Ready for 017-02 (Kbd), 017-03 (RelativeTime), 017-04 (Pagination) in parallel.
+Stopped at: 017-03-PLAN.md complete — RelativeTime component, 11 unit tests, 7 Storybook stories committed. Plans 017-02 and 017-04 also complete. Ready for 017-05 (barrel exports + verification).
 Resume file: None
