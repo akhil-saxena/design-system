@@ -124,6 +124,12 @@ export { Tabs, type TabsProps, type TabItem } from "./data-display/Tabs";
 export { Table, type TableRootProps, type TableHeaderCellProps } from "./data-display/Table";
 export { Calendar, type CalendarProps, type CalendarEvent } from "./data-display/Calendar";
 export { Pagination, type PaginationProps } from "./data-display/Pagination";
+export {
+	DataGrid,
+	type DataGridColumn,
+	type DataGridProps,
+	type DataGridRow,
+} from "./data-display/DataGrid";
 export { RichText, type RichTextProps } from "./interaction/RichText";
 export { AppShell, type AppShellProps } from "./layout/AppShell";
 export { AppBar, type AppBarProps, type AppBarVariant } from "./layout/AppBar";
