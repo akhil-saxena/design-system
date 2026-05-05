@@ -75,7 +75,7 @@ Each task was committed atomically:
 1. **Task 1: Write StatCard test suite (RED)** - `9424ff1` (test)
 2. **Task 2: Implement StatCard component (GREEN)** - `230613a` (feat)
 
-**Plan metadata:** (docs commit below)
+**Plan metadata:** `c731010` (docs: complete plan)
 
 _TDD: RED commit (test only) → GREEN commit (component + test fix)_
 
