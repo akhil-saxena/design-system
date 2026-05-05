@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-05-05)
 
 **Core value:** A pixel-precise, fully accessible React + TypeScript design system for JobDash — every component passes axe-core with zero violations, covers light and dark mode, and adheres to the cream/ink/amber visual identity.
-**Current focus:** Phase 18 — ConfirmDialog
+**Current focus:** Phase 20 — StatCard
 
 ## Current Position
 
-Phase: 19 of 27 (DataViz Primitives)
-Plan: 4 of 4 in current phase
-Status: Phase 18 complete — all 4 plans shipped; barrel exports verified, tsc clean, 15/15 ConfirmDialog tests pass
-Last activity: 2026-05-05 — 018-04 complete: phase gate passed (tsc exits 0, 794/797 tests pass, 15 Phase 18 tests pass)
+Phase: 20 of 27 (StatCard)
+Plan: 1 of 2 in current phase
+Status: Phase 19 complete — all 4 plans shipped; Sparkline, MiniDonut, MiniBar exported, tsc clean, 18/18 Phase 19 tests pass
+Last activity: 2026-05-05 — 019-04 complete: phase gate passed (tsc exits 0, 812/815 tests pass, 18 Phase 19 tests pass)
 
-Progress: [██████░░░░░░░░░░░░░░] ~35% (phases 1–17 of 27 complete)
+Progress: [███████░░░░░░░░░░░░░] ~37% (phases 1–19 of 27 complete)
 
 ## Performance Metrics
 
@@ -37,6 +37,10 @@ Progress: [██████░░░░░░░░░░░░░░] ~35% (p
 | 18 plan 02 (ConfirmDialog + TypeToConfirm) | 1 | ~4 min | ~4 min |
 | 18 plan 03 (ConfirmDialog stories) | 1 | ~5 min | ~5 min |
 | 18 plan 04 (phase gate: tsc + vitest) | 1 | ~4 min | ~4 min |
+| 19 plan 01 (Sparkline component) | 1 | — | — |
+| 19 plan 02 (MiniDonut component) | 1 | — | — |
+| 19 plan 03 (MiniBar component) | 1 | — | — |
+| 19 plan 04 (barrel exports + phase gate) | 1 | ~5 min | ~5 min |
 
 **Recent Trend:** No data yet for Milestone 2
 
@@ -58,6 +62,7 @@ Progress: [██████░░░░░░░░░░░░░░] ~35% (p
 - Phase 18 plan 02: 4-tone ConfirmDialog + TypeToConfirm shipped — always-light rgba panel, DSPortal + useFocusTrap, document-level keyboard handlers, 15 tests pass, barrel exports live
 - Phase 18 plan 03: Storybook stories shipped — 6 exports (Danger, Warn, Success, Neutral, DarkMode, TypeToConfirmStory); DarkMode story verifies always-light panel in dark wrapper; TypeToConfirmStory demos guardWord=DELETE gate
 - Phase 18 plan 04: Phase gate passed — barrel exports verified (ConfirmDialog, TypeToConfirm, 3 prop types from ./overlays/ConfirmDialog); tsc exits 0; 15/15 Phase 18 tests pass; 3 pre-existing failures (calendarGrid, Calendar, CopyToClipboard) unchanged — Phase 18 fully complete
+- Phase 19 plan 04: Phase gate passed — Sparkline already exported by 019-01; MiniDonut + MiniBar barrel exports added; tsc exits 0; 18/18 Phase 19 tests pass; 3 pre-existing failures unchanged — Phase 19 fully complete
 - Phases 24–27 are blocked pending second ingest of: `ds-navigation.jsx`, `ds-notifications.jsx`, `ds-patterns.jsx`, `ds-mediacards.jsx`, `ds-status.jsx`
 - ConfirmDialog uses always-light glass surface (rgba(255,255,255,.97)) — NOT body.dark token-driven
 - DataGrid depends on Badge, Checkbox, Button from Milestone 1 — confirmed shipped
@@ -85,5 +90,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-05
-Stopped at: 018-04-PLAN.md complete — Phase 18 gate passed. tsc exits 0. 15/15 ConfirmDialog tests pass. Phase 18 fully complete. Ready for Phase 19.
+Stopped at: 019-04-PLAN.md complete — Phase 19 gate passed. tsc exits 0. 18/18 Phase 19 tests pass (7 Sparkline + 6 MiniDonut + 5 MiniBar). Phase 19 fully complete. Ready for Phase 20.
 Resume file: None

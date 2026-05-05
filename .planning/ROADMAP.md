@@ -24,7 +24,7 @@
 
 - [x] **Phase 17: Simple Primitives** - Kbd, RelativeTime, and Pagination — three small display/interaction primitives
 - [x] **Phase 18: ConfirmDialog** - ConfirmDialog (4-tone) and TypeToConfirm gate
-- [ ] **Phase 19: DataViz Primitives** - Sparkline, MiniDonut, and MiniBar SVG/CSS charts
+- [x] **Phase 19: DataViz Primitives** - Sparkline, MiniDonut, and MiniBar SVG/CSS charts
 - [ ] **Phase 20: StatCard** - KPI card composing label, value, trend badge, and Sparkline
 - [ ] **Phase 21: ColorPicker** - Full gradient picker with hue/opacity bars, swatches, and inline variant
 - [ ] **Phase 22: CommandPalette** - Cmd+K modal search with grouped results and keyboard navigation
@@ -90,10 +90,10 @@
   4. All three accept any CSS color value or token reference and render correctly in both light and dark mode
   5. All three pass axe-core with zero violations in Storybook
 **Plans**: 4 plans
-- [ ] 019-01-PLAN.md — Sparkline component + stories + tests
-- [ ] 019-02-PLAN.md — MiniDonut component + stories + tests
-- [ ] 019-03-PLAN.md — MiniBar component + stories + tests
-- [ ] 019-04-PLAN.md — Barrel exports to src/index.ts + tsc + full test suite
+- [x] 019-01-PLAN.md — Sparkline component + stories + tests
+- [x] 019-02-PLAN.md — MiniDonut component + stories + tests
+- [x] 019-03-PLAN.md — MiniBar component + stories + tests
+- [x] 019-04-PLAN.md — Barrel exports to src/index.ts + tsc + full test suite
 
 ### Phase 20: StatCard
 **Goal**: Developers can drop a single `StatCard` component onto a dashboard and show a KPI with its trend and history in one unit
@@ -219,7 +219,7 @@
 | 1–16. Foundation & Core | Milestone 1 | — | Complete | Before 2026-05-05 |
 | 17. Simple Primitives | Milestone 2 | 5/5 | Complete | 2026-05-05 |
 | 18. ConfirmDialog | Milestone 2 | 4/4 | Complete | 2026-05-05 |
-| 19. DataViz Primitives | Milestone 2 | 0/4 | Not started | - |
+| 19. DataViz Primitives | Milestone 2 | 4/4 | Complete | 2026-05-05 |
 | 20. StatCard | Milestone 2 | 0/2 | Not started | - |
 | 21. ColorPicker | Milestone 2 | 0/TBD | Not started | - |
 | 22. CommandPalette | Milestone 2 | 0/TBD | Not started | - |
