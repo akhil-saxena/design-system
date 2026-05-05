@@ -1,0 +1,23 @@
+{
+	"source_path": "/Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-mediacards.jsx",
+	"type": "SPEC",
+	"confidence": "high",
+	"manifest_override": true,
+	"title": "Media Cards Section",
+	"summary": "JSX implementation specification for media card components including MediaCard with hover overlays/badges, GalleryCard with mosaic grid, and PlaceholderImg with configurable aspect ratios (16:9, 4:3, 1:1, 3:4). Defines visual contracts for cards with image/cover areas, hover states, and gallery grid patterns.",
+	"scope": [
+		"MediaCard",
+		"GalleryCard",
+		"PlaceholderImg",
+		"MediaCardsSection",
+		"aspect ratios",
+		"hover overlays",
+		"badges",
+		"gallery grid",
+		"mosaic layout"
+	],
+	"cross_refs": [],
+	"locked": false,
+	"precedence": null,
+	"notes": ""
+}

@@ -29,10 +29,10 @@
 - [x] **Phase 21: ColorPicker** - Full gradient picker with hue/opacity bars, swatches, and inline variant
 - [x] **Phase 22: CommandPalette** - Cmd+K modal search with grouped results and keyboard navigation
 - [x] **Phase 23: DataGrid** - Sortable/resizable/selectable table with bulk actions and pagination
-- [ ] **Phase 24: Navigation** *(BLOCKED — awaiting ds-navigation.jsx ingest)* - TreeItem and CollapsibleSidebar
-- [ ] **Phase 25: NotificationCenter** *(BLOCKED — awaiting ds-notifications.jsx ingest)* - Notification panel and bell
-- [ ] **Phase 26: FileUploadZone** *(BLOCKED — awaiting ds-patterns.jsx ingest)* - Drag-and-drop file upload area
-- [ ] **Phase 27: MediaCard + StatusPages** *(BLOCKED — awaiting ds-mediacards.jsx + ds-status.jsx ingest)* - Media card and error/status page templates
+- [ ] **Phase 24: Navigation** - TreeItem and CollapsibleSidebar
+- [ ] **Phase 25: NotificationCenter** - Notification panel + InlineBanner sibling variant
+- [ ] **Phase 26: FileUploadZone** - Drag-and-drop file upload area
+- [ ] **Phase 27: MediaCard + StatusPages** - MediaCard + GalleryCard + PlaceholderImg + 4 StatusPages (404/500/Maintenance/Offline)
 
 ---
 
@@ -169,53 +169,66 @@
 ### Phase 24: Navigation
 **Goal**: Developers can compose hierarchical tree navigation and a collapsible sidebar from purpose-built components
 **Depends on**: Phases 1–16
-**Requirements**: REQ-24-01
-**Status**: blocked
-**Blocker**: Awaiting ingest of `ds-navigation.jsx` — TreeItem and CollapsibleSidebar specs not yet classified
+**Requirements**: REQ-treeitem, REQ-collapsiblesidebar
+**Status**: ready
 **Estimated components**: 2 (TreeItem, CollapsibleSidebar)
+**Source**: design_handoff/design-system/ds-navigation.jsx
 **Success Criteria** (what must be TRUE):
-  1. [To be defined after ds-navigation.jsx ingest]
+  1. TreeItem renders a hierarchical nav row with depth indentation, chevron, optional badge, and count
+  2. CollapsibleSidebar toggles between 220px expanded and 56px collapsed widths with logo + items + collapse toggle
+  3. Active state visually distinct from hover state
+  4. Both pass axe-core with zero violations in light + dark mode
 **Plans**: TBD
 
 ### Phase 25: NotificationCenter
 **Goal**: Users can view, dismiss, and interact with in-app notifications via a notification panel
 **Depends on**: Phases 1–16
-**Requirements**: REQ-25-01
-**Status**: blocked
-**Blocker**: Awaiting ingest of `ds-notifications.jsx` — NotificationCenter spec not yet classified
-**Estimated components**: 1 (NotificationCenter)
+**Requirements**: REQ-notificationcenter
+**Status**: ready
+**Estimated components**: 2 (NotificationCenter, InlineBanner)
+**Source**: design_handoff/design-system/ds-notifications.jsx
 **Success Criteria** (what must be TRUE):
-  1. [To be defined after ds-notifications.jsx ingest]
+  1. NotificationCenter renders grouped notifications with unread state, mark-all-read action, per-item dismiss
+  2. InlineBanner sibling variant renders as a flat in-page banner using shared notification primitives
+  3. Both pass axe-core with zero violations in light + dark mode
 **Plans**: TBD
 
 ### Phase 26: FileUploadZone
 **Goal**: Users can upload files by dragging and dropping onto a dedicated drop zone
 **Depends on**: Phases 1–16
-**Requirements**: REQ-26-01
-**Status**: blocked
-**Blocker**: Awaiting ingest of `ds-patterns.jsx` — FileUploadZone spec not yet classified
+**Requirements**: REQ-fileuploadzone
+**Status**: ready
 **Estimated components**: 1 (FileUploadZone)
+**Source**: design_handoff/design-system/ds-patterns.jsx (FileUploadZone section only — Timeline/Stepper/NotificationInbox/FilterBar deferred)
 **Success Criteria** (what must be TRUE):
-  1. [To be defined after ds-patterns.jsx ingest]
+  1. Drop zone accepts file drag-and-drop with click-to-browse fallback
+  2. Per-file animated progress bar during upload
+  3. File list shows thumbnail + extension badge + remove button per entry
+  4. Validation behavior to be pinned in plan (CONSTRAINT-019)
+  5. Passes axe-core with zero violations in light + dark mode
 **Plans**: TBD
 
 ### Phase 27: MediaCard + StatusPages
-**Goal**: Developers can render image/media cards with hover overlays and drop-in 404/500/maintenance/offline page templates
+**Goal**: Developers can render image/media cards with hover overlays, mosaic gallery layouts, and drop-in 404/500/maintenance/offline page templates
 **Depends on**: Phases 1–16
-**Requirements**: REQ-27-01
-**Status**: blocked
-**Blocker**: Awaiting ingest of `ds-mediacards.jsx` and `ds-status.jsx` — MediaCard and StatusPages specs not yet classified
-**Estimated components**: 2 (MediaCard, StatusPages)
+**Requirements**: REQ-mediacard, REQ-gallerycard, REQ-statuspages
+**Status**: ready
+**Estimated components**: 4 (MediaCard, GalleryCard, PlaceholderImg, StatusPages)
+**Source**: design_handoff/design-system/ds-mediacards.jsx + ds-status.jsx
 **Success Criteria** (what must be TRUE):
-  1. [To be defined after ds-mediacards.jsx + ds-status.jsx ingest]
-  2. The 500 StatusPage uses hardcoded `#1c1917` background and `#f5f3f0` text (always-dark DarkSurface, not token-driven)
+  1. MediaCard renders glass card with cover, optional badge, hover overlay action, and body
+  2. GalleryCard renders a 2x2 mosaic with overflow count tile when more than 4 images
+  3. PlaceholderImg renders a CSS-only diagonal stripe pattern (no raster, design-time primitive — CONSTRAINT-022)
+  4. StatusPages ships 4 templates (NotFound 404, ServerError 500, Maintenance, Offline) sharing a StatusFrame wrapper
+  5. ServerError 500 page uses hardcoded `#1c1917` background and `#f5f3f0` text (always-dark per CONSTRAINT-020 — never theme-flipped)
+  6. All components pass axe-core with zero violations in light + dark mode
 **Plans**: TBD
 
 ---
 
 ## Progress
 
-**Execution Order:** Phases execute in numeric order: 17 → 18 → 19 → 20 → 21 → 22 → 23 → (24–27 unblock as specs arrive)
+**Execution Order:** Phases execute in numeric order: 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 25 → 26 → 27. All phases now have spec-level intel; phases 24–27 are ready to plan.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|

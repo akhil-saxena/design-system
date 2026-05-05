@@ -199,3 +199,217 @@ decision: Two pagination variants: full (prev arrow, numbered pages with
   text, next arrow). Prev/next use ds-icbtn with disabled state on boundary.
   Active page uses ds-page-btn with "active" modifier class.
 scope: Pagination
+
+---
+
+## Appended Ingest — 2026-05-05 (Phase 24-27 specs)
+<!-- 5 SPEC docs added: ds-navigation, ds-notifications, ds-patterns, ds-mediacards, ds-status -->
+
+### DECISION-021: TreeItem depth indentation formula
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-navigation.jsx (SPEC)
+status: proposed
+decision: TreeItem applies left padding using the formula `padLeft = 14 + depth * 18` pixels.
+  Each nesting level adds 18px of indentation, starting from 14px at depth 0. The chevron
+  rotates 0deg → 90deg on expand with a 0.2s ease transition. Chevron size 11x11px,
+  strokeWidth 2.5, opacity 0.5. Items without children render an 11px-wide spacer in place
+  of the chevron to maintain alignment.
+scope: TreeItem
+
+### DECISION-022: TreeItem icon and badge contract
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-navigation.jsx (SPEC)
+status: proposed
+decision: TreeItem accepts optional `icon`, `badge`, and `count` props. Icon color is
+  var(--ink-4) when inactive, var(--amber) when active (transition: color 0.15s).
+  Badge renders via .ds-tree-badge class. Count renders as monospace 9.5px,
+  var(--ink-4), font-weight 600. Active state uses `.ds-tree-item.active` class.
+  Children visibility uses height: auto/0 with overflow hidden and 0.15s ease transition.
+scope: TreeItem
+
+### DECISION-023: CollapsibleSidebar dimensions and collapse mechanic
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-navigation.jsx (SPEC)
+status: proposed
+decision: CollapsibleSidebar widths: 220px expanded, 56px collapsed. Width transition
+  0.25s ease. Header padding 12px 14px expanded, 12px 0 collapsed (centered logo).
+  Logo: 28x28px square, 8px radius, var(--amber) bg, "J" in display 800/14px white.
+  Items use .ds-collapsible-item class. Collapsed items: padding 9px 0, centered,
+  with browser tooltip via title attribute (icon-only mode). Expanded items:
+  padding 8px 10px with label and badge. Footer collapse-toggle uses ds-icbtn 28x28px
+  with chevron rotating 180deg on collapse (0.25s transition).
+scope: CollapsibleSidebar
+
+### DECISION-024: Flat sidebar dot indicator
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-navigation.jsx (SPEC)
+status: proposed
+decision: The flat sidebar variant (non-tree, non-collapsible) uses a 6x6px circular
+  dot as leading indicator: var(--amber) when active, var(--ink-5) when inactive.
+  Items reuse .ds-tree-item class with active modifier. Badges use .ds-badge.upcoming
+  with reduced size (font-size 8px, padding 1px 6px).
+scope: SidebarNavSection
+
+### DECISION-025: NotificationCenter type-to-color mapping
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-notifications.jsx (SPEC)
+status: proposed
+decision: Four notification types map to icons + tinted backgrounds:
+  success → checkmark, stroke var(--green), bg rgba(34,197,94,.1)
+  warning → triangle, stroke var(--amber-d), bg rgba(245,158,11,.1)
+  error → x-circle, stroke var(--red), bg rgba(239,68,68,.1)
+  info (default) → i-circle, stroke var(--blue), bg rgba(59,130,246,.1)
+  Icons are 14x14px (panel items) or 13x13px (inline banners with 28x28 wrap).
+scope: NotificationCenter, NIcon, InlineBanner
+
+### DECISION-026: NotificationItem unread/read states
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-notifications.jsx (SPEC)
+status: proposed
+decision: Unread items render at full opacity with title font-weight 600.
+  Read items render at opacity 0.55 with title font-weight 500. Unread items
+  show a 6x6 var(--amber) circular dot inline with the title. Items use
+  .ds-notif-item class. Icon wrap uses .ds-notif-icon-wrap class. Description
+  is 11.5px var(--ink-3), single-line ellipsis. Time is monospace 9.5px var(--ink-4).
+  Per-item dismiss uses ds-icbtn 24x24px with 11x11 X icon.
+scope: NotificationCenter, NotificationItem
+
+### DECISION-027: NotificationCenter panel header and overflow
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-notifications.jsx (SPEC)
+status: proposed
+decision: Panel container is .glass with 14px border-radius. Header padding 13px 16px,
+  bottom border var(--rule). Title in display 700/15px. Unread count badge uses
+  .ds-notif-count class. "Mark all read" is ds-btn.ghost 11px 4x8px padding.
+  Body has maxHeight 400px with overflowY auto. Empty state: "All caught up!"
+  centered, 32px padding, var(--ink-4), 12px font.
+scope: NotificationCenter
+
+### DECISION-028: InlineBanner structural contract
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-notifications.jsx (SPEC)
+status: proposed
+decision: InlineBanner uses class `ds-inline-banner ds-inline-banner-{type}` where
+  type is one of success | warning | error | info. Layout: 28x28 icon wrap (left)
+  + flex-1 message body (title 600/12.5px + desc 11.5px var(--ink-3)) + dismiss
+  ds-icbtn 24x24 (right). Uses same TYPE_BG color tokens as panel items.
+scope: InlineBanner
+
+### DECISION-029: FileUploadZone drag-drop and file display
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-patterns.jsx (SPEC)
+status: proposed
+decision: FileUploadZone uses `.ds-upload-zone` (with `.dragging` modifier on dragover)
+  containing a 32x32 upload-arrow SVG (1.5px stroke, var(--ink-4) idle / var(--amber)
+  while dragging). Title in display 600/14px, copy "Drop files here or click to browse"
+  (idle) or "Drop to upload" (dragging). Hint line is monospace 10px var(--ink-4),
+  e.g. "PDF, DOCX, MD · Max 10MB". onDragOver/onDragLeave/onDrop/onClick all wired;
+  dropping or clicking adds a file. Per-file row: glass surface, 10x14 padding,
+  8px radius, with 36x44 thumbnail (white bg, 1px var(--rule) border, 6px radius)
+  and a 7.5px monospace extension badge (var(--ink) bg, var(--cream) text, 1x4 padding,
+  3px radius, anchored top-right of thumbnail).
+scope: FileUploadZone
+
+### DECISION-030: FileUploadZone progress indication
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-patterns.jsx (SPEC)
+status: proposed
+decision: Per-file progress bar is 3px tall, var(--cream-2) track, var(--amber) fill,
+  2px radius, width transition 0.2s. Hidden when progress === 100 (replaced with
+  green checkmark SVG 16x16, strokeWidth 2). While uploading, percentage shown as
+  monospace 10px var(--amber-d) bold. Each file row also has a trailing ds-icbtn
+  24x24 with X icon (11x11) for removal.
+scope: FileUploadZone
+
+### DECISION-031: MediaCard structure and hover overlay
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-mediacards.jsx (SPEC)
+status: proposed
+decision: MediaCard is a glass surface with 14px border-radius and overflow hidden.
+  Box-shadow on hover: 0 4px 16px rgba(0,0,0,.08), transition 0.15s.
+  Top section: PlaceholderImg cover (default aspect 16/9). Optional badge uses
+  .ds-badge.upcoming, positioned absolute top:8 right:8, font-size 8px, padding 2x7.
+  Optional overlay (action label) renders only on hover: full inset rgba(0,0,0,0.4)
+  scrim with centered ds-btn (white bg, var(--ink) text, 600/12px). Body section:
+  12x14 padding, title display 700/13.5px + optional subtitle 12px var(--ink-3).
+scope: MediaCard
+
+### DECISION-032: PlaceholderImg striped pattern and aspect ratios
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-mediacards.jsx (SPEC)
+status: proposed
+decision: PlaceholderImg uses CSS aspect-ratio (default "16/9") with var(--cream-2)
+  bg and a 45-degree diagonal striped overlay:
+  repeating-linear-gradient(45deg, transparent, transparent 8px,
+    rgba(0,0,0,.02) 8px, rgba(0,0,0,.02) 9px).
+  Border-radius 10px, overflow hidden. Centered label in monospace 10px,
+  var(--ink-4), uppercase, letter-spacing 0.06em, font-weight 600, opacity 0.7.
+  Supported aspect ratios: 16/9, 4/3, 1/1, 3/4, 16/10. Bg color is overridable
+  (e.g. var(--cream-3) for mosaic variants).
+scope: PlaceholderImg
+
+### DECISION-033: GalleryCard 2x2 mosaic grid
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-mediacards.jsx (SPEC)
+status: proposed
+decision: GalleryCard is a glass surface (14px radius, overflow hidden) with a
+  2x2 grid of PlaceholderImgs (1/1 aspect, 2px gap). The fourth tile is replaced
+  with an "overflow count" tile: var(--ink) bg, var(--cream) text, monospace
+  12px 700, content "+{count}". Footer label is 10x14 padding, display 700/13px.
+  A featured/mosaic variant (gridColumn span 2) uses 2fr/1fr columns and 1fr/1fr
+  rows, with the featured tile spanning both rows on the left.
+scope: GalleryCard
+
+### DECISION-034: StatusPage frame contract
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-status.jsx (SPEC)
+status: proposed
+decision: All four status pages (NotFound, ServerError, Maintenance, Offline)
+  render inside a StatusFrame: 14px radius, 1px var(--rule) border, height 480px,
+  var(--cream) bg, overflow hidden. Frame label above is monospace 9.5px,
+  var(--ink-3), uppercase, letter-spacing 0.08em, weight 700, with a 1px hr filling
+  remaining width. Pages use a top app-bar (14x28 padding, 1px rule border-bottom)
+  with a 22x22 var(--ink) logo square (J in display 800/12 var(--cream)) and the
+  "JobDash" wordmark in display 800/14.
+scope: StatusFrame, NotFoundPage, ServerErrorPage, MaintenancePage, OfflinePage
+
+### DECISION-035: NotFoundPage 404 layout
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-status.jsx (SPEC)
+status: proposed
+decision: 404 page uses a 1.1fr/1fr two-column grid with 56px horizontal padding
+  and 40px gap. Left column: monospace eyebrow "Error 404 · Page not found"
+  (10.5px var(--amber-d), letter-spacing 0.12em, weight 700), display 56px headline
+  (weight 800, line-height 0.95, letter-spacing -0.035em), 14px body copy max-width
+  380px, dual primary/secondary CTAs (var(--ink)+var(--cream) and var(--surf-2)+var(--ink)),
+  and a "common destinations" list with 1px-tall connectors and underlined links.
+  Right column: gigantic "404" text (display 280px weight 900, line-height 0.85,
+  letter-spacing -0.06em, right-aligned), an amber sticker overlay rotated -6deg,
+  and a receipt-style request-log card rotated 4deg.
+scope: NotFoundPage
+
+### DECISION-036: ServerErrorPage 500 dark surface
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-status.jsx (SPEC)
+status: proposed
+decision: 500 page hardcodes #1c1917 bg and #f5f3f0 text — explicitly NOT
+  var(--cream)/var(--ink) — to remain dark in both light and dark mode (per
+  DECISION-004 always-dark surfaces rule). Top bar shows a "Service degraded"
+  status pill: 7x7 #ef4444 dot + monospace 10.5px #fca5a5 label.
+  Eyebrow color is #fca5a5. Display 50px headline. CTA pair: var(--amber) +
+  #1c1917 primary "Try again", transparent + #f5f3f0 1px-rgba border secondary
+  "Status page →". Incident ID line in monospace 10.5px rgba(245,243,240,0.5).
+  Right column: live-status card (rgba(255,255,255,0.04) bg, rgba(255,255,255,0.08)
+  border, 12px radius, 22px padding, monospace 11px) with 6 service rows colored
+  by state (#22c55e operational / #f59e0b degraded / #ef4444 down).
+scope: ServerErrorPage
+
+### DECISION-037: MaintenancePage layout and countdown
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-status.jsx (SPEC)
+status: proposed
+decision: Maintenance page uses centered single-column flex layout. Feature elements:
+  background "marquee tape" (var(--amber) bg, rotated -1.5deg, monospace 12px 800
+  letter-spacing 0.18em, repeating "SCHEDULED MAINTENANCE · "), a back-at-time
+  monospace eyebrow, a 60px display headline mixing 800 weight with italic 500
+  weight on second line, a 480px-max-width body, and a horizontal countdown of
+  three 88x-width cells (var(--cream) bg, 1px var(--rule) border, 10px radius)
+  each containing a 36px display 800 number and a monospace 9px uppercase unit
+  label. Footer: "Follow updates →" + two pill links.
+scope: MaintenancePage
+
+### DECISION-038: OfflinePage layout and pending-changes queue
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-status.jsx (SPEC)
+status: proposed
+decision: Offline page uses a 1fr/1fr grid with 40px gap and 800px max-width.
+  Left: 240x240 SVG illustration with concentric dashed signal rings (radii 100/70/40,
+  strokeDasharray "3 5", opacities 0.3/0.5/0.8) plus a cloud-with-cross-out and a
+  CACHE folder. Right: red "No connection" eyebrow with 7x7 #ef4444 dot, 38px display
+  headline, body copy, a "Pending changes" card (var(--surf-2) bg, 1px var(--rule)
+  border, 10px radius, 14px padding) listing queued mutations as 5x5 amber dots +
+  12px var(--ink-2) text, and a "Try reconnecting" CTA in var(--ink) bg / var(--cream)
+  text. Header shows "3 queued" indicator in monospace 10px var(--amber-d) bold.
+scope: OfflinePage

@@ -1,0 +1,21 @@
+{
+	"source_path": "/Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-notifications.jsx",
+	"type": "SPEC",
+	"confidence": "high",
+	"manifest_override": true,
+	"title": "Notification Center — polished",
+	"summary": "JSX implementation reference for the Notification Center panel and inline banner variants, defining notification item structure, type-based icon/color treatments (success/warning/error/info), unread indicators, and dismiss/mark-all-read interactions.",
+	"scope": [
+		"NotificationCenter",
+		"NotificationItem",
+		"InlineBanner",
+		"NIcon",
+		"notification-types",
+		"unread-state",
+		"dismiss-action"
+	],
+	"cross_refs": [],
+	"locked": false,
+	"precedence": null,
+	"notes": ""
+}

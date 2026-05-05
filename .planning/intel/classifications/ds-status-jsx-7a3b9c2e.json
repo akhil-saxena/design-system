@@ -1,0 +1,27 @@
+{
+	"source_path": "/Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-status.jsx",
+	"type": "SPEC",
+	"confidence": "high",
+	"manifest_override": true,
+	"title": "Status Pages — 404, 500, Maintenance, Offline",
+	"summary": "Design handoff JSX specification for four status/edge-state pages (NotFound 404, ServerError 500 dark, Maintenance, Offline) styled to match the JobDash design system, each providing actionable user paths with consistent display+mono typography and color vocabulary.",
+	"scope": [
+		"StatusPagesSection",
+		"NotFoundPage",
+		"ServerErrorPage",
+		"MaintenancePage",
+		"OfflinePage",
+		"StatusFrame",
+		"404 error page",
+		"500 error page",
+		"scheduled maintenance page",
+		"offline cache state page",
+		"live status indicators",
+		"countdown timer",
+		"pending changes queue"
+	],
+	"cross_refs": [],
+	"locked": false,
+	"precedence": null,
+	"notes": ""
+}

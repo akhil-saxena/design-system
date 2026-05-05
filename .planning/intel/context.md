@@ -220,3 +220,74 @@ components that are already implemented or not yet prioritized:
 If TreeItem, MediaCard, or StatusPages components are required (per project
 context prompt), ds-mediacards.jsx and ds-status.jsx should be added to the
 next ingest manifest and classified before routing.
+
+---
+
+## Appended Ingest — 2026-05-05 (Phase 24-27 specs)
+<!-- 5 SPEC docs added: ds-navigation, ds-notifications, ds-patterns, ds-mediacards, ds-status -->
+
+## Topic: Phase 24-27 Components Now Specified
+source: classification files in .planning/intel/classifications/
+  + 5 newly-classified SPEC docs in design_handoff/design-system/
+
+The previously-flagged "missing specs" (see prior context: Reference Files Not
+Classified in This Ingest) have been resolved. The following components now have
+SPEC-level intel and are ready to plan:
+
+From ds-navigation.jsx (SPEC) — Phase 24:
+  TreeItem (recursive nested nav row with depth indentation, chevron, badge, count)
+  CollapsibleSidebar (220/56px collapsing sidebar with logo + items + collapse toggle)
+  SidebarNavSection / flat-sidebar variant (dot-indicator nav rows)
+
+From ds-notifications.jsx (SPEC) — Phase 25:
+  NotificationCenter (panel with grouped notifications, unread state, mark-all-read,
+    per-item dismiss)
+  NIcon (type-mapped icon helper: success/warning/error/info)
+  InlineBanner (in-flow notification variant)
+
+From ds-patterns.jsx (SPEC) — Phase 26:
+  FileUploadZone (drag-drop drop zone with click fallback, animated per-file
+    progress, file-list with thumbnail + extension badge + progress + remove)
+
+From ds-mediacards.jsx (SPEC) — Phase 27:
+  MediaCard (glass card with cover, optional badge, hover overlay action, body)
+  GalleryCard (2x2 mosaic with overflow count tile)
+  PlaceholderImg (design-time striped placeholder primitive — see CONSTRAINT-022)
+
+From ds-status.jsx (SPEC) — Phase 27:
+  StatusFrame (shared wrapper for status page demos)
+  NotFoundPage (404 layout — display 56px headline, big "404" mark, sticker overlay,
+    receipt card)
+  ServerErrorPage (500 always-dark layout — see CONSTRAINT-020 / DECISION-036;
+    hardcoded #1c1917/#f5f3f0)
+  MaintenancePage (centered countdown layout with marquee tape banner)
+  OfflinePage (cache-state layout with signal-rings illustration and pending-changes queue)
+
+## Topic: Additional Components Found in ds-patterns.jsx (Out of Scope)
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-patterns.jsx
+
+ds-patterns.jsx contains FOUR additional pattern components beyond the FileUploadZone
+that this ingest scoped for Phase 26:
+
+  TimelineSection / Activity Timeline — vertical event timeline using .ds-timeline,
+    .ds-tl-ev (with .upcoming, .done modifiers), .ds-tl-dot, .ds-tl-when, .ds-tl-body,
+    .ds-tl-title, .ds-tl-desc; chips inside timeline items
+  StepperSection / Stepper Wizard — multi-step form wizard with circular step
+    indicators (28x28 var(--amber)/var(--ink)/var(--cream-2) bg by state),
+    progress connector bars, Back/Next navigation, "Step N of M" label
+  NotificationSection / Notification Inbox — alternative notification panel pattern
+    (440px max-width) with type-specific tinted icon backgrounds and per-row
+    click-to-mark-read interaction (overlaps in purpose with NotificationCenter
+    from ds-notifications.jsx but uses different visual contract)
+  FilterBarSection / Filter Bar — horizontal filter pill group with search input,
+    pill toggle groups for stage and priority, Remote toggle, and Clear-all action
+
+These were NOT in the manifest scope for Phase 26 (which was FileUploadZone-only).
+They are flagged in the conflict report as INFO entries. To build them, add to a
+future ingest manifest with appropriate phase mapping.
+
+Notably, NotificationSection in ds-patterns.jsx and NotificationCenter in
+ds-notifications.jsx are TWO DIFFERENT visual contracts for similar purpose. The
+team should decide which (or both) to ship before either component plan starts.
+This is logged as INFO, not WARNING, because Phase 25 only commits to the
+ds-notifications.jsx contract.

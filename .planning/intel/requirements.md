@@ -215,3 +215,202 @@ acceptance criteria:
     before "Sample Screens" integration test
   - Sample Screens integration test passes with correct visual output in both
     light and dark mode
+
+---
+
+## Appended Ingest — 2026-05-05 (Phase 24-27 specs)
+<!-- 5 SPEC docs added: ds-navigation, ds-notifications, ds-patterns, ds-mediacards, ds-status -->
+
+## REQ-treeitem
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-navigation.jsx
+description: Implement TreeItem component — a recursive nested navigation row with
+  depth indentation, expand/collapse chevron, optional icon, optional badge, and
+  optional count display.
+acceptance criteria:
+  - Props: label (string), icon (ReactNode, optional), children (ReactNode, optional),
+    depth (number, default 0), defaultOpen (boolean, default false), active (boolean,
+    default false), badge (string, optional), count (number, optional)
+  - Left padding follows formula `14 + depth * 18` pixels
+  - Chevron 11x11 SVG, strokeWidth 2.5, opacity 0.5; rotates 0deg → 90deg on expand
+    with 0.2s ease transition
+  - Items without children render an 11px-wide spacer in place of the chevron
+  - Icon color: var(--ink-4) inactive, var(--amber) active, transition color 0.15s
+  - Badge renders via .ds-tree-badge class
+  - Count renders as monospace 9.5px var(--ink-4) weight 600
+  - Active row uses .ds-tree-item.active class
+  - Children container uses height auto/0 with overflow hidden, 0.15s ease transition
+  - Click on header toggles open state when hasChildren > 0; otherwise no-op (parent
+    is responsible for selection wiring)
+  - Label truncates with ellipsis on overflow
+  - Keyboard: Tab to focus, Enter/Space to toggle, arrow keys to navigate siblings
+
+## REQ-collapsiblesidebar
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-navigation.jsx
+description: Implement CollapsibleSidebar — a vertical navigation rail that
+  collapses from 220px expanded to 56px icon-only, with a header logo block,
+  scrollable item list, and a footer collapse-toggle button.
+acceptance criteria:
+  - Container: .ds-collapsible-sidebar.glass, width transitions 0.25s ease between
+    220px and 56px
+  - Header: 12x14 padding expanded / 12x0 padding collapsed (centered),
+    1px var(--rule) bottom border, contains 28x28 var(--amber) logo square with
+    "J" in display 800/14 white, plus optional wordmark in display 700/14
+  - Items: .ds-collapsible-item class, padding 9x0 collapsed (centered) /
+    8x10 expanded, with active modifier driving amber accent
+  - When collapsed, items show only icon and use browser tooltip via title attribute
+  - When expanded, items show icon + label (ellipsis on overflow) + optional badge
+  - Footer: 8x6 padding, 1px var(--rule) top border, contains a single ds-icbtn 28x28
+    chevron toggle that rotates 180deg on collapse (0.25s transition)
+  - Active item state controlled by parent (activeItem string prop or onSelect callback)
+  - All interactive elements show visible focus ring per CONSTRAINT-012
+
+## REQ-notificationcenter
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-notifications.jsx
+description: Implement NotificationCenter — a notification panel with grouped items,
+  unread indicators, individual dismiss, and "Mark all read" action. Plus an
+  InlineBanner variant for in-flow notifications.
+acceptance criteria:
+  - Panel: .glass surface, 14px border-radius, overflow hidden
+  - Header: 13x16 padding, 1px var(--rule) bottom border. Title in display 700/15px.
+    Unread count badge (.ds-notif-count) shown when unread > 0. "Mark all read"
+    button is ds-btn.ghost 11px font, 4x8 padding
+  - Body: maxHeight 400px, overflowY auto
+  - Each item: .ds-notif-item class. Unread items full opacity, font-weight 600 title;
+    read items opacity 0.55, font-weight 500. Unread shows 6x6 var(--amber) circle
+    inline with title
+  - Icon wrap: .ds-notif-icon-wrap, 14x14 icon for panel, tinted bg per type
+    (success rgba(34,197,94,.1), warning rgba(245,158,11,.1), error rgba(239,68,68,.1),
+    info rgba(59,130,246,.1))
+  - Description: 11.5px var(--ink-3), single-line ellipsis, 2px margin-top
+  - Time: monospace 9.5px var(--ink-4), 4px margin-top
+  - Per-item dismiss: ds-icbtn 24x24, 11x11 X icon
+  - Empty state: "All caught up!" centered, 32px padding, 12px var(--ink-4)
+  - markAllRead: setNotifs(prev => prev.map(n => ({ ...n, read: true })))
+  - dismiss(id): setNotifs(prev => prev.filter(n => n.id !== id))
+  - InlineBanner variant: .ds-inline-banner.ds-inline-banner-{type} with 28x28 icon
+    wrap (13x13 icon), title 600/12.5, desc 11.5 var(--ink-3), trailing dismiss ds-icbtn
+  - Item shape: { id, type: "success"|"warning"|"error"|"info", title, desc, time, read }
+  - Keyboard: Tab through items and dismiss buttons, Escape to close panel (when used as popover)
+
+## REQ-fileuploadzone
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-patterns.jsx
+description: Implement FileUploadZone — a drag-and-drop file upload area with click
+  fallback, animated per-file progress, and uploaded-file list with type badge,
+  progress bar, and remove action.
+acceptance criteria:
+  - Drop zone: .ds-upload-zone class, with .dragging modifier applied on dragover
+  - Drop zone content: 32x32 upload-arrow SVG (1.5px stroke, var(--ink-4) idle,
+    var(--amber) while dragging) + display 600/14px instruction text
+    ("Drop files here or click to browse" idle / "Drop to upload" dragging) +
+    monospace 10px var(--ink-4) hint line ("PDF, DOCX, MD · Max 10MB" or similar)
+  - Drag handlers: onDragOver (preventDefault + setDragging(true)),
+    onDragLeave (setDragging(false)), onDrop (preventDefault + setDragging(false) + add file),
+    onClick (add file)
+  - File list rendered below zone when files.length > 0, gap 8px, marginTop 12px
+  - Each file row: glass surface, padding 10x14, 8px radius, flex with 12px gap
+  - Thumbnail: 36x44, white bg, 1px var(--rule) border, 6px radius. Inner 16x16
+    document SVG (1.5px stroke var(--ink-3)). Extension badge anchored top:-4 right:-4,
+    monospace 7.5px 700, var(--ink) bg, var(--cream) text, 1x4 padding, 3px radius
+  - File metadata: name (13px 600, ellipsis), size (monospace 10px var(--ink-3))
+  - Progress bar (only when progress < 100): 3px tall, var(--cream-2) track,
+    var(--amber) fill, 2px radius, width transition 0.2s
+  - Status indicator: 16x16 var(--green) checkmark when complete; monospace 10px
+    var(--amber-d) bold percentage during upload
+  - Remove button: ds-icbtn 24x24 with 11x11 X icon
+  - File shape: { name, size, progress: 0-100 }
+  - Progress simulation acceptable for storybook demo; production wires to real upload
+  - Component must accept onChange/onAdd/onRemove callbacks for parent state ownership
+
+## REQ-mediacard
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-mediacards.jsx
+description: Implement MediaCard — a glass-surface card with cover area
+  (PlaceholderImg), optional badge, optional hover overlay action, and titled
+  body copy. Plus PlaceholderImg primitive and GalleryCard mosaic variant.
+acceptance criteria:
+  - Props: title (string), subtitle (string, optional), badge (string, optional),
+    aspect (string, default "16/9"), imgLabel (string, default "cover image"),
+    overlay (string, optional)
+  - Container: .glass, 14px border-radius, overflow hidden, cursor pointer
+  - Hover: box-shadow 0 4px 16px rgba(0,0,0,.08), transition 0.15s box-shadow + border-color
+  - Cover area: PlaceholderImg with given aspect; badge (if any) absolute top:8 right:8
+    using .ds-badge.upcoming with font-size 8px padding 2x7
+  - Hover overlay (if overlay prop): full inset rgba(0,0,0,.4) scrim with centered
+    ds-btn (white bg, var(--ink) text, 600/12px) carrying overlay text. Fade transition 0.15s
+  - Body: 12x14 padding. Title display 700/13.5px. Subtitle 12px var(--ink-3) with 3px margin-top
+  - Supported aspect ratios: 16/9, 4/3, 1/1, 3/4, 16/10
+  - PlaceholderImg primitive props: label, aspect (default "16/9"), bg (default var(--cream-2));
+    renders aspect-ratio div with 45deg striped overlay (repeating-linear-gradient
+    transparent 8px / rgba(0,0,0,.02) 9px), 10px border-radius, overflow hidden,
+    centered uppercase monospace 10px label
+  - Image element must use semantic <img> in production (placeholder div is for design demo)
+
+## REQ-gallerycard
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-mediacards.jsx
+description: Implement GalleryCard — a glass-surface 2x2 mosaic of image tiles
+  with the fourth tile replaced by an "+N more" overflow indicator and a labeled footer.
+acceptance criteria:
+  - Container: .glass, 14px border-radius, overflow hidden, cursor pointer
+  - Grid: 1fr 1fr columns / 1fr 1fr rows, 2px gap, aspectRatio 1/1
+  - First three cells: PlaceholderImg with 1/1 aspect, alternating var(--cream-2)
+    and var(--cream-3) bg
+  - Fourth cell: var(--ink) bg, var(--cream) monospace 12px 700 text "+{count}"
+  - Footer: 10x14 padding, display 700/13px label
+  - Featured/mosaic variant: gridColumn span 2 with 2fr/1fr columns and 1fr/1fr rows,
+    featured tile spanning both rows on left
+  - Props: label (string), count (number)
+
+## REQ-statuspages
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-status.jsx
+description: Implement four StatusPage templates (NotFound 404, ServerError 500 dark,
+  Maintenance, Offline) plus a shared StatusFrame wrapper. Pages match the JobDash
+  display+mono visual vocabulary and provide actionable user paths.
+acceptance criteria:
+  - StatusFrame: 14px border-radius, 1px var(--rule) border, height 480px (demo —
+    parameterizable in production), var(--cream) bg, overflow hidden. Above-frame
+    label is monospace 9.5px var(--ink-3) uppercase letter-spacing 0.08em weight 700
+    with a 1px-tall hr filling remaining width
+  - All pages share top app-bar: 14x28 padding, 1px var(--rule) bottom border,
+    22x22 var(--ink) logo square (display 800/12 var(--cream) "J"), display 800/14
+    "JobDash" wordmark
+  - NotFoundPage: 1.1fr/1fr two-column grid, 56px horizontal padding, 40px gap.
+    Eyebrow "Error 404 · Page not found" in monospace 10.5px var(--amber-d)
+    letter-spacing 0.12em weight 700. Headline display 56px weight 800 line-height
+    0.95 letter-spacing -0.035em. Body 14px var(--ink-2) max-width 380px.
+    Primary CTA "Back to dashboard" var(--ink) bg + var(--cream) text. Secondary
+    CTA "Search" var(--surf-2) bg + 1px var(--rule) border + var(--ink) text.
+    Common destinations list with 1px connectors + underlined links.
+    Right column: 280px display weight 900 "404" right-aligned, amber sticker
+    rotated -6deg with shadow, receipt-card (var(--cream) bg, 1px var(--rule)
+    border, 4px radius) rotated 4deg with monospace request-log content.
+  - ServerErrorPage: HARDCODES #1c1917 bg + #f5f3f0 text (always-dark per
+    DECISION-004; not var(--cream)/var(--ink)). Top bar adds status pill
+    (7x7 #ef4444 dot + monospace 10.5px #fca5a5 "Service degraded"). Eyebrow
+    #fca5a5. Display 50px headline. CTA pair: var(--amber) bg + #1c1917 text
+    "Try again", transparent bg + 1px rgba(255,255,255,0.2) border + #f5f3f0
+    text "Status page →". Incident ID line monospace 10.5px rgba(245,243,240,0.5).
+    Right column live-status card (rgba(255,255,255,0.04) bg,
+    rgba(255,255,255,0.08) border, 12px radius, 22px padding, monospace 11px)
+    with 6 service rows colored by state (#22c55e operational, #f59e0b degraded,
+    #ef4444 down). LIVE/UPDATING header with #fbbf24 dot indicator.
+  - MaintenancePage: centered single-column flex. Background "marquee tape"
+    var(--amber) bg rotated -1.5deg with repeating "SCHEDULED MAINTENANCE · "
+    in monospace 12px 800 letter-spacing 0.18em. Eyebrow "Back at HH:MM UTC · ..."
+    monospace 10.5px var(--ink-3) weight 700. Headline display 60px mixing weight
+    800 + italic weight 500. Body 14px var(--ink-2) center-aligned max-width 480px.
+    Countdown row: three 88px-wide cells (var(--cream) bg, 1px var(--rule) border,
+    10px radius, 14px vertical padding) each with 36px display 800 number above
+    9px monospace 700 uppercase unit label. Footer: "Follow updates →" + two pill
+    links (5x11 padding, 999px radius, 1px var(--rule) border).
+  - OfflinePage: 1fr/1fr grid, 40px gap, 800px max-width. Left: 240x240 SVG with
+    concentric dashed signal rings (radii 100/70/40, dasharray "3 5", opacities
+    0.3/0.5/0.8), cloud-with-cross-out, and CACHE folder (var(--amber) fill,
+    var(--ink) stroke). Right: "No connection" eyebrow with 7x7 #ef4444 dot,
+    display 38px headline, 13.5px var(--ink-2) body, "Pending changes" card
+    (var(--surf-2) bg, 1px var(--rule) border, 10px radius, 14px padding) listing
+    queued mutations as 5x5 var(--amber) dots + 12px var(--ink-2) text. "3 queued"
+    indicator in monospace 10px var(--amber-d) bold. CTA "Try reconnecting"
+    var(--ink) bg + var(--cream) text.
+  - All four pages must remain visually consistent in light mode; only
+    ServerErrorPage uses always-dark surface
+  - Pages should be parameterizable (incident ID, countdown values, error code,
+    pending-change list, etc.) — props TBD by component plan

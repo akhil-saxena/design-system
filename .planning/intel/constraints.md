@@ -281,3 +281,175 @@ The Cmd/Ctrl+K listener is attached to window (not to a container element).
 The Escape listener also attached to window. Both listeners must be removed on
 component unmount to prevent memory leaks. The component uses a controlled-open
 pattern (open: boolean state) — the trigger button calls setOpen(true).
+
+---
+
+## Appended Ingest — 2026-05-05 (Phase 24-27 specs)
+<!-- 5 SPEC docs added -->
+
+## CONSTRAINT-015: Navigation CSS class protocol
+type: protocol
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-navigation.jsx (SPEC)
+
+Adds the following classes to the cross-component class protocol (extends CONSTRAINT-007):
+
+  ds-tree-item              tree navigation row (with .active modifier)
+  ds-tree-badge             badge inside tree/sidebar item
+  ds-collapsible-sidebar    collapsible sidebar container (used with .glass)
+  ds-collapsible-item       row in collapsible sidebar (with .active modifier)
+
+These must be styled in the global stylesheet to match the visual contract in
+DECISION-021 through DECISION-024. CollapsibleSidebar reuses .glass surface and
+.ds-icbtn for the collapse toggle.
+
+## CONSTRAINT-016: Notification CSS class protocol
+type: protocol
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-notifications.jsx (SPEC)
+
+Adds the following classes:
+
+  ds-notif-item             notification row in panel
+  ds-notif-icon-wrap        type-tinted icon background square
+  ds-notif-count            unread count badge in header
+  ds-inline-banner          inline banner container (always paired with type modifier)
+  ds-inline-banner-success  type modifier
+  ds-inline-banner-warning  type modifier
+  ds-inline-banner-error    type modifier
+  ds-inline-banner-info     type modifier
+
+Type-to-bg color tokens (used inline as RGBA per-component, not as CSS vars):
+  success: rgba(34,197,94,.1)
+  warning: rgba(245,158,11,.1)
+  error:   rgba(239,68,68,.1)
+  info:    rgba(59,130,246,.1)
+
+These RGBA values match the vivid token equivalents (--green-vivid, --amber-vivid
+implicit, --red-vivid, --blue-vivid) at 10% alpha. If a tinted-bg token system is
+introduced post-ingest (e.g. --green-tint-10), it should be added via ADR.
+
+## CONSTRAINT-017: FileUploadZone CSS class protocol
+type: protocol
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-patterns.jsx (SPEC)
+
+Adds the following classes:
+
+  ds-upload-zone            drop zone container (with .dragging modifier on dragover)
+
+The component reuses .glass (per-file rows), .ds-icbtn (remove buttons), and
+inline styling for thumbnail and progress bar (no new classes for those — the
+inline values must match DECISION-029 / DECISION-030 exactly).
+
+## CONSTRAINT-018: NotificationCenter event handler contract
+type: api-contract
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-notifications.jsx (SPEC)
+
+State management contract — the component owns the notification array but
+must accept controlled-mode props for parent ownership:
+
+  Uncontrolled: component manages local state with initialNotifications prop
+  Controlled: notifications + onNotificationsChange callback
+
+Event handlers required:
+  - onMarkAllRead(): called when "Mark all read" clicked; returns updated array
+    with all read=true
+  - onDismiss(id): called when per-item X clicked; returns array with id removed
+  - onItemClick(id): optional; called when row body clicked (for navigation /
+    drill-in); returns id
+
+Notification shape (TypeScript-strict):
+  { id: string | number, type: "success" | "warning" | "error" | "info",
+    title: string, desc: string, time: string, read: boolean }
+
+The `time` field is a pre-formatted display string (e.g. "2m ago"). Production
+implementations may compute this from a Date prop using the RelativeTime component
+from prior intel — but the panel itself must accept the formatted string verbatim
+to remain locale-agnostic.
+
+## CONSTRAINT-019: FileUploadZone accept and size contract
+type: api-contract
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-patterns.jsx (SPEC)
+
+The hint line in the drop zone displays "PDF, DOCX, MD · Max 10MB" in the SPEC.
+This is informational text; the component must accept:
+  - accept: string (file input MIME types or extensions, e.g. ".pdf,.docx,.md")
+  - maxSizeMB: number (default 10)
+  - hintText: string (override the displayed hint; default derives from accept + maxSizeMB)
+
+Validation behavior is NOT specified by the SPEC and is an open implementation
+decision. Recommended: reject files exceeding maxSizeMB at drop/click time and
+surface an error via a parent-supplied onError(err, file) callback. This must be
+locked in the component plan (Phase 26) before build.
+
+## CONSTRAINT-020: StatusPage always-dark surface for ServerErrorPage
+type: api-contract
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-status.jsx (SPEC)
+  + cross-references DECISION-004 (always-dark surfaces use hardcoded values)
+
+ServerErrorPage MUST hardcode #1c1917 (bg) and #f5f3f0 (text) — NOT var(--cream)
+and var(--ink). Per DECISION-004, this prevents dark-mode from inverting both
+bg AND text into cream-on-cream unreadability.
+
+The other three status pages (NotFoundPage, MaintenancePage, OfflinePage) DO
+flip with theme via standard --cream / --ink tokens. They must verify legible
+contrast in both light and dark mode during axe-core scan.
+
+This means the four StatusPages are NOT a uniform set — ServerErrorPage is a
+DarkSurface context (per DECISION-004 vocabulary), the other three are flipping
+Surface contexts. Component implementation must document this distinction.
+
+## CONSTRAINT-021: StatusPage parameterization scope
+type: api-contract
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-status.jsx (SPEC)
+
+The SPEC presents pages with hardcoded copy ("This page slipped through the
+cracks", "We're moving some furniture", incident ID INC-7841-A2F, etc.). For
+production use, each page must accept overridable props:
+
+  NotFoundPage:
+    - eyebrow (default "Error 404 · Page not found")
+    - headline (default "This page slipped through the cracks.")
+    - body (default copy from SPEC)
+    - primaryCta (default { label: "Back to dashboard", href: "/" })
+    - secondaryCta (optional)
+    - destinations (default list of common routes)
+    - showReceipt (boolean, default true)
+
+  ServerErrorPage:
+    - incidentId (string, optional — controls bottom-line display)
+    - serviceStatus (array of { name, state, color } for the live card)
+    - statusUpdatedAt (string)
+    - headline / body / primaryCta / secondaryCta (all overridable)
+
+  MaintenancePage:
+    - returnAt (Date or string)
+    - countdown (live-computed { hours, minutes, seconds } from returnAt)
+    - headline (default "We're moving some furniture.")
+    - followLinks (array of pill links)
+
+  OfflinePage:
+    - pendingChanges (array of strings or { label, status })
+    - daysCached (number, default 30, drives "last 30 days" copy)
+    - onRetry (callback for "Try reconnecting")
+
+Detailed prop contracts to be finalized in component plans (Phase 27 for
+MediaCard + StatusPages). The ingest establishes the SCOPE of customization;
+exact API is a per-component decision.
+
+## CONSTRAINT-022: PlaceholderImg is a design-time primitive
+type: api-contract
+source: /Users/temp/Documents/workspace/design-system/design_handoff/design-system/ds-mediacards.jsx (SPEC)
+
+PlaceholderImg renders a striped div with a centered label — NOT an actual image.
+It is the design-time stand-in used inside MediaCard when no real imagery is
+available. Production usage:
+
+  <MediaCard cover={<img src="..." />} ... />
+
+The MediaCard component must accept either:
+  - A `cover` ReactNode prop (production: pass <img />, <video poster>, etc.)
+  - OR fall back to PlaceholderImg with imgLabel prop (design preview / Storybook)
+
+Per DECISION-007, the codebase ships no raster assets. PlaceholderImg's striped
+diagonal pattern (repeating-linear-gradient) is CSS-only; this complies. Real
+imagery in production is the consumer's responsibility — the component does not
+import any image files.
