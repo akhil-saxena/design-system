@@ -60,10 +60,10 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
 		if (idx === -1) return;
 		if (e.key === "ArrowLeft" && idx > 0) {
 			e.preventDefault();
-			buttons[idx - 1].focus();
+			buttons[idx - 1]!.focus();
 		} else if (e.key === "ArrowRight" && idx < buttons.length - 1) {
 			e.preventDefault();
-			buttons[idx + 1].focus();
+			buttons[idx + 1]!.focus();
 		}
 	}
 
@@ -103,6 +103,14 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
 	}
 
 	const pages = getPageRange(currentPage, totalPages);
+	let ellipsisCount = 0;
+	const pageItems = pages.map((p) => {
+		if (p === "…") {
+			ellipsisCount += 1;
+			return { kind: "ellipsis" as const, key: `ellipsis-${ellipsisCount}` };
+		}
+		return { kind: "page" as const, page: p, key: `page-${p}` };
+	});
 
 	return (
 		<nav
@@ -111,12 +119,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
 			className={`ds-atom-pagination${className ? ` ${className}` : ""}`}
 			style={style}
 		>
-			<ol
-				ref={listRef}
-				className="ds-atom-pagination-list"
-				role="list"
-				onKeyDown={handleListKeyDown}
-			>
+			<ol ref={listRef} className="ds-atom-pagination-list" onKeyDown={handleListKeyDown}>
 				<li>
 					<button
 						type="button"
@@ -128,23 +131,23 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
 						<ChevronLeft size={12} aria-hidden />
 					</button>
 				</li>
-				{pages.map((p, i) =>
-					p === "…" ? (
-						<li key={`ellipsis-${i}`} aria-hidden="true">
+				{pageItems.map((item) =>
+					item.kind === "ellipsis" ? (
+						<li key={item.key} aria-hidden="true">
 							<span className="ds-atom-pagination-ellipsis" aria-hidden="true">
 								…
 							</span>
 						</li>
 					) : (
-						<li key={p}>
+						<li key={item.key}>
 							<button
 								type="button"
 								className="ds-atom-pagination-btn"
-								aria-label={`Page ${p}`}
-								aria-current={p === currentPage ? "page" : undefined}
-								onClick={() => p !== currentPage && onPageChange(p as number)}
+								aria-label={`Page ${item.page}`}
+								aria-current={item.page === currentPage ? "page" : undefined}
+								onClick={() => item.page !== currentPage && onPageChange(item.page)}
 							>
-								{p}
+								{item.page}
 							</button>
 						</li>
 					),
