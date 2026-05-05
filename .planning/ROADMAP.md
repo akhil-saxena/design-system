@@ -25,7 +25,7 @@
 - [x] **Phase 17: Simple Primitives** - Kbd, RelativeTime, and Pagination — three small display/interaction primitives
 - [x] **Phase 18: ConfirmDialog** - ConfirmDialog (4-tone) and TypeToConfirm gate
 - [x] **Phase 19: DataViz Primitives** - Sparkline, MiniDonut, and MiniBar SVG/CSS charts
-- [ ] **Phase 20: StatCard** - KPI card composing label, value, trend badge, and Sparkline
+- [x] **Phase 20: StatCard** - KPI card composing label, value, trend badge, and Sparkline
 - [ ] **Phase 21: ColorPicker** - Full gradient picker with hue/opacity bars, swatches, and inline variant
 - [ ] **Phase 22: CommandPalette** - Cmd+K modal search with grouped results and keyboard navigation
 - [ ] **Phase 23: DataGrid** - Sortable/resizable/selectable table with bulk actions and pagination
@@ -109,7 +109,7 @@
   5. axe-core scan passes with zero violations
 **Plans**: 2 plans
 - [x] 020-01-PLAN.md — StatCard component (index.tsx) + unit test suite (StatCard.test.tsx)
-- [ ] 020-02-PLAN.md — StatCard stories (StatCard.stories.tsx) + barrel export to src/index.ts + tsc + full test suite
+- [x] 020-02-PLAN.md — StatCard stories (StatCard.stories.tsx) + barrel export to src/index.ts + tsc + full test suite
 **UI hint**: yes
 
 ### Phase 21: ColorPicker
@@ -220,7 +220,7 @@
 | 17. Simple Primitives | Milestone 2 | 5/5 | Complete | 2026-05-05 |
 | 18. ConfirmDialog | Milestone 2 | 4/4 | Complete | 2026-05-05 |
 | 19. DataViz Primitives | Milestone 2 | 4/4 | Complete | 2026-05-05 |
-| 20. StatCard | Milestone 2 | 0/2 | Not started | - |
+| 20. StatCard | Milestone 2 | 2/2 | Complete | 2026-05-05 |
 | 21. ColorPicker | Milestone 2 | 0/TBD | Not started | - |
 | 22. CommandPalette | Milestone 2 | 0/TBD | Not started | - |
 | 23. DataGrid | Milestone 2 | 0/TBD | Not started | - |
