@@ -22,6 +22,7 @@ export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from "./inpu
 export { Toggle, type ToggleProps } from "./inputs/Toggle";
 export { NumberStepper, type NumberStepperProps } from "./inputs/NumberStepper";
 export { RollingNumber, type RollingNumberProps } from "./display/RollingNumber";
+export { StatCard, type StatCardProps, type StatCardChangeDir } from "./display/StatCard";
 export { Sparkline, type SparklineProps } from "./display/Sparkline";
 export { MiniDonut, type MiniDonutProps } from "./display/MiniDonut";
 export { MiniBar, type MiniBarProps } from "./display/MiniBar";
