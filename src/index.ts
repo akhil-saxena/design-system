@@ -23,6 +23,8 @@ export { Toggle, type ToggleProps } from "./inputs/Toggle";
 export { NumberStepper, type NumberStepperProps } from "./inputs/NumberStepper";
 export { RollingNumber, type RollingNumberProps } from "./display/RollingNumber";
 export { Sparkline, type SparklineProps } from "./display/Sparkline";
+export { MiniDonut, type MiniDonutProps } from "./display/MiniDonut";
+export { MiniBar, type MiniBarProps } from "./display/MiniBar";
 export { RangeSlider, type RangeSliderProps } from "./inputs/RangeSlider";
 export { StarRating, type StarRatingProps, type StarRatingSize } from "./inputs/StarRating";
 export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./overlays/StickyNote";
