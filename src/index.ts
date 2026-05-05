@@ -4,6 +4,7 @@ export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from ".
 export { TextInput, type TextInputProps } from "./inputs/TextInput";
 export { Textarea, type TextareaProps } from "./inputs/Textarea";
 export { Badge, type BadgeProps, type BadgeTone } from "./inputs/Badge";
+export { Kbd, type KbdProps, type KbdSize } from "./inputs/Kbd";
 export { Chip, type ChipProps, type ChipTone } from "./inputs/Chip";
 export {
 	Avatar,
@@ -68,6 +69,7 @@ export {
 	type ToastTone,
 } from "./feedback/Toast";
 export { CopyToClipboard, type CopyToClipboardProps } from "./interaction/CopyToClipboard";
+export { RelativeTime, type RelativeTimeProps } from "./interaction/RelativeTime";
 export { DatePicker, type DatePickerProps } from "./inputs/DatePicker";
 export {
 	SplitButton,
@@ -105,6 +107,7 @@ export { Carousel, type CarouselProps, type CarouselSlide } from "./data-display
 export { Tabs, type TabsProps, type TabItem } from "./data-display/Tabs";
 export { Table, type TableRootProps, type TableHeaderCellProps } from "./data-display/Table";
 export { Calendar, type CalendarProps, type CalendarEvent } from "./data-display/Calendar";
+export { Pagination, type PaginationProps } from "./data-display/Pagination";
 export { RichText, type RichTextProps } from "./interaction/RichText";
 export { AppShell, type AppShellProps } from "./layout/AppShell";
 export { AppBar, type AppBarProps, type AppBarVariant } from "./layout/AppBar";
