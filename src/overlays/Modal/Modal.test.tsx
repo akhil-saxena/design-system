@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { ConfirmDialog, Modal } from ".";
+import { Modal } from ".";
 describe("Modal", () => {
 	it("renders portaled to body when open=true with role=dialog and aria-labelledby pointing at the header", () => {
 		render(
@@ -117,69 +117,5 @@ describe("Modal", () => {
 	});
 });
 
-describe("ConfirmDialog", () => {
-	it("Cancel button calls onClose, not onConfirm", () => {
-		const onClose = vi.fn();
-		const onConfirm = vi.fn();
-		render(<ConfirmDialog open={true} onClose={onClose} onConfirm={onConfirm} title="Sure?" />);
-		fireEvent.click(screen.getByText("Cancel"));
-		expect(onClose).toHaveBeenCalledTimes(1);
-		expect(onConfirm).not.toHaveBeenCalled();
-	});
-
-	it("Confirm button calls onConfirm, not onClose", () => {
-		const onClose = vi.fn();
-		const onConfirm = vi.fn();
-		render(<ConfirmDialog open={true} onClose={onClose} onConfirm={onConfirm} title="Sure?" />);
-		fireEvent.click(screen.getByText("Confirm"));
-		expect(onConfirm).toHaveBeenCalledTimes(1);
-		expect(onClose).not.toHaveBeenCalled();
-	});
-
-	it("danger=true sets role=alertdialog + Button data-variant=danger on confirm", () => {
-		render(
-			<ConfirmDialog
-				open={true}
-				onClose={() => {}}
-				onConfirm={() => {}}
-				title="Delete?"
-				danger={true}
-			/>,
-		);
-		const panel = document.body.querySelector(".ds-atom-modal");
-		expect(panel?.getAttribute("role")).toBe("alertdialog");
-		const confirmBtn = screen.getByText("Confirm").closest("button");
-		expect(confirmBtn?.getAttribute("data-variant")).toBe("danger");
-	});
-
-	it("danger=true: backdrop click does NOT close", () => {
-		const onClose = vi.fn();
-		render(
-			<ConfirmDialog
-				open={true}
-				onClose={onClose}
-				onConfirm={() => {}}
-				title="Delete?"
-				danger={true}
-			/>,
-		);
-		const backdrop = document.body.querySelector(".ds-atom-modal-backdrop") as HTMLElement;
-		fireEvent.click(backdrop);
-		expect(onClose).not.toHaveBeenCalled();
-	});
-
-	it("custom labels render as button text", () => {
-		render(
-			<ConfirmDialog
-				open={true}
-				onClose={() => {}}
-				onConfirm={() => {}}
-				title="Sure?"
-				confirmLabel="Yes, delete"
-				cancelLabel="Keep it"
-			/>,
-		);
-		expect(screen.getByText("Yes, delete")).toBeInTheDocument();
-		expect(screen.getByText("Keep it")).toBeInTheDocument();
-	});
-});
+// ConfirmDialog tests have moved to src/overlays/ConfirmDialog/ConfirmDialog.test.tsx
+// (ConfirmDialog was extracted from Modal in phase 018-01)
