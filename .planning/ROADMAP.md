@@ -108,7 +108,7 @@
   4. StatCard renders correctly in both light and dark mode in Storybook
   5. axe-core scan passes with zero violations
 **Plans**: 2 plans
-- [ ] 020-01-PLAN.md — StatCard component (index.tsx) + unit test suite (StatCard.test.tsx)
+- [x] 020-01-PLAN.md — StatCard component (index.tsx) + unit test suite (StatCard.test.tsx)
 - [ ] 020-02-PLAN.md — StatCard stories (StatCard.stories.tsx) + barrel export to src/index.ts + tsc + full test suite
 **UI hint**: yes
 

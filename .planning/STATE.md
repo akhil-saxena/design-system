@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: executing
+stopped_at: 020-01-PLAN.md complete. StatCard component + 11 unit tests shipped. All tests pass. tsc clean. Ready for Phase 20 Plan 02 (stories).
+last_updated: "2026-05-05T08:33:34.662Z"
+last_activity: 2026-05-05
+progress:
+  total_phases: 11
+  completed_phases: 3
+  total_plans: 15
+  completed_plans: 14
+  percent: 93
+---
+
 # Project State
 
 ## Project Reference
@@ -10,15 +26,16 @@ See: .planning/PROJECT.md (updated 2026-05-05)
 ## Current Position
 
 Phase: 20 of 27 (StatCard)
-Plan: 1 of 2 in current phase
-Status: Phase 19 complete — all 4 plans shipped; Sparkline, MiniDonut, MiniBar exported, tsc clean, 18/18 Phase 19 tests pass
-Last activity: 2026-05-05 — 019-04 complete: phase gate passed (tsc exits 0, 812/815 tests pass, 18 Phase 19 tests pass)
+Plan: 2 of 2 in current phase
+Status: Ready to execute
+Last activity: 2026-05-05
 
 Progress: [███████░░░░░░░░░░░░░] ~37% (phases 1–19 of 27 complete)
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: unknown (Milestone 1 plans not tracked here)
 - Average duration: —
 - Total execution time: —
@@ -45,6 +62,7 @@ Progress: [███████░░░░░░░░░░░░░] ~37% (p
 **Recent Trend:** No data yet for Milestone 2
 
 *Updated after each plan completion*
+| Phase 020-statcard P01 | 4min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -70,6 +88,9 @@ Progress: [███████░░░░░░░░░░░░░] ~37% (p
 - Sparkline and MiniDonut have exact SVG formulas in constraints.md — must reproduce precisely
 - CommandPalette uses window-level listeners; must clean up on unmount (CONSTRAINT-014)
 - TypeToConfirm comparison is case-sensitive; no trim (CONSTRAINT-013)
+- [Phase ?]: StatCard: named function export (not forwardRef) — pure display component, matches RollingNumber pattern
+- [Phase ?]: StatCard: glass class directly on root div with inline borderRadius:12 override (not Card component wrapper)
+- [Phase ?]: StatCard tests: DOM normalizes rgba shorthand — test assertions use browser-normalized form (rgba(34, 197, 94, 0.1))
 
 ### Pending Todos
 
@@ -89,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05
-Stopped at: 019-04-PLAN.md complete — Phase 19 gate passed. tsc exits 0. 18/18 Phase 19 tests pass (7 Sparkline + 6 MiniDonut + 5 MiniBar). Phase 19 fully complete. Ready for Phase 20.
+Last session: 2026-05-05T08:33:34.657Z
+Stopped at: 020-01-PLAN.md complete. StatCard component + 11 unit tests shipped. All tests pass. tsc clean. Ready for Phase 20 Plan 02 (stories).
 Resume file: None

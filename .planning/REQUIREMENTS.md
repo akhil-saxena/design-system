@@ -266,7 +266,7 @@ Milestone 2 covers phases 17–27. Every phase below has at least one requiremen
 | REQ-19-01 (Sparkline) | Phase 19 | Pending |
 | REQ-19-02 (MiniDonut) | Phase 19 | Pending |
 | REQ-19-03 (MiniBar) | Phase 19 | Pending |
-| REQ-20-01 (StatCard) | Phase 20 | Pending |
+| REQ-20-01 (StatCard) | Phase 20 | In Progress (020-01 complete) |
 | REQ-21-01 (ColorPicker) | Phase 21 | Pending |
 | REQ-22-01 (CommandPalette) | Phase 22 | Pending |
 | REQ-23-01 (DataGrid) | Phase 23 | Pending |
