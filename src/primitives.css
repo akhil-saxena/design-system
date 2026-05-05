@@ -4939,130 +4939,130 @@
    Enter → onSelect+onClose+clearQuery. Namespace: ds-atom-cmd-*. */
 
 .ds-atom-cmd-panel {
-  background: rgba(255, 255, 255, 0.97); /* always-light — NOT cream token; matches ConfirmDialog CONSTRAINT-010 */
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-3);
-  width: 560px;
-  max-width: calc(100% - var(--space-4));
-  max-height: 420px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  font-family: var(--font);
-  color: var(--ink);
-  animation: ds-atom-cmd-in 0.18s ease-out;
+	background: rgba(255, 255, 255, 0.97); /* always-light — NOT cream token; matches ConfirmDialog CONSTRAINT-010 */
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+	border: 1px solid var(--rule);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-3);
+	width: 560px;
+	max-width: calc(100% - var(--space-4));
+	max-height: 420px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	font-family: var(--font);
+	color: var(--ink);
+	animation: ds-atom-cmd-in 0.18s ease-out;
 }
 .dark .ds-atom-cmd-panel {
-  background: var(--cream-2);
-  border-color: var(--rule);
+	background: var(--cream-2);
+	border-color: var(--rule);
 }
 
 /* search input row */
 .ds-atom-cmd-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--rule);
-  flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 14px;
+	border-bottom: 1px solid var(--rule);
+	flex-shrink: 0;
 }
 .ds-atom-cmd-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: var(--font);
-  font-size: 15px;
-  color: var(--ink);
-  min-width: 0;
+	flex: 1;
+	border: none;
+	outline: none;
+	background: transparent;
+	font-family: var(--font);
+	font-size: 15px;
+	color: var(--ink);
+	min-width: 0;
 }
 .ds-atom-cmd-input::placeholder {
-  color: var(--ink-4);
+	color: var(--ink-4);
 }
 
 /* scrollable results list */
 .ds-atom-cmd-list {
-  overflow-y: auto;
-  flex: 1;
-  padding: 6px 0;
+	overflow-y: auto;
+	flex: 1;
+	padding: 6px 0;
 }
 
 /* group header */
 .ds-atom-cmd-group {
-  font-family: var(--mono);
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--ink-4);
-  padding: 8px 14px 4px;
+	font-family: var(--mono);
+	font-size: 9px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--ink-4);
+	padding: 8px 14px 4px;
 }
 
 /* result item */
 .ds-atom-cmd-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  cursor: pointer;
-  border-radius: 8px;
-  margin: 0 6px;
-  font-size: 13.5px;
-  color: var(--ink);
-  transition: background 0.1s;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 14px;
+	cursor: pointer;
+	border-radius: 8px;
+	margin: 0 6px;
+	font-size: 13.5px;
+	color: var(--ink);
+	transition: background 0.1s;
 }
 .ds-atom-cmd-item:hover,
 .ds-atom-cmd-item[aria-selected="true"] {
-  background: var(--cream-2);
+	background: var(--cream-2);
 }
 .dark .ds-atom-cmd-item:hover,
 .dark .ds-atom-cmd-item[aria-selected="true"] {
-  background: var(--cream-3);
+	background: var(--cream-3);
 }
 
 /* item sub-elements */
 .ds-atom-cmd-item-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  color: var(--ink-3);
-  flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	color: var(--ink-3);
+	flex-shrink: 0;
 }
 .ds-atom-cmd-item-label {
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+	flex: 1;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .ds-atom-cmd-item-shortcut {
-  margin-left: auto;
-  flex-shrink: 0;
+	margin-left: auto;
+	flex-shrink: 0;
 }
 
 /* no-results empty state */
 .ds-atom-cmd-empty {
-  padding: 24px 14px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--ink-4);
-  font-family: var(--font);
+	padding: 24px 14px;
+	text-align: center;
+	font-size: 13px;
+	color: var(--ink-4);
+	font-family: var(--font);
 }
 
 @keyframes ds-atom-cmd-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+	from {
+		opacity: 0;
+		transform: scale(0.96) translateY(-8px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
 }
 
 /* ─── DS atom: ColorPicker ──────────────────────────────────────────────
@@ -5101,4 +5101,52 @@
 .ds-atom-colorpicker-cell:focus-visible {
 	outline: none;
 	box-shadow: var(--focus-ring);
+}
+
+/* ─── DS atom: DataGrid (DS-62) ─────────────────────────────────────────────
+   Composed wrapper: bulk-action bar + scroll + footer around Table.
+   Inner table chrome uses existing ds-atom-table-* classes. */
+
+/* Outer glass container */
+.ds-atom-datagrid {
+	border-radius: 14px;
+	overflow: hidden;
+}
+
+/* Scroll container — enables horizontal scroll when columns exceed viewport */
+.ds-atom-datagrid-scroll {
+	overflow-x: auto;
+}
+
+/* Bulk-action bar — amber tint, shown when rows are selected */
+.ds-atom-datagrid-bulkbar {
+	padding: 8px 16px;
+	background: rgba(245, 158, 11, 0.05);
+	border-bottom: 1px solid var(--rule);
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 12px;
+}
+.ds-atom-datagrid-bulkbar-count {
+	font-weight: 600;
+	font-family: var(--mono);
+	font-size: 11px;
+}
+.dark .ds-atom-datagrid-bulkbar {
+	background: rgba(245, 158, 11, 0.07);
+}
+
+/* Footer — row count (left) + Pagination (right) */
+.ds-atom-datagrid-footer {
+	padding: 10px 16px;
+	border-top: 1px solid var(--rule);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.ds-atom-datagrid-footer-count {
+	font-family: var(--mono);
+	font-size: 10px;
+	color: var(--ink-4);
 }
