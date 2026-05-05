@@ -51,7 +51,7 @@
   4. The compact Pagination variant displays "N / M" text between prev/next arrows
   5. All three components pass axe-core with zero violations in Storybook
 **Plans**: 5 plans
-- [ ] 017-01-PLAN.md — Append CSS blocks for ds-atom-kbd, ds-atom-relative-time, ds-atom-pagination-* to primitives.css
+- [x] 017-01-PLAN.md — Append CSS blocks for ds-atom-kbd, ds-atom-relative-time, ds-atom-pagination-* to primitives.css
 - [ ] 017-02-PLAN.md — Implement Kbd component + stories + tests
 - [ ] 017-03-PLAN.md — Implement RelativeTime component + stories + tests
 - [ ] 017-04-PLAN.md — Implement Pagination component + stories + tests
@@ -207,7 +207,7 @@
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1–16. Foundation & Core | Milestone 1 | — | Complete | Before 2026-05-05 |
-| 17. Simple Primitives | Milestone 2 | 0/5 | Not started | - |
+| 17. Simple Primitives | Milestone 2 | 1/5 | In progress | - |
 | 18. ConfirmDialog | Milestone 2 | 0/TBD | Not started | - |
 | 19. DataViz Primitives | Milestone 2 | 0/TBD | Not started | - |
 | 20. StatCard | Milestone 2 | 0/TBD | Not started | - |
