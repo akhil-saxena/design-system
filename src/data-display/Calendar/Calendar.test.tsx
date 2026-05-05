@@ -22,12 +22,14 @@ const APRIL_2026 = new Date(2026, 3, 1);
 // ─── Task 1: Month view structure ─────────────────────────────────────────
 
 describe("Calendar - month view", () => {
-	it("renders month grid with 6 rows of 7 cells", () => {
+	it("renders month grid with 7-cell rows (April 2026 = 5 rows after trim)", () => {
+		// April 2026 with Monday-first weekStart trims the final fully-out-of-month
+		// week (May 4-10), leaving 5 visible weeks. cells flat is still 42.
 		const { container } = render(
 			<Calendar selectedDate={APRIL_2026} onSelectedDateChange={() => {}} />,
 		);
 		const rows = container.querySelectorAll('[role="row"].ds-atom-calendar-week');
-		expect(rows).toHaveLength(6);
+		expect(rows).toHaveLength(5);
 		for (const row of rows) {
 			const cells = row.querySelectorAll('[role="gridcell"]');
 			expect(cells).toHaveLength(7);

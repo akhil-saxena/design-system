@@ -42,6 +42,20 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 			};
 		}, []);
 
+		const revertOptimistic = useCallback(
+			(err: Error) => {
+				// Roll back the optimistic "copied" state so the user sees the failure.
+				if (timerRef.current !== null) {
+					globalThis.clearTimeout(timerRef.current);
+					timerRef.current = null;
+				}
+				setCopied(false);
+				console.warn("CopyToClipboard: copy failed", err);
+				onError?.(err);
+			},
+			[onError],
+		);
+
 		const handleClick = useCallback(async () => {
 			// Show feedback immediately (optimistic) - clipboard write happens in background.
 			setCopied(true);
@@ -72,13 +86,13 @@ export const CopyToClipboard = forwardRef<HTMLButtonElement, CopyToClipboardProp
 				const ok = execCommand("copy");
 				ta.remove();
 				if (!ok) {
-					onError?.(new Error("Copy command unavailable"));
+					revertOptimistic(new Error("Copy command unavailable"));
 				}
 			} catch (fallbackErr) {
 				const error = fallbackErr instanceof Error ? fallbackErr : new Error(String(fallbackErr));
-				onError?.(error);
+				revertOptimistic(error);
 			}
-		}, [value, onCopy, onError]);
+		}, [value, onCopy, revertOptimistic]);
 
 		return (
 			<button

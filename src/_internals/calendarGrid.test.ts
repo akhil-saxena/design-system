@@ -2,11 +2,21 @@ import { describe, expect, it } from "vitest";
 import { buildMonthGrid, getWeekDayLabels } from "./calendarGrid";
 
 describe("buildMonthGrid", () => {
-	it("returns exactly 42 cells (6 weeks × 7 days)", () => {
-		const g = buildMonthGrid(2026, 1, 0); // Feb 2026
+	it("returns exactly 42 flat cells; weeks are trimmed when all out-of-month", () => {
+		// Feb 2026 starts Sunday Feb 1, has 28 days, so Sun-first grid fills exactly
+		// 4 in-month weeks + 2 fully-out-of-month trailing weeks (which get trimmed).
+		const g = buildMonthGrid(2026, 1, 0);
 		expect(g.cells.length).toBe(42);
-		expect(g.weeks.length).toBe(6);
+		expect(g.weeks.length).toBe(4);
 		for (const w of g.weeks) expect(w.length).toBe(7);
+	});
+
+	it("April 2026 Mon-first returns 5 weeks (last fully-out-of-month week trimmed)", () => {
+		// Apr 1 2026 = Wed; weekStart=1 → leadingPad=2; 30 days + trailing → 6 weeks raw,
+		// last one (May 4-10) is fully out-of-month and is trimmed.
+		const g = buildMonthGrid(2026, 3, 1);
+		expect(g.cells.length).toBe(42);
+		expect(g.weeks.length).toBe(5);
 	});
 
 	it("Feb 2026 (Sunday=Feb 1) - Sunday-first: 0 leading pad", () => {
