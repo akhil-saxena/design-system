@@ -9,7 +9,7 @@ See: .planning/PROJECT.md (updated 2026-05-05)
 
 ## Current Position
 
-Phase: 18 of 27 (ConfirmDialog) — COMPLETE
+Phase: 19 of 27 (DataViz Primitives)
 Plan: 4 of 4 in current phase
 Status: Phase 18 complete — all 4 plans shipped; barrel exports verified, tsc clean, 15/15 ConfirmDialog tests pass
 Last activity: 2026-05-05 — 018-04 complete: phase gate passed (tsc exits 0, 794/797 tests pass, 15 Phase 18 tests pass)
