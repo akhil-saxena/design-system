@@ -53,6 +53,11 @@ export {
 	type ConfirmDialogTone,
 	type TypeToConfirmProps,
 } from "./overlays/ConfirmDialog";
+export {
+	CommandPalette,
+	type CommandPaletteItem,
+	type CommandPaletteProps,
+} from "./overlays/CommandPalette";
 export { Sheet, type SheetProps, type SheetSide } from "./overlays/Sheet";
 export { HoverCard, type HoverCardPlacement, type HoverCardProps } from "./overlays/HoverCard";
 export {

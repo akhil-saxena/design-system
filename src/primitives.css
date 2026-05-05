@@ -4929,3 +4929,138 @@
 	font-size: 11px;
 	font-weight: 700;
 }
+
+/* ─── DS atom: CommandPalette ────────────────────────────────────────────────
+   DSPortal-mounted search panel. Backdrop reuses .ds-atom-modal-backdrop.
+   Panel positioned at 15vh from top via backdrop inline style override
+   (alignItems:flex-start, paddingTop:15vh) set in the component.
+   Focus-trapped via useFocusTrap(panel, open). Document-level keyboard:
+   Escape → onClose+clearQuery, ArrowDown/Up → clamp activeIndex,
+   Enter → onSelect+onClose+clearQuery. Namespace: ds-atom-cmd-*. */
+
+.ds-atom-cmd-panel {
+  background: rgba(255, 255, 255, 0.97); /* always-light — NOT cream token; matches ConfirmDialog CONSTRAINT-010 */
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  width: 560px;
+  max-width: calc(100% - var(--space-4));
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--font);
+  color: var(--ink);
+  animation: ds-atom-cmd-in 0.18s ease-out;
+}
+.dark .ds-atom-cmd-panel {
+  background: var(--cream-2);
+  border-color: var(--rule);
+}
+
+/* search input row */
+.ds-atom-cmd-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+.ds-atom-cmd-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--ink);
+  min-width: 0;
+}
+.ds-atom-cmd-input::placeholder {
+  color: var(--ink-4);
+}
+
+/* scrollable results list */
+.ds-atom-cmd-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 6px 0;
+}
+
+/* group header */
+.ds-atom-cmd-group {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-4);
+  padding: 8px 14px 4px;
+}
+
+/* result item */
+.ds-atom-cmd-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 0 6px;
+  font-size: 13.5px;
+  color: var(--ink);
+  transition: background 0.1s;
+}
+.ds-atom-cmd-item:hover,
+.ds-atom-cmd-item[aria-selected="true"] {
+  background: var(--cream-2);
+}
+.dark .ds-atom-cmd-item:hover,
+.dark .ds-atom-cmd-item[aria-selected="true"] {
+  background: var(--cream-3);
+}
+
+/* item sub-elements */
+.ds-atom-cmd-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+.ds-atom-cmd-item-label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ds-atom-cmd-item-shortcut {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* no-results empty state */
+.ds-atom-cmd-empty {
+  padding: 24px 14px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-4);
+  font-family: var(--font);
+}
+
+@keyframes ds-atom-cmd-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
