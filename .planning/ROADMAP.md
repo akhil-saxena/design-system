@@ -28,7 +28,7 @@
 - [x] **Phase 20: StatCard** - KPI card composing label, value, trend badge, and Sparkline
 - [ ] **Phase 21: ColorPicker** - Full gradient picker with hue/opacity bars, swatches, and inline variant
 - [ ] **Phase 22: CommandPalette** - Cmd+K modal search with grouped results and keyboard navigation
-- [ ] **Phase 23: DataGrid** - Sortable/resizable/selectable table with bulk actions and pagination
+- [x] **Phase 23: DataGrid** - Sortable/resizable/selectable table with bulk actions and pagination
 - [ ] **Phase 24: Navigation** *(BLOCKED — awaiting ds-navigation.jsx ingest)* - TreeItem and CollapsibleSidebar
 - [ ] **Phase 25: NotificationCenter** *(BLOCKED — awaiting ds-notifications.jsx ingest)* - Notification panel and bell
 - [ ] **Phase 26: FileUploadZone** *(BLOCKED — awaiting ds-patterns.jsx ingest)* - Drag-and-drop file upload area
@@ -150,7 +150,7 @@
 **Goal**: Developers can render a sortable, resizable, and selectable table of job application data with bulk operations and pagination
 **Depends on**: Phases 1–16 (Badge, Checkbox, Button, ds-page-btn all already shipped); Phase 17 (Pagination component used in footer)
 **Requirements**: REQ-23-01
-**Status**: ready
+**Status**: complete
 **Estimated components**: 1 (DataGrid)
 **Success Criteria** (what must be TRUE):
   1. Clicking a sortable column header toggles asc/desc sort and shows an amber ▲/▼ indicator on the active column
@@ -160,7 +160,10 @@
   5. The footer shows row count in monospace and prev/page/next buttons; the table scrolls horizontally when columns exceed viewport width
   6. Arrow keys navigate between cells and Space bar toggles row selection via keyboard
   7. axe-core scan passes with zero violations in light and dark mode
-**Plans**: TBD
+**Plans**: 3 plans
+- [x] 023-01-PLAN.md — DataGrid CSS atoms + component (composes Table + 3 hooks)
+- [x] 023-02-PLAN.md — DataGrid unit test suite (18 tests covering REQ-23-01)
+- [x] 023-03-PLAN.md — Stories + barrel export + phase gate
 **UI hint**: yes
 
 ### Phase 24: Navigation
