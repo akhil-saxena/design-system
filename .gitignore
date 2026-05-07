@@ -7,7 +7,6 @@ playwright-report/
 storybook-static/
 .DS_Store
 Thumbs.db
-.vscode/
 .idea/
 *.swp
 *.log
@@ -19,4 +18,3 @@ yarn-error.log*
 .env.*.local
 .npmrc
 .claude/
-design_handoff/
