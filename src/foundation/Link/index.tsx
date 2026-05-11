@@ -1,17 +1,23 @@
-import { type AnchorHTMLAttributes, type CSSProperties, forwardRef } from "react";
+import { type AnchorHTMLAttributes, type CSSProperties, type ElementType, forwardRef } from "react";
 
-export type LinkVariant = "inline" | "footer" | "action";
+export type LinkVariant = "default" | "inline" | "footer" | "action" | "quiet";
 
 export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 	/** Style variant.
-	 * - `inline` — body-text inline link, underlined.
-	 * - `footer` — small footer/cross-link, semi-underlined.
+	 * - `default` — neutral inline link, amber on hover.
+	 * - `inline` — body-text inline link, amber underline.
+	 * - `footer` — small footer/cross-link.
 	 * - `action` — bold action link with trailing arrow (e.g. "Sign in →").
+	 * - `quiet` — muted, no underline until hover.
 	 * @default "inline"
 	 */
 	variant?: LinkVariant;
-	/** Override color. */
+	/** Override color (inline). */
 	color?: string;
+	/** Override the rendered element. Use to attach Link styles to a `<button>`
+	 * or any custom element. @default "a"
+	 */
+	as?: ElementType;
 }
 
 const baseStyle: CSSProperties = {
@@ -20,7 +26,9 @@ const baseStyle: CSSProperties = {
 	transition: "color .15s, text-decoration-color .15s",
 };
 
-const variantStyles: Record<LinkVariant, CSSProperties> = {
+// Inline styles only for variants that already shipped this way. New variants
+// (`default`, `quiet`) live entirely in primitives.css under data-variant.
+const variantStyles: Partial<Record<LinkVariant, CSSProperties>> = {
 	inline: {
 		color: "var(--amber-d)",
 		textDecoration: "underline",
@@ -46,34 +54,38 @@ const variantStyles: Record<LinkVariant, CSSProperties> = {
 };
 
 /**
- * Text-style hyperlink primitive. Three variants cover inline body links,
- * small footer cross-links, and bold action links with optional trailing arrows.
+ * Text-style hyperlink primitive. Five variants cover the common surfaces:
+ * default (neutral), inline (body-text amber), footer (small cross-link),
+ * action (bold with arrow), quiet (muted, hover-only underline).
  *
- * Renders as `<a>` so it spreads native anchor props (`href`, `target`, etc.).
+ * `as` overrides the rendered element — useful when the visual contract is
+ * "link" but the semantic is "button" (e.g. JS-handled actions).
  *
  * @example
  * <Link href="/signin">Sign in</Link>
- * <Link variant="footer" href="/terms">Terms</Link>
- * <Link variant="action" href="/signin">Back to sign in →</Link>
+ * <Link variant="quiet" href="/legal">Legal</Link>
+ * <Link variant="footer" as="button" onClick={clear}>CLEAR</Link>
  */
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
-	{ variant = "inline", color, className, style, children, ...rest },
+	{ variant = "inline", color, as, className, style, children, ...rest },
 	ref,
 ) {
+	const Tag = (as ?? "a") as ElementType;
+	const variantInline = variantStyles[variant];
 	return (
-		<a
+		<Tag
 			ref={ref}
 			className={`ds-atom-link${className ? ` ${className}` : ""}`}
 			data-variant={variant}
 			style={{
 				...baseStyle,
-				...variantStyles[variant],
+				...(variantInline ?? null),
 				...(color ? { color } : null),
 				...style,
 			}}
 			{...rest}
 		>
 			{children}
-		</a>
+		</Tag>
 	);
 });

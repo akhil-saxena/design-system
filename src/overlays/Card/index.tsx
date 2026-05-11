@@ -1,17 +1,32 @@
-import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } from "react";
+import {
+	type CSSProperties,
+	type ElementType,
+	type HTMLAttributes,
+	type ReactNode,
+	forwardRef,
+} from "react";
 
 export type CardVariant = "glass" | "amber" | "dark" | "kanban";
+export type CardPadding = "none" | "sm" | "md" | "lg" | "xl";
+export type CardRadius = "sm" | "md" | "lg" | "xl";
+export type CardTone = "amber" | "cream-2" | "flat";
+export type CardHover = "elevate";
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-	/** Surface style variant.
-	 * - `glass` - translucent glass surface (default).
-	 * - `amber` - amber-tinted CTA card.
-	 * - `dark` - always-dark surface independent of theme.
-	 * - `kanban` - compact glass with hover-lift; use for drag-and-drop boards.
-	 * @default "glass"
-	 */
+	/** Top-level preset (legacy). One of glass / amber / dark / kanban. Adds
+	 * its own bg + border treatment via `data-variant`. @default "glass" */
 	variant?: CardVariant;
-	/** Arbitrary JSX content; Card has no compound structure - compose freely. */
+	/** Padding scale. Independent of variant. */
+	padding?: CardPadding;
+	/** Border-radius token. Independent of variant. */
+	radius?: CardRadius;
+	/** Surface tone (separate axis from variant). `amber` tints the bg, `flat`
+	 * uses a dashed neutral border, `cream-2` switches to the cream-2 surface. */
+	tone?: CardTone;
+	/** Interactive elevation on hover. Adds shadow + cursor + border-color shift. */
+	hover?: CardHover;
+	/** Override the rendered element. @default "div" */
+	as?: ElementType;
 	children: ReactNode;
 }
 
@@ -22,39 +37,36 @@ const baseStyle: CSSProperties = {
 };
 
 /**
- * Card - surface primitive with 4 variants (D-300, D-301, D-302).
+ * Card — surface primitive. Visual is driven by a top-level `variant` plus
+ * independent data-attr axes (`padding`, `radius`, `tone`, `hover`).
  *
- *   <Card variant="glass">         // default - translucent glass surface
- *   <Card variant="amber">         // amber-tinted CTA card
- *   <Card variant="dark">          // always-dark surface (handoff invariant)
- *   <Card variant="kanban">        // compact glass card with hover-lift; visual surface only
+ *   <Card>...</Card>                                   // glass, default radius/padding
+ *   <Card variant="amber">...</Card>                   // amber CTA card
+ *   <Card variant="kanban" hover="elevate">...</Card>  // hover-lift kanban surface
+ *   <Card padding="lg" radius="xl" tone="cream-2">     // declarative overrides
  *
- * Children are arbitrary JSX - there is no compound API. Compose freely:
- *
- *   <Card variant="glass">
- *     <header>...</header>
- *     <div>...</div>
- *     <footer>...</footer>
- *   </Card>
- *
- * The `kanban` variant ships only the VISUAL surface (12px padding, 10px
- * radius, glass bg, hover shadow lift). Application data binding (logo +
- * role + age + chips + priority dot) is deferred to Wave 7 / DragDropList
- * per D-302.
+ * The four axes layer on top of each other — variant sets the baseline, the
+ * data-attr axes refine padding/radius/tone/hover. See primitives.css for
+ * the resolved rules.
  */
 export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
-	{ variant = "glass", className, style, children, ...rest },
+	{ variant = "glass", padding, radius, tone, hover, as, className, style, children, ...rest },
 	ref,
 ) {
+	const Tag = (as ?? "div") as ElementType;
 	return (
-		<div
+		<Tag
 			ref={ref}
 			className={`ds-atom-card${className ? ` ${className}` : ""}`}
 			data-variant={variant}
+			data-padding={padding}
+			data-radius={radius}
+			data-tone={tone}
+			data-hover={hover}
 			style={{ ...baseStyle, ...style }}
 			{...rest}
 		>
 			{children}
-		</div>
+		</Tag>
 	);
 });

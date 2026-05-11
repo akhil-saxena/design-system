@@ -1,5 +1,8 @@
 import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } from "react";
 
+export type DividerSpacing = "none" | "sm" | "md" | "lg" | "xl";
+export type DividerAccent = "dashed" | "amber";
+
 export interface DividerProps extends HTMLAttributes<HTMLDivElement> {
 	/** Optional centered label between two hairlines (e.g. "OR"). */
 	label?: ReactNode;
@@ -7,6 +10,13 @@ export interface DividerProps extends HTMLAttributes<HTMLDivElement> {
 	vertical?: boolean;
 	/** Override the hairline color (defaults to var(--rule)). */
 	color?: string;
+	/** Margin preset — data-attr-driven via primitives.css. When set, overrides
+	 * the legacy default (no margin for horizontal, var(--space-3) horizontal
+	 * for vertical). */
+	spacing?: DividerSpacing;
+	/** Accent style — `dashed` uses a dashed top-border, `amber` paints an
+	 * amber-tinted 2px hairline. */
+	accent?: DividerAccent;
 }
 
 /**
@@ -16,26 +26,37 @@ export interface DividerProps extends HTMLAttributes<HTMLDivElement> {
  *   monospace caps if provided (e.g. the "OR" between OAuth and email forms).
  * - Vertical: `1px` rule fills the parent's height.
  *
+ * New axes (data-attr driven):
+ * - `spacing` adds the bundle's margin presets.
+ * - `accent` swaps to dashed or amber-tinted stylings via primitives.css.
+ *
  * @example
  * <Divider />
- * <Divider label="OR" />
- * <Divider vertical />
+ * <Divider label="OR" spacing="md" />
+ * <Divider accent="amber" spacing="lg" />
  */
 export const Divider = forwardRef<HTMLDivElement, DividerProps>(function Divider(
-	{ label, vertical = false, color, className, style, ...rest },
+	{ label, vertical = false, color, spacing, accent, className, style, ...rest },
 	ref,
 ) {
 	const ruleColor = color ?? "var(--rule)";
+	const orient = vertical ? "vertical" : "horizontal";
+	// Inline background only applies when the consumer hasn't selected an
+	// accent style (since `dashed` swaps to a top-border, `amber` overrides bg).
+	const inlineBg = accent ? undefined : ruleColor;
 
 	if (vertical) {
 		return (
 			<div
 				ref={ref}
 				className={`ds-atom-divider${className ? ` ${className}` : ""}`}
+				data-orient={orient}
+				data-spacing={spacing}
+				data-style={accent}
 				style={{
 					width: 1,
 					alignSelf: "stretch",
-					background: ruleColor,
+					background: inlineBg,
 					...style,
 				}}
 				{...rest}
@@ -48,10 +69,13 @@ export const Divider = forwardRef<HTMLDivElement, DividerProps>(function Divider
 			<div
 				ref={ref}
 				className={`ds-atom-divider${className ? ` ${className}` : ""}`}
+				data-orient={orient}
+				data-spacing={spacing}
+				data-style={accent}
 				style={{
 					height: 1,
 					width: "100%",
-					background: ruleColor,
+					background: inlineBg,
 					...style,
 				}}
 				{...rest}
@@ -83,6 +107,8 @@ export const Divider = forwardRef<HTMLDivElement, DividerProps>(function Divider
 		<div
 			ref={ref}
 			className={`ds-atom-divider${className ? ` ${className}` : ""}`}
+			data-orient={orient}
+			data-spacing={spacing}
 			data-labeled="true"
 			style={baseLabeled}
 			{...rest}

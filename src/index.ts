@@ -53,6 +53,7 @@ export { MiniDonut, type MiniDonutProps } from "./display/MiniDonut";
 export { MiniBar, type MiniBarProps } from "./display/MiniBar";
 export { RangeSlider, type RangeSliderProps } from "./inputs/RangeSlider";
 export { StarRating, type StarRatingProps, type StarRatingSize } from "./inputs/StarRating";
+export { StatusPill, type StatusPillProps, type StatusPillStage } from "./inputs/StatusPill";
 export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./overlays/StickyNote";
 export { Card, type CardProps, type CardVariant } from "./overlays/Card";
 export { DSPortal, type DSPortalProps } from "./_internals/DSPortal";

@@ -5218,3 +5218,323 @@
 /* ─── DS layout: SplitHero ─────────────────────────────────────────────
    All sizing/responsive concerns are emitted by the component (inline
    <style> with component-scoped class). No global rules needed here. */
+
+/* ─── DS atom: StatusPill ──────────────────────────────────────────────
+   Per-stage pipeline chip. Six locked stages map to subtle tints. Used in
+   both kanban cards and DataGrid status columns from the same atom so the
+   visual contract stays single-sourced.
+   Ported from design/cairn_ds_additions/Cairn DS Additions.html §01. */
+.ds-atom-statuspill {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 11px;
+	font-weight: 600;
+	padding: 3px 9px;
+	border-radius: 999px;
+	font-family: var(--font);
+	border: 1px solid transparent;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: filter 0.12s, border-color 0.12s;
+	background: transparent;
+}
+.ds-atom-statuspill[data-interactive="false"] {
+	cursor: default;
+}
+.ds-atom-statuspill:hover {
+	filter: brightness(0.97);
+}
+.dark .ds-atom-statuspill:hover {
+	filter: brightness(1.08);
+}
+.ds-atom-statuspill-chev {
+	font-size: 10px;
+	opacity: 0.65;
+	margin-left: 1px;
+}
+.ds-atom-statuspill.wishlist {
+	background: var(--cream-2);
+	color: var(--ink-3);
+	border-color: var(--rule);
+}
+.ds-atom-statuspill.applied {
+	background: transparent;
+	color: var(--ink-2);
+	border-color: var(--ink-5);
+}
+.ds-atom-statuspill.screening {
+	background: rgba(245, 158, 11, 0.1);
+	color: var(--amber-d);
+}
+.ds-atom-statuspill.interviewing {
+	background: rgba(245, 158, 11, 0.18);
+	color: var(--amber-d);
+	font-weight: 700;
+}
+.ds-atom-statuspill.offer {
+	background: rgba(34, 197, 94, 0.14);
+	color: var(--green);
+}
+.ds-atom-statuspill.closed {
+	background: var(--cream-3);
+	color: var(--ink-3);
+}
+.dark .ds-atom-statuspill.offer {
+	background: rgba(34, 197, 94, 0.18);
+	color: var(--green-vivid);
+}
+.ds-atom-statuspill:focus-visible {
+	outline: none;
+	box-shadow: var(--focus-ring);
+}
+
+/* ─── DS atom: Heading (data-attr extensions) ─────────────────────────
+   The TS Heading component already drives sizing via inline styles when
+   `size` is numeric. These rules add a data-attr-driven path so calls
+   like <Heading size="2xl" weight="black" tone="amber"> work declaratively
+   (CSS does the work, no inline style allocation). Bundle: §02. */
+.ds-atom-heading[data-size="2xs"] {
+	font-size: var(--text-2xs);
+}
+.ds-atom-heading[data-size="xs"] {
+	font-size: var(--text-xs);
+}
+.ds-atom-heading[data-size="sm"] {
+	font-size: var(--text-sm);
+}
+.ds-atom-heading[data-size="base"] {
+	font-size: var(--text-base);
+}
+.ds-atom-heading[data-size="md"] {
+	font-size: var(--text-md);
+}
+.ds-atom-heading[data-size="lg"] {
+	font-size: var(--text-lg);
+}
+.ds-atom-heading[data-size="xl"] {
+	font-size: var(--text-xl);
+}
+.ds-atom-heading[data-size="2xl"] {
+	font-size: var(--text-2xl);
+}
+.ds-atom-heading[data-size="3xl"] {
+	font-size: var(--text-3xl);
+	letter-spacing: var(--ls-tighter);
+}
+.ds-atom-heading[data-size="4xl"] {
+	font-size: var(--text-4xl);
+	letter-spacing: var(--ls-tighter);
+}
+.ds-atom-heading[data-weight="regular"] {
+	font-weight: 500;
+}
+.ds-atom-heading[data-weight="medium"] {
+	font-weight: 600;
+}
+.ds-atom-heading[data-weight="bold"] {
+	font-weight: 700;
+}
+.ds-atom-heading[data-weight="black"] {
+	font-weight: 900;
+}
+.ds-atom-heading[data-tone="ink-2"] {
+	color: var(--ink-2);
+}
+.ds-atom-heading[data-tone="ink-3"] {
+	color: var(--ink-3);
+}
+.ds-atom-heading[data-tone="amber"] {
+	color: var(--amber-d);
+}
+
+/* ─── DS atom: Text (data-attr extensions) ────────────────────────────
+   Adds a declarative path next to the existing `variant`-driven one.
+   Variants ('body'|'small'|'caption'|'legal') still work via the TS
+   inline-style path; size/weight/tone/mono/leading are the new data-
+   attr-driven path. Bundle: §03. */
+.ds-atom-text[data-size="2xs"] {
+	font-size: var(--text-2xs);
+}
+.ds-atom-text[data-size="xs"] {
+	font-size: var(--text-xs);
+}
+.ds-atom-text[data-size="sm"] {
+	font-size: var(--text-sm);
+}
+.ds-atom-text[data-size="base"] {
+	font-size: var(--text-base);
+}
+.ds-atom-text[data-size="md"] {
+	font-size: var(--text-md);
+}
+.ds-atom-text[data-size="lg"] {
+	font-size: var(--text-lg);
+}
+.ds-atom-text[data-weight="regular"] {
+	font-weight: 400;
+}
+.ds-atom-text[data-weight="medium"] {
+	font-weight: 500;
+}
+.ds-atom-text[data-weight="bold"] {
+	font-weight: 600;
+}
+.ds-atom-text[data-weight="black"] {
+	font-weight: 700;
+}
+.ds-atom-text[data-tone="ink"] {
+	color: var(--ink);
+}
+.ds-atom-text[data-tone="ink-3"] {
+	color: var(--ink-3);
+}
+.ds-atom-text[data-tone="ink-4"] {
+	color: var(--ink-4);
+}
+.ds-atom-text[data-tone="amber"] {
+	color: var(--amber-d);
+}
+.ds-atom-text[data-tone="red"] {
+	color: var(--red);
+}
+.ds-atom-text[data-tone="green"] {
+	color: var(--green);
+}
+.ds-atom-text[data-mono="true"] {
+	font-family: var(--mono);
+	letter-spacing: 0.02em;
+}
+.ds-atom-text[data-leading="tight"] {
+	line-height: var(--lh-tight);
+}
+.ds-atom-text[data-leading="snug"] {
+	line-height: var(--lh-snug);
+}
+.ds-atom-text[data-leading="relaxed"] {
+	line-height: var(--lh-relaxed);
+}
+
+/* ─── DS atom: Eyebrow (tone data-attr extension) ─────────────────────
+   Existing `size` + `color` props still work via inline style; new `tone`
+   prop is data-attr-driven. Bundle: §04. */
+.ds-atom-eyebrow[data-tone="amber"] {
+	color: var(--amber-d);
+}
+.ds-atom-eyebrow[data-tone="ink-4"] {
+	color: var(--ink-4);
+}
+
+/* ─── DS atom: Card (data-attr extensions) ────────────────────────────
+   The TS Card has `variant` ('glass'|'amber'|'dark'|'kanban'). New
+   data-attrs (padding/radius/hover/tone) are independent and additive:
+   they layer on top of the variant. Bundle: §05. */
+.ds-atom-card[data-padding="none"] {
+	padding: 0;
+}
+.ds-atom-card[data-padding="sm"] {
+	padding: var(--space-3);
+}
+.ds-atom-card[data-padding="md"] {
+	padding: var(--space-4);
+}
+.ds-atom-card[data-padding="lg"] {
+	padding: var(--space-6);
+}
+.ds-atom-card[data-padding="xl"] {
+	padding: var(--space-8);
+}
+.ds-atom-card[data-radius="sm"] {
+	border-radius: var(--radius-sm);
+}
+.ds-atom-card[data-radius="md"] {
+	border-radius: var(--radius-md);
+}
+.ds-atom-card[data-radius="lg"] {
+	border-radius: var(--radius-lg);
+}
+.ds-atom-card[data-radius="xl"] {
+	border-radius: var(--radius-xl);
+}
+.ds-atom-card[data-hover="elevate"] {
+	cursor: pointer;
+	transition: box-shadow 0.15s, border-color 0.15s;
+}
+.ds-atom-card[data-hover="elevate"]:hover {
+	box-shadow: var(--shadow-2);
+	border-color: rgba(0, 0, 0, 0.12);
+}
+.dark .ds-atom-card[data-hover="elevate"]:hover {
+	border-color: var(--ink-4);
+}
+.ds-atom-card[data-tone="amber"] {
+	background: var(--amber-l);
+	border-color: rgba(245, 158, 11, 0.3);
+}
+.ds-atom-card[data-tone="cream-2"] {
+	background: var(--cream-2);
+}
+.ds-atom-card[data-tone="flat"] {
+	background: transparent;
+	border: 1px dashed var(--rule);
+}
+
+/* ─── DS atom: Link (quiet + default variants) ────────────────────────
+   The TS Link already supports inline / footer / action. Bundle adds
+   `default` (neutral underline that turns amber on hover) and `quiet`
+   (no underline until hover). Bundle: §06. */
+.ds-atom-link[data-variant="default"] {
+	color: var(--ink-2);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
+}
+.ds-atom-link[data-variant="default"]:hover {
+	color: var(--ink);
+	text-decoration-color: var(--amber);
+}
+.ds-atom-link[data-variant="quiet"] {
+	color: var(--ink-3);
+	text-decoration: none;
+}
+.ds-atom-link[data-variant="quiet"]:hover {
+	color: var(--ink);
+	text-decoration: underline;
+}
+
+/* ─── DS atom: Divider (spacing + style extensions) ───────────────────
+   The TS Divider already supports horizontal/vertical + optional label.
+   New data-attrs add spacing presets + dashed/amber-accent styles.
+   Bundle: §07. */
+.ds-atom-divider[data-spacing="none"] {
+	margin: 0;
+}
+.ds-atom-divider[data-spacing="sm"][data-orient="horizontal"] {
+	margin: var(--space-2) 0;
+}
+.ds-atom-divider[data-spacing="md"][data-orient="horizontal"] {
+	margin: var(--space-4) 0;
+}
+.ds-atom-divider[data-spacing="lg"][data-orient="horizontal"] {
+	margin: var(--space-6) 0;
+}
+.ds-atom-divider[data-spacing="xl"][data-orient="horizontal"] {
+	margin: var(--space-8) 0;
+}
+.ds-atom-divider[data-spacing="sm"][data-orient="vertical"] {
+	margin: 0 var(--space-2);
+}
+.ds-atom-divider[data-spacing="md"][data-orient="vertical"] {
+	margin: 0 var(--space-3);
+}
+.ds-atom-divider[data-spacing="lg"][data-orient="vertical"] {
+	margin: 0 var(--space-4);
+}
+.ds-atom-divider[data-style="dashed"] {
+	background: transparent;
+	border-top: 1px dashed var(--rule);
+}
+.ds-atom-divider[data-style="amber"] {
+	background: rgba(245, 158, 11, 0.3);
+	height: 2px;
+}
