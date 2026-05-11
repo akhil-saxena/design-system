@@ -88,7 +88,11 @@ const sizeStyles: Record<ButtonSize, CSSProperties> = {
 	xs: { fontSize: 10, padding: "3px 8px", borderRadius: 5 },
 	sm: { fontSize: 11, padding: "5px 10px" },
 	md: {},
-	lg: { fontSize: 14, padding: "10px 20px", borderRadius: 9 },
+	// lg aligns with OAuthButton's shape so primary CTAs and OAuth buttons
+	// stack at the same height (44px) on auth/onboarding forms. fontSize: 13
+	// matches OAuthButton; padding swapped from 10px 20px (~40px implicit
+	// height) to explicit 0 20px + height 44px for a deterministic match.
+	lg: { fontSize: 13, height: 44, padding: "0 20px", borderRadius: 9, fontWeight: 700 },
 };
 
 /**
