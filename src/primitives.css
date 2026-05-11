@@ -5150,3 +5150,68 @@
 	font-size: 10px;
 	color: var(--ink-4);
 }
+
+/* ─── DS atom: OAuthButton ─────────────────────────────────────────────
+   Inherits the same interaction conventions as DS Button — :active scale,
+   :focus-visible amber ring, :disabled opacity — so OAuth and email-form
+   buttons feel identical to the user. */
+.ds-atom-oauthbtn:active:not(:disabled) {
+	transform: scale(0.97);
+}
+.ds-atom-oauthbtn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+.ds-atom-oauthbtn:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+.ds-atom-oauthbtn:hover:not(:disabled) {
+	background: var(--cream-2);
+	border-color: rgba(0, 0, 0, 0.12);
+}
+.ds-atom-oauthbtn[data-dark="true"]:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* ─── DS atom: Link ─────────────────────────────────────────────────────
+   Three variants (inline / footer / action). Hover deepens the underline
+   from 25% → 100% opacity (light) / 40% → 100% (dark) per the design's
+   "full-opacity underline on hover" convention. No :active transform —
+   links aren't buttons; the underline change is the press affordance. */
+.ds-atom-link {
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	cursor: pointer;
+	transition: color 0.15s, text-decoration-color 0.15s;
+}
+.ds-atom-link:hover {
+	text-decoration-color: currentColor;
+}
+.ds-atom-link:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+	border-radius: 2px;
+}
+.dark .ds-atom-link[data-variant="footer"],
+.dark .ds-atom-link[data-variant="action"] {
+	color: var(--ink);
+	text-decoration-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ─── DS atom: Heading / Text / Eyebrow ────────────────────────────────
+   Non-interactive primitives — colors flow via tokens.css :root.dark
+   automatically. No hover/focus rules needed. */
+
+/* ─── DS atom: Divider ─────────────────────────────────────────────────
+   Hairline rules use var(--rule) which flips in dark mode via tokens.css.
+   The labeled-variant <span> children inherit the labelStyle inline. */
+
+/* ─── DS atom: DotGrid ─────────────────────────────────────────────────
+   aria-hidden + pointer-events: none on the element itself. */
+
+/* ─── DS layout: SplitHero ─────────────────────────────────────────────
+   All sizing/responsive concerns are emitted by the component (inline
+   <style> with component-scoped class). No global rules needed here. */

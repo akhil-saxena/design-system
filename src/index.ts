@@ -1,7 +1,32 @@
 // @akhil-saxena/design-system v0.1.0 - barrel exports.
 
 export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from "./inputs/Button";
+export {
+	OAuthButton,
+	type OAuthButtonProps,
+	type OAuthProvider,
+} from "./inputs/OAuthButton";
 export { TextInput, type TextInputProps } from "./inputs/TextInput";
+export {
+	Eyebrow,
+	type EyebrowProps,
+	type EyebrowSize,
+} from "./foundation/Eyebrow";
+export {
+	Text,
+	type TextProps,
+	type TextVariant,
+	type TextElement,
+} from "./foundation/Text";
+export {
+	Heading,
+	type HeadingProps,
+	type HeadingLevel,
+} from "./foundation/Heading";
+export { Divider, type DividerProps } from "./foundation/Divider";
+export { Link, type LinkProps, type LinkVariant } from "./foundation/Link";
+export { DotGrid, type DotGridProps } from "./foundation/DotGrid";
+export { SplitHero, type SplitHeroProps } from "./layout/SplitHero";
 export { Textarea, type TextareaProps } from "./inputs/Textarea";
 export { Badge, type BadgeProps, type BadgeTone } from "./inputs/Badge";
 export { Kbd, type KbdProps, type KbdSize } from "./inputs/Kbd";
