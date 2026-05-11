@@ -19,6 +19,12 @@ export interface AlertBannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "
 	children?: ReactNode;
 	/** Whether to show the dismiss X button. Defaults to `!!onDismiss`. Pass `false` to suppress it. */
 	dismissible?: boolean;
+	/** Whether the title renders in semibold (600) or regular (400) weight.
+	 * Default `true` keeps the original bold weight; `false` is for surfaces
+	 * where the icon + tone already signal severity and bold feels heavy.
+	 * @default true
+	 */
+	boldTitle?: boolean;
 }
 
 const TONE_ICON: Record<AlertBannerTone, ReactNode> = {
@@ -65,6 +71,7 @@ export const AlertBanner = forwardRef<HTMLDivElement, AlertBannerProps>(function
 		description,
 		children,
 		dismissible,
+		boldTitle = true,
 		className,
 		style,
 		...rest
@@ -79,6 +86,7 @@ export const AlertBanner = forwardRef<HTMLDivElement, AlertBannerProps>(function
 			ref={ref}
 			className={`ds-atom-banner${className ? ` ${className}` : ""}`}
 			data-variant={tone}
+			data-bold-title={boldTitle ? "true" : "false"}
 			style={{ ...baseStyle, ...style }}
 			{...rest}
 		>
