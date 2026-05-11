@@ -56,12 +56,16 @@ const variantStyles: Record<ButtonVariant, CSSProperties> = {
 		borderColor: "var(--amber-d)",
 		fontWeight: 600,
 	},
-	// Secondary = outlined cream surface. Use for second-priority actions.
+	// Secondary = clean white outlined surface. Use for second-priority actions.
+	// Previous translucent glass (var(--g-bg) + backdrop-filter) rendered as a
+	// muted grey over cream and looked disabled/greyed-out. Plain white + wire
+	// border reads crisply on any background. Dark-mode override in primitives.css
+	// flips background to translucent-white over dark surfaces.
 	secondary: {
-		background: "var(--g-bg)",
-		backdropFilter: "blur(6px)",
-		WebkitBackdropFilter: "blur(6px)",
+		background: "#fff",
 		color: "var(--ink-2)",
+		borderColor: "var(--wire, rgba(0, 0, 0, 0.18))",
+		fontWeight: 600,
 	},
 	// Ghost = transparent, text-only. Use for tertiary / icon-only / cancel-in-modal.
 	// Color flips via `:root.dark .ds-atom-btn[data-variant="ghost"]` in primitives.css.
