@@ -103,6 +103,41 @@
 	--space-15: 60px;
 	--space-16: 64px;
 
+	/* Type scale — derived from auth-design-handoff README §Typography.
+	   Tailwind-style nomenclature for 1:1 cross-app reuse. */
+	--text-2xs: 9.5px;   /* mono caps, stage chip labels, smallest legal */
+	--text-xs:  11px;    /* legal copy */
+	--text-sm:  12.5px;  /* small body, footer links */
+	--text-base: 13px;   /* default body text */
+	--text-md:  15px;
+	--text-lg:  17px;
+	--text-xl:  22px;
+	--text-2xl: 28px;    /* form headlines */
+	--text-3xl: 40px;
+	--text-4xl: 44px;    /* mobile hero / tablet-compact hero */
+	--text-5xl: 60px;    /* desktop hero w/ subline */
+	--text-6xl: 72px;    /* desktop hero w/o subline */
+
+	/* Weights */
+	--weight-regular:   400;
+	--weight-medium:    500;
+	--weight-semibold:  600;
+	--weight-bold:      700;
+	--weight-extrabold: 800;
+	--weight-black:     900;
+
+	/* Line heights */
+	--lh-tight:   0.94;  /* hero display headlines */
+	--lh-snug:    1.08;  /* form headlines */
+	--lh-normal:  1.5;
+	--lh-relaxed: 1.55;  /* body */
+
+	/* Letter spacing — derived from the design's display-typography scale */
+	--ls-tighter: -0.038em;  /* size > 28 (hero) */
+	--ls-tight:   -0.024em;  /* size > 20 */
+	--ls-base:    -0.005em;  /* default */
+	--ls-wide:    0.1em;     /* mono caps, eyebrows, stage chips */
+
 	/* Motion tokens - handoff v1.0 */
 	--ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 	--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);

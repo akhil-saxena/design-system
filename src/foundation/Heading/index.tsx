@@ -29,7 +29,9 @@ export const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(function Hea
 	ref,
 ) {
 	const Tag = `h${level}` as unknown as React.ElementType;
-	const letterSpacing = size > 28 ? "-0.038em" : size > 20 ? "-0.024em" : "-0.005em";
+	// Auto-derive letter-spacing from the type-scale tokens.
+	const letterSpacing =
+		size > 28 ? "var(--ls-tighter)" : size > 20 ? "var(--ls-tight)" : "var(--ls-base)";
 	const composed: CSSProperties = {
 		fontFamily: "var(--display)",
 		fontSize: size,

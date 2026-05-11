@@ -17,14 +17,18 @@ export interface TextProps extends HTMLAttributes<HTMLElement> {
 const baseStyle: CSSProperties = {
 	fontFamily: "var(--font)",
 	margin: 0,
-	lineHeight: 1.55,
+	lineHeight: "var(--lh-relaxed)" as unknown as number,
 };
 
 const variantStyles: Record<TextVariant, CSSProperties> = {
-	body: { fontSize: 13, color: "var(--ink-2)" },
-	small: { fontSize: 12, color: "var(--ink-3)" },
-	caption: { fontSize: 11.5, color: "var(--ink-3)" },
-	legal: { fontSize: 11, color: "var(--ink-4)", lineHeight: 1.5 },
+	body: { fontSize: "var(--text-base)", color: "var(--ink-2)" },
+	small: { fontSize: "var(--text-sm)", color: "var(--ink-3)" },
+	caption: { fontSize: "var(--text-sm)", color: "var(--ink-3)" },
+	legal: {
+		fontSize: "var(--text-xs)",
+		color: "var(--ink-4)",
+		lineHeight: "var(--lh-normal)" as unknown as number,
+	},
 };
 
 /**

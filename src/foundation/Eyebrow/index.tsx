@@ -12,16 +12,16 @@ export interface EyebrowProps extends HTMLAttributes<HTMLSpanElement> {
 const baseStyle: CSSProperties = {
 	display: "inline-block",
 	fontFamily: "var(--mono)",
-	fontWeight: 700,
-	letterSpacing: "0.1em",
+	fontWeight: "var(--weight-bold)" as unknown as number,
+	letterSpacing: "var(--ls-wide)",
 	textTransform: "uppercase",
 	lineHeight: 1,
 };
 
 const sizeStyles: Record<EyebrowSize, CSSProperties> = {
 	xs: { fontSize: 8 },
-	sm: { fontSize: 9.5 },
-	md: { fontSize: 11 },
+	sm: { fontSize: "var(--text-2xs)" },
+	md: { fontSize: "var(--text-xs)" },
 };
 
 /**
