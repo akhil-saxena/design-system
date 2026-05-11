@@ -588,7 +588,7 @@ export function OverviewPage() {
 						marginBottom: 20,
 					}}
 				>
-					@akhil-saxena · design system · v1.3.0
+					@akhil-saxena · design system · v1.4.0
 				</div>
 				<div
 					style={{
