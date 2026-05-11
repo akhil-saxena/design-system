@@ -58,17 +58,18 @@ export const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(function Hea
 	const isTokenWeight = typeof weight === "string";
 	const dataSize = isTokenSize ? (size as HeadingSizeToken) : undefined;
 	const dataWeight = isTokenWeight ? (weight as HeadingWeightToken) : undefined;
-	// Numeric size still drives inline letter-spacing per the legacy contract;
-	// token-size leaves letter-spacing to CSS so primitives.css owns it fully.
+	// Numeric size drives inline letter-spacing + line-height per the legacy
+	// contract; token-size leaves both to CSS so primitives.css owns them
+	// (line-height varies by size — see `data-size` rules).
 	const composed: CSSProperties = {
 		fontFamily: "var(--display)",
 		color: color ?? (tone ? undefined : "var(--ink)"),
-		lineHeight: 1,
 		margin: 0,
 		...(isTokenSize
 			? null
 			: {
 					fontSize: size as number,
+					lineHeight: 1,
 					letterSpacing:
 						(size as number) > 28
 							? "var(--ls-tighter)"

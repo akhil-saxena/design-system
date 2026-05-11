@@ -51,7 +51,7 @@ export const StatusPill = forwardRef<HTMLButtonElement | HTMLSpanElement, Status
 		{ stage, withChevron, interactive = true, className, children, ...rest },
 		ref,
 	) {
-		const cls = `ds-atom-statuspill ${stage}${className ? ` ${className}` : ""}`;
+		const cls = `ds-atom-statuspill${className ? ` ${className}` : ""}`;
 		if (interactive) {
 			return (
 				<button

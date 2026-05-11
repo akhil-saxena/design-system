@@ -1,6 +1,6 @@
-import { type CSSProperties, type ReactNode, forwardRef } from "react";
+import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } from "react";
 
-export interface SplitHeroProps {
+export interface SplitHeroProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	/** Left/aside content — typically a marketing or brand panel on a dark surface. */
 	aside: ReactNode;
 	/** Right/main content — typically the form, body, or interactive payload. */
@@ -15,10 +15,6 @@ export interface SplitHeroProps {
 	stackBelow?: number;
 	/** When viewport ≤ this breakpoint (px), hide the aside entirely. @default 600 */
 	hideAsideBelow?: number;
-	/** Optional className for the root element. */
-	className?: string;
-	/** Optional style for the root element. */
-	style?: CSSProperties;
 }
 
 /**
@@ -50,6 +46,7 @@ export const SplitHero = forwardRef<HTMLElement, SplitHeroProps>(function SplitH
 		hideAsideBelow = 600,
 		className,
 		style,
+		...rest
 	},
 	ref,
 ) {
@@ -122,6 +119,7 @@ export const SplitHero = forwardRef<HTMLElement, SplitHeroProps>(function SplitH
 				ref={ref}
 				className={`ds-layout-splithero ${id}${className ? ` ${className}` : ""}`}
 				style={rootStyle}
+				{...rest}
 			>
 				<div data-slot="aside" style={asideStyle}>
 					{aside}

@@ -11,24 +11,9 @@ export interface OAuthButtonProps extends ButtonHTMLAttributes<HTMLButtonElement
 	dark?: boolean;
 }
 
-const baseStyle: CSSProperties = {
-	display: "inline-flex",
-	alignItems: "center",
-	justifyContent: "center",
-	gap: 10,
-	height: 44,
-	width: "100%",
-	padding: "0 18px",
-	borderRadius: 9,
-	fontFamily: "var(--font)",
-	fontSize: 13,
-	fontWeight: 600,
-	cursor: "pointer",
-	transition: "background-color .15s, border-color .15s, transform .08s",
-	userSelect: "none",
-	WebkitTapHighlightColor: "transparent",
-};
-
+// Geometry (height/radius/font/padding/gap/transition) lives in primitives.css
+// under `.ds-atom-oauthbtn` so the theme layer can override. Inline style is
+// reserved for prop-derived swaps (dark mode bg/color/border).
 const labels: Record<OAuthProvider, string> = {
 	google: "Continue with Google",
 	github: "Continue with GitHub",
@@ -51,7 +36,6 @@ export const OAuthButton = forwardRef<HTMLButtonElement, OAuthButtonProps>(funct
 	ref,
 ) {
 	const composedStyle: CSSProperties = {
-		...baseStyle,
 		background: dark ? "rgba(255,255,255,.06)" : "#fff",
 		color: dark ? "var(--cream)" : "var(--ink-2)",
 		border: dark ? "1.5px solid rgba(255,255,255,.2)" : "1.5px solid var(--wire)",

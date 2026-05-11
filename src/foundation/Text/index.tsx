@@ -41,7 +41,7 @@ const variantStyles: Record<TextVariant, CSSProperties> = {
 	legal: {
 		fontSize: "var(--text-xs)",
 		color: "var(--ink-4)",
-		lineHeight: "var(--lh-normal)" as unknown as number,
+		lineHeight: "var(--lh-normal)",
 	},
 };
 
@@ -85,11 +85,11 @@ export const Text = forwardRef<HTMLElement, TextProps>(function Text(
 	const variantPick: CSSProperties = {
 		...(size ? null : { fontSize: variantBase.fontSize }),
 		...(tone ? null : { color: variantBase.color }),
-		...(variantBase.lineHeight !== undefined && { lineHeight: variantBase.lineHeight }),
+		...(variantBase.lineHeight !== undefined ? { lineHeight: variantBase.lineHeight } : null),
 	};
 	const composed: CSSProperties = {
 		...baseStyle,
-		lineHeight: leading ? undefined : ("var(--lh-relaxed)" as unknown as number),
+		lineHeight: leading ? undefined : "var(--lh-relaxed)",
 		...variantPick,
 		...(color ? { color } : null),
 		...(maxWidth ? { maxWidth } : null),

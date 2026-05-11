@@ -35,10 +35,10 @@ export const DotGrid = forwardRef<HTMLDivElement, DotGridProps>(function DotGrid
 	},
 	ref,
 ) {
+	// Geometry (position/inset/pointer-events) lives in primitives.css under
+	// `.ds-atom-dotgrid` so consumers can override via cascade. Inline style
+	// keeps only the prop-derived bits (the radial-gradient image + opacity).
 	const composed: CSSProperties = {
-		position: "absolute",
-		inset: 0,
-		pointerEvents: "none",
 		opacity,
 		backgroundImage: `radial-gradient(circle, ${color} ${dotRadius}px, transparent ${dotRadius + 0.2}px)`,
 		backgroundSize: `${tile}px ${tile}px`,

@@ -16,7 +16,7 @@ export interface EyebrowProps extends HTMLAttributes<HTMLSpanElement> {
 const baseStyle: CSSProperties = {
 	display: "inline-block",
 	fontFamily: "var(--mono)",
-	fontWeight: "var(--weight-bold)" as unknown as number,
+	fontWeight: "var(--weight-bold)",
 	letterSpacing: "var(--ls-wide)",
 	textTransform: "uppercase",
 	lineHeight: 1,

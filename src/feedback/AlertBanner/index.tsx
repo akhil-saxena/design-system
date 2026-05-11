@@ -86,7 +86,7 @@ export const AlertBanner = forwardRef<HTMLDivElement, AlertBannerProps>(function
 			ref={ref}
 			className={`ds-atom-banner${className ? ` ${className}` : ""}`}
 			data-variant={tone}
-			data-bold-title={boldTitle ? "true" : "false"}
+			data-bold-title={boldTitle ? undefined : "false"}
 			style={{ ...baseStyle, ...style }}
 			{...rest}
 		>

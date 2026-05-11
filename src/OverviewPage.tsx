@@ -93,14 +93,18 @@ const categories = [
 			"Button",
 			"Checkbox",
 			"Chip",
+			"ColorPicker",
 			"DatePicker",
 			"DateRangePicker",
+			"Kbd",
 			"MultiSelect",
 			"NumberStepper",
+			"OAuthButton",
 			"Radio",
 			"RangeSlider",
 			"Select",
 			"StarRating",
+			"StatusPill",
 			"TextInput",
 			"Textarea",
 			"Toggle",
@@ -112,6 +116,8 @@ const categories = [
 		components: [
 			"BottomSheet",
 			"Card",
+			"CommandPalette",
+			"ConfirmDialog",
 			"HoverCard",
 			"Lightbox",
 			"Modal",
@@ -129,7 +135,9 @@ const categories = [
 			"Breadcrumbs",
 			"Calendar",
 			"Carousel",
+			"DataGrid",
 			"InfiniteList",
+			"Pagination",
 			"SegmentedControl",
 			"Table",
 			"Tabs",
@@ -147,16 +155,25 @@ const categories = [
 		components: [
 			"CopyToClipboard",
 			"InlineEdit",
+			"RelativeTime",
 			"RichText",
 			"SearchAndFilters",
 			"Sortable",
 			"SplitButton",
 		],
 	},
-	{ name: "Layout", id: "layout", components: ["AppBar", "AppShell", "Footer"] },
-	{ name: "Display", id: "display", components: ["Avatar", "RollingNumber"] },
+	{ name: "Layout", id: "layout", components: ["AppBar", "AppShell", "Footer", "SplitHero"] },
+	{
+		name: "Display",
+		id: "display",
+		components: ["Avatar", "MiniBar", "MiniDonut", "RollingNumber", "Sparkline", "StatCard"],
+	},
 	{ name: "Patterns", id: "patterns", components: ["Coachmark", "FormValidation", "Wizard"] },
-	{ name: "Foundation", id: "foundation", components: ["TokenCheck"] },
+	{
+		name: "Foundation",
+		id: "foundation",
+		components: ["Divider", "DotGrid", "Eyebrow", "Heading", "Link", "Text"],
+	},
 ];
 
 const componentStoryId = (categoryId: string, name: string) =>
@@ -571,7 +588,7 @@ export function OverviewPage() {
 						marginBottom: 20,
 					}}
 				>
-					@akhil-saxena · design system · v1.2.0
+					@akhil-saxena · design system · v1.3.0
 				</div>
 				<div
 					style={{

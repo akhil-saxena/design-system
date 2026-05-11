@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { ConfirmDialog, Modal } from ".";
+import { Modal } from ".";
 import { Button } from "../../inputs/Button";
+import { ConfirmDialog } from "../ConfirmDialog";
 const SRC = {
 	Basic: `const [open, setOpen] = useState(false);
 return (

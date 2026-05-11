@@ -2,7 +2,7 @@
 
 Accessible React primitives with semantic tokens. Full dark mode, cream + ink + amber design language.
 
-**v1.2.0 - 55 components across 9 categories.**
+**v1.3.0 - 74 components across 9 categories.**
 
 [![npm](https://img.shields.io/npm/v/@akhil-saxena/design-system)](https://www.npmjs.com/package/@akhil-saxena/design-system)
 
@@ -57,41 +57,41 @@ import { ChevronDown, Search } from "@akhil-saxena/design-system/icons";
 
 ## Components
 
-### Inputs (16)
+### Inputs (20)
 
-Button, TextInput, Textarea, Badge, Chip, Checkbox, Radio, Toggle, NumberStepper, RangeSlider, StarRating, Autocomplete, DatePicker, DateRangePicker, MultiSelect, Select
+Button, OAuthButton, TextInput, Textarea, Badge, Chip, Kbd, Checkbox, Radio, Toggle, NumberStepper, RangeSlider, StarRating, StatusPill, Autocomplete, ColorPicker, DatePicker, DateRangePicker, MultiSelect, Select
 
-### Overlays (9)
+### Overlays (11)
 
-Popover, Modal, BottomSheet, Tooltip, Sheet, HoverCard, Card, StickyNote, Lightbox
+Popover, Modal, ConfirmDialog, CommandPalette, BottomSheet, Tooltip, Sheet, HoverCard, Card, StickyNote, Lightbox
 
-### Data Display (9)
+### Data Display (11)
 
-Table, Tabs, Accordion, Carousel, Timeline, InfiniteList, Calendar, Breadcrumbs, SegmentedControl
+Table, DataGrid, Tabs, Accordion, Carousel, Timeline, InfiniteList, Calendar, Breadcrumbs, Pagination, SegmentedControl
 
 ### Feedback (6)
 
 AlertBanner, Toast, Skeleton, ProgressBar, InlineConfirm, EmptyState
 
-### Interaction (6)
+### Interaction (7)
 
-CopyToClipboard, InlineEdit, RichText, SearchAndFilters, Sortable, SplitButton
+CopyToClipboard, RelativeTime, InlineEdit, RichText, SearchAndFilters, Sortable, SplitButton
 
-### Layout (3)
+### Layout (4)
 
-AppShell, AppBar, Footer
+AppShell, AppBar, Footer, SplitHero
 
-### Display (2)
+### Display (6)
 
-Avatar, RollingNumber
+Avatar, RollingNumber, StatCard, Sparkline, MiniDonut, MiniBar
 
 ### Patterns (3)
 
 Wizard, FormValidation, Coachmark
 
-### Foundation (1)
+### Foundation (6)
 
-TokenCheck
+Heading, Text, Eyebrow, Link, Divider, DotGrid
 
 ## Hooks
 
