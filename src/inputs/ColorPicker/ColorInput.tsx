@@ -34,7 +34,6 @@ export function ColorInput({
 	const [color, setColor] = useState<string>(initial);
 	const [hex, setHex] = useState<string>(initial);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: only react to controlled value changes
 	useEffect(() => {
 		if (value !== undefined && value !== color) {
 			setColor(value);
@@ -52,22 +51,13 @@ export function ColorInput({
 	}
 
 	return (
-		<div
-			className={["ds-atom-colorinput", className].filter(Boolean).join(" ")}
-			style={style}
-		>
+		<div className={["ds-atom-colorinput", className].filter(Boolean).join(" ")} style={style}>
 			{label && (
-				<label
-					className="ds-label"
-					style={{ display: "block", marginBottom: 4 }}
-				>
+				<label className="ds-label" style={{ display: "block", marginBottom: 4 }}>
 					{label}
 				</label>
 			)}
-			<div
-				className="ds-input-wrap"
-				style={{ display: "flex", alignItems: "center", gap: 8 }}
-			>
+			<div className="ds-input-wrap" style={{ display: "flex", alignItems: "center", gap: 8 }}>
 				<div
 					aria-hidden="true"
 					style={{

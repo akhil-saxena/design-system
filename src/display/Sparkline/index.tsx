@@ -4,6 +4,8 @@ export interface SparklineProps {
 	height?: number;
 	color?: string;
 	fill?: boolean;
+	/** Accessible label. Defaults to "Trend chart". */
+	ariaLabel?: string;
 }
 
 export function Sparkline({
@@ -12,6 +14,7 @@ export function Sparkline({
 	height = 28,
 	color = "var(--amber)",
 	fill = true,
+	ariaLabel = "Trend chart",
 }: SparklineProps) {
 	if (data.length < 2) {
 		if (process.env.NODE_ENV !== "production") {
@@ -43,6 +46,8 @@ export function Sparkline({
 			height={height}
 			viewBox={`0 0 ${width} ${height}`}
 			style={{ display: "block" }}
+			role="img"
+			aria-label={ariaLabel}
 		>
 			{fill && <path d={fillPath} fill={color} opacity=".1" />}
 			<polyline

@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Kbd } from ".";
 
 const SRC = {
-	Default: `<Kbd>⌘K</Kbd>`,
-	InlineInText: `<p>Press <Kbd>ESC</Kbd> to dismiss the dialog.</p>`,
+	Default: "<Kbd>⌘K</Kbd>",
+	InlineInText: "<p>Press <Kbd>ESC</Kbd> to dismiss the dialog.</p>",
 };
 
 const meta: Meta<typeof Kbd> = {
@@ -42,7 +42,13 @@ export const Default: Story = {
 };
 
 export const ModifierKeys: Story = {
-	parameters: { docs: { source: { code: `["⌘","⇧","⌥","⌃","Enter","Esc","Tab","Space","↑","↓","←","→"].map(k => <Kbd>{k}</Kbd>)` } } },
+	parameters: {
+		docs: {
+			source: {
+				code: `["⌘","⇧","⌥","⌃","Enter","Esc","Tab","Space","↑","↓","←","→"].map(k => <Kbd>{k}</Kbd>)`,
+			},
+		},
+	},
 	render: () => (
 		<div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
 			{["⌘", "⇧", "⌥", "⌃", "Enter", "Esc", "Tab", "Space", "↑", "↓", "←", "→"].map((key) => (
@@ -53,7 +59,7 @@ export const ModifierKeys: Story = {
 };
 
 export const Combinations: Story = {
-	parameters: { docs: { source: { code: `<Kbd>⌘</Kbd>+<Kbd>K</Kbd>` } } },
+	parameters: { docs: { source: { code: "<Kbd>⌘</Kbd>+<Kbd>K</Kbd>" } } },
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
 			<div style={{ display: "flex", alignItems: "center", gap: 3 }}>
@@ -100,7 +106,7 @@ export const InlineInText: Story = {
 };
 
 export const DarkMode: Story = {
-	parameters: { docs: { source: { code: `<Kbd>⌘K</Kbd>` } } },
+	parameters: { docs: { source: { code: "<Kbd>⌘K</Kbd>" } } },
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 			<div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>

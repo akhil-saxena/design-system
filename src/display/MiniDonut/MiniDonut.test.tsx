@@ -21,31 +21,21 @@ describe("MiniDonut", () => {
 	});
 
 	it("strokeDashoffset is 0 for value=max", () => {
-		const { container } = render(
-			<MiniDonut value={100} max={100} size={48} strokeWidth={5} />,
-		);
+		const { container } = render(<MiniDonut value={100} max={100} size={48} strokeWidth={5} />);
 		const circles = container.querySelectorAll("circle");
-		expect(
-			Number(circles[1].getAttribute("stroke-dashoffset")),
-		).toBeCloseTo(0, 1);
+		expect(Number(circles[1].getAttribute("stroke-dashoffset"))).toBeCloseTo(0, 1);
 	});
 
 	it("strokeDashoffset equals circumference for value=0", () => {
-		const { container } = render(
-			<MiniDonut value={0} max={100} size={48} strokeWidth={5} />,
-		);
+		const { container } = render(<MiniDonut value={0} max={100} size={48} strokeWidth={5} />);
 		const circles = container.querySelectorAll("circle");
 		const circ = 2 * Math.PI * ((48 - 5) / 2);
-		expect(
-			Number(circles[1].getAttribute("stroke-dashoffset")),
-		).toBeCloseTo(circ, 1);
+		expect(Number(circles[1].getAttribute("stroke-dashoffset"))).toBeCloseTo(circ, 1);
 	});
 
 	it("clamps value > max to full circle (offset = 0)", () => {
 		const { container } = render(<MiniDonut value={150} max={100} />);
 		const circles = container.querySelectorAll("circle");
-		expect(
-			Number(circles[1].getAttribute("stroke-dashoffset")),
-		).toBeCloseTo(0, 1);
+		expect(Number(circles[1].getAttribute("stroke-dashoffset"))).toBeCloseTo(0, 1);
 	});
 });

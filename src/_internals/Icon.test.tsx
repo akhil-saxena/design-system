@@ -54,7 +54,6 @@ describe("Icon", () => {
 	it("children escape hatch applies aria-hidden by default", () => {
 		const { container } = render(
 			<Icon>
-				{/* biome-ignore lint/a11y/noSvgWithoutTitle: escape-hatch test - Icon wrapper provides accessible span */}
 				<svg />
 			</Icon>,
 		);
@@ -65,7 +64,6 @@ describe("Icon", () => {
 	it("children escape hatch with aria-label sets role=img", () => {
 		const { container } = render(
 			<Icon aria-label="Custom icon">
-				{/* biome-ignore lint/a11y/noSvgWithoutTitle: escape-hatch test - Icon wrapper provides aria-label on parent span */}
 				<svg />
 			</Icon>,
 		);

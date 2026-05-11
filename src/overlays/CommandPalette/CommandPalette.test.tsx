@@ -11,9 +11,7 @@ const ITEMS: CommandPaletteItem[] = [
 
 describe("CommandPalette", () => {
 	it("returns null when open=false", () => {
-		const { container } = render(
-			<CommandPalette open={false} onClose={vi.fn()} items={ITEMS} />,
-		);
+		const { container } = render(<CommandPalette open={false} onClose={vi.fn()} items={ITEMS} />);
 		expect(container.querySelector(".ds-atom-cmd-panel")).toBeNull();
 		expect(document.body.querySelector(".ds-atom-cmd-panel")).toBeNull();
 	});
@@ -67,7 +65,9 @@ describe("CommandPalette", () => {
 		fireEvent.keyDown(document, { key: "ArrowUp" });
 		fireEvent.keyDown(document, { key: "ArrowUp" });
 		const items = document.querySelectorAll<HTMLButtonElement>(".ds-atom-cmd-item");
-		items.forEach((btn) => expect(btn.getAttribute("data-active")).not.toBe("true"));
+		for (const btn of items) {
+			expect(btn.getAttribute("data-active")).not.toBe("true");
+		}
 	});
 
 	it("Enter on active item fires onSelect and onClose", () => {

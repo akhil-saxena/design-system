@@ -21,9 +21,7 @@ describe("ColorPicker", () => {
 	it("clicking a preset swatch fires onChange with that hex", () => {
 		const onChange = vi.fn();
 		const { container } = render(<ColorPicker onChange={onChange} />);
-		const swatches = container.querySelectorAll<HTMLButtonElement>(
-			".ds-atom-colorpicker-swatch",
-		);
+		const swatches = container.querySelectorAll<HTMLButtonElement>(".ds-atom-colorpicker-swatch");
 		fireEvent.click(swatches[1] as HTMLButtonElement); // '#ef4444'
 		expect(onChange).toHaveBeenCalledWith("#ef4444");
 	});
@@ -73,12 +71,8 @@ describe("ColorPicker", () => {
 
 	it("selected preset shows 2.5px ink border", () => {
 		const { container } = render(<ColorPicker value="#f59e0b" />);
-		const swatches = container.querySelectorAll<HTMLButtonElement>(
-			".ds-atom-colorpicker-swatch",
-		);
-		expect((swatches[0] as HTMLButtonElement).style.border).toContain(
-			"2.5px solid var(--ink)",
-		);
+		const swatches = container.querySelectorAll<HTMLButtonElement>(".ds-atom-colorpicker-swatch");
+		expect((swatches[0] as HTMLButtonElement).style.border).toContain("2.5px solid var(--ink)");
 	});
 
 	it("renders gradient canvas with role=slider", () => {
@@ -97,9 +91,7 @@ describe("ColorPicker", () => {
 	it("controlled value changes update display", () => {
 		const { container, rerender } = render(<ColorPicker value="#ff0000" />);
 		rerender(<ColorPicker value="#3b82f6" />);
-		const swatches = container.querySelectorAll<HTMLButtonElement>(
-			".ds-atom-colorpicker-swatch",
-		);
+		const swatches = container.querySelectorAll<HTMLButtonElement>(".ds-atom-colorpicker-swatch");
 		const blueSwatch = swatches[2] as HTMLButtonElement; // '#3b82f6' is index 2
 		expect(blueSwatch.style.border).toContain("2.5px solid var(--ink)");
 	});

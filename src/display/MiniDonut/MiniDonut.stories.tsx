@@ -33,8 +33,7 @@ const meta: Meta<typeof MiniDonut> = {
 		},
 		color: {
 			control: "text",
-			description:
-				"Arc stroke color; any CSS color value or token reference.",
+			description: "Arc stroke color; any CSS color value or token reference.",
 		},
 	},
 };
@@ -57,8 +56,7 @@ export const MultiColor: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story:
-					"Four donuts side-by-side: green 78%, amber 65%, blue 42%, purple 90%.",
+				story: "Four donuts side-by-side: green 78%, amber 65%, blue 42%, purple 90%.",
 			},
 		},
 	},
@@ -145,8 +143,7 @@ export const EdgeCases: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story:
-					"value=0 (empty ring), value=100 (full ring), value=150 (clamped to 100%).",
+				story: "value=0 (empty ring), value=100 (full ring), value=150 (clamped to 100%).",
 			},
 		},
 	},

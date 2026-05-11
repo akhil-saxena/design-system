@@ -152,6 +152,7 @@ export function CommandPalette({
 			>
 				<div
 					ref={setPanel}
+					// biome-ignore lint/a11y/useSemanticElements: role="dialog" + aria-modal is the standard ARIA pattern; native <dialog> conflicts with DSPortal mounting + keyboard navigation
 					role="dialog"
 					aria-modal="true"
 					aria-label="Command palette"
@@ -160,7 +161,6 @@ export function CommandPalette({
 					tabIndex={-1}
 				>
 					<div className="ds-atom-cmd-search">
-						{/* biome-ignore lint/a11y/noSvgWithoutTitle: decorative search icon — context provided by the search input's aria-label */}
 						<svg
 							aria-hidden="true"
 							viewBox="0 0 24 24"
@@ -186,9 +186,7 @@ export function CommandPalette({
 					</div>
 					<div className="ds-atom-cmd-list">
 						{filtered.length === 0 ? (
-							<div className="ds-atom-cmd-empty">
-								{emptyText ?? `No results for "${query}"`}
-							</div>
+							<div className="ds-atom-cmd-empty">{emptyText ?? `No results for "${query}"`}</div>
 						) : (
 							groups.map((g) => (
 								<div key={g.name}>

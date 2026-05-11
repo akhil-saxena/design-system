@@ -38,7 +38,6 @@ export interface SegmentedControlProps<T extends string = string> {
 	style?: React.CSSProperties;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: forwardRef+generics requires this cast - TS cannot infer generic T through forwardRef's HOC boundary; cast is safe because inner function is fully typed.
 function SegmentedControlInner<T extends string>(
 	{
 		options,

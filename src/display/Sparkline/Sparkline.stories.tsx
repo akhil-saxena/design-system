@@ -16,9 +16,18 @@ const meta: Meta<typeof Sparkline> = {
 	},
 	argTypes: {
 		data: { control: false, description: "Array of numbers to plot (min 2 points)." },
-		width: { control: { type: "range", min: 40, max: 300, step: 4 }, description: "SVG width in px." },
-		height: { control: { type: "range", min: 16, max: 80, step: 2 }, description: "SVG height in px." },
-		color: { control: "text", description: "Stroke and fill color; any CSS color value or token reference." },
+		width: {
+			control: { type: "range", min: 40, max: 300, step: 4 },
+			description: "SVG width in px.",
+		},
+		height: {
+			control: { type: "range", min: 16, max: 80, step: 2 },
+			description: "SVG height in px.",
+		},
+		color: {
+			control: "text",
+			description: "Stroke and fill color; any CSS color value or token reference.",
+		},
 		fill: { control: "boolean", description: "Show filled area under the line at 10% opacity." },
 	},
 };
@@ -36,7 +45,9 @@ export const NoFill: Story = {
 export const FlatData: Story = {
 	args: { data: [5, 5, 5, 5, 5] },
 	parameters: {
-		docs: { description: { story: "All-equal values: range clamps to 1, produces a flat center line." } },
+		docs: {
+			description: { story: "All-equal values: range clamps to 1, produces a flat center line." },
+		},
 	},
 };
 
@@ -62,7 +73,13 @@ export const DarkMode: Story = {
 		(Story) => (
 			<div
 				className="dark"
-				style={{ background: "#1c1917", padding: 32, borderRadius: 12, overflowX: "auto", minWidth: 0 }}
+				style={{
+					background: "#1c1917",
+					padding: 32,
+					borderRadius: 12,
+					overflowX: "auto",
+					minWidth: 0,
+				}}
 			>
 				<Story />
 			</div>

@@ -5,9 +5,7 @@ import { Sortable, SortableDndContext, SortableItem } from ".";
 import type { SortableItemData } from ".";
 // @dnd-kit PointerSensor requires setPointerCapture on elements
 beforeEach(() => {
-	// biome-ignore lint/suspicious/noExplicitAny: test mock
 	(document.body as any).setPointerCapture = vi.fn();
-	// biome-ignore lint/suspicious/noExplicitAny: test mock
 	(document.body as any).releasePointerCapture = vi.fn();
 });
 

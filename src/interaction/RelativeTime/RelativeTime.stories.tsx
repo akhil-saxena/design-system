@@ -2,13 +2,13 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { RelativeTime } from ".";
 
 const SRC = {
-	RecentMinutes: `<RelativeTime date={Date.now() - 10 * 60_000} />`,
-	RecentHours: `<RelativeTime date={Date.now() - 3 * 3_600_000} />`,
-	RecentDays: `<RelativeTime date={Date.now() - 5 * 86_400_000} />`,
-	OlderThan30Days: `<RelativeTime date={Date.now() - 45 * 86_400_000} />`,
-	Future: `<RelativeTime date={Date.now() + 5 * 60_000} />`,
+	RecentMinutes: "<RelativeTime date={Date.now() - 10 * 60_000} />",
+	RecentHours: "<RelativeTime date={Date.now() - 3 * 3_600_000} />",
+	RecentDays: "<RelativeTime date={Date.now() - 5 * 86_400_000} />",
+	OlderThan30Days: "<RelativeTime date={Date.now() - 45 * 86_400_000} />",
+	Future: "<RelativeTime date={Date.now() + 5 * 60_000} />",
 	WithPrefix: `<RelativeTime date={Date.now() - 2 * 86_400_000} prefix="Applied" />`,
-	DarkMode: `<RelativeTime date={Date.now() - 10 * 60_000} updateInterval={0} />`,
+	DarkMode: "<RelativeTime date={Date.now() - 10 * 60_000} updateInterval={0} />",
 };
 
 const meta: Meta<typeof RelativeTime> = {

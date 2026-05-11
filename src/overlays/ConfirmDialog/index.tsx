@@ -23,7 +23,6 @@ const tones: Record<ConfirmDialogTone, { color: string; bg: string; icon: ReactN
 		color: "var(--red)",
 		bg: "rgba(239,68,68,.1)",
 		icon: (
-			// biome-ignore lint/a11y/noSvgWithoutTitle: decorative icon — aria-label context is on the parent alertdialog panel via aria-labelledby
 			<svg
 				aria-hidden="true"
 				viewBox="0 0 24 24"
@@ -43,7 +42,6 @@ const tones: Record<ConfirmDialogTone, { color: string; bg: string; icon: ReactN
 		color: "var(--amber-d)",
 		bg: "rgba(245,158,11,.12)",
 		icon: (
-			// biome-ignore lint/a11y/noSvgWithoutTitle: decorative icon — aria-label context is on the parent alertdialog panel via aria-labelledby
 			<svg
 				aria-hidden="true"
 				viewBox="0 0 24 24"
@@ -63,7 +61,6 @@ const tones: Record<ConfirmDialogTone, { color: string; bg: string; icon: ReactN
 		color: "var(--green)",
 		bg: "rgba(34,197,94,.1)",
 		icon: (
-			// biome-ignore lint/a11y/noSvgWithoutTitle: decorative icon — aria-label context is on the parent alertdialog panel via aria-labelledby
 			<svg
 				aria-hidden="true"
 				viewBox="0 0 24 24"
@@ -82,7 +79,6 @@ const tones: Record<ConfirmDialogTone, { color: string; bg: string; icon: ReactN
 		color: "var(--ink)",
 		bg: "rgba(0,0,0,.05)",
 		icon: (
-			// biome-ignore lint/a11y/noSvgWithoutTitle: decorative icon — aria-label context is on the parent alertdialog panel via aria-labelledby
 			<svg
 				aria-hidden="true"
 				viewBox="0 0 24 24"

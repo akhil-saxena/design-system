@@ -94,7 +94,6 @@ export function ColorPicker({
 	const [opacity, setOpacity] = useState<number>(100);
 
 	// Sync controlled value — do NOT reset hue, preserve user's drag position.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: only react to controlled value changes
 	useEffect(() => {
 		if (value !== undefined && value !== color) {
 			setColor(value);
@@ -179,6 +178,8 @@ export function ColorPicker({
 				role="slider"
 				aria-label="Saturation and brightness"
 				aria-valuenow={Math.round(sat * 100)}
+				aria-valuemin={0}
+				aria-valuemax={100}
 				tabIndex={0}
 				className="ds-atom-colorpicker-canvas"
 				onPointerDown={(e) => startDrag("canvas", e.currentTarget, e)}
@@ -222,8 +223,7 @@ export function ColorPicker({
 					height: 12,
 					borderRadius: 6,
 					marginBottom: 12,
-					background:
-						"linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
+					background: "linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
 					position: "relative",
 					cursor: "pointer",
 				}}
@@ -374,10 +374,7 @@ export function ColorPicker({
 							height: 24,
 							borderRadius: 6,
 							background: c,
-							border:
-								color === c
-									? "2.5px solid var(--ink)"
-									: "1px solid var(--rule)",
+							border: color === c ? "2.5px solid var(--ink)" : "1px solid var(--rule)",
 						}}
 					/>
 				))}

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ColorPicker } from ".";
 
 const SRC = {
-	Default: `<ColorPicker />`,
+	Default: "<ColorPicker />",
 	Controlled: `const [color, setColor] = useState("#3b82f6");
 return <ColorPicker value={color} onChange={setColor} />;`,
 	CustomPresets: `<ColorPicker

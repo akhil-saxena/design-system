@@ -6,6 +6,8 @@ export interface MiniDonutProps {
 	size?: number;
 	strokeWidth?: number;
 	color?: string;
+	/** Accessible label. Defaults to "{percentage}%". */
+	ariaLabel?: string;
 }
 
 export function MiniDonut({
@@ -14,6 +16,7 @@ export function MiniDonut({
 	size = 48,
 	strokeWidth = 5,
 	color = "var(--amber)",
+	ariaLabel,
 }: MiniDonutProps) {
 	const reducedMotion = useReducedMotion();
 
@@ -21,9 +24,7 @@ export function MiniDonut({
 	const circ = 2 * Math.PI * r;
 	const pct = Math.min(value / max, 1);
 
-	const arcStyle = reducedMotion
-		? undefined
-		: { transition: "stroke-dashoffset 0.6s ease-out" };
+	const arcStyle = reducedMotion ? undefined : { transition: "stroke-dashoffset 0.6s ease-out" };
 
 	return (
 		<svg
@@ -31,6 +32,8 @@ export function MiniDonut({
 			height={size}
 			viewBox={`0 0 ${size} ${size}`}
 			style={{ display: "block", transform: "rotate(-90deg)" }}
+			role="img"
+			aria-label={ariaLabel ?? `${Math.round(pct * 100)}%`}
 		>
 			<circle
 				cx={size / 2}

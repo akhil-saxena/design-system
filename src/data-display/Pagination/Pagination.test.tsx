@@ -12,7 +12,12 @@ describe("Pagination", () => {
 	// Test 2: custom ariaLabel prop is reflected on the nav element
 	it("accepts a custom ariaLabel prop", () => {
 		render(
-			<Pagination totalPages={10} currentPage={3} onPageChange={vi.fn()} ariaLabel="Page navigation" />,
+			<Pagination
+				totalPages={10}
+				currentPage={3}
+				onPageChange={vi.fn()}
+				ariaLabel="Page navigation"
+			/>,
 		);
 		expect(screen.getByRole("navigation", { name: "Page navigation" })).toBeInTheDocument();
 	});
@@ -52,9 +57,7 @@ describe("Pagination", () => {
 		const { container } = render(
 			<Pagination totalPages={12} currentPage={6} onPageChange={vi.fn()} />,
 		);
-		const ellipsisList = container.querySelectorAll(
-			"li[aria-hidden='true']",
-		);
+		const ellipsisList = container.querySelectorAll("li[aria-hidden='true']");
 		expect(ellipsisList.length).toBeGreaterThan(0);
 	});
 
@@ -66,9 +69,7 @@ describe("Pagination", () => {
 
 	// Test 9: compact variant — "3 / 12" text is present
 	it("compact variant: 'N / M' text is present (totalPages=12, currentPage=3)", () => {
-		render(
-			<Pagination totalPages={12} currentPage={3} onPageChange={vi.fn()} variant="compact" />,
-		);
+		render(<Pagination totalPages={12} currentPage={3} onPageChange={vi.fn()} variant="compact" />);
 		expect(screen.getByText("3 / 12")).toBeInTheDocument();
 	});
 

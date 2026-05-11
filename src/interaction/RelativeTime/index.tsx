@@ -22,38 +22,31 @@ function format(d: Date): string {
 	return d.toLocaleDateString();
 }
 
-export const RelativeTime = forwardRef<HTMLTimeElement, RelativeTimeProps>(
-	function RelativeTime(
-		{ date, prefix, updateInterval = 60_000, className, style, ...rest },
-		ref,
-	) {
-		const d = new Date(date);
-		const [rel, setRel] = useState(() => format(d));
+export const RelativeTime = forwardRef<HTMLTimeElement, RelativeTimeProps>(function RelativeTime(
+	{ date, prefix, updateInterval = 60_000, className, style, ...rest },
+	ref,
+) {
+	const d = new Date(date);
+	const [rel, setRel] = useState(() => format(d));
 
-		useEffect(() => {
-			setRel(format(new Date(date)));
-			if (updateInterval === 0) return;
-			const id = globalThis.setInterval(
-				() => setRel(format(new Date(date))),
-				updateInterval,
-			);
-			return () => globalThis.clearInterval(id);
-		}, [date, updateInterval]);
+	useEffect(() => {
+		setRel(format(new Date(date)));
+		if (updateInterval === 0) return;
+		const id = globalThis.setInterval(() => setRel(format(new Date(date))), updateInterval);
+		return () => globalThis.clearInterval(id);
+	}, [date, updateInterval]);
 
-		return (
-			<time
-				ref={ref}
-				dateTime={d.toISOString()}
-				title={d.toLocaleString()}
-				className={`ds-atom-relative-time${className ? ` ${className}` : ""}`}
-				style={style}
-				{...rest}
-			>
-				{prefix ? (
-					<span style={{ color: "var(--ink-4)" }}>{prefix} </span>
-				) : null}
-				{rel}
-			</time>
-		);
-	},
-);
+	return (
+		<time
+			ref={ref}
+			dateTime={d.toISOString()}
+			title={d.toLocaleString()}
+			className={`ds-atom-relative-time${className ? ` ${className}` : ""}`}
+			style={style}
+			{...rest}
+		>
+			{prefix ? <span style={{ color: "var(--ink-4)" }}>{prefix} </span> : null}
+			{rel}
+		</time>
+	);
+});

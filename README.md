@@ -2,7 +2,7 @@
 
 Accessible React primitives with semantic tokens. Full dark mode, cream + ink + amber design language.
 
-**v1.4.0 - 74 components across 9 categories.**
+**v1.4.1 - 74 components across 9 categories.**
 
 [![npm](https://img.shields.io/npm/v/@akhil-saxena/design-system)](https://www.npmjs.com/package/@akhil-saxena/design-system)
 
