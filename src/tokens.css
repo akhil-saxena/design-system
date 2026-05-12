@@ -34,13 +34,13 @@
 	--ink-5: #d6d3d1;
 
 	/* Cream ramp (warm background surfaces).
-	   Bumped from #f5f3f0/#ece8e3/#e7e2dc → #fafaf7/#f4f2ee/#efece5 to match
-	   the Cairn brand reference. The previous values read as muddy / grey
-	   against brand assets; the new ones read as "warm paper" — cleaner,
-	   whiter, uplifting. Every consumer (Card surfaces, Popover floor,
-	   Modal panels, hover states) flips with the ramp. */
-	--cream: #fafaf7;
-	--cream-2: #f4f2ee;
+	   Whiter than the original handoff so chrome surfaces (sidebar / topbar /
+	   filter bar / page body) feel uplifting rather than dull. Brand warmth
+	   is preserved by the faint yellow tint in every step; the ramp now
+	   stays close to white through cream-2 with cream-3 reserved for the
+	   most-recessed slots (column tracks, secondary hover wash). */
+	--cream: #fdfcf9;
+	--cream-2: #f7f5f1;
 	--cream-3: #efece5;
 
 	/* Amber accent */
