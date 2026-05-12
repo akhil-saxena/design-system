@@ -40,6 +40,17 @@ export interface SnackbarOptions {
 	/** Visual tone. `"neutral"` (default) for confirmations; `"success"` /
 	 * `"error"` add a left-border accent without changing the ink fill. */
 	tone?: SnackbarTone;
+	/** Show the explicit dismiss "✕" affordance.
+	 *
+	 * Default behavior:
+	 *   - with `action` → false (the action button doubles as the dismiss path,
+	 *     plus the timeout will close it; an extra "✕" is redundant chrome)
+	 *   - without `action` → true (otherwise the snackbar would only have the
+	 *     timeout as an escape hatch, which is too implicit)
+	 *
+	 * Pass an explicit boolean to override.
+	 */
+	dismissible?: boolean;
 }
 
 interface SnackbarEntry {
@@ -48,6 +59,7 @@ interface SnackbarEntry {
 	message: ReactNode;
 	action: SnackbarAction | null;
 	duration: number;
+	dismissible: boolean;
 	dismissing: boolean;
 }
 
@@ -135,13 +147,18 @@ export function SnackbarProvider({ children }: SnackbarProviderProps) {
 		(message: ReactNode, opts?: SnackbarOptions): number => {
 			const id = ++nextSnackbarId;
 			const duration = opts?.duration ?? DEFAULT_DURATION;
+			const action = opts?.action ?? null;
+			// Default: hide the ✕ when an action button is the primary dismiss
+			// path; show it otherwise. Explicit `dismissible` prop overrides.
+			const dismissible = opts?.dismissible ?? action === null;
 			clearTimer();
 			setEntry({
 				id,
 				tone: opts?.tone ?? "neutral",
 				message,
-				action: opts?.action ?? null,
+				action,
 				duration,
+				dismissible,
 				dismissing: false,
 			});
 			if (Number.isFinite(duration)) {
@@ -213,14 +230,16 @@ function SnackbarNode({ entry, onAction, onDismiss }: SnackbarNodeProps) {
 					{entry.action.label}
 				</button>
 			) : null}
-			<button
-				type="button"
-				className="ds-atom-snackbar-close"
-				aria-label="Dismiss"
-				onClick={onDismiss}
-			>
-				<X size={14} aria-hidden="true" />
-			</button>
+			{entry.dismissible ? (
+				<button
+					type="button"
+					className="ds-atom-snackbar-close"
+					aria-label="Dismiss"
+					onClick={onDismiss}
+				>
+					<X size={14} aria-hidden="true" />
+				</button>
+			) : null}
 		</div>
 	);
 }
