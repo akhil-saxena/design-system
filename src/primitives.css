@@ -2651,6 +2651,13 @@
 .ds-atom-multiselect-chevron.is-open {
 	transform: rotate(180deg);
 }
+/* Compact + sm: the trigger is align-items:center (single-row count summary)
+   so the multi-row chip alignment offset on the chevron has to be cleared,
+   otherwise it sits below center. */
+.ds-atom-multiselect-compact .ds-atom-multiselect-chevron,
+.ds-atom-multiselect[data-size="sm"] .ds-atom-multiselect-chevron {
+	margin-top: 0;
+}
 .ds-atom-multiselect-list {
 	list-style: none;
 	margin: 0;
