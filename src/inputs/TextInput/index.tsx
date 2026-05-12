@@ -13,9 +13,13 @@ export interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElemen
 	kbd?: ReactNode;
 }
 
+// Locked at 36px so the input sits at the same baseline as MultiSelect /
+// Select / Button at their default size — keeps any filter row visually
+// homogeneous instead of one element looking taller than the others.
 const baseInputStyle: CSSProperties = {
 	fontSize: 13,
-	padding: "8px 10px",
+	height: 36,
+	padding: "0 10px",
 	borderRadius: 8,
 	border: "1px solid var(--rule)",
 	background: "var(--cream)",
@@ -31,6 +35,7 @@ const wrapStyle: CSSProperties = {
 	display: "flex",
 	alignItems: "center",
 	gap: 8,
+	height: 36,
 	padding: "0 10px",
 	borderRadius: 8,
 	border: "1px solid var(--rule)",
