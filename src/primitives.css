@@ -2376,6 +2376,16 @@
 	opacity: 0.5;
 	cursor: not-allowed;
 }
+/* Size scale — `sm` shrinks height + padding + text. Mirror of the
+   matching MultiSelect rule. */
+.ds-atom-select[data-size="sm"] {
+	height: 28px;
+	min-width: 0;
+	padding: 0 8px;
+	font-size: 12px;
+	border-radius: var(--radius-sm);
+	gap: 6px;
+}
 /* Solid tone — ink-fill trigger with cream text. Mirror of the matching
    MultiSelect rule so filter rows mixing both stay visually consistent. */
 .ds-atom-select[data-tone="solid"] {
@@ -2543,6 +2553,26 @@
 	max-height: 36px;
 	height: 36px;
 	align-items: center;
+}
+
+/* Size scale — `sm` shrinks height + padding + text. The compact mode
+   already kills the chip-wrap; this lets a filter row sit at chip rhythm
+   rather than form-input rhythm. */
+.ds-atom-multiselect[data-size="sm"] {
+	min-height: 28px;
+	max-height: 28px;
+	height: 28px;
+	padding: 0 10px;
+	font-size: 12px;
+	border-radius: var(--radius-sm);
+}
+.ds-atom-multiselect[data-size="sm"] .ds-atom-multiselect-chips {
+	gap: 4px;
+}
+.ds-atom-multiselect[data-size="sm"].ds-atom-multiselect-compact {
+	min-height: 28px;
+	max-height: 28px;
+	height: 28px;
 }
 
 /* Solid tone — ink-fill trigger with cream text. The confident "filter

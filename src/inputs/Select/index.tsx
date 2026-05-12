@@ -38,6 +38,14 @@ export interface SelectProps {
 	 * @default "default"
 	 */
 	tone?: "default" | "solid";
+	/** Trigger height + padding scale.
+	 * - `"md"` (default) — 36px height, standard form-input rhythm.
+	 * - `"sm"`           — 28px height, smaller padding + 12px text. Use in
+	 *   dense filter rows alongside MultiSelect at the same size.
+	 *
+	 * @default "md"
+	 */
+	size?: "sm" | "md";
 	/** When true, disables the trigger button and prevents interaction.
 	 * @default false
 	 */
@@ -74,6 +82,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 		placeholder = "Select…",
 		searchable = true,
 		tone = "default",
+		size = "md",
 		disabled = false,
 		className,
 		style,
@@ -130,6 +139,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 				disabled={disabled}
 				data-state={open ? "open" : "closed"}
 				data-tone={tone}
+				data-size={size}
 				onClick={() => !disabled && setOpen((o) => !o)}
 				style={style}
 			>
