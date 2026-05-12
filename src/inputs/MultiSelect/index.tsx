@@ -18,6 +18,23 @@ export interface MultiSelectProps {
 	 * @default "Select…"
 	 */
 	placeholder?: string;
+	/** When true, the trigger renders as a single-line count summary instead of
+	 * the default chips-in-trigger layout. Useful in filter bars where the
+	 * trigger height needs to stay stable regardless of selection count.
+	 *
+	 * Trigger copy:
+	 *   - 0 selected → `placeholder` (e.g. "Status")
+	 *   - all selected (value.length === options.length) → `allSelectedLabel`
+	 *   - 1+ selected (partial) → `${placeholder} (${count})`
+	 *
+	 * @default false
+	 */
+	compact?: boolean;
+	/** Label rendered in the compact trigger when every option is selected.
+	 * Has no effect unless `compact` is true.
+	 * @default "All"
+	 */
+	allSelectedLabel?: string;
 	/** When true, disables the trigger and prevents interaction.
 	 * @default false
 	 */
@@ -35,7 +52,17 @@ export interface MultiSelectProps {
  * Popover (Wave 3). Mini-checkbox per option in the dropdown panel.
  */
 export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(function MultiSelect(
-	{ value, onChange, options, placeholder = "Select…", disabled = false, className, style },
+	{
+		value,
+		onChange,
+		options,
+		placeholder = "Select…",
+		compact = false,
+		allSelectedLabel = "All",
+		disabled = false,
+		className,
+		style,
+	},
 	ref,
 ) {
 	const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -78,7 +105,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 			<button
 				ref={combineRefs}
 				type="button"
-				className={`ds-atom-multiselect${className ? ` ${className}` : ""}`}
+				className={`ds-atom-multiselect${compact ? " ds-atom-multiselect-compact" : ""}${className ? ` ${className}` : ""}`}
 				// biome-ignore lint/a11y/useSemanticElements: D-501 mandates role="combobox" on the <button> trigger so screen readers announce the listbox-popup pattern; native <select> doesn't support multi-value chip rendering
 				role="combobox"
 				aria-expanded={open}
@@ -91,7 +118,18 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 				style={style}
 			>
 				<span className="ds-atom-multiselect-chips">
-					{selectedOpts.length === 0 ? (
+					{compact ? (
+						// Single-line trigger: never render chips. Show placeholder when
+						// nothing selected, allSelectedLabel when every option is selected,
+						// or `${placeholder} (${count})` for any partial selection.
+						<span className="ds-atom-multiselect-placeholder">
+							{selectedOpts.length === 0
+								? placeholder
+								: selectedOpts.length === options.length
+									? allSelectedLabel
+									: `${placeholder} (${selectedOpts.length})`}
+						</span>
+					) : selectedOpts.length === 0 ? (
 						<span className="ds-atom-multiselect-placeholder">{placeholder}</span>
 					) : (
 						<>
