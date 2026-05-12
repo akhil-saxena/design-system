@@ -2471,6 +2471,16 @@
 	outline: 2px solid var(--amber);
 	outline-offset: 2px;
 }
+/* Compact mode (single-row count summary): the trigger no longer needs to host
+   chips, so drop the 220px floor and collapse the multi-line max-height down
+   to a single 36px row. Consumer wraps still control the outer width. */
+.ds-atom-multiselect-compact {
+	min-width: 0;
+	min-height: 36px;
+	max-height: 36px;
+	height: 36px;
+	align-items: center;
+}
 .ds-atom-multiselect:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
