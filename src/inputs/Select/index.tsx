@@ -30,6 +30,14 @@ export interface SelectProps {
 	 * @default true
 	 */
 	searchable?: boolean;
+	/** Visual tone of the trigger surface.
+	 * - `"default"` — cream surface with ink text + a thin rule border.
+	 * - `"solid"`  — ink fill with cream text, no visible border. Pairs with
+	 *   MultiSelect's matching tone for filter-bar consistency.
+	 *
+	 * @default "default"
+	 */
+	tone?: "default" | "solid";
 	/** When true, disables the trigger button and prevents interaction.
 	 * @default false
 	 */
@@ -65,6 +73,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 		options,
 		placeholder = "Select…",
 		searchable = true,
+		tone = "default",
 		disabled = false,
 		className,
 		style,
@@ -120,6 +129,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 				aria-activedescendant={open && filtered.length > 0 ? optionId(activeIndex) : undefined}
 				disabled={disabled}
 				data-state={open ? "open" : "closed"}
+				data-tone={tone}
 				onClick={() => !disabled && setOpen((o) => !o)}
 				style={style}
 			>

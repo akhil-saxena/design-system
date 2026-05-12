@@ -2376,6 +2376,27 @@
 	opacity: 0.5;
 	cursor: not-allowed;
 }
+/* Solid tone — ink-fill trigger with cream text. Mirror of the matching
+   MultiSelect rule so filter rows mixing both stay visually consistent. */
+.ds-atom-select[data-tone="solid"] {
+	background: var(--ink);
+	color: var(--cream);
+	border-color: transparent;
+}
+.ds-atom-select[data-tone="solid"] .ds-atom-select-placeholder,
+.ds-atom-select[data-tone="solid"] .ds-atom-select-value,
+.ds-atom-select[data-tone="solid"] .ds-atom-select-chevron {
+	color: var(--cream);
+}
+.ds-atom-select[data-tone="solid"] .ds-atom-select-chevron {
+	opacity: 0.7;
+}
+.ds-atom-select[data-tone="solid"]:hover:not(:disabled) {
+	background: var(--ink-2);
+}
+.ds-atom-select[data-tone="solid"][data-state="open"] {
+	border-color: var(--amber);
+}
 .ds-atom-select-value {
 	display: inline-flex;
 	align-items: center;
@@ -2522,6 +2543,29 @@
 	max-height: 36px;
 	height: 36px;
 	align-items: center;
+}
+
+/* Solid tone — ink-fill trigger with cream text. The confident "filter
+   applied" affordance, designed to pair with `compact` for a count-summary
+   chip. Border collapses since the ink fill carries its own edge.
+   Mirrors .ds-atom-select[data-tone="solid"] below. */
+.ds-atom-multiselect[data-tone="solid"] {
+	background: var(--ink);
+	color: var(--cream);
+	border-color: transparent;
+}
+.ds-atom-multiselect[data-tone="solid"] .ds-atom-multiselect-placeholder {
+	color: var(--cream);
+}
+.ds-atom-multiselect[data-tone="solid"] .ds-atom-multiselect-chevron {
+	color: var(--cream);
+	opacity: 0.7;
+}
+.ds-atom-multiselect[data-tone="solid"]:hover:not(:disabled) {
+	background: var(--ink-2);
+}
+.ds-atom-multiselect[data-tone="solid"][data-state="open"] {
+	border-color: var(--amber);
 }
 .ds-atom-multiselect:disabled {
 	opacity: 0.5;

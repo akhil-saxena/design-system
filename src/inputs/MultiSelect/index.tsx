@@ -35,6 +35,16 @@ export interface MultiSelectProps {
 	 * @default "All"
 	 */
 	allSelectedLabel?: string;
+	/** Visual tone of the trigger surface.
+	 * - `"default"` — cream surface with ink text + a thin rule border.
+	 *   The standard look for filter-bar triggers.
+	 * - `"solid"`  — ink fill with cream text, no border. A confident
+	 *   "filter applied" affordance; pairs well with `compact` for a
+	 *   count-summary chip.
+	 *
+	 * @default "default"
+	 */
+	tone?: "default" | "solid";
 	/** When true, disables the trigger and prevents interaction.
 	 * @default false
 	 */
@@ -59,6 +69,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 		placeholder = "Select…",
 		compact = false,
 		allSelectedLabel = "All",
+		tone = "default",
 		disabled = false,
 		className,
 		style,
@@ -114,6 +125,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 				aria-activedescendant={open ? optionId(activeIndex) : undefined}
 				disabled={disabled}
 				data-state={open ? "open" : "closed"}
+				data-tone={tone}
 				onClick={() => !disabled && setOpen((o) => !o)}
 				style={style}
 			>
