@@ -172,29 +172,37 @@
    define the same values so var(--ink) etc resolve correctly on either. */
 :root.dark,
 .dark {
-	/* Ink ramp inverts: ink becomes cream-toned, cream becomes near-black */
-	--ink: #f5f3f0;
-	--ink-2: #d6d3d1;
-	--ink-3: #a8a29e;
-	--ink-4: #8a8380;
-	--ink-5: #44403c;
+	/* Revised dark-mode ramp — Cairn · Dark Mode Revision.html spec:
+	   - 3 distinct surface stops (~6L between) so page / column / card stop
+	     collapsing into one slab. The old ramp lived inside a 14–17L band.
+	   - Text inverts to WARM cream (was cool near-white) so it stops fighting
+	     the warm-paper brand and lets the amber accent land as signal.
+	   - Rules warm + lift to 7% (was 8% cool white); new `--rule-strong` at
+	     12% for active dividers (e.g. column-header underline).
+	   The headline move: drop warmth from background, put it into text. */
+	--ink: #f7ecdb;
+	--ink-2: #b8ac97;
+	--ink-3: #857b6c;
+	--ink-4: #5c554a;
+	--ink-5: #3a3530;
 
-	--cream: #1c1917;
-	--cream-2: #292524;
-	--cream-3: #44403c;
+	--cream: #0f0d0b;
+	--cream-2: #1a1714;
+	--cream-3: #241f1a;
 
-	/* Hairline brightens for dark surfaces */
-	--rule: rgba(255, 255, 255, 0.08);
+	--rule: rgba(247, 236, 219, 0.07);
+	--rule-strong: rgba(247, 236, 219, 0.12);
 
-	/* Glass tints to dark ink */
-	--g-bg: rgba(40, 37, 34, 0.7);
-	--g-bd: rgba(255, 255, 255, 0.08);
+	/* Glass tints to deepest surface (anchored instead of floating) */
+	--g-bg: rgba(15, 13, 11, 0.7);
+	--g-bd: rgba(247, 236, 219, 0.07);
 
-	/* Status colors lift for dark contrast - handoff v1.0 dark table */
+	/* Status colors — revised per dark-mode spec § Tokens. Each color is
+	   pre-saturated to read on the dark warm bg without going neon. */
 	--amber-d: #fbbf24;
-	--blue: #7cb8fb;
+	--blue: #7ca0d9;
 	--purple: #bfa3fb;
-	--green: #4ade80;
+	--green: #7fc79d;
 	--red: #fb8888;
 
 	/* Vivids are decorative-only; restated explicitly even though values
@@ -206,10 +214,11 @@
 	--green-vivid: #22c55e;
 	--red-vivid: #ef4444;
 
-	/* Surface tokens - handoff v1.0 dark (white-low-alpha overlays) */
-	--surf-1: rgba(255, 255, 255, 0.04);
-	--surf-2: rgba(255, 255, 255, 0.06);
-	--surf-3: rgba(255, 255, 255, 0.1);
+	/* Surface translucent overlays — warm-cream tint instead of cool white
+	   so they blend with the new warm-cream ink. */
+	--surf-1: rgba(247, 236, 219, 0.04);
+	--surf-2: rgba(247, 236, 219, 0.06);
+	--surf-3: rgba(247, 236, 219, 0.1);
 
 	/* Focus ring - dark-mode amber-d glow */
 	--focus-ring: 0 0 0 3px rgba(251, 191, 36, 0.5);
