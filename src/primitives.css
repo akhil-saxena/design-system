@@ -2809,6 +2809,10 @@
 .ds-atom-multiselect-checkbox.is-checked {
 	background: var(--amber);
 	border-color: var(--amber);
+	/* Pinned dark on amber regardless of theme. var(--ink) flips to warm-cream
+	   in dark mode, which gave us light-on-bright-amber — illegible. The amber
+	   fill is constant across themes, so its glyph color is constant too. */
+	color: #1f1b17;
 }
 .ds-atom-multiselect-option-label {
 	flex: 1;
