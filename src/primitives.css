@@ -750,13 +750,19 @@
 .ds-atom-popover {
 	position: fixed;
 	z-index: 100;
-	background: var(--cream-2);
+	/* Use the brightest paper token so popovers read as "sheet floating above"
+	   rather than a dull tinted card — cream-2 felt muddy against the page bg.
+	   Dark-mode override below keeps the deeper surface for visual hierarchy. */
+	background: var(--cream);
 	border: 1px solid var(--rule);
 	border-radius: var(--radius-md);
 	box-shadow: var(--shadow-3);
 	padding: 0;
 	min-width: 0;
 	animation: ds-atom-popover-in 0.1s ease-out;
+}
+.dark .ds-atom-popover {
+	background: var(--surf-1, var(--cream-2));
 }
 @keyframes ds-atom-popover-in {
 	from {
