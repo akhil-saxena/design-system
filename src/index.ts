@@ -108,6 +108,14 @@ export {
 	type ToastProviderProps,
 	type ToastTone,
 } from "./feedback/Toast";
+export {
+	SnackbarProvider,
+	useSnackbar,
+	type SnackbarAction,
+	type SnackbarOptions,
+	type SnackbarProviderProps,
+	type SnackbarTone,
+} from "./feedback/Snackbar";
 export { CopyToClipboard, type CopyToClipboardProps } from "./interaction/CopyToClipboard";
 export { RelativeTime, type RelativeTimeProps } from "./interaction/RelativeTime";
 export { DatePicker, type DatePickerProps } from "./inputs/DatePicker";
