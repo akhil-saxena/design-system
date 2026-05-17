@@ -2,7 +2,7 @@
 
 Accessible React primitives with semantic tokens. Full dark mode, cream + ink + amber design language.
 
-**v1.4.1 - 74 components across 9 categories.**
+**v1.4.2 — 77 components across 9 categories.**
 
 [![npm](https://img.shields.io/npm/v/@akhil-saxena/design-system)](https://www.npmjs.com/package/@akhil-saxena/design-system)
 
@@ -57,9 +57,9 @@ import { ChevronDown, Search } from "@akhil-saxena/design-system/icons";
 
 ## Components
 
-### Inputs (20)
+### Inputs (22)
 
-Button, OAuthButton, TextInput, Textarea, Badge, Chip, Kbd, Checkbox, Radio, Toggle, NumberStepper, RangeSlider, StarRating, StatusPill, Autocomplete, ColorPicker, DatePicker, DateRangePicker, MultiSelect, Select
+Button, OAuthButton, TextInput, Textarea, Badge, Chip, Kbd, Checkbox, Radio, Toggle, NumberStepper, RangeSlider, StarRating, StatusPill, Autocomplete, ColorPicker, DatePicker, DateRangePicker, FileInput, InlineEditField, MultiSelect, Select
 
 ### Overlays (11)
 
@@ -69,9 +69,9 @@ Popover, Modal, ConfirmDialog, CommandPalette, BottomSheet, Tooltip, Sheet, Hove
 
 Table, DataGrid, Tabs, Accordion, Carousel, Timeline, InfiniteList, Calendar, Breadcrumbs, Pagination, SegmentedControl
 
-### Feedback (6)
+### Feedback (7)
 
-AlertBanner, Toast, Skeleton, ProgressBar, InlineConfirm, EmptyState
+AlertBanner, Toast, Snackbar, Skeleton, ProgressBar, InlineConfirm, EmptyState
 
 ### Interaction (7)
 
