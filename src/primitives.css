@@ -2185,6 +2185,99 @@
 	color: var(--ink);
 }
 
+/* ─── DS atom: DatePicker · popover variant (v0.6.0) ──────────────────
+   Trigger pill + anchored Popover wrapper. Pill is a compact mono-font
+   button that flips to a paper-warm / amber-border highlight while the
+   popover is open (matches add-round handoff §02 State B). The popover
+   container itself is .ds-atom-popover (from the Popover primitive); the
+   datepicker inside uses .is-popover to drop the outer border/padding
+   since the popover chrome already provides them. */
+.ds-atom-datepicker-trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 11px;
+	border: 1px solid var(--rule);
+	border-radius: 7px;
+	background: var(--panel, #ffffff);
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 11.5px;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+	line-height: 1;
+	cursor: pointer;
+	transition: background 0.08s ease, border-color 0.08s ease;
+}
+.ds-atom-datepicker-trigger:hover {
+	border-color: var(--ink-3);
+}
+.ds-atom-datepicker-trigger:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.ds-atom-datepicker-trigger.is-open {
+	background: var(--paper-warm, #f8f3e5);
+	border-color: #e8d9ac;
+	color: var(--amber-ink, var(--ink));
+}
+.ds-atom-datepicker-trigger-label.is-placeholder {
+	color: var(--ink-4);
+	font-style: italic;
+	font-family: var(--serif, "Newsreader", Georgia, serif);
+	font-weight: 500;
+	font-size: 12px;
+	letter-spacing: 0;
+}
+.ds-atom-datepicker-trigger-caret {
+	color: var(--ink-3);
+	font-size: 10px;
+	line-height: 1;
+	transform: translateY(-0.5px);
+}
+.ds-atom-datepicker-trigger.is-open .ds-atom-datepicker-trigger-caret {
+	color: var(--amber-ink, var(--ink));
+}
+/* Popover wrapper: clamp width on narrow viewports so it never overflows. */
+.ds-atom-popover.ds-atom-datepicker-popover {
+	padding: 0;
+	max-width: calc(100vw - 24px);
+}
+/* Inside-popover calendar: shed the outer chrome (border/bg/padding) so the
+   popover panel itself frames the calendar; the actions row below adds its
+   own divider. */
+.ds-atom-datepicker.is-popover {
+	display: block;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	padding: 10px 10px 0;
+}
+.ds-atom-datepicker-popover-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 6px;
+	padding: 8px 10px;
+	margin-top: 4px;
+	border-top: 1px solid var(--rule);
+}
+.dark .ds-atom-datepicker-trigger {
+	background: rgba(255, 255, 255, 0.04);
+	border-color: rgba(255, 255, 255, 0.12);
+	color: var(--ink);
+}
+.dark .ds-atom-datepicker-trigger:hover {
+	border-color: rgba(255, 255, 255, 0.22);
+}
+.dark .ds-atom-datepicker-trigger.is-open {
+	background: rgba(245, 158, 11, 0.12);
+	border-color: rgba(245, 158, 11, 0.45);
+	color: var(--amber);
+}
+.dark .ds-atom-datepicker-popover-actions {
+	border-top-color: rgba(255, 255, 255, 0.12);
+}
+
 /* ─── DS atom: SplitButton ────────────────────────────────────────────
    Primary face + chevron divider + Popover menu (DS-56, D-530). Mirrors
    Button variant + size styling via data-variant + data-size selectors.
@@ -4220,8 +4313,8 @@
 	display: inline-block;
 }
 .ds-atom-richtext-toolbar [data-active] {
-	background: color-mix(in srgb, var(--amber) 12%, transparent);
-	color: var(--amber);
+	background: color-mix(in srgb, var(--amber) 12%, transparent) !important;
+	color: var(--amber) !important;
 }
 
 /* ── Heading dropdown menu ────────────────────────────────────────────────── */
@@ -4284,6 +4377,13 @@
 	font-weight: 600;
 	margin: 14px 0 6px 0;
 	line-height: 1.4;
+}
+/* Highlight mark */
+.ds-atom-richtext-surface .ProseMirror mark {
+	background: #fef08a;
+	color: inherit;
+	border-radius: 2px;
+	padding: 0 1px;
 }
 /* Inline code */
 .ds-atom-richtext-surface .ProseMirror code {

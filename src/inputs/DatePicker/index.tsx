@@ -1,4 +1,4 @@
-import { type HTMLAttributes, forwardRef, useEffect, useMemo, useState } from "react";
+import { type HTMLAttributes, forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { buildMonthGrid } from "../../_internals/calendarGrid";
 import { addMonths, isSameDay, isToday, startOfMonth } from "../../_internals/dateUtils"; // DS-53 - DatePicker primitive (Phase 16 Wave 1 / plan 16-05).
 // 7×6 calendar grid with controlled value, optional time picker, event dots.
@@ -8,7 +8,10 @@ import { addMonths, isSameDay, isToday, startOfMonth } from "../../_internals/da
 // v0.5.2 - isCellSelected override prop added so DateRangePicker can mark
 // BOTH endpoints (start + end) with the amber selected marker.
 // v0.5.3 - added isRangeStart/isRangeEnd modifier props for range-edge bg polish.
+// v0.6.0 - `variant="popover"` renders a trigger pill that opens the calendar in
+// a DS Popover. Backwards-compatible: default variant stays "inline".
 import { ChevronLeft, ChevronRight } from "../../icons";
+import { Popover } from "../../overlays/Popover";
 import { Button } from "../Button";
 export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
 	/** Controlled selected date; pass `null` for no selection. */
@@ -43,6 +46,33 @@ export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "o
 	isRangeStart?: (d: Date) => boolean;
 	/** Marks a cell as the end of a range for edge-pill visual polish; used by DateRangePicker. */
 	isRangeEnd?: (d: Date) => boolean;
+	/** Render mode. `"inline"` (default) shows the calendar grid in flow. `"popover"`
+	 * renders a trigger pill that opens the grid in an anchored DS Popover.
+	 * @default "inline"
+	 */
+	variant?: "inline" | "popover";
+	/** Placeholder text shown on the trigger pill when `value` is null. Only used when `variant="popover"`. */
+	placeholder?: string;
+	/** Override the date formatter for the trigger pill label. Only used when `variant="popover"`. */
+	formatLabel?: (d: Date, showTime: boolean) => string;
+}
+
+// Pill label format mirrors the design handoff (§02 State B): "Sat 17 May" for
+// date-only and "Sat 17 May · 3:30 PM" when showTime is on. Locale-aware so
+// non-English locales pick up their own short weekday + month name.
+function defaultFormatLabel(d: Date, showTime: boolean): string {
+	const datePart = d.toLocaleDateString(undefined, {
+		weekday: "short",
+		day: "numeric",
+		month: "short",
+	});
+	if (!showTime) return datePart;
+	const timePart = d.toLocaleTimeString(undefined, {
+		hour: "numeric",
+		minute: "2-digit",
+		hour12: true,
+	});
+	return `${datePart} · ${timePart}`;
 }
 
 const WEEKDAY_HEADERS = ["S", "M", "T", "W", "T", "F", "S"]; // Sunday-first per D-510
@@ -80,12 +110,27 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 		isCellSelected,
 		isRangeStart,
 		isRangeEnd,
+		variant = "inline",
+		placeholder = "Pick a date",
+		formatLabel,
 		className,
 		style,
 		...rest
 	},
 	ref,
 ) {
+	// Popover state lives at the top of the component so hooks fire in stable
+	// order regardless of variant (variant can't change between renders but
+	// React still calls every hook each render).
+	const triggerRef = useRef<HTMLButtonElement | null>(null);
+	const [popoverOpen, setPopoverOpen] = useState(false);
+	// Snapshot the value at open so Cancel can revert. The committed value
+	// only updates the parent on Apply; live edits inside the popover still
+	// call onChange so the calendar reflects the in-progress selection.
+	const [valueAtOpen, setValueAtOpen] = useState<Date | null>(null);
+	useEffect(() => {
+		if (popoverOpen) setValueAtOpen(value);
+	}, [popoverOpen, value]);
 	const [viewMonth, setViewMonth] = useState<Date>(() =>
 		startOfMonth(value ?? defaultMonth ?? new Date()),
 	);
@@ -182,13 +227,11 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 
 	const eventSet = useMemo(() => new Set((events ?? []).map((e) => dayKey(e))), [events]);
 
-	return (
-		<div
-			ref={ref}
-			className={`ds-atom-datepicker${className ? ` ${className}` : ""}`}
-			style={style}
-			{...rest}
-		>
+	// Body is the calendar grid + (optional) time row — shared by both the
+	// inline render and the popover render. Header chrome (month nav) is part
+	// of the body. The outer .ds-atom-datepicker wrapper is what differs.
+	const body = (
+		<>
 			<div className="ds-atom-datepicker-header">
 				<button
 					type="button"
@@ -302,6 +345,80 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 					</Button>
 				</div>
 			) : null}
+		</>
+	);
+
+	if (variant === "popover") {
+		const fmt = formatLabel ?? defaultFormatLabel;
+		const triggerLabel = value ? fmt(value, showTime) : placeholder;
+		return (
+			<>
+				<button
+					ref={triggerRef}
+					type="button"
+					className={`ds-atom-datepicker-trigger${popoverOpen ? " is-open" : ""}${className ? ` ${className}` : ""}`}
+					aria-haspopup="dialog"
+					aria-expanded={popoverOpen}
+					onClick={() => setPopoverOpen((o) => !o)}
+					style={style}
+				>
+					<span className={`ds-atom-datepicker-trigger-label${value ? "" : " is-placeholder"}`}>
+						{triggerLabel}
+					</span>
+					<span aria-hidden="true" className="ds-atom-datepicker-trigger-caret">
+						▾
+					</span>
+				</button>
+				<Popover
+					anchorRef={triggerRef}
+					open={popoverOpen}
+					onOpenChange={setPopoverOpen}
+					placement="bottom-start"
+					offset={6}
+					className="ds-atom-datepicker-popover"
+				>
+					<div ref={ref} className="ds-atom-datepicker is-popover" {...rest}>
+						{body}
+						<div className="ds-atom-datepicker-popover-actions">
+							<Button
+								size="sm"
+								variant="secondary"
+								onClick={() => {
+									if (valueAtOpen !== value) {
+										// Best-effort revert: only call onChange if we have a snapshot
+										// AND the parent's value differs from it. If valueAtOpen is null
+										// and value isn't, callers using a non-nullable state shape
+										// must handle the null case themselves.
+										if (valueAtOpen) onChange(valueAtOpen);
+									}
+									setPopoverOpen(false);
+								}}
+							>
+								Cancel
+							</Button>
+							<Button
+								size="sm"
+								variant="primary"
+								onClick={() => setPopoverOpen(false)}
+								disabled={!value}
+							>
+								Apply
+							</Button>
+						</div>
+					</div>
+				</Popover>
+			</>
+		);
+	}
+
+	return (
+		<div
+			ref={ref}
+			className={`ds-atom-datepicker${className ? ` ${className}` : ""}`}
+			style={style}
+			{...rest}
+		>
+			{body}
 		</div>
 	);
 });

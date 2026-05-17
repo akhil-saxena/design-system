@@ -16,6 +16,16 @@ return <DatePicker value={value} onChange={setValue} events={events} />;`,
 return <DatePicker value={value} onChange={setValue} disablePast />;`,
 	WithTimePicker: `const [value, setValue] = useState(new Date(2026, 3, 22, 14, 30));
 return <DatePicker value={value} onChange={setValue} showTime />;`,
+	PopoverVariant: `const [value, setValue] = useState(null);
+return (
+  <DatePicker
+    variant="popover"
+    value={value}
+    onChange={setValue}
+    showTime
+    placeholder="Pick a date"
+  />
+);`,
 	Playground: `const [value, setValue] = useState(new Date(2026, 3, 22));
 return (
   <DatePicker
@@ -89,6 +99,20 @@ const meta: Meta<typeof DatePicker> = {
 		},
 		isRangeStart: { control: false, description: "Marks a cell as the start of a range." },
 		isRangeEnd: { control: false, description: "Marks a cell as the end of a range." },
+		variant: {
+			control: { type: "inline-radio" },
+			options: ["inline", "popover"],
+			description:
+				"`inline` (default) renders the calendar in flow. `popover` renders a trigger pill that opens the calendar in an anchored DS Popover.",
+		},
+		placeholder: {
+			control: "text",
+			description: "Trigger pill placeholder when value is null (popover variant only).",
+		},
+		formatLabel: {
+			control: false,
+			description: "Override the trigger pill date formatter (popover variant only).",
+		},
 		className: { control: false },
 		style: { control: false },
 	},
@@ -162,6 +186,38 @@ export const WithTimePicker: Story = {
 					Event date &amp; time
 				</div>
 				<DatePicker value={value} onChange={setValue} showTime />
+			</div>
+		);
+	},
+};
+
+export const PopoverVariant: Story = {
+	parameters: { docs: { source: { code: SRC.PopoverVariant } } },
+	render: () => {
+		const [value, setValue] = useState<Date | null>(null);
+		return (
+			<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+				<div
+					style={{
+						fontFamily: "var(--mono)",
+						fontSize: 10,
+						letterSpacing: "0.08em",
+						textTransform: "uppercase",
+						color: "var(--ink-3)",
+					}}
+				>
+					When
+				</div>
+				<DatePicker
+					variant="popover"
+					value={value}
+					onChange={setValue}
+					showTime
+					placeholder="Pick a date"
+				/>
+				<div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)" }}>
+					Selected: {value ? value.toLocaleString() : "(none)"}
+				</div>
 			</div>
 		);
 	},
