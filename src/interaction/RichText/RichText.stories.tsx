@@ -125,7 +125,7 @@ type Story = StoryObj<typeof RichText>;
 // ─── Fixtures ─────────────────────────────────────────────────────────────
 
 const INITIAL_HTML =
-	"<p>Write your <strong>document</strong> here. Add relevant details.</p><ul><li>Delivered key milestone on schedule</li><li>Improved system performance by 40%</li></ul>";
+	"<p>Write your <strong>document</strong> here. Add <em>relevant</em> details. Use <mark>highlight</mark> to flag callouts.</p><ul><li>Delivered key milestone on schedule</li><li>Improved system performance by 40%</li></ul>";
 
 // ─── Stories ──────────────────────────────────────────────────────────────
 

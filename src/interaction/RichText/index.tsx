@@ -49,6 +49,7 @@
  */
 
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import HighlightExtension from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import UnderlineExtension from "@tiptap/extension-underline";
@@ -71,6 +72,7 @@ lowlight.register("ts", typescript);
 lowlight.register("typescript", typescript);
 lowlight.register("json", json);
 lowlight.register("python", python);
+import { Highlighter } from "lucide-react";
 import { type CSSProperties, type ReactNode, forwardRef, useEffect, useRef, useState } from "react";
 import { DSDropdown } from "../../_internals/DSDropdown";
 import { DSPortal } from "../../_internals/DSPortal";
@@ -185,6 +187,8 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 			Placeholder.configure({ placeholder: placeholder ?? "" }),
 			// NOTE: UnderlineExtension - renamed import to avoid collision with Underline icon
 			UnderlineExtension,
+			// NOTE: HighlightExtension - multicolor:false keeps output as plain <mark>
+			HighlightExtension.configure({ multicolor: false }),
 		],
 		content: value,
 		editable: !readOnly,
@@ -271,6 +275,16 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 				onClick={() => editor?.chain().focus().toggleUnderline().run()}
 			>
 				<Underline size={16} />
+			</Button>
+			<Button
+				variant="ghost"
+				size="sm"
+				aria-label="Highlight"
+				aria-pressed={isActive("highlight")}
+				data-active={isActive("highlight") || undefined}
+				onClick={() => editor?.chain().focus().toggleHighlight().run()}
+			>
+				<Highlighter size={16} />
 			</Button>
 			<Button
 				variant="ghost"
