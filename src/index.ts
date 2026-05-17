@@ -7,6 +7,7 @@ export {
 	type OAuthProvider,
 } from "./inputs/OAuthButton";
 export { TextInput, type TextInputProps } from "./inputs/TextInput";
+export { InlineEditField, type InlineEditFieldProps } from "./inputs/InlineEditField";
 export {
 	Eyebrow,
 	type EyebrowProps,
@@ -132,6 +133,7 @@ export {
 	type DateRangePickerProps,
 } from "./inputs/DateRangePicker";
 export { Autocomplete, type AutocompleteProps } from "./inputs/Autocomplete";
+export { FileInput, type FileInputProps } from "./inputs/FileInput";
 export { ColorPicker, type ColorPickerProps } from "./inputs/ColorPicker";
 export { ColorInput, type ColorInputProps } from "./inputs/ColorPicker/ColorInput";
 
