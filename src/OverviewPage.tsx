@@ -96,6 +96,8 @@ const categories = [
 			"ColorPicker",
 			"DatePicker",
 			"DateRangePicker",
+			"FileInput",
+			"InlineEditField",
 			"Kbd",
 			"MultiSelect",
 			"NumberStepper",
@@ -147,7 +149,15 @@ const categories = [
 	{
 		name: "Feedback",
 		id: "feedback",
-		components: ["AlertBanner", "EmptyState", "InlineConfirm", "ProgressBar", "Skeleton", "Toast"],
+		components: [
+			"AlertBanner",
+			"EmptyState",
+			"InlineConfirm",
+			"ProgressBar",
+			"Skeleton",
+			"Snackbar",
+			"Toast",
+		],
 	},
 	{
 		name: "Interaction",
@@ -588,7 +598,7 @@ export function OverviewPage() {
 						marginBottom: 20,
 					}}
 				>
-					@akhil-saxena · design system · v1.4.1
+					@akhil-saxena · design system · v1.4.2
 				</div>
 				<div
 					style={{
