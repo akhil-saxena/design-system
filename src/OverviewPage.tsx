@@ -346,7 +346,7 @@ function StatsStrip({ t, isMobile }: Readonly<{ t: T; isMobile: boolean }>) {
 		{ value: TOTAL, label: "Components" },
 		{ value: categories.length, label: "Categories" },
 		{ value: 3, label: "Patterns" },
-		{ value: "1.1.0", label: "Version" },
+		{ value: "1.4.2", label: "Version" },
 	] as const;
 	return (
 		<div
