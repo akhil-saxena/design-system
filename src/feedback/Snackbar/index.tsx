@@ -1,4 +1,5 @@
 import {
+	type CSSProperties,
 	type ReactNode,
 	createContext,
 	useCallback,
@@ -106,6 +107,12 @@ let nextSnackbarId = 0;
 
 export interface SnackbarProviderProps {
 	children: ReactNode;
+	/**
+	 * Extra space (px) to lift the bottom-center region above fixed chrome —
+	 * e.g. a mobile floating action button. Defaults to 0. Pass a responsive
+	 * value (0 on desktop, the FAB clearance on mobile) from the consumer.
+	 */
+	bottomOffset?: number;
 }
 
 /**
@@ -121,7 +128,7 @@ export interface SnackbarProviderProps {
  * snackbar is active. The region pointer-events:none lets clicks pass to
  * the page; the snackbar itself sets pointer-events:auto.
  */
-export function SnackbarProvider({ children }: SnackbarProviderProps) {
+export function SnackbarProvider({ children, bottomOffset }: SnackbarProviderProps) {
 	const [entry, setEntry] = useState<SnackbarEntry | null>(null);
 	const dismissTimer = useRef<number | null>(null);
 
@@ -197,7 +204,17 @@ export function SnackbarProvider({ children }: SnackbarProviderProps) {
 			{children}
 			{entry ? (
 				<DSPortal>
-					<div className="ds-atom-snackbar-region" aria-label="Action confirmations">
+					<div
+						className="ds-atom-snackbar-region"
+						aria-label="Action confirmations"
+						style={
+							bottomOffset
+								? ({
+										"--ds-snackbar-offset": `${bottomOffset}px`,
+									} as CSSProperties)
+								: undefined
+						}
+					>
 						<SnackbarNode
 							entry={entry}
 							onAction={() => {

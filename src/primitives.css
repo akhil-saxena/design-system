@@ -1604,7 +1604,10 @@
 	position: fixed;
 	left: 0;
 	right: 0;
-	bottom: var(--space-5);
+	/* --ds-snackbar-offset (default 0) lets a consumer lift the region above
+	   fixed chrome such as a mobile FAB; SnackbarProvider's `bottomOffset`
+	   prop sets it inline. */
+	bottom: calc(var(--space-5) + var(--ds-snackbar-offset, 0px));
 	z-index: 1100;
 	display: flex;
 	justify-content: center;
