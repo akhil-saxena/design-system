@@ -1,8 +1,8 @@
 # @akhil-saxena/design-system
 
-Accessible React primitives with semantic tokens. Full dark mode, cream + ink + amber design language.
+Accessible React primitives with semantic tokens. Full dark mode, neutral paper + ink + amber editorial design language.
 
-**v1.5.0 — 79 components across 9 categories.**
+**v1.6.0 — 79 components across 9 categories.**
 
 [![npm](https://img.shields.io/npm/v/@akhil-saxena/design-system)](https://www.npmjs.com/package/@akhil-saxena/design-system)
 
@@ -110,8 +110,8 @@ From `@akhil-saxena/design-system/hooks`:
 
 CSS custom properties in `tokens.css`:
 
-- **Color** - cream/ink/amber ramps + AAA-tuned blue/purple/green/red status colors
-- **Typography** - Inter (body), Archivo (display), JetBrains Mono (code/data)
+- **Color** - neutral surface/ink ramps + amber accent + AAA-tuned blue/purple/green/red status colors
+- **Typography** - Inter (body), Archivo (display), Newsreader (editorial serif), JetBrains Mono (code/data)
 - **Spacing** - 4px base, 12-step scale (4..64px)
 - **Radius** - sm / md / lg / xl / pill
 - **Shadow** - 1 / 2 / 3

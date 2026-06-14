@@ -17,6 +17,10 @@
 @import "@fontsource/jetbrains-mono/500.css";
 @import "@fontsource/jetbrains-mono/600.css";
 @import "@fontsource/jetbrains-mono/700.css";
+/* Newsreader (variable, optical-size) — editorial serif for display headings
+   (roman) + quiet italic captions. Consolidated from Cairn (--serif). */
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
 
 /* ─── Light mode tokens ─────────────────────────────────────────────── */
 :root {
@@ -25,23 +29,24 @@
 		sans-serif;
 	--mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
 	--display: "Archivo", system-ui, sans-serif;
+	--serif: "Newsreader Variable", Georgia, serif;
 
-	/* Ink ramp (text + dark surfaces). --ink reskinned to Cairn's editorial ink. */
+	/* Ink ramp (text + dark surfaces). Sourced from Cairn. --ink-4/--ink-5 are
+	   AA-tuned (darker than a pure tonal ramp) so muted text + decorative
+	   separators clear WCAG AA (4.5:1) against the light surfaces. */
 	--ink: #1c1c1a;
 	--ink-2: #57534e;
 	--ink-3: #6b6560;
-	--ink-4: #8a8380;
-	--ink-5: #d6d3d1;
+	--ink-4: #6b6560;
+	--ink-5: #8e8782;
 
-	/* Cream ramp (warm background surfaces).
-	   Whiter than the original handoff so chrome surfaces (sidebar / topbar /
-	   filter bar / page body) feel uplifting rather than dull. Brand warmth
-	   is preserved by the faint yellow tint in every step; the ramp now
-	   stays close to white through cream-2 with cream-3 reserved for the
-	   most-recessed slots (column tracks, secondary hover wash). */
-	--cream: #fdfcf9;
-	--cream-2: #f7f5f1;
-	--cream-3: #efece5;
+	/* Surface ramp — neutral near-white (sourced from Cairn). The ramp reads as
+	   clean paper rather than warm cream; warmth in the system is carried by the
+	   amber accent alone, not the surfaces. (Token name kept as --cream for
+	   backwards-compat across consumers.) */
+	--cream: #fcfcfc;
+	--cream-2: #f4f4f4;
+	--cream-3: #f0f0f0;
 
 	/* Amber accent */
 	--amber: #f59e0b;
@@ -64,21 +69,19 @@
 	--green-vivid: #22c55e;
 	--red-vivid: #ef4444;
 
-	/* ─── Editorial / warm-paper surfaces (merged from Cairn) ──────────────
-	   Cairn's editorial palette — a warm paper/panel ramp + amber-ink/soft/warm
-	   accents + semantic tint backgrounds + a soft secondary rule. Additive:
-	   these are net-new token NAMES (the --cream ramp and core --ink/--green/
-	   --red are untouched). See docs/CAIRN-CONSOLIDATION.md for the 3
-	   value-collisions (--ink / --green / --red) left to a follow-up decision. */
+	/* ─── Editorial paper surfaces (sourced from Cairn) ────────────────────
+	   Paper/panel ramp + amber-ink/soft/warm accents + semantic tint
+	   backgrounds + a soft secondary rule. The paper ramp is neutral
+	   (matching the --cream ramp); only the amber + semantic tints carry hue. */
 	--page-bg: #ffffff;
-	--bg: #faf8f2;
+	--bg: #f7f7f7;
 	--panel: #ffffff;
-	--panel2: #f4f1eb;
-	--paper: #fcfaf4;
-	--paper-warm: #f8f3e5;
-	--paper-deep: #f3eddc;
-	--pg: #e9e5de;
-	--rule-s: #d6d0c5;
+	--panel2: #f1f1f1;
+	--paper: #fcfcfc;
+	--paper-warm: #f4f4f4;
+	--paper-deep: #ededed;
+	--pg: #e6e6e6;
+	--rule-s: #d4d4d4;
 	--amber-ink: #92400e;
 	--amber-soft: #fef3c7;
 	--amber-warm: #fdf6e3;
@@ -193,26 +196,24 @@
    define the same values so var(--ink) etc resolve correctly on either. */
 :root.dark,
 .dark {
-	/* Revised dark-mode ramp — Cairn · Dark Mode Revision.html spec:
-	   - 3 distinct surface stops (~6L between) so page / column / card stop
-	     collapsing into one slab. The old ramp lived inside a 14–17L band.
-	   - Text inverts to WARM cream (was cool near-white) so it stops fighting
-	     the warm-paper brand and lets the amber accent land as signal.
-	   - Rules warm + lift to 7% (was 8% cool white); new `--rule-strong` at
-	     12% for active dividers (e.g. column-header underline).
-	   The headline move: drop warmth from background, put it into text. */
-	--ink: #f7ecdb;
-	--ink-2: #b8ac97;
-	--ink-3: #857b6c;
-	--ink-4: #5c554a;
-	--ink-5: #3a3530;
+	/* Dark-mode ramp — sourced from Cairn (neutral charcoal):
+	   - 3 distinct surface stops so page / column / card don't collapse into
+	     one slab.
+	   - Text is a neutral light grey; the amber accent is the only warm signal,
+	     so it lands cleanly against the neutral surfaces.
+	   - Rules are cool-white at 9% / 14% (strong) for active dividers. */
+	--ink: #ededed;
+	--ink-2: #ababab;
+	--ink-3: #7c7c7c;
+	--ink-4: #565656;
+	--ink-5: #363636;
 
-	--cream: #0f0d0b;
-	--cream-2: #1a1714;
-	--cream-3: #241f1a;
+	--cream: #181818;
+	--cream-2: #1f1f1f;
+	--cream-3: #2a2a2a;
 
-	--rule: rgba(247, 236, 219, 0.07);
-	--rule-strong: rgba(247, 236, 219, 0.12);
+	--rule: rgba(255, 255, 255, 0.09);
+	--rule-strong: rgba(255, 255, 255, 0.14);
 
 	/* Glass tints to deepest surface (anchored instead of floating) */
 	--g-bg: rgba(15, 13, 11, 0.7);
@@ -235,11 +236,10 @@
 	--green-vivid: #22c55e;
 	--red-vivid: #ef4444;
 
-	/* Surface translucent overlays — warm-cream tint instead of cool white
-	   so they blend with the new warm-cream ink. */
-	--surf-1: rgba(247, 236, 219, 0.04);
-	--surf-2: rgba(247, 236, 219, 0.06);
-	--surf-3: rgba(247, 236, 219, 0.1);
+	/* Surface translucent overlays — cool white, matching the neutral ramp. */
+	--surf-1: rgba(255, 255, 255, 0.035);
+	--surf-2: rgba(255, 255, 255, 0.055);
+	--surf-3: rgba(255, 255, 255, 0.09);
 
 	/* Focus ring - dark-mode amber-d glow */
 	--focus-ring: 0 0 0 3px rgba(251, 191, 36, 0.5);
@@ -248,16 +248,16 @@
 	--ds-illust-bg: rgba(255, 255, 255, 0.13);
 	--ds-illust-bg-2: rgba(255, 255, 255, 0.2);
 
-	/* ─── Editorial / warm-paper surfaces — dark (merged from Cairn) ──────── */
-	--page-bg: #0f0d0b;
-	--bg: #0f0d0b;
-	--panel: #1a1714;
-	--panel2: #221d18;
-	--paper: #221d17;
-	--paper-warm: #1f1a14;
-	--paper-deep: #2a2218;
-	--pg: #0a0908;
-	--rule-s: #3a342c;
+	/* ─── Editorial paper surfaces — dark (sourced from Cairn, neutral) ──────── */
+	--page-bg: #101010;
+	--bg: #101010;
+	--panel: #1c1c1c;
+	--panel2: #242424;
+	--paper: #1e1e1e;
+	--paper-warm: #1c1c1c;
+	--paper-deep: #262626;
+	--pg: #0b0b0b;
+	--rule-s: #333333;
 	--amber-ink: #f5c56b;
 	--amber-soft: #3a2e10;
 	--amber-warm: #2a2110;
