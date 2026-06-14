@@ -10,6 +10,18 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
 	/** Override the auto-derived initials (1–2 uppercase letters). */
 	initials?: string;
 	/**
+	 * Derive the background color from this string instead of `name` — e.g. a
+	 * stable id — so the color stays fixed even if the display name changes.
+	 * Initials are still derived from `name`/`initials`.
+	 */
+	seed?: string;
+	/**
+	 * Override the built-in solid-color palette used for the name→color hash.
+	 * Pass a custom set (e.g. WCAG-tuned colors) to control which colors the
+	 * deterministic hash can land on. Ignored when `gradient` is set.
+	 */
+	palette?: string[];
+	/**
 	 * URL of an image to display. When provided, the image fills the circle and
 	 * initials/background are not rendered.
 	 */
@@ -81,9 +93,10 @@ export function deriveGradient(seed: string): readonly [string, string] {
 	return AVATAR_PALETTE[idx] ?? AVATAR_PALETTE[0];
 }
 
-function deriveSolidColor(seed: string): string {
-	const idx = djb2(seed.toLowerCase()) % SOLID_PALETTE.length;
-	return SOLID_PALETTE[idx] ?? SOLID_PALETTE[0];
+export function deriveSolidColor(seed: string, palette: readonly string[] = SOLID_PALETTE): string {
+	const pool = palette.length > 0 ? palette : SOLID_PALETTE;
+	const idx = djb2(seed.toLowerCase()) % pool.length;
+	return pool[idx] ?? pool[0] ?? SOLID_PALETTE[0];
 }
 
 const presenceColors: Record<AvatarPresence, string> = {
@@ -97,6 +110,8 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
 	{
 		name,
 		initials,
+		seed,
+		palette,
 		src,
 		alt,
 		gradient,
@@ -109,16 +124,17 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
 	},
 	ref,
 ) {
-	const seed = initials || name || "?";
+	// Color seed: explicit `seed` wins, else fall back to initials/name (D-121).
+	const colorSeed = seed || initials || name || "?";
 	const computedInitials = initials ?? deriveInitials(name);
 
 	// Background: solid by default; gradient when gradient prop is set.
 	let background: string;
 	if (gradient) {
-		const stops = Array.isArray(gradient) ? gradient : deriveGradient(seed);
+		const stops = Array.isArray(gradient) ? gradient : deriveGradient(colorSeed);
 		background = `linear-gradient(145deg, ${stops[0]}, ${stops[1]})`;
 	} else {
-		background = deriveSolidColor(seed);
+		background = deriveSolidColor(colorSeed, palette);
 	}
 
 	const containerStyle: CSSProperties = {

@@ -85,6 +85,28 @@ return (
     </BottomSheet>
   </>
 );`,
+	KeyboardAware: `const [open, setOpen] = useState(false);
+return (
+  <>
+    <Button onClick={() => setOpen(true)}>Open keyboard-aware sheet</Button>
+    {/* On mobile, focusing the input raises the soft keyboard. The footer
+        rides above it automatically via window.visualViewport (trackKeyboard,
+        on by default). No-op on desktop / where visualViewport is absent. */}
+    <BottomSheet
+      open={open}
+      onClose={() => setOpen(false)}
+      title="Add a note"
+      footer={
+        <>
+          <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="primary" onClick={() => setOpen(false)}>Save</Button>
+        </>
+      }
+    >
+      <Textarea placeholder="Tap to focus on mobile - the Save row stays above the keyboard." rows={3} />
+    </BottomSheet>
+  </>
+);`,
 	DarkMode: `const [open, setOpen] = useState(false);
 return (
   <>
@@ -149,6 +171,12 @@ const meta: Meta<typeof BottomSheet> = {
 			control: false,
 			description: "Optional footer slot rendered in a sticky row at the bottom of the sheet.",
 			table: { type: { summary: "React.ReactNode" } },
+		},
+		trackKeyboard: {
+			control: "boolean",
+			description:
+				"Lift the footer above the mobile soft keyboard via window.visualViewport. On by default; no-op on desktop / where visualViewport is absent.",
+			table: { type: { summary: "boolean" }, defaultValue: { summary: "true" } },
 		},
 		className: { control: false, table: { type: { summary: "string" } } },
 		style: { control: false, table: { type: { summary: "React.CSSProperties" } } },
@@ -370,6 +398,43 @@ function SwipeToCloseDemo() {
 export const SwipeToClose: Story = {
 	parameters: { docs: { source: { code: SRC.SwipeToClose } } },
 	render: () => <SwipeToCloseDemo />,
+};
+
+function KeyboardAwareDemo() {
+	const [open, setOpen] = useState(false);
+	return (
+		<Preview>
+			<Button onClick={() => setOpen(true)}>Open keyboard-aware sheet</Button>
+			<BottomSheet
+				open={open}
+				onClose={() => setOpen(false)}
+				title="Add a note"
+				footer={
+					<>
+						<Button variant="ghost" onClick={() => setOpen(false)}>
+							Cancel
+						</Button>
+						<Button variant="primary" onClick={() => setOpen(false)}>
+							Save
+						</Button>
+					</>
+				}
+			>
+				<p style={{ marginBottom: 12, color: "var(--ink-3)", fontSize: 12 }}>
+					On mobile, focusing the field raises the soft keyboard and the footer rides above it
+					automatically (window.visualViewport). No-op on desktop.
+				</p>
+				<Textarea
+					placeholder="Tap to focus on mobile - the Save row stays above the keyboard."
+					rows={3}
+				/>
+			</BottomSheet>
+		</Preview>
+	);
+}
+export const KeyboardAware: Story = {
+	parameters: { docs: { source: { code: SRC.KeyboardAware } } },
+	render: () => <KeyboardAwareDemo />,
 };
 
 function DarkHalfDemo() {

@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, it } from "vitest";
-import { Avatar, AvatarStack, deriveGradient, deriveInitials } from ".";
+import { Avatar, AvatarStack, deriveGradient, deriveInitials, deriveSolidColor } from ".";
 describe("Avatar utilities", () => {
 	describe("deriveInitials", () => {
 		it("first letter of first 2 words", () => {
@@ -35,6 +35,25 @@ describe("Avatar utilities", () => {
 			expect(deriveGradient("ABC")).toEqual(deriveGradient("abc"));
 		});
 	});
+
+	describe("deriveSolidColor", () => {
+		it("deterministic - same seed always returns same color", () => {
+			expect(deriveSolidColor("contact-42")).toBe(deriveSolidColor("contact-42"));
+		});
+		it("uses the provided custom palette", () => {
+			const palette = ["#111111", "#222222", "#333333"];
+			expect(palette).toContain(deriveSolidColor("anything", palette));
+		});
+		it("custom palette only ever returns colors from that palette", () => {
+			const palette = ["#abcdef", "#fedcba"];
+			for (const seed of ["a", "b", "c", "d", "e", "f", "g", "h"]) {
+				expect(palette).toContain(deriveSolidColor(seed, palette));
+			}
+		});
+		it("falls back to built-in palette when an empty palette is passed", () => {
+			expect(deriveSolidColor("x", [])).toBe(deriveSolidColor("x"));
+		});
+	});
 });
 
 describe("Avatar", () => {
@@ -64,6 +83,69 @@ describe("Avatar", () => {
 		const { container } = render(<Avatar name="x" presence="online" />);
 		// presence dot is the only inner span (other than initials text node)
 		expect(container.querySelectorAll("span").length).toBeGreaterThan(0);
+	});
+
+	// jsdom normalizes inline color values (e.g. "#0284c7" -> "rgb(2, 132, 199)"),
+	// so we render a reference element to obtain the normalized form rather than
+	// comparing against raw hex from deriveSolidColor. Each render() returns a
+	// fresh container, so we read the avatar root from it directly to avoid
+	// duplicate-name ambiguity across multiple renders in one test.
+	const rootOf = (container: HTMLElement) => container.firstChild as HTMLElement;
+	const bgOf = (container: HTMLElement) => rootOf(container).style.background;
+	const renderedBg = (props: Parameters<typeof Avatar>[0]) =>
+		bgOf(render(<Avatar {...props} />).container);
+	// Normalized form of an arbitrary hex color, as jsdom would store it.
+	const normalize = (hex: string) =>
+		bgOf(render(<Avatar name="__ref__" style={{ background: hex }} />).container);
+
+	it("same seed produces the same background color regardless of name", () => {
+		const bgA = bgOf(render(<Avatar name="Maya Chen" seed="contact-42" />).container);
+		const bgB = bgOf(render(<Avatar name="Totally Different Name" seed="contact-42" />).container);
+		expect(bgA).toBe(bgB);
+		expect(bgA).not.toBe("");
+	});
+
+	it("seeds that hash to different palette slots produce different colors", () => {
+		// Pick two seeds that the built-in palette maps to distinct colors so the
+		// assertion isn't fooled by a hash collision in the 6-color palette.
+		expect(deriveSolidColor("seed-a")).not.toBe(deriveSolidColor("seed-d"));
+		const bgA = renderedBg({ name: "Maya Chen", seed: "seed-a" });
+		const bgD = renderedBg({ name: "Maya Chen", seed: "seed-d" });
+		expect(bgA).not.toBe(bgD);
+	});
+
+	it("seed drives color while name still drives initials", () => {
+		const { getByText, container } = render(<Avatar name="Maya Chen" seed="some-id" />);
+		// initials from name, unchanged
+		expect(getByText("MC")).toBeInTheDocument();
+		// color from seed: equals an Avatar whose NAME is the seed (color path identical)
+		const refBg = renderedBg({ name: "some-id" });
+		expect(bgOf(container)).toBe(refBg);
+	});
+
+	it("custom palette is used for the background color", () => {
+		// Distinct dark palette so a built-in color can't accidentally collide.
+		const palette = ["#0a0a0a", "#1b1b1b", "#2c2c2c", "#3d3d3d"];
+		const expectedHex = deriveSolidColor("Maya Chen", palette);
+		// the chosen color must come from the custom palette, not the built-in one
+		expect(palette).toContain(expectedHex);
+		const { container } = render(<Avatar name="Maya Chen" palette={palette} />);
+		expect(bgOf(container)).toBe(normalize(expectedHex));
+	});
+
+	it("custom palette respects the seed override", () => {
+		const palette = ["#0a0a0a", "#1b1b1b", "#2c2c2c"];
+		const expectedHex = deriveSolidColor("stable-id", palette);
+		const { container } = render(<Avatar name="Maya Chen" seed="stable-id" palette={palette} />);
+		expect(bgOf(container)).toBe(normalize(expectedHex));
+	});
+
+	it("defaults unchanged - no seed/palette uses name-derived built-in color", () => {
+		// Same as rendering with an explicit seed equal to the name.
+		const withName = renderedBg({ name: "Maya Chen" });
+		const withSeed = renderedBg({ name: "Maya Chen", seed: "Maya Chen" });
+		expect(withName).toBe(withSeed);
+		expect(withName).not.toBe("");
 	});
 });
 

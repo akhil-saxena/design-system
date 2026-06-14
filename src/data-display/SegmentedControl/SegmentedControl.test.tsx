@@ -18,6 +18,20 @@ const WITH_DISABLED: SegmentedOption[] = [
 	{ value: "c", label: "C" },
 ];
 
+const TONED_OPTIONS: SegmentedOption[] = [
+	{
+		value: "advanced",
+		label: "Advanced",
+		tone: { fg: "var(--green)", activeBg: "rgba(47,122,82,0.10)" },
+	},
+	{ value: "wait", label: "Wait", tone: { fg: "var(--ink-3)", activeBg: "var(--cream-2)" } },
+	{
+		value: "closed",
+		label: "Closed",
+		tone: { fg: "var(--red)", activeBg: "rgba(153,27,27,0.08)" },
+	},
+];
+
 describe("SegmentedControl", () => {
 	it("renders all options as role=radio inside role=radiogroup", () => {
 		render(
@@ -205,6 +219,43 @@ describe("SegmentedControl", () => {
 			/>,
 		);
 		expect(container.querySelector(".ds-atom-segmented")?.getAttribute("data-size")).toBe("lg");
+	});
+
+	it("toned active option applies its tone fg/activeBg inline; inactive toned options do not", () => {
+		render(
+			<SegmentedControl
+				options={TONED_OPTIONS}
+				value="advanced"
+				onChange={() => {}}
+				ariaLabel="Outcome"
+			/>,
+		);
+		const active = screen.getByText("Advanced") as HTMLElement;
+		// Active toned option paints fg + activeBg inline (overrides the default amber rule).
+		expect(active.getAttribute("data-toned")).toBe("true");
+		expect(active.style.color).toBe("var(--green)");
+		// jsdom normalizes rgba whitespace/precision, so assert on the parsed parts.
+		expect(active.style.background.replace(/\s/g, "")).toBe("rgba(47,122,82,0.1)");
+		// Inactive toned options carry no inline tone styling and no data-toned flag.
+		const inactive = screen.getByText("Closed") as HTMLElement;
+		expect(inactive.getAttribute("data-toned")).toBeNull();
+		expect(inactive.style.color).toBe("");
+		expect(inactive.style.background).toBe("");
+	});
+
+	it("tone is optional: tone-less options render without inline tone styling (backward compatible)", () => {
+		const { container } = render(
+			<SegmentedControl
+				options={VIEW_OPTIONS}
+				value="week"
+				onChange={() => {}}
+				ariaLabel="View mode"
+			/>,
+		);
+		const active = container.querySelector("button[role='radio'][data-active]") as HTMLElement;
+		expect(active.getAttribute("data-toned")).toBeNull();
+		expect(active.style.color).toBe("");
+		expect(active.style.background).toBe("");
 	});
 
 	it("supports 2-option minimum", () => {

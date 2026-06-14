@@ -18,13 +18,35 @@
  * - Arrow keys cycle + select; Home/End jump to ends
  * - Pill-shaped wrapper with amber-active option
  * - data-size, data-disabled, data-active for CSS state
+ * - Optional per-option `tone` ({ fg, activeBg }) recolors the ACTIVE
+ *   segment (e.g. outcome toggles: green / neutral / red). Tone-less
+ *   options keep the default amber styling (backward compatible).
  */
 import { forwardRef, useCallback, useRef } from "react";
+
+/**
+ * Optional per-option active colors. When set, the option uses these
+ * foreground/background colors *while active* instead of the default amber
+ * pill. Prefer DS CSS-var tokens (e.g. `var(--green)`). Inactive options are
+ * unaffected and render with default styling.
+ */
+export interface SegmentedTone {
+	/** Text color of the option while active. */
+	fg: string;
+	/** Background of the option while active. */
+	activeBg: string;
+}
 
 export interface SegmentedOption<T extends string = string> {
 	value: T;
 	label: string;
 	disabled?: boolean;
+	/**
+	 * Optional per-option active tone. When provided, the *active* segment
+	 * renders with `tone.fg` / `tone.activeBg` instead of the default amber.
+	 * Omit for the standard styling (fully backward compatible).
+	 */
+	tone?: SegmentedTone;
 }
 
 export interface SegmentedControlProps<T extends string = string> {
@@ -120,6 +142,12 @@ function SegmentedControlInner<T extends string>(
 			{options.map((opt, i) => {
 				const isActive = opt.value === value;
 				const tabIndex = activeIndex >= 0 ? (isActive ? 0 : -1) : i === fallbackTabIndex ? 0 : -1;
+				// Per-option tone only paints the ACTIVE segment; inactive options keep
+				// default styling. Inline styles win over the default
+				// .ds-atom-segmented-btn[data-active] CSS rule, so the standard
+				// (tone-less) path is left exactly as before.
+				const toneStyle: React.CSSProperties | undefined =
+					isActive && opt.tone ? { background: opt.tone.activeBg, color: opt.tone.fg } : undefined;
 				return (
 					<button
 						key={opt.value}
@@ -130,6 +158,8 @@ function SegmentedControlInner<T extends string>(
 						tabIndex={tabIndex}
 						disabled={disabled || opt.disabled}
 						data-active={isActive ? "true" : undefined}
+						data-toned={isActive && opt.tone ? "true" : undefined}
+						style={toneStyle}
 						onClick={() => {
 							if (!disabled && !opt.disabled) onChange(opt.value);
 						}}

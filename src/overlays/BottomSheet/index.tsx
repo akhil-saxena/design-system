@@ -26,6 +26,13 @@ export interface BottomSheetProps {
 	 * Defaults to detecting `html.dark` (Canvas dark mode toggle).
 	 */
 	dark?: boolean;
+	/**
+	 * Track the mobile soft keyboard via `window.visualViewport` and lift the
+	 * footer above it (padding-bottom = visible-viewport delta). Defaults to
+	 * true. Set false to opt out; it is a no-op anyway on platforms without a
+	 * `visualViewport` (e.g. desktop) or when there is no footer.
+	 */
+	trackKeyboard?: boolean;
 	className?: string;
 	style?: CSSProperties;
 }
@@ -69,6 +76,7 @@ export function BottomSheet({
 	height = "half",
 	closeOnBackdropClick = true,
 	dark,
+	trackKeyboard = true,
 	className,
 	style,
 }: BottomSheetProps) {
@@ -92,6 +100,13 @@ export function BottomSheet({
 	const dragStateRef = useRef<{ startY: number; pointerId: number; panelH: number } | null>(null);
 	const [dragOffset, setDragOffset] = useState(0);
 	const [dragging, setDragging] = useState(false);
+
+	// Soft-keyboard tracking. The on-screen keyboard shrinks the visual
+	// viewport without shrinking layout (window.innerHeight), so a sheet pinned
+	// to the bottom would have its footer occluded behind the keyboard.
+	// visualViewport.height is the true visible height; the delta is how much
+	// the keyboard covers. We lift the footer by that delta.
+	const [kbOffset, setKbOffset] = useState(0);
 
 	function handleHandlePointerDown(e: ReactPointerEvent<HTMLDivElement>) {
 		if (!panelNode) return;
@@ -145,6 +160,27 @@ export function BottomSheet({
 		return () => document.removeEventListener("keydown", onKey);
 	}, [open, onClose]);
 
+	// Keep the footer riding above the mobile soft keyboard. SSR/desktop guard:
+	// bail when there is no window or no visualViewport, leaving kbOffset at 0
+	// (the correct no-op). The listener is attached only while open and torn
+	// down on close/unmount, resetting the offset.
+	useEffect(() => {
+		if (!open || !trackKeyboard) return;
+		if (typeof window === "undefined") return;
+		const vv = window.visualViewport;
+		if (!vv) return;
+		const update = () => {
+			const offset = window.innerHeight - vv.height - (vv.offsetTop ?? 0);
+			setKbOffset(Math.max(0, offset));
+		};
+		vv.addEventListener("resize", update);
+		update();
+		return () => {
+			vv.removeEventListener("resize", update);
+			setKbOffset(0);
+		};
+	}, [open, trackKeyboard]);
+
 	if (!open) return null;
 
 	// dark prop wins; fall back to <html class="dark"> for Canvas dark mode.
@@ -192,7 +228,14 @@ export function BottomSheet({
 						</header>
 					) : null}
 					<div className="ds-atom-bottomsheet-body">{children}</div>
-					{footer ? <footer className="ds-atom-bottomsheet-ft">{footer}</footer> : null}
+					{footer ? (
+						<footer
+							className="ds-atom-bottomsheet-ft"
+							style={kbOffset > 0 ? { paddingBottom: `${kbOffset}px` } : undefined}
+						>
+							{footer}
+						</footer>
+					) : null}
 				</div>
 			</div>
 		</>

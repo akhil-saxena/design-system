@@ -25,6 +25,25 @@ const SRC = {
 // Or pass custom stops
 <Avatar name="Custom" gradient={["#7c3aed", "#1d4ed8"]} />`,
 
+	CustomPalette: `// Override the built-in solid palette with your own (e.g. WCAG-tuned) set.
+const BRAND = [
+  "#4B3FD9", "#C53A12", "#4753B6", "#A65030",
+  "#C81460", "#15663F", "#205AB5", "#1F1B17",
+];
+
+<Avatar name="Stripe"     palette={BRAND} />
+<Avatar name="Figma"      palette={BRAND} />
+<Avatar name="Linear"     palette={BRAND} />
+<Avatar name="Anthropic"  palette={BRAND} />`,
+
+	Seed: `// Derive the color from a stable id (seed) while initials still come from name.
+// Same seed -> same color, even if the display name changes.
+<Avatar name="Maya Chen"  seed="contact-42" />
+<Avatar name="M. Chen"    seed="contact-42" />  {/* same color, different initials */}
+
+// Different seeds -> independent colors
+<Avatar name="Maya Chen"  seed="contact-99" />`,
+
 	Stack: `<AvatarStack
   avatars={[
     { name: "Sam Chen" },
@@ -64,6 +83,16 @@ const meta: Meta<typeof Avatar> = {
 		initials: {
 			control: "text",
 			description: "Override auto-derived initials (1–2 uppercase letters).",
+		},
+		seed: {
+			control: "text",
+			description:
+				"Derive the background color from this string (e.g. a stable id) instead of `name`. Initials still come from `name`.",
+		},
+		palette: {
+			control: false,
+			description:
+				"Override the built-in solid-color palette used for the name→color hash. Ignored when `gradient` is set.",
 		},
 		src: {
 			control: "text",
@@ -200,6 +229,76 @@ export const GradientOption: Story = {
 			<div style={{ textAlign: "center" }}>
 				<Avatar name="Custom" gradient={["#7c3aed", "#1d4ed8"]} size={40} />
 				<div style={{ fontSize: 11, marginTop: 6, color: "var(--ink-3)" }}>custom stops</div>
+			</div>
+		</div>
+	),
+};
+
+// WCAG-tuned brand palette: each clears AA (4.5:1) with white text.
+const BRAND_PALETTE = [
+	"#4B3FD9",
+	"#C53A12",
+	"#4753B6",
+	"#A65030",
+	"#C81460",
+	"#15663F",
+	"#205AB5",
+	"#1F1B17",
+];
+
+export const CustomPalette: Story = {
+	name: "Custom palette",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Pass `palette` to override the built-in solid colors used by the name→color hash. Consumers (e.g. Cairn's CompanyLogo / PersonCard) can supply a WCAG-tuned set while keeping the deterministic mapping. Color selection still falls back to the built-in palette if `palette` is omitted.",
+			},
+			source: { code: SRC.CustomPalette },
+		},
+	},
+	render: () => (
+		<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+			<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+				<Avatar name="Default Palette" size={40} />
+				<div style={{ fontSize: 11, color: "var(--ink-3)" }}>built-in palette (default)</div>
+			</div>
+			<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+				{["Stripe", "Figma", "Linear", "Anthropic", "Airtable", "Loom"].map((n) => (
+					<Avatar key={n} name={n} palette={BRAND_PALETTE} size={40} />
+				))}
+				<div style={{ fontSize: 11, color: "var(--ink-3)" }}>custom WCAG-tuned palette</div>
+			</div>
+		</div>
+	),
+};
+
+export const Seed: Story = {
+	name: "Seed (stable color from id)",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Pass `seed` to derive the background color from a stable string (e.g. a record id) instead of `name`. Initials still come from `name`/`initials`, so the color stays fixed even when the display name changes. Same seed → same color.",
+			},
+			source: { code: SRC.Seed },
+		},
+	},
+	render: () => (
+		<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+			<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+				<Avatar name="Maya Chen" seed="contact-42" size={40} />
+				<Avatar name="M. Chen" seed="contact-42" size={40} />
+				<div style={{ fontSize: 11, color: "var(--ink-3)" }}>
+					same seed → same color, different initials
+				</div>
+			</div>
+			<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+				<Avatar name="Maya Chen" seed="contact-42" size={40} />
+				<Avatar name="Maya Chen" seed="contact-99" size={40} />
+				<div style={{ fontSize: 11, color: "var(--ink-3)" }}>
+					same name, different seed → independent colors
+				</div>
 			</div>
 		</div>
 	),

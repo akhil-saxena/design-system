@@ -1,6 +1,31 @@
-import { fireEvent, render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { BottomSheet } from ".";
+
+// Minimal stand-in for the VisualViewport API (absent in jsdom). Tracks
+// listeners so tests can assert wiring/cleanup and trigger a synthetic resize.
+function mockVisualViewport(height: number, offsetTop = 0) {
+	const listeners = new Map<string, Set<() => void>>();
+	const vv = {
+		height,
+		offsetTop,
+		addEventListener: vi.fn((type: string, cb: () => void) => {
+			if (!listeners.has(type)) listeners.set(type, new Set());
+			listeners.get(type)?.add(cb);
+		}),
+		removeEventListener: vi.fn((type: string, cb: () => void) => {
+			listeners.get(type)?.delete(cb);
+		}),
+		dispatch(type: string) {
+			for (const cb of listeners.get(type) ?? []) cb();
+		},
+		listenerCount(type: string) {
+			return listeners.get(type)?.size ?? 0;
+		},
+	};
+	Object.defineProperty(window, "visualViewport", { value: vv, configurable: true });
+	return vv;
+}
 // Helper: dispatch a pointer event with clientY + pointerId populated. jsdom
 // doesn't natively support PointerEvent so we synthesize one as a MouseEvent
 // and manually pin the pointer-specific fields React reads off the event.
@@ -13,6 +38,11 @@ function firePointer(
 	Object.defineProperty(evt, "pointerId", { value: init.pointerId ?? 1, configurable: true });
 	target.dispatchEvent(evt);
 }
+
+afterEach(() => {
+	// Restore jsdom's default (no visualViewport) between tests.
+	Object.defineProperty(window, "visualViewport", { value: undefined, configurable: true });
+});
 
 describe("BottomSheet", () => {
 	it("renders portaled to document.body when open=true", () => {
@@ -183,5 +213,58 @@ describe("BottomSheet", () => {
 		const panel = baseElement.querySelector(".ds-atom-bottomsheet")!;
 		expect(panel.getAttribute("role")).toBe("dialog");
 		expect(panel.getAttribute("aria-modal")).toBe("true");
+	});
+
+	it("keyboard tracking: wires a visualViewport resize listener while open and cleans it up on unmount", () => {
+		const vv = mockVisualViewport(800);
+		const { unmount } = render(
+			<BottomSheet open footer={<button type="button">Save</button>} onClose={() => {}}>
+				x
+			</BottomSheet>,
+		);
+		expect(vv.addEventListener).toHaveBeenCalledWith("resize", expect.any(Function));
+		expect(vv.listenerCount("resize")).toBe(1);
+		unmount();
+		expect(vv.removeEventListener).toHaveBeenCalledWith("resize", expect.any(Function));
+		expect(vv.listenerCount("resize")).toBe(0);
+	});
+
+	it("keyboard tracking: footer gets padding-bottom equal to the keyboard offset on resize", () => {
+		// window.innerHeight is 768 in jsdom; shrink the visual viewport to 500
+		// → kbOffset = 768 - 500 - 0 = 268.
+		const vv = mockVisualViewport(500);
+		const { baseElement } = render(
+			<BottomSheet open footer={<button type="button">Save</button>} onClose={() => {}}>
+				x
+			</BottomSheet>,
+		);
+		act(() => {
+			vv.dispatch("resize");
+		});
+		const footer = baseElement.querySelector(".ds-atom-bottomsheet-ft") as HTMLElement;
+		expect(footer.style.paddingBottom).toBe(`${window.innerHeight - 500}px`);
+	});
+
+	it("keyboard tracking: opt-out via trackKeyboard={false} attaches no listener", () => {
+		const vv = mockVisualViewport(800);
+		render(
+			<BottomSheet open trackKeyboard={false} footer={<span>f</span>} onClose={() => {}}>
+				x
+			</BottomSheet>,
+		);
+		expect(vv.addEventListener).not.toHaveBeenCalled();
+	});
+
+	it("keyboard tracking: no crash and footer renders when visualViewport is absent", () => {
+		// afterEach guarantees window.visualViewport is undefined here.
+		expect(window.visualViewport).toBeUndefined();
+		const { baseElement } = render(
+			<BottomSheet open footer={<button type="button">Save</button>} onClose={() => {}}>
+				x
+			</BottomSheet>,
+		);
+		const footer = baseElement.querySelector(".ds-atom-bottomsheet-ft") as HTMLElement;
+		expect(footer.textContent).toBe("Save");
+		expect(footer.style.paddingBottom).toBe("");
 	});
 });

@@ -97,6 +97,7 @@ const categories = [
 			"DatePicker",
 			"DateRangePicker",
 			"FileInput",
+			"InlineAddRow",
 			"InlineEditField",
 			"Kbd",
 			"MultiSelect",
@@ -116,6 +117,7 @@ const categories = [
 		name: "Overlays",
 		id: "overlays",
 		components: [
+			"ActionSheet",
 			"BottomSheet",
 			"Card",
 			"CommandPalette",
@@ -197,9 +199,13 @@ const SWATCHES = [
 	{ name: "cream-3", value: "#e7e2dc", light: true },
 	{ name: "amber", value: "#f59e0b", light: false },
 	{ name: "amber-d", value: "#b45309", light: false },
-	{ name: "ink", value: "#292524", light: false },
+	{ name: "ink", value: "#1c1c1a", light: false },
 	{ name: "ink-2", value: "#57534e", light: false },
 	{ name: "ink-3", value: "#6b6560", light: false },
+	{ name: "paper-warm", value: "#f8f3e5", light: true },
+	{ name: "amber-ink", value: "#92400e", light: false },
+	{ name: "green", value: "#2f7a52", light: false },
+	{ name: "red", value: "#b8463f", light: false },
 ];
 
 const PRINCIPLES = [
@@ -346,7 +352,7 @@ function StatsStrip({ t, isMobile }: Readonly<{ t: T; isMobile: boolean }>) {
 		{ value: TOTAL, label: "Components" },
 		{ value: categories.length, label: "Categories" },
 		{ value: 3, label: "Patterns" },
-		{ value: "1.4.2", label: "Version" },
+		{ value: "1.5.0", label: "Version" },
 	] as const;
 	return (
 		<div
@@ -598,7 +604,7 @@ export function OverviewPage() {
 						marginBottom: 20,
 					}}
 				>
-					@akhil-saxena · design system · v1.4.2
+					@akhil-saxena · design system · v1.5.0
 				</div>
 				<div
 					style={{

@@ -51,6 +51,12 @@ export interface SnackbarOptions {
 	 * Pass an explicit boolean to override.
 	 */
 	dismissible?: boolean;
+	/** Render a thin countdown progress bar along the bottom edge that depletes
+	 * (width 100% → 0%) linearly over `duration` ms — a visual undo timer
+	 * (matches the SoftConfirmToast pattern). Only renders when `true` AND
+	 * `duration` is finite. Respects `prefers-reduced-motion: reduce` (the bar
+	 * is shown static, no animation). Default `false`. */
+	progress?: boolean;
 }
 
 interface SnackbarEntry {
@@ -60,6 +66,7 @@ interface SnackbarEntry {
 	action: SnackbarAction | null;
 	duration: number;
 	dismissible: boolean;
+	progress: boolean;
 	dismissing: boolean;
 }
 
@@ -159,6 +166,7 @@ export function SnackbarProvider({ children }: SnackbarProviderProps) {
 				action,
 				duration,
 				dismissible,
+				progress: opts?.progress ?? false,
 				dismissing: false,
 			});
 			if (Number.isFinite(duration)) {
@@ -213,9 +221,38 @@ interface SnackbarNodeProps {
 	onDismiss: () => void;
 }
 
+// Tone-tinted bar colors. Neutral uses a subtle cream wash (the snackbar fill
+// is solid `--ink`); success/error pick up their accent tokens.
+const PROGRESS_COLOR: Record<SnackbarTone, string> = {
+	neutral: "var(--amber)",
+	success: "var(--green, #1f8a5b)",
+	error: "var(--red, #9b2c2c)",
+};
+
+// Component-scoped keyframe (depletes width 100% → 0%). Scoped name avoids
+// colliding with any host-app `@keyframes` and with the slidein/slideout
+// keyframes already defined in primitives.css. Inline so the Snackbar folder
+// stays self-contained (primitives.css is off-limits for this change).
+const PROGRESS_STYLE = `
+@keyframes ds-atom-snackbar-progress {
+	from { transform: scaleX(1); }
+	to { transform: scaleX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.ds-atom-snackbar-progress {
+		animation: none !important;
+		transform: scaleX(1) !important;
+	}
+}
+`;
+
 function SnackbarNode({ entry, onAction, onDismiss }: SnackbarNodeProps) {
 	const role = entry.tone === "error" ? "alert" : "status";
 	const ariaLive = role === "alert" ? "assertive" : "polite";
+	// Only render the depleting bar when explicitly requested AND there is a
+	// finite countdown to depict. Infinite/persistent snackbars have no timer
+	// to visualize.
+	const showProgress = entry.progress && Number.isFinite(entry.duration);
 	return (
 		<div
 			className="ds-atom-snackbar"
@@ -223,6 +260,9 @@ function SnackbarNode({ entry, onAction, onDismiss }: SnackbarNodeProps) {
 			data-dismissing={entry.dismissing ? "true" : undefined}
 			role={role}
 			aria-live={ariaLive}
+			// position/overflow set inline (primitives.css is off-limits) so the
+			// absolutely-positioned bar clips to the snackbar's rounded corners.
+			style={showProgress ? { position: "relative", overflow: "hidden" } : undefined}
 		>
 			<span className="ds-atom-snackbar-msg">{entry.message}</span>
 			{entry.action ? (
@@ -239,6 +279,29 @@ function SnackbarNode({ entry, onAction, onDismiss }: SnackbarNodeProps) {
 				>
 					<X size={14} aria-hidden="true" />
 				</button>
+			) : null}
+			{showProgress ? (
+				<>
+					<style>{PROGRESS_STYLE}</style>
+					<span
+						className="ds-atom-snackbar-progress"
+						data-testid="ds-atom-snackbar-progress"
+						aria-hidden="true"
+						style={{
+							position: "absolute",
+							left: 0,
+							bottom: 0,
+							height: 2,
+							width: "100%",
+							transformOrigin: "left",
+							background: PROGRESS_COLOR[entry.tone],
+							// Pause depletion once dismissing so the slide-out reads cleanly.
+							animation: entry.dismissing
+								? undefined
+								: `ds-atom-snackbar-progress ${entry.duration}ms linear forwards`,
+						}}
+					/>
+				</>
 			) : null}
 		</div>
 	);

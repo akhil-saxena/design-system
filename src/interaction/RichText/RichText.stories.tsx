@@ -69,11 +69,42 @@ return (
     placeholder="Dark mode editor…"
   />
 );`,
+	Inline: `const [html, setHtml] = useState("<p>This editor has <strong>no chrome</strong> — it sits inline.</p>");
+return (
+  <div style={{ padding: 16, border: "1px solid var(--rule)", borderRadius: 12, background: "var(--surf-1)" }}>
+    <RichText
+      value={html}
+      onChange={(v) => typeof v === "string" && setHtml(v)}
+      inline
+    />
+  </div>
+);`,
+	Hints: `const [html, setHtml] = useState("<p>Focus the editor to reveal the shortcut hints.</p>");
+return (
+  <RichText
+    value={html}
+    onChange={(v) => typeof v === "string" && setHtml(v)}
+    hints
+  />
+);`,
+	InlineWithHints: `const [html, setHtml] = useState("<p>Click-to-edit card pattern: borderless editor + focus hints.</p>");
+return (
+  <div style={{ padding: 16, border: "1px solid var(--rule)", borderRadius: 12, background: "var(--surf-1)" }}>
+    <RichText
+      value={html}
+      onChange={(v) => typeof v === "string" && setHtml(v)}
+      inline
+      hints
+    />
+  </div>
+);`,
 	Playground: `<RichText
   value="<p>Write your <strong>document</strong> here.</p>"
   placeholder="Start writing…"
   readOnly={false}
   outputFormat="html"
+  inline={false}
+  hints={false}
   onChange={(v) => console.log(v)}
 />`,
 };
@@ -117,6 +148,16 @@ const meta: Meta<typeof RichText> = {
 		ariaLabel: { control: "text", description: "Accessible label for the editor region." },
 		className: { control: false },
 		style: { control: false },
+		inline: {
+			control: "boolean",
+			description:
+				"Borderless/inline mode: strips border, background, padding, and min-height so the editor sits inline in a card.",
+		},
+		hints: {
+			control: "boolean",
+			description:
+				"Show a keyboard-shortcut hint strip (⌘B ⌘I ⌘U ⌘⇧H ⌘K ⌘↵ Esc) revealed while the editor has focus.",
+		},
 	},
 };
 export default meta;
@@ -375,6 +416,82 @@ export const DarkMode: Story = {
 	},
 };
 
+/**
+ * Inline (borderless) mode: chrome (border, background, padding, min-height) is stripped
+ * so the editor sits inline inside an existing card — ideal for click-to-edit-in-place.
+ */
+export const Inline: Story = {
+	parameters: { docs: { source: { code: SRC.Inline } } },
+	render: () => {
+		const [html, setHtml] = useState(
+			"<p>This editor has <strong>no chrome</strong> — it sits inline inside the card.</p>",
+		);
+		return (
+			<div
+				style={{
+					maxWidth: 680,
+					padding: 16,
+					border: "1px solid var(--rule, #e2e2de)",
+					borderRadius: 12,
+					background: "var(--surf-1, #fff)",
+				}}
+			>
+				<RichText
+					value={html}
+					onChange={(v) => typeof v === "string" && setHtml(v)}
+					inline
+					ariaLabel="Inline editor"
+				/>
+			</div>
+		);
+	},
+};
+
+/** Keyboard-shortcut hint strip: revealed while the editor has focus. Click in to see it. */
+export const Hints: Story = {
+	parameters: { docs: { source: { code: SRC.Hints } } },
+	render: () => {
+		const [html, setHtml] = useState("<p>Focus the editor to reveal the shortcut hints below.</p>");
+		return (
+			<div style={{ maxWidth: 680 }}>
+				<RichText value={html} onChange={(v) => typeof v === "string" && setHtml(v)} hints />
+			</div>
+		);
+	},
+};
+
+/**
+ * Inline + hints together: the click-to-edit-in-place card pattern (e.g. Cairn) —
+ * a borderless editor inside a card with focus-revealed shortcut hints.
+ */
+export const InlineWithHints: Story = {
+	parameters: { docs: { source: { code: SRC.InlineWithHints } } },
+	render: () => {
+		const [html, setHtml] = useState(
+			"<p>Click-to-edit card pattern: borderless editor with focus hints.</p>",
+		);
+		return (
+			<div
+				style={{
+					maxWidth: 680,
+					padding: 16,
+					border: "1px solid var(--rule, #e2e2de)",
+					borderRadius: 12,
+					background: "var(--surf-1, #fff)",
+				}}
+			>
+				<RichText
+					value={html}
+					onChange={(v) => typeof v === "string" && setHtml(v)}
+					inline
+					hints
+					ariaLabel="Click-to-edit field"
+				/>
+			</div>
+		);
+	},
+};
+
 /** Playground: all props controllable via Storybook controls. */
 export const Playground: Story = {
 	parameters: { docs: { source: { code: SRC.Playground } } },
@@ -383,6 +500,8 @@ export const Playground: Story = {
 		placeholder: "Start writing…",
 		readOnly: false,
 		outputFormat: "html",
+		inline: false,
+		hints: false,
 	} as Partial<RichTextProps>,
 	render: (args) => {
 		const [html, setHtml] = useState(typeof args.value === "string" ? args.value : INITIAL_HTML);

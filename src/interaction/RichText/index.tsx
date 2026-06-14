@@ -93,6 +93,7 @@ import {
 	Underline,
 } from "../../icons";
 import { Button } from "../../inputs/Button";
+import { Kbd } from "../../inputs/Kbd";
 import { Select } from "../../inputs/Select";
 // ─── Public types ──────────────────────────────────────────────────────────
 
@@ -121,7 +122,31 @@ export interface RichTextProps {
 	ariaLabel?: string;
 	/** Inline styles applied to the outer root wrapper. */
 	style?: CSSProperties;
+	/** Borderless/inline mode: strips the editor chrome (border, background, padding,
+	 * min-height) so the editor sits inline inside a card or click-to-edit surface.
+	 * Purely additive - default keeps the bordered "card" appearance.
+	 * @default false
+	 */
+	inline?: boolean;
+	/** Show a keyboard-shortcut hint strip (⌘B ⌘I ⌘U ⌘⇧H ⌘K ⌘↵ Esc) that is revealed
+	 * while the editor has focus. Suppressed in `readOnly` mode.
+	 * @default false
+	 */
+	hints?: boolean;
 }
+
+// ─── Keyboard-shortcut hint strip items ──────────────────────────────────────
+// Mirrors Cairn's HINT_ITEMS / PREP_Q_HINTS so click-to-edit surfaces stay consistent.
+
+const HINT_ITEMS = [
+	{ key: "⌘B", label: "Bold" },
+	{ key: "⌘I", label: "Italic" },
+	{ key: "⌘U", label: "Underline" },
+	{ key: "⌘⇧H", label: "Highlight" },
+	{ key: "⌘K", label: "Link" },
+	{ key: "⌘↵", label: "Save" },
+	{ key: "Esc", label: "Discard" },
+] as const;
 
 // ─── Supported languages for the code block language selector ────────────────
 
@@ -156,6 +181,8 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 		className,
 		ariaLabel = "Rich text editor",
 		style,
+		inline = false,
+		hints = false,
 	},
 	ref,
 ) {
@@ -174,6 +201,9 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 	const [headingOpen, setHeadingOpen] = useState(false);
 	const [headingActiveIndex, setHeadingActiveIndex] = useState(0);
 	const [codeBlockDark, setCodeBlockDark] = useState(false);
+
+	// Focus state - drives the optional keyboard-shortcut hint strip reveal.
+	const [focused, setFocused] = useState(false);
 
 	// ── TipTap editor instance ─────────────────────────────────────────────
 	const editor = useEditor({
@@ -194,6 +224,9 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 		editable: !readOnly,
 		// MANDATORY: SSR-safe per D-17-19. Without this TipTap throws during SSR hydration.
 		immediatelyRender: false,
+		// Focus tracking only drives the optional `hints` strip; no behavioral impact when off.
+		onFocus: () => setFocused(true),
+		onBlur: () => setFocused(false),
 		onUpdate: ({ editor }) => {
 			if (outputFormat === "json") {
 				// JSON output: emit TipTap Doc object; don't sync lastEmittedRef
@@ -533,13 +566,64 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 			</DSPortal>
 		) : null;
 
+	// ── Inline (borderless) chrome overrides ───────────────────────────────
+	// Strips the card chrome via inline styles so we never touch primitives.css.
+	// `style` (caller) is spread last in the root so consumers can still override.
+	const inlineRootStyle: CSSProperties | undefined = inline
+		? { border: "none", borderRadius: 0, background: "transparent", overflow: "visible" }
+		: undefined;
+	const inlineSurfaceStyle: CSSProperties | undefined = inline
+		? { padding: 0, minHeight: 0 }
+		: undefined;
+
+	// ── Keyboard-shortcut hint strip (optional, focus-revealed) ─────────────
+	const hintStrip =
+		hints && !readOnly ? (
+			<div
+				className="ds-atom-richtext-hints"
+				aria-hidden="true"
+				style={{
+					display: "flex",
+					alignItems: "center",
+					flexWrap: "wrap",
+					gap: 14,
+					paddingLeft: inline ? 0 : 12,
+					paddingRight: inline ? 0 : 12,
+					// Collapse vertical space when unfocused so the default (unfocused)
+					// layout is unchanged; reveal on focus.
+					paddingTop: focused ? 6 : 0,
+					paddingBottom: focused ? (inline ? 0 : 6) : 0,
+					borderTop: inline ? "none" : "1px solid var(--rule)",
+					fontFamily: "var(--mono)",
+					fontSize: 9.5,
+					color: "var(--ink-4)",
+					letterSpacing: "0.03em",
+					opacity: focused ? 1 : 0,
+					maxHeight: focused ? 200 : 0,
+					overflow: "hidden",
+					transition: "opacity 0.15s ease, max-height 0.15s ease",
+				}}
+			>
+				{HINT_ITEMS.map((h) => (
+					<span
+						key={h.key}
+						style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--ink-3)" }}
+					>
+						<Kbd size="sm">{h.key}</Kbd>
+						{h.label}
+					</span>
+				))}
+			</div>
+		) : null;
+
 	// ── SSR / pre-init skeleton ────────────────────────────────────────────
 	if (!editor) {
 		return (
 			<div
 				ref={ref}
 				className={`ds-atom-richtext ds-atom-richtext--loading${className ? ` ${className}` : ""}`}
-				style={style}
+				style={{ ...inlineRootStyle, ...style }}
+				data-inline={inline || undefined}
 				aria-label={ariaLabel}
 				aria-busy="true"
 			/>
@@ -548,14 +632,22 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 
 	// ── Render ─────────────────────────────────────────────────────────────
 	return (
-		<div ref={ref} className="ds-atom-richtext" style={style} aria-label={ariaLabel}>
+		<div
+			ref={ref}
+			className="ds-atom-richtext"
+			style={{ ...inlineRootStyle, ...style }}
+			data-inline={inline || undefined}
+			aria-label={ariaLabel}
+		>
 			{!readOnly && (toolbar ?? defaultToolbar)}
 			<div
 				className={["ds-atom-richtext-surface", className].filter(Boolean).join(" ")}
 				data-code-dark={codeBlockDark || undefined}
+				style={inlineSurfaceStyle}
 			>
 				<EditorContent editor={editor} />
 			</div>
+			{hintStrip}
 			{linkPopover}
 		</div>
 	);

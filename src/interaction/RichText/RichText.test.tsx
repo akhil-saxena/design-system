@@ -254,3 +254,79 @@ describe("RichText - custom toolbar", () => {
 		expect(screen.queryByRole("toolbar")).toBeNull();
 	});
 });
+
+// ─── inline (borderless) mode ───────────────────────────────────────────────
+
+describe("RichText - inline mode", () => {
+	it("does NOT set data-inline or strip chrome by default", async () => {
+		const { container } = render(<RichText value="<p>Hi</p>" onChange={() => {}} />);
+		await waitForEditor();
+		const root = container.querySelector<HTMLElement>(".ds-atom-richtext");
+		expect(root).not.toBeNull();
+		// Default behavior unchanged: no data-inline attribute, no inline chrome overrides.
+		// (Chrome itself lives in primitives.css; the component sets no inline style by default.)
+		expect(root?.getAttribute("data-inline")).toBeNull();
+		expect(root?.style.background).toBe("");
+		const surface = container.querySelector<HTMLElement>(".ds-atom-richtext-surface");
+		expect(surface?.style.padding).toBe("");
+		expect(surface?.style.minHeight).toBe("");
+	});
+
+	it("strips chrome via inline styles and sets data-inline when inline=true", async () => {
+		const { container } = render(<RichText value="<p>Hi</p>" onChange={() => {}} inline />);
+		await waitForEditor();
+		const root = container.querySelector<HTMLElement>(".ds-atom-richtext");
+		expect(root?.getAttribute("data-inline")).toBe("true");
+		expect(root?.style.background).toBe("transparent");
+		expect(root?.style.borderRadius).toBe("0");
+		expect(root?.style.overflow).toBe("visible");
+		const surface = container.querySelector<HTMLElement>(".ds-atom-richtext-surface");
+		expect(surface?.style.padding).toBe("0px");
+		expect(surface?.style.minHeight).toBe("0");
+	});
+
+	it("caller-supplied style still wins over inline overrides", async () => {
+		const { container } = render(
+			<RichText
+				value="<p>Hi</p>"
+				onChange={() => {}}
+				inline
+				style={{ background: "rgb(255, 0, 0)" }}
+			/>,
+		);
+		await waitForEditor();
+		const root = container.querySelector<HTMLElement>(".ds-atom-richtext");
+		// style prop is spread after inline overrides, so it takes precedence.
+		expect(root?.style.background).toBe("rgb(255, 0, 0)");
+	});
+});
+
+// ─── keyboard-shortcut hint strip ───────────────────────────────────────────
+
+describe("RichText - hints strip", () => {
+	it("does NOT render the hint strip by default", async () => {
+		const { container } = render(<RichText value="" onChange={() => {}} />);
+		await waitForEditor();
+		expect(container.querySelector(".ds-atom-richtext-hints")).toBeNull();
+	});
+
+	it("renders the hint strip with Kbd keys when hints=true", async () => {
+		const { container } = render(<RichText value="" onChange={() => {}} hints />);
+		await waitForEditor();
+		const strip = container.querySelector(".ds-atom-richtext-hints");
+		expect(strip).not.toBeNull();
+		// Strip is decorative for AT.
+		expect(strip?.getAttribute("aria-hidden")).toBe("true");
+		// Keys are rendered via the DS Kbd component (.ds-atom-kbd) and include the expected set.
+		const keys = Array.from(strip?.querySelectorAll(".ds-atom-kbd") ?? []).map(
+			(k) => k.textContent,
+		);
+		expect(keys).toEqual(["⌘B", "⌘I", "⌘U", "⌘⇧H", "⌘K", "⌘↵", "Esc"]);
+	});
+
+	it("does NOT render the hint strip in readOnly mode even when hints=true", async () => {
+		const { container } = render(<RichText value="<p>x</p>" onChange={() => {}} hints readOnly />);
+		await waitForEditor();
+		expect(container.querySelector(".ds-atom-richtext-hints")).toBeNull();
+	});
+});

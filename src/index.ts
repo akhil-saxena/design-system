@@ -8,6 +8,7 @@ export {
 } from "./inputs/OAuthButton";
 export { TextInput, type TextInputProps } from "./inputs/TextInput";
 export { InlineEditField, type InlineEditFieldProps } from "./inputs/InlineEditField";
+export { InlineAddRow, type InlineAddRowProps } from "./inputs/InlineAddRow";
 export {
 	Eyebrow,
 	type EyebrowProps,
@@ -92,6 +93,11 @@ export {
 	type BottomSheetHeight,
 	type BottomSheetProps,
 } from "./overlays/BottomSheet";
+export {
+	ActionSheet,
+	type ActionSheetItem,
+	type ActionSheetProps,
+} from "./overlays/ActionSheet";
 export { Lightbox, type LightboxItem, type LightboxProps } from "./overlays/Lightbox";
 export { ProgressBar, type ProgressBarProps } from "./feedback/ProgressBar";
 export { Skeleton, type SkeletonProps, type SkeletonShape } from "./feedback/Skeleton";

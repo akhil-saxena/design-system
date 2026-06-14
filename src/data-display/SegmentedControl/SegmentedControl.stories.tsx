@@ -58,6 +58,19 @@ return (
     ariaLabel="View layout"
   />
 );`,
+	Toned: `const [v, setV] = useState("wait");
+return (
+  <SegmentedControl
+    options={[
+      { value: "advanced", label: "Advanced", tone: { fg: "var(--green)", activeBg: "rgba(47,122,82,0.10)" } },
+      { value: "wait", label: "Wait", tone: { fg: "var(--ink-3)", activeBg: "var(--cream-2)" } },
+      { value: "closed", label: "Closed", tone: { fg: "var(--red)", activeBg: "rgba(153,27,27,0.08)" } },
+    ]}
+    value={v}
+    onChange={setV}
+    ariaLabel="Outcome"
+  />
+);`,
 	DarkMode: `const [view, setView] = useState("week");
 return (
   <SegmentedControl
@@ -160,6 +173,26 @@ const WITH_DISABLED_OPTION: SegmentedOption[] = [
 	{ value: "list", label: "List" },
 	{ value: "board", label: "Board", disabled: true },
 	{ value: "calendar", label: "Calendar" },
+];
+
+// Per-option `tone` recolors the ACTIVE segment — here a 3-way outcome toggle
+// (Advanced=green, Wait=neutral ink, Closed=red) using DS CSS-var tokens.
+const OUTCOME_OPTIONS: SegmentedOption[] = [
+	{
+		value: "advanced",
+		label: "Advanced",
+		tone: { fg: "var(--green)", activeBg: "rgba(47,122,82,0.10)" },
+	},
+	{
+		value: "wait",
+		label: "Wait",
+		tone: { fg: "var(--ink-3)", activeBg: "var(--cream-2)" },
+	},
+	{
+		value: "closed",
+		label: "Closed",
+		tone: { fg: "var(--red)", activeBg: "rgba(153,27,27,0.08)" },
+	},
 ];
 
 export const Default: Story = {
@@ -289,6 +322,24 @@ export const WithDisabledOption: Story = {
 				onChange={setV}
 				ariaLabel="View layout"
 			/>
+		);
+	},
+};
+
+export const Toned: Story = {
+	parameters: {
+		docs: {
+			source: { code: SRC.Toned },
+			description: {
+				story:
+					"Per-option `tone` ({ fg, activeBg }) recolors the active segment. Tone-less options keep the default amber styling, so this is fully backward compatible. Useful for outcome toggles (e.g. Advanced/Wait/Closed).",
+			},
+		},
+	},
+	render: () => {
+		const [v, setV] = useState("wait");
+		return (
+			<SegmentedControl options={OUTCOME_OPTIONS} value={v} onChange={setV} ariaLabel="Outcome" />
 		);
 	},
 };

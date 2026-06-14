@@ -1,4 +1,4 @@
-/* @akhil-saxena/design-system v0.1.0 - token layer.
+/* @akhil-saxena/design-system v1.5.0 - token layer.
    Imported via:
      import "@akhil-saxena/design-system/tokens.css";
    Use BEFORE primitives.css and utilities.css (cascade order matters). */
@@ -26,8 +26,8 @@
 	--mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
 	--display: "Archivo", system-ui, sans-serif;
 
-	/* Ink ramp (text + dark surfaces) */
-	--ink: #292524;
+	/* Ink ramp (text + dark surfaces). --ink reskinned to Cairn's editorial ink. */
+	--ink: #1c1c1a;
 	--ink-2: #57534e;
 	--ink-3: #6b6560;
 	--ink-4: #8a8380;
@@ -48,11 +48,11 @@
 	--amber-d: #b45309;
 	--amber-l: #fef3c7;
 
-	/* Status text-safe - handoff v1.0 AAA-on-cream values */
+	/* Status text-safe. --green / --red reskinned to Cairn's editorial values. */
 	--blue: #1e3a8a;
 	--purple: #5b21b6;
-	--green: #14532d;
-	--red: #991b1b;
+	--green: #2f7a52;
+	--red: #b8463f;
 
 	/* Hairline rule */
 	--rule: rgba(0, 0, 0, 0.08);
@@ -63,6 +63,27 @@
 	--purple-vivid: #8b5cf6;
 	--green-vivid: #22c55e;
 	--red-vivid: #ef4444;
+
+	/* ─── Editorial / warm-paper surfaces (merged from Cairn) ──────────────
+	   Cairn's editorial palette — a warm paper/panel ramp + amber-ink/soft/warm
+	   accents + semantic tint backgrounds + a soft secondary rule. Additive:
+	   these are net-new token NAMES (the --cream ramp and core --ink/--green/
+	   --red are untouched). See docs/CAIRN-CONSOLIDATION.md for the 3
+	   value-collisions (--ink / --green / --red) left to a follow-up decision. */
+	--page-bg: #ffffff;
+	--bg: #faf8f2;
+	--panel: #ffffff;
+	--panel2: #f4f1eb;
+	--paper: #fcfaf4;
+	--paper-warm: #f8f3e5;
+	--paper-deep: #f3eddc;
+	--pg: #e9e5de;
+	--rule-s: #d6d0c5;
+	--amber-ink: #92400e;
+	--amber-soft: #fef3c7;
+	--amber-warm: #fdf6e3;
+	--green-bg: #e2efe6;
+	--red-bg: #f4e0dd;
 
 	/* Glass effect tokens (default variant; .glass-subtle and .glass-heavy
      ship their own values per the README handoff table) */
@@ -202,8 +223,8 @@
 	--amber-d: #fbbf24;
 	--blue: #7ca0d9;
 	--purple: #bfa3fb;
-	--green: #7fc79d;
-	--red: #fb8888;
+	--green: #7fcfa1;
+	--red: #f0a4a0;
 
 	/* Vivids are decorative-only; restated explicitly even though values
      are identical to light mode (handoff comment line 28: "vivids
@@ -226,4 +247,20 @@
 	/* Illustration surface fills lift to visible translucent white in dark mode */
 	--ds-illust-bg: rgba(255, 255, 255, 0.13);
 	--ds-illust-bg-2: rgba(255, 255, 255, 0.2);
+
+	/* ─── Editorial / warm-paper surfaces — dark (merged from Cairn) ──────── */
+	--page-bg: #0f0d0b;
+	--bg: #0f0d0b;
+	--panel: #1a1714;
+	--panel2: #221d18;
+	--paper: #221d17;
+	--paper-warm: #1f1a14;
+	--paper-deep: #2a2218;
+	--pg: #0a0908;
+	--rule-s: #3a342c;
+	--amber-ink: #f5c56b;
+	--amber-soft: #3a2e10;
+	--amber-warm: #2a2110;
+	--green-bg: #1b2a22;
+	--red-bg: #2e1a18;
 }
