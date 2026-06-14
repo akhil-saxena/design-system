@@ -57,13 +57,13 @@ import { ChevronDown, Search } from "@akhil-saxena/design-system/icons";
 
 ## Components
 
-### Inputs (22)
+### Inputs (23)
 
-Button, OAuthButton, TextInput, Textarea, Badge, Chip, Kbd, Checkbox, Radio, Toggle, NumberStepper, RangeSlider, StarRating, StatusPill, Autocomplete, ColorPicker, DatePicker, DateRangePicker, FileInput, InlineEditField, MultiSelect, Select
+Button, OAuthButton, TextInput, Textarea, Badge, Chip, Kbd, Checkbox, Radio, Toggle, NumberStepper, RangeSlider, StarRating, StatusPill, Autocomplete, ColorPicker, DatePicker, DateRangePicker, FileInput, InlineAddRow, InlineEditField, MultiSelect, Select
 
-### Overlays (11)
+### Overlays (12)
 
-Popover, Modal, ConfirmDialog, CommandPalette, BottomSheet, Tooltip, Sheet, HoverCard, Card, StickyNote, Lightbox
+ActionSheet, Popover, Modal, ConfirmDialog, CommandPalette, BottomSheet, Tooltip, Sheet, HoverCard, Card, StickyNote, Lightbox
 
 ### Data Display (11)
 
