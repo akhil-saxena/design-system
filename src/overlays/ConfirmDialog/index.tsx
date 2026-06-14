@@ -1,5 +1,6 @@
 import {
 	type CSSProperties,
+	type FormEvent as ReactFormEvent,
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
 	useEffect,
@@ -173,16 +174,19 @@ export function ConfirmDialog({
 
 	useFocusTrap(panel, open);
 
-	// Document-level keyboard handler (T-018-02-02: cleanup removes listener on unmount)
+	// Document-level keyboard handler — Escape cancels.
+	// A11y fix: Enter no longer confirms globally. A global Enter handler fired
+	// onConfirm() regardless of focus, so Enter while focused on Cancel (or any
+	// element) triggered the possibly-destructive confirm. Confirm is now driven
+	// by the confirm button / form submit, so Enter on Cancel cancels instead.
 	useEffect(() => {
 		if (!open) return;
 		function onKey(e: KeyboardEvent) {
 			if (e.key === "Escape") onClose();
-			if (e.key === "Enter") onConfirm(); // T-018-02-03: no guard needed; ConfirmDialog always allows Enter
 		}
 		document.addEventListener("keydown", onKey);
 		return () => document.removeEventListener("keydown", onKey);
-	}, [open, onClose, onConfirm]);
+	}, [open, onClose]);
 
 	if (!open) return null;
 
@@ -190,6 +194,13 @@ export function ConfirmDialog({
 	function handleBackdropClick(e: ReactMouseEvent<HTMLDivElement>) {
 		if (e.target !== e.currentTarget) return;
 		// closeOnBackdropClick=false for all ConfirmDialog tones — explicit Cancel/Confirm required
+	}
+
+	// Form submit drives confirm: Enter on the default (confirm) submit button
+	// fires onConfirm, while Enter on the Cancel button activates Cancel.
+	function handleSubmit(e: ReactFormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		onConfirm();
 	}
 
 	const t = tones[tone];
@@ -246,15 +257,20 @@ export function ConfirmDialog({
 						</div>
 					</div>
 
-					{/* Footer */}
-					<div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 18 }}>
-						<Button variant="ghost" onClick={onClose}>
+					{/* Footer — wrapped in a form so Enter submits (confirm). The Cancel
+					    button is type="button", so Enter while focused on it activates
+					    Cancel rather than confirming. */}
+					<form
+						onSubmit={handleSubmit}
+						style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 18 }}
+					>
+						<Button type="button" variant="ghost" onClick={onClose}>
 							{cancelLabel}
 						</Button>
-						<Button variant={btnConfig.variant} style={btnConfig.style} onClick={onConfirm}>
+						<Button type="submit" variant={btnConfig.variant} style={btnConfig.style}>
 							{confirmLabel}
 						</Button>
-					</div>
+					</form>
 				</div>
 			</div>
 		</DSPortal>

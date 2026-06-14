@@ -114,6 +114,52 @@ describe("HoverCard", () => {
 		expect(baseElement.querySelector(".ds-atom-hovercard")).toBeNull();
 	});
 
+	it("a11y: anchor focusin opens the card (keyboard reach)", () => {
+		const { baseElement, getByRole } = render(<TestHarness />);
+		const anchor = getByRole("button", { name: "Trigger" });
+		expect(baseElement.querySelector(".ds-atom-hovercard")).toBeNull();
+		fireEvent.focusIn(anchor);
+		// openNow() opens immediately — no timer to advance.
+		expect(baseElement.querySelector(".ds-atom-hovercard")).toBeInTheDocument();
+	});
+
+	it("a11y: focusout to an unrelated element schedules close", () => {
+		const { baseElement, getByRole } = render(<TestHarness />);
+		const anchor = getByRole("button", { name: "Trigger" });
+		fireEvent.focusIn(anchor);
+		expect(baseElement.querySelector(".ds-atom-hovercard")).toBeInTheDocument();
+		// Focus leaves the anchor to something outside anchor + panel.
+		fireEvent.focusOut(anchor, { relatedTarget: document.body });
+		act(() => {
+			vi.advanceTimersByTime(150);
+		});
+		expect(baseElement.querySelector(".ds-atom-hovercard")).toBeNull();
+	});
+
+	it("a11y: Escape closes the card", () => {
+		const { baseElement, getByRole } = render(<TestHarness />);
+		const anchor = getByRole("button", { name: "Trigger" });
+		fireEvent.focusIn(anchor);
+		expect(baseElement.querySelector(".ds-atom-hovercard")).toBeInTheDocument();
+		act(() => {
+			fireEvent.keyDown(document, { key: "Escape" });
+		});
+		expect(baseElement.querySelector(".ds-atom-hovercard")).toBeNull();
+	});
+
+	it("a11y: Escape closes a pinned card too", () => {
+		const { baseElement, getByRole } = render(<TestHarness />);
+		const anchor = getByRole("button", { name: "Trigger" });
+		fireEvent.click(anchor);
+		expect(baseElement.querySelector(".ds-atom-hovercard")?.getAttribute("data-pinned")).toBe(
+			"true",
+		);
+		act(() => {
+			fireEvent.keyDown(document, { key: "Escape" });
+		});
+		expect(baseElement.querySelector(".ds-atom-hovercard")).toBeNull();
+	});
+
 	it("anchor mouseenter cancels pending close (re-entry)", () => {
 		const { baseElement, getByRole } = render(<TestHarness />);
 		const anchor = getByRole("button", { name: "Trigger" });

@@ -352,7 +352,7 @@ function StatsStrip({ t, isMobile }: Readonly<{ t: T; isMobile: boolean }>) {
 		{ value: TOTAL, label: "Components" },
 		{ value: categories.length, label: "Categories" },
 		{ value: 3, label: "Patterns" },
-		{ value: "1.7.0", label: "Version" },
+		{ value: "1.8.0", label: "Version" },
 	] as const;
 	return (
 		<div
@@ -604,7 +604,7 @@ export function OverviewPage() {
 						marginBottom: 20,
 					}}
 				>
-					@akhil-saxena · design system · v1.7.0
+					@akhil-saxena · design system · v1.8.0
 				</div>
 				<div
 					style={{

@@ -2,6 +2,7 @@
 
 import { type CSSProperties, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
 
 export interface ActionSheetItem {
 	label: string;
@@ -16,6 +17,10 @@ export interface ActionSheetProps {
 	items: ActionSheetItem[];
 	/** Dismiss-without-picking label. Default "Close". Backdrop tap + Esc also dismiss. */
 	cancelLabel?: string;
+	/** Accessible name for the `role="menu"` list.
+	 * @default "Actions"
+	 */
+	"aria-label"?: string;
 }
 
 const KEYFRAMES = `
@@ -63,11 +68,26 @@ const itemBase: CSSProperties = {
  *   ]}
  * />
  */
-export function ActionSheet({ open, onClose, items, cancelLabel = "Close" }: ActionSheetProps) {
+export function ActionSheet({
+	open,
+	onClose,
+	items,
+	cancelLabel = "Close",
+	"aria-label": ariaLabel = "Actions",
+}: ActionSheetProps) {
 	const [mounted, setMounted] = useState(false);
 	const [visible, setVisible] = useState(false);
+	// Callback-ref tracked as state so useFocusTrap re-runs once the portaled
+	// menu node commits (same pattern Modal uses for its panel).
+	const [menuEl, setMenuEl] = useState<HTMLDivElement | null>(null);
 
 	useEffect(() => setMounted(true), []);
+
+	// Move focus into the sheet on open and trap Tab inside it; on close the
+	// trap's cleanup restores focus to the element that opened the sheet (the
+	// trigger). Driven by `open` (not `visible`) so focus is restored before the
+	// 260ms exit unmounts the node.
+	useFocusTrap(menuEl, open);
 
 	// Hold the node for a 260ms exit before unmounting.
 	useEffect(() => {
@@ -120,6 +140,7 @@ export function ActionSheet({ open, onClose, items, cancelLabel = "Close" }: Act
 				}}
 			/>
 			<div
+				ref={setMenuEl}
 				style={{
 					position: "fixed",
 					left: 8,
@@ -133,6 +154,8 @@ export function ActionSheet({ open, onClose, items, cancelLabel = "Close" }: Act
 			>
 				<div
 					role="menu"
+					aria-label={ariaLabel}
+					tabIndex={-1}
 					className="ds-actionsheet-items"
 					style={{
 						...blockStyle,

@@ -140,4 +140,69 @@ describe("Lightbox", () => {
 		fireEvent.click(prevBtn as Element);
 		expect(onIndexChange).toHaveBeenCalledWith(1);
 	});
+
+	// ── uncontrolled mode (no onIndexChange) ──────────────────────────────────
+
+	it("uncontrolled: Next button advances the displayed image without a controlling parent", () => {
+		const { baseElement } = render(<Lightbox open onClose={() => {}} items={twoItems} />);
+		expect(baseElement.querySelector("img")?.getAttribute("src")).toBe("/a.jpg");
+		const nextBtn = baseElement.querySelector(".ds-atom-lightbox-next");
+		fireEvent.click(nextBtn as Element);
+		expect(baseElement.querySelector("img")?.getAttribute("src")).toBe("/b.jpg");
+	});
+
+	it("uncontrolled: ArrowLeft from index 0 wraps to the last image", () => {
+		const { baseElement } = render(<Lightbox open onClose={() => {}} items={threeItems} />);
+		expect(baseElement.querySelector("img")?.getAttribute("src")).toBe("/a.jpg");
+		fireEvent.keyDown(document, { key: "ArrowLeft" });
+		expect(baseElement.querySelector("img")?.getAttribute("src")).toBe("/c.jpg");
+	});
+
+	it("uncontrolled: activeIndex seeds the initial slide", () => {
+		const { baseElement } = render(
+			<Lightbox open onClose={() => {}} items={threeItems} activeIndex={2} />,
+		);
+		expect(baseElement.querySelector("img")?.getAttribute("src")).toBe("/c.jpg");
+	});
+
+	it("clamps an out-of-range index to the last item", () => {
+		const { baseElement } = render(
+			<Lightbox open onClose={() => {}} items={twoItems} activeIndex={99} />,
+		);
+		// 99 clamped to last valid index (1 → /b.jpg)
+		expect(baseElement.querySelector("img")?.getAttribute("src")).toBe("/b.jpg");
+	});
+
+	// ── focus trap + restore ──────────────────────────────────────────────────
+
+	it("traps initial focus on the close button when opened", () => {
+		const { baseElement } = render(<Lightbox open onClose={() => {}} items={oneItem} />);
+		const closeBtn = baseElement.querySelector(".ds-atom-lightbox-close");
+		expect(document.activeElement).toBe(closeBtn);
+	});
+
+	it("restores focus to the opener when unmounted/closed", () => {
+		const opener = document.createElement("button");
+		document.body.appendChild(opener);
+		opener.focus();
+		expect(document.activeElement).toBe(opener);
+
+		const { unmount } = render(<Lightbox open onClose={() => {}} items={oneItem} />);
+		// Focus moved into the dialog (close button).
+		expect(document.activeElement).not.toBe(opener);
+		unmount();
+		expect(document.activeElement).toBe(opener);
+		document.body.removeChild(opener);
+	});
+
+	// ── scroll-lock ───────────────────────────────────────────────────────────
+
+	it("locks body scroll while open and restores it on close", () => {
+		document.body.style.overflow = "scroll";
+		const { rerender } = render(<Lightbox open onClose={() => {}} items={oneItem} />);
+		expect(document.body.style.overflow).toBe("hidden");
+		rerender(<Lightbox open={false} onClose={() => {}} items={oneItem} />);
+		expect(document.body.style.overflow).toBe("scroll");
+		document.body.style.overflow = "";
+	});
 });

@@ -144,28 +144,57 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 
 	// Determine enabled (non-disabled) tab indices in the VISIBLE slice
 	const activeIndex = tabs.findIndex((t) => t.id === value);
+	const hasOverflow = visibleCount < tabs.length;
+	// When the active tab is hidden inside the overflow menu it is NOT in the
+	// tablist DOM, so no <button role="tab"> carries tabIndex=0. In that case the
+	// "More" button becomes the single roving tab stop so the tablist stays
+	// keyboard-reachable.
+	const activeInOverflow = hasOverflow && activeIndex >= visibleCount;
 
 	const moveFocus = useCallback(
 		(delta: 1 | -1 | "home" | "end", activate: boolean) => {
+			// Build the roving model from VISIBLE positions only, then append the
+			// "More" button as a final stop when tabs overflow. Indexing by visible
+			// position (not the full tabs array) keeps DOM focus aligned with the
+			// visible-only [role='tab'] NodeList — the previous code mixed full-array
+			// indices with a visible-only NodeList, causing an off-by-N when any tab
+			// was hidden.
 			const visibleTabs = tabs.slice(0, visibleCount);
-			const enabled = visibleTabs
-				.map((t, i) => (t.disabled ? -1 : i))
-				.filter((i): i is number => i !== -1);
-			if (enabled.length === 0) return;
-			const curInEnabled = enabled.indexOf(activeIndex);
-			let nextInEnabled: number;
-			if (delta === "home") nextInEnabled = 0;
-			else if (delta === "end") nextInEnabled = enabled.length - 1;
-			else if (curInEnabled === -1) nextInEnabled = 0;
-			else nextInEnabled = (curInEnabled + delta + enabled.length) % enabled.length;
-			const nextTabIndex = enabled[nextInEnabled]!;
-			const nextTab = tabs[nextTabIndex]!;
-			// Move DOM focus
-			const buttons = tablistRef.current?.querySelectorAll<HTMLButtonElement>("[role='tab']");
-			buttons?.[nextTabIndex]?.focus();
-			if (activate) onChange(nextTab.id);
+			const tabButtons = tablistRef.current?.querySelectorAll<HTMLButtonElement>("[role='tab']");
+
+			type Stop = { el: HTMLButtonElement | undefined; tabId?: string };
+			const stops: Stop[] = [];
+			visibleTabs.forEach((t, i) => {
+				if (t.disabled) return;
+				stops.push({ el: tabButtons?.[i], tabId: t.id });
+			});
+			// "More" is a roving stop whenever it is rendered (overflow present).
+			if (hasOverflow && moreBtnRef.current) {
+				stops.push({ el: moreBtnRef.current });
+			}
+			if (stops.length === 0) return;
+
+			// Current position: the active tab's slot, or the "More" stop when the
+			// active tab is hidden in the overflow menu.
+			let cur: number;
+			if (activeInOverflow) {
+				cur = stops.length - 1;
+			} else {
+				cur = stops.findIndex((s) => s.tabId === value);
+			}
+
+			let next: number;
+			if (delta === "home") next = 0;
+			else if (delta === "end") next = stops.length - 1;
+			else if (cur === -1) next = 0;
+			else next = (cur + delta + stops.length) % stops.length;
+
+			const target = stops[next]!;
+			target.el?.focus();
+			// Only activate when landing on a real tab (the "More" button has no id).
+			if (activate && target.tabId) onChange(target.tabId);
 		},
-		[activeIndex, tabs, visibleCount, onChange],
+		[value, tabs, visibleCount, hasOverflow, activeInOverflow, onChange],
 	);
 
 	const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -185,7 +214,6 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 		}
 	};
 
-	const hasOverflow = visibleCount < tabs.length;
 	const hiddenTabs = tabs.slice(visibleCount);
 
 	return (
@@ -241,6 +269,9 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 						aria-label={`More tabs (${hiddenTabs.length} hidden)`}
 						aria-expanded={overflowOpen}
 						aria-haspopup="menu"
+						// Roving stop: tabbable only when the active tab is hidden in the
+						// overflow menu (so the tablist always has exactly one Tab entry).
+						tabIndex={activeInOverflow ? 0 : -1}
 						onClick={() => setOverflowOpen((o) => !o)}
 					>
 						<MoreHorizontal size={16} />

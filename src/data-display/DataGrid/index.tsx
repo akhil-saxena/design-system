@@ -116,9 +116,35 @@ export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataG
 	const { selectedIds, isAllSelected, isIndeterminate, isSelected, toggle, toggleAll, clear } =
 		useTableSelection(rowIds, { onSelectionChange });
 
-	// 2. Roving tabindex for arrow-key grid navigation
-	const [focusedCell, setFocusedCell] = useState<[number, number]>([0, 1]);
+	// 2. Roving tabindex for arrow-key grid navigation.
+	//    Row index -1 represents the sortable columnheader row; 0..N-1 are body
+	//    rows. Column 0 is the checkbox column; 1..M map to `columns`.
+	const HEADER_ROW = -1;
+	const [focusedCell, setFocusedCell] = useState<[number, number]>([HEADER_ROW, 1]);
 	const tableRef = useRef<HTMLTableElement>(null);
+
+	// Focus the inner interactive control of a cell (selection checkbox, sortable
+	// header button) so Space/Enter reach it; fall back to the cell wrapper when
+	// the cell has no inner control (plain data cells, columnheader <th> which is
+	// itself interactive via role="columnheader").
+	const focusCell = useCallback((r: number, c: number) => {
+		const table = tableRef.current;
+		if (!table) return;
+		let cell: HTMLElement | null | undefined;
+		if (r === HEADER_ROW) {
+			const headerRow = table.querySelector<HTMLElement>("thead tr");
+			cell = headerRow?.querySelectorAll<HTMLElement>("th")?.[c];
+		} else {
+			const trs = table.querySelectorAll<HTMLElement>("tbody tr");
+			cell = trs?.[r]?.querySelectorAll<HTMLElement>("td")?.[c];
+		}
+		if (!cell) return;
+		// Delegate to the first focusable inner control when present.
+		const inner = cell.querySelector<HTMLElement>(
+			"input:not([type='hidden']), button, a[href], select, textarea, [tabindex]:not([tabindex='-1'])",
+		);
+		(inner ?? cell).focus();
+	}, []);
 
 	const handleGridKeyDown = useCallback(
 		(e: ReactKeyboardEvent<HTMLDivElement>) => {
@@ -131,10 +157,12 @@ export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataG
 
 			if (e.key === "ArrowDown") {
 				e.preventDefault();
+				// Header row (-1) → first body row (0) → … → last body row.
 				r = Math.min(r + 1, totalRows - 1);
 			} else if (e.key === "ArrowUp") {
 				e.preventDefault();
-				r = Math.max(r - 1, 0);
+				// Allow stepping up into the header row (-1).
+				r = Math.max(r - 1, HEADER_ROW);
 			} else if (e.key === "ArrowRight") {
 				e.preventDefault();
 				c = Math.min(c + 1, totalCols - 1);
@@ -143,19 +171,19 @@ export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataG
 				c = Math.max(c - 1, 0);
 			} else if (e.key === " ") {
 				// Space toggles row selection. Determine row index from event target if possible,
-				// falling back to the focused cell row.
+				// falling back to the focused cell row. Header row (-1) is not selectable.
 				e.preventDefault();
 				const target = e.target as HTMLElement;
 				const tr = target.closest("tr");
 				let rowIdx = r;
 				if (tr) {
 					const tbody = tr.parentElement;
-					if (tbody) {
+					if (tbody?.tagName === "TBODY") {
 						const idx = Array.from(tbody.children).indexOf(tr);
 						if (idx >= 0) rowIdx = idx;
 					}
 				}
-				const row = sorted[rowIdx];
+				const row = rowIdx >= 0 ? sorted[rowIdx] : undefined;
 				if (row) toggle(row.id);
 				return;
 			} else {
@@ -163,10 +191,9 @@ export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataG
 			}
 
 			setFocusedCell([r, c]);
-			const trs = tableRef.current?.querySelectorAll<HTMLElement>("tbody tr");
-			trs?.[r]?.querySelectorAll<HTMLElement>("td")?.[c]?.focus();
+			focusCell(r, c);
 		},
-		[focusedCell, sorted, columns.length, toggle, onKeyDown],
+		[focusedCell, sorted, columns.length, toggle, onKeyDown, focusCell],
 	);
 
 	const selectionCount = selectedIds.length;
@@ -212,21 +239,30 @@ export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataG
 								isAllSelected={isAllSelected}
 								isIndeterminate={isIndeterminate}
 								onToggleAll={toggleAll}
+								tabIndex={focusedCell[0] === HEADER_ROW && focusedCell[1] === 0 ? 0 : -1}
 							/>
-							{columns.map((col) => (
-								<Table.HeaderCell
-									key={col.key}
-									sortable={col.sortable}
-									sortDir={sortCol === col.key ? sortDir : null}
-									onToggleSort={() => col.sortable && toggleSort(col.key as keyof DataGridRow)}
-									resizable
-									width={widths[col.key]}
-									onResizeStart={(e) => startResize(col.key, e)}
-									style={{ textAlign: col.align ?? "left" }}
-								>
-									{col.label}
-								</Table.HeaderCell>
-							))}
+							{columns.map((col, colIdx) => {
+								// Sortable header cells are interactive (role="columnheader"
+								// carries its own tabIndex inside Table.HeaderCell); join them to
+								// the roving model so the header row participates in arrow nav.
+								const headerTabIndex =
+									focusedCell[0] === HEADER_ROW && focusedCell[1] === colIdx + 1 ? 0 : -1;
+								return (
+									<Table.HeaderCell
+										key={col.key}
+										sortable={col.sortable}
+										sortDir={sortCol === col.key ? sortDir : null}
+										onToggleSort={() => col.sortable && toggleSort(col.key as keyof DataGridRow)}
+										resizable
+										width={widths[col.key]}
+										onResizeStart={(e) => startResize(col.key, e)}
+										style={{ textAlign: col.align ?? "left" }}
+										tabIndex={col.sortable ? headerTabIndex : undefined}
+									>
+										{col.label}
+									</Table.HeaderCell>
+								);
+							})}
 						</Table.Row>
 					</Table.Header>
 

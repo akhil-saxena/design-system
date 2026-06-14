@@ -1,5 +1,6 @@
 import {
 	type CSSProperties,
+	type FocusEvent as ReactFocusEvent,
 	type ReactNode,
 	type RefObject,
 	useCallback,
@@ -80,6 +81,9 @@ export function HoverCard({
 	};
 	const openTimerRef = useRef<number | null>(null);
 	const closeTimerRef = useRef<number | null>(null);
+	// Set briefly after an Escape dismiss so restoring focus to the anchor does
+	// not immediately re-open the card via the focusin path.
+	const suppressFocusOpenRef = useRef(false);
 
 	const clearOpenTimer = useCallback(() => {
 		if (openTimerRef.current !== null) {
@@ -154,14 +158,34 @@ export function HoverCard({
 				openNow();
 			}
 		}
+		// A11y: keyboard users reach the anchor via Tab. focusin opens the card so
+		// its interactive content becomes reachable; focusout closes it once focus
+		// leaves both the anchor and the panel (relatedTarget check below).
+		function handleFocusIn() {
+			// Skip re-opening when focus is being restored to the anchor right after
+			// an Escape dismiss.
+			if (suppressFocusOpenRef.current) return;
+			openNow();
+		}
+		function handleFocusOut(e: FocusEvent) {
+			if (pinned) return;
+			const next = e.relatedTarget as Node | null;
+			// Keep open while focus moves into the panel or stays within the anchor.
+			if (next && (panelRef.current?.contains(next) || anchorRef.current?.contains(next))) return;
+			scheduleClose();
+		}
 
 		anchor.addEventListener("mouseenter", handleEnter);
 		anchor.addEventListener("mouseleave", handleLeave);
 		anchor.addEventListener("click", handleClick);
+		anchor.addEventListener("focusin", handleFocusIn);
+		anchor.addEventListener("focusout", handleFocusOut);
 		return () => {
 			anchor.removeEventListener("mouseenter", handleEnter);
 			anchor.removeEventListener("mouseleave", handleLeave);
 			anchor.removeEventListener("click", handleClick);
+			anchor.removeEventListener("focusin", handleFocusIn);
+			anchor.removeEventListener("focusout", handleFocusOut);
 		};
 	}, [anchorRef, pinned, openDelay, closeDelay, clearOpenTimer, clearCloseTimer]);
 
@@ -173,6 +197,31 @@ export function HoverCard({
 		},
 		[clearOpenTimer, clearCloseTimer],
 	);
+
+	// A11y: Escape dismisses the card (whether hovered or pinned) and returns
+	// focus to the anchor so keyboard users are not stranded inside the portal.
+	useEffect(() => {
+		if (!open) return;
+		function onKey(e: KeyboardEvent) {
+			if (e.key !== "Escape") return;
+			setPinned(false);
+			setOpen(false);
+			setPosition(null);
+			clearOpenTimer();
+			clearCloseTimer();
+			// Return focus to the anchor only if focus is currently inside the
+			// portaled panel — otherwise the anchor already holds focus. Suppress
+			// the focusin-reopen that restoring focus would otherwise trigger.
+			const active = document.activeElement;
+			if (active && panelRef.current?.contains(active)) {
+				suppressFocusOpenRef.current = true;
+				anchorRef.current?.focus?.();
+				suppressFocusOpenRef.current = false;
+			}
+		}
+		document.addEventListener("keydown", onKey);
+		return () => document.removeEventListener("keydown", onKey);
+	}, [open, anchorRef, clearOpenTimer, clearCloseTimer]);
 
 	useClickOutside(
 		panelRef,
@@ -207,6 +256,23 @@ export function HoverCard({
 			setOpen(false);
 		}, closeDelay);
 	}
+	// A11y: when focus leaves the panel (Tab past the last item) and does not land
+	// back on the anchor or within the panel, close the card.
+	function onPanelBlur(e: ReactFocusEvent<HTMLDialogElement>) {
+		if (pinned) return;
+		const next = e.relatedTarget as Node | null;
+		if (next && (panelRef.current?.contains(next) || anchorRef.current?.contains(next))) return;
+		scheduleCloseFromPanel();
+	}
+	function scheduleCloseFromPanel() {
+		clearOpenTimer();
+		if (closeTimerRef.current !== null) return;
+		closeTimerRef.current = window.setTimeout(() => {
+			closeTimerRef.current = null;
+			setOpen(false);
+			setPosition(null);
+		}, closeDelay);
+	}
 
 	const isDark =
 		anchorRef.current?.closest(".dark") != null ||
@@ -222,6 +288,7 @@ export function HoverCard({
 			style={style}
 			onMouseEnter={onPanelEnter}
 			onMouseLeave={onPanelLeave}
+			onBlur={onPanelBlur}
 		>
 			{children}
 		</dialog>

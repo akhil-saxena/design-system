@@ -3,7 +3,9 @@ import {
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
 	useEffect,
+	useId,
 	useMemo,
+	useRef,
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
@@ -64,7 +66,27 @@ export function CommandPalette({
 	const [query, setQuery] = useState("");
 	const [activeIndex, setActiveIndex] = useState(-1);
 
+	// Stable ids wiring the combobox/listbox/option ARIA relationships.
+	const baseId = useId();
+	const listId = `${baseId}-listbox`;
+	const optionId = (idx: number) => `${baseId}-option-${idx}`;
+
+	// Live ref to the listbox so we can scrollIntoView the active option.
+	const listRef = useRef<HTMLDivElement | null>(null);
+
 	useFocusTrap(panel, open);
+
+	// Body scroll-lock while open (SSR-guarded; restores prior overflow on
+	// close/unmount).
+	useEffect(() => {
+		if (!open || typeof document === "undefined") return;
+		const { body } = document;
+		const previousOverflow = body.style.overflow;
+		body.style.overflow = "hidden";
+		return () => {
+			body.style.overflow = previousOverflow;
+		};
+	}, [open]);
 
 	// Filter items by query (case-insensitive substring match on label)
 	const filtered = useMemo(() => {
@@ -85,6 +107,15 @@ export function CommandPalette({
 			setActiveIndex(-1);
 		}
 	}, [open]);
+
+	// Scroll the active option into view whenever it changes (keeps the
+	// screen-reader-tracked aria-activedescendant visually in range).
+	useEffect(() => {
+		if (activeIndex < 0 || !listRef.current) return;
+		const el = listRef.current.querySelector<HTMLElement>(`#${CSS.escape(optionId(activeIndex))}`);
+		// scrollIntoView is unavailable in some environments (e.g. jsdom) — guard it.
+		el?.scrollIntoView?.({ block: "nearest" });
+	}, [activeIndex, optionId]);
 
 	// Document-level keyboard handler — only active when open
 	useEffect(() => {
@@ -181,16 +212,30 @@ export function CommandPalette({
 							value={query}
 							onChange={(e) => setQuery(e.target.value)}
 							aria-label="Search commands"
+							role="combobox"
+							aria-expanded={filtered.length > 0}
+							aria-controls={listId}
+							aria-autocomplete="list"
+							aria-activedescendant={
+								activeIndex >= 0 && activeIndex < filtered.length
+									? optionId(activeIndex)
+									: undefined
+							}
 						/>
 						<Kbd size="sm">ESC</Kbd>
 					</div>
-					<div className="ds-atom-cmd-list">
+					{/* biome-ignore lint/a11y/useFocusableInteractive: in the combobox+listbox pattern focus stays on the input via aria-activedescendant; the listbox itself must NOT be focusable */}
+					{/* biome-ignore lint/a11y/useSemanticElements: role="listbox" is the ARIA combobox pattern; no native HTML element pairs aria-activedescendant-driven option selection with the existing styled container */}
+					<div ref={listRef} id={listId} role="listbox" className="ds-atom-cmd-list">
 						{filtered.length === 0 ? (
 							<div className="ds-atom-cmd-empty">{emptyText ?? `No results for "${query}"`}</div>
 						) : (
 							groups.map((g) => (
-								<div key={g.name}>
-									<div className="ds-atom-cmd-group">{g.name}</div>
+								// biome-ignore lint/a11y/useSemanticElements: role="group" inside a listbox clusters options under a labelled header per the ARIA listbox pattern; <fieldset> is form-only and cannot live inside role="listbox"
+								<div key={g.name} role="group" aria-label={g.name}>
+									<div className="ds-atom-cmd-group" aria-hidden="true">
+										{g.name}
+									</div>
 									{g.items.map((item) => {
 										const myIndex = flatIdx++;
 										const isActive = myIndex === activeIndex;
@@ -198,9 +243,12 @@ export function CommandPalette({
 											<button
 												key={item.id}
 												type="button"
+												id={optionId(myIndex)}
+												// biome-ignore lint/a11y/useSemanticElements: role="option" on a <button> keeps the existing focusable/clickable element while making aria-selected valid for the combobox+listbox pattern
+												role="option"
 												className="ds-atom-cmd-item"
 												data-active={isActive ? "true" : undefined}
-												aria-selected={isActive ? "true" : undefined}
+												aria-selected={isActive}
 												onClick={() => {
 													item.onSelect();
 													onClose();

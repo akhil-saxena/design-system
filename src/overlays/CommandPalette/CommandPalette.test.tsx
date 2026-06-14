@@ -112,4 +112,55 @@ describe("CommandPalette", () => {
 		fireEvent.click(panel);
 		expect(onClose).toHaveBeenCalledTimes(1); // unchanged
 	});
+
+	// ── a11y: combobox + listbox + option wiring ──────────────────────────────
+
+	it("input has role=combobox with aria-controls pointing at the listbox", () => {
+		render(<CommandPalette open onClose={vi.fn()} items={ITEMS} />);
+		const input = document.querySelector<HTMLInputElement>(".ds-atom-cmd-input");
+		expect(input?.getAttribute("role")).toBe("combobox");
+		const listId = input?.getAttribute("aria-controls");
+		expect(listId).toBeTruthy();
+		const list = document.getElementById(listId ?? "");
+		expect(list?.getAttribute("role")).toBe("listbox");
+	});
+
+	it("list container has role=listbox and items have role=option", () => {
+		render(<CommandPalette open onClose={vi.fn()} items={ITEMS} />);
+		expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+		const options = document.querySelectorAll('[role="option"]');
+		expect(options.length).toBe(ITEMS.length);
+	});
+
+	it("aria-activedescendant tracks the active option id on ArrowDown", () => {
+		render(<CommandPalette open onClose={vi.fn()} items={ITEMS} />);
+		const input = document.querySelector<HTMLInputElement>(".ds-atom-cmd-input");
+		// No active descendant before any navigation
+		expect(input?.getAttribute("aria-activedescendant")).toBeNull();
+		fireEvent.keyDown(document, { key: "ArrowDown" });
+		const activeId = input?.getAttribute("aria-activedescendant");
+		expect(activeId).toBeTruthy();
+		const activeOption = document.getElementById(activeId ?? "");
+		expect(activeOption?.getAttribute("role")).toBe("option");
+		expect(activeOption?.getAttribute("aria-selected")).toBe("true");
+	});
+
+	it("active option carries aria-selected=true; inactive options aria-selected=false", () => {
+		render(<CommandPalette open onClose={vi.fn()} items={ITEMS} />);
+		fireEvent.keyDown(document, { key: "ArrowDown" });
+		const options = document.querySelectorAll<HTMLElement>('[role="option"]');
+		expect(options[0]?.getAttribute("aria-selected")).toBe("true");
+		expect(options[1]?.getAttribute("aria-selected")).toBe("false");
+	});
+
+	// ── scroll-lock ───────────────────────────────────────────────────────────
+
+	it("locks body scroll while open and restores it on close", () => {
+		document.body.style.overflow = "scroll";
+		const { rerender } = render(<CommandPalette open onClose={vi.fn()} items={ITEMS} />);
+		expect(document.body.style.overflow).toBe("hidden");
+		rerender(<CommandPalette open={false} onClose={vi.fn()} items={ITEMS} />);
+		expect(document.body.style.overflow).toBe("scroll");
+		document.body.style.overflow = "";
+	});
 });

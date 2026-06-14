@@ -34,4 +34,53 @@ describe("ActionSheet", () => {
 		fireEvent.keyDown(window, { key: "Escape" });
 		expect(onClose).toHaveBeenCalled();
 	});
+
+	it("a11y: role=menu has an accessible name (default 'Actions', overridable)", () => {
+		const { rerender } = render(<ActionSheet open onClose={() => {}} items={items} />);
+		expect(screen.getByRole("menu").getAttribute("aria-label")).toBe("Actions");
+		rerender(<ActionSheet open onClose={() => {}} items={items} aria-label="Photo actions" />);
+		expect(screen.getByRole("menu", { name: "Photo actions" })).toBeTruthy();
+	});
+
+	it("a11y: moves focus into the sheet on open (first menu item)", () => {
+		render(<ActionSheet open onClose={() => {}} items={items} />);
+		expect(document.activeElement).toBe(screen.getByRole("menuitem", { name: "Edit" }));
+	});
+
+	it("a11y: restores focus to the trigger on close", () => {
+		const onClose = vi.fn();
+		const { rerender } = render(
+			<>
+				<button type="button" data-testid="trigger">
+					Open
+				</button>
+				<ActionSheet open={false} onClose={onClose} items={items} />
+			</>,
+		);
+		const trigger = screen.getByTestId("trigger");
+		trigger.focus();
+		expect(document.activeElement).toBe(trigger);
+
+		// Open: focus moves into the sheet.
+		rerender(
+			<>
+				<button type="button" data-testid="trigger">
+					Open
+				</button>
+				<ActionSheet open onClose={onClose} items={items} />
+			</>,
+		);
+		expect(document.activeElement).toBe(screen.getByRole("menuitem", { name: "Edit" }));
+
+		// Close: focus trap cleanup restores focus to the trigger.
+		rerender(
+			<>
+				<button type="button" data-testid="trigger">
+					Open
+				</button>
+				<ActionSheet open={false} onClose={onClose} items={items} />
+			</>,
+		);
+		expect(document.activeElement).toBe(trigger);
+	});
 });

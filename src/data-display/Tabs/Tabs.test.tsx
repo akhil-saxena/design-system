@@ -274,3 +274,82 @@ describe("Tabs - overflow menu (ResizeObserver)", () => {
 		expect(screen.queryByRole("menu")).not.toBeInTheDocument();
 	});
 });
+
+// ── Task: overflow keyboard reachability (a11y fix) ──────────────────────────
+
+/**
+ * Deterministic partial overflow: set the ROOT clientWidth (measure() reads the
+ * root, not the tablist) so a known number of tabs stay visible. With root=200,
+ * MORE_WIDTH=44 and tab=60 → available=156 fits exactly 2 tabs ("1","2");
+ * "3".."6" overflow into the More menu.
+ */
+function simulatePartialOverflow() {
+	const root = document.querySelector(".ds-atom-tabs") as HTMLElement;
+	const tablist = document.querySelector("[role='tablist']") as HTMLElement;
+	Object.defineProperty(root, "clientWidth", { value: 200, configurable: true });
+	const tabButtons = tablist.querySelectorAll<HTMLButtonElement>("[role='tab']");
+	for (const btn of tabButtons) {
+		Object.defineProperty(btn, "offsetWidth", { value: 60, configurable: true });
+	}
+	act(() => {
+		resizeCallback?.(
+			[{ contentRect: { width: 200 } } as ResizeObserverEntry],
+			{} as ResizeObserver,
+		);
+	});
+}
+
+describe("Tabs - overflow keyboard reachability", () => {
+	it("when the active tab overflows into More, the More button is tabbable (tabIndex=0)", () => {
+		// value "6" is hidden in the overflow menu when narrowed (only "1","2" fit).
+		render(<Tabs tabs={manyTabs} value="6" onChange={vi.fn()} ariaLabel="T" />);
+		simulatePartialOverflow();
+		const moreBtn = screen.getByRole("button", { name: /more tabs/i });
+		expect(moreBtn).toHaveAttribute("tabindex", "0");
+		// And no visible tab is tabbable in that case.
+		const visibleTabs = screen.getAllByRole("tab");
+		for (const t of visibleTabs) {
+			expect(t).toHaveAttribute("tabindex", "-1");
+		}
+	});
+
+	it("when the active tab is visible, More is NOT in the Tab order (tabIndex=-1)", () => {
+		render(<Tabs tabs={manyTabs} value="1" onChange={vi.fn()} ariaLabel="T" />);
+		simulatePartialOverflow();
+		const moreBtn = screen.getByRole("button", { name: /more tabs/i });
+		expect(moreBtn).toHaveAttribute("tabindex", "-1");
+	});
+
+	it("ArrowRight from the last visible tab moves focus to the More button (roving stop)", () => {
+		// "2" is the last visible tab (only "1","2" fit).
+		render(
+			<Tabs tabs={manyTabs} value="2" onChange={vi.fn()} ariaLabel="T" activationMode="manual" />,
+		);
+		simulatePartialOverflow();
+		const tablist = screen.getByRole("tablist");
+		fireEvent.keyDown(tablist, { key: "ArrowRight" });
+		const moreBtn = screen.getByRole("button", { name: /more tabs/i });
+		expect(document.activeElement).toBe(moreBtn);
+	});
+
+	it("ArrowRight with overflow activates the correct adjacent visible tab (no off-by-N)", () => {
+		const onChange = vi.fn();
+		render(<Tabs tabs={manyTabs} value="1" onChange={onChange} ariaLabel="T" />);
+		simulatePartialOverflow();
+		const tablist = screen.getByRole("tablist");
+		fireEvent.keyDown(tablist, { key: "ArrowRight" });
+		// From visible tab "1" the next visible tab is "2".
+		expect(onChange).toHaveBeenCalledWith("2");
+	});
+
+	it("End jumps focus to the More button when tabs overflow", () => {
+		render(
+			<Tabs tabs={manyTabs} value="1" onChange={vi.fn()} ariaLabel="T" activationMode="manual" />,
+		);
+		simulatePartialOverflow();
+		const tablist = screen.getByRole("tablist");
+		fireEvent.keyDown(tablist, { key: "End" });
+		const moreBtn = screen.getByRole("button", { name: /more tabs/i });
+		expect(document.activeElement).toBe(moreBtn);
+	});
+});

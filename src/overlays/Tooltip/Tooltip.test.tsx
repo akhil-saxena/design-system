@@ -169,6 +169,41 @@ describe("Tooltip", () => {
 		expect(screen.queryByRole("tooltip")).toBeNull();
 	});
 
+	it("closes on Escape while open (WCAG 1.4.13 dismissible)", () => {
+		render(
+			<Tooltip content="Hello">
+				<button type="button">Trigger</button>
+			</Tooltip>,
+		);
+		const trigger = screen.getByRole("button", { name: "Trigger" });
+		fireEvent.mouseEnter(trigger);
+		advanceAndFlush(150);
+		expect(screen.queryByRole("tooltip")).not.toBeNull();
+		act(() => {
+			fireEvent.keyDown(document, { key: "Escape" });
+		});
+		expect(screen.queryByRole("tooltip")).toBeNull();
+	});
+
+	it("hovering the tooltip surface keeps it open (hoverable)", () => {
+		render(
+			<Tooltip content="Hello">
+				<button type="button">Trigger</button>
+			</Tooltip>,
+		);
+		const trigger = screen.getByRole("button", { name: "Trigger" });
+		fireEvent.mouseEnter(trigger);
+		advanceAndFlush(150);
+		const surface = screen.getByRole("tooltip");
+		// Moving the cursor onto the surface must not dismiss it.
+		fireEvent.mouseEnter(surface);
+		advanceAndFlush(300);
+		expect(screen.queryByRole("tooltip")).not.toBeNull();
+		// Leaving the surface closes it.
+		fireEvent.mouseLeave(surface);
+		expect(screen.queryByRole("tooltip")).toBeNull();
+	});
+
 	it("respects custom delay prop", () => {
 		render(
 			<Tooltip content="Help" delay={500}>

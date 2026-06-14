@@ -256,5 +256,55 @@ describe("DataGrid", () => {
 			// The handler doesn't expose state but we assert no error and DOM remains intact
 			expect(container.querySelectorAll("tbody tr").length).toBe(ROWS.length);
 		});
+
+		it("ArrowDown into the checkbox column focuses the inner checkbox input (not the td)", () => {
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} />);
+			const wrapper = container.querySelector<HTMLDivElement>(".ds-atom-datagrid");
+			expect(wrapper).not.toBeNull();
+			// Start at header row col 1; ArrowLeft → checkbox column (col 0), ArrowDown → first body row.
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: "ArrowLeft" });
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: "ArrowDown" });
+			const active = document.activeElement as HTMLElement;
+			expect(active.tagName).toBe("INPUT");
+			expect((active as HTMLInputElement).type).toBe("checkbox");
+		});
+
+		it("Space toggles selection once focus is delegated to the row checkbox", () => {
+			const onSelectionChange = vi.fn();
+			const { container } = render(
+				<DataGrid columns={COLS} rows={ROWS} onSelectionChange={onSelectionChange} />,
+			);
+			const wrapper = container.querySelector<HTMLDivElement>(".ds-atom-datagrid");
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: "ArrowLeft" });
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: "ArrowDown" });
+			const active = document.activeElement as HTMLElement;
+			fireEvent.keyDown(active, { key: " " });
+			expect(onSelectionChange).toHaveBeenCalled();
+		});
+
+		it("ArrowUp from the first body row moves focus into the columnheader row", () => {
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} />);
+			const wrapper = container.querySelector<HTMLDivElement>(".ds-atom-datagrid");
+			// Default focused cell is the header row (col 1, a sortable column).
+			// Move down into the body, then back up into the header row.
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: "ArrowDown" });
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: "ArrowUp" });
+			const active = document.activeElement as HTMLElement;
+			// Focus should now be on a columnheader cell in the header row.
+			expect(active.closest("thead")).not.toBeNull();
+			expect(active.getAttribute("role")).toBe("columnheader");
+		});
+
+		it("Enter on a focused sortable columnheader triggers a sort", () => {
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} />);
+			const wrapper = container.querySelector<HTMLDivElement>(".ds-atom-datagrid");
+			// Header row col 1 (Company, sortable) is the initial roving cell.
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: "ArrowDown" });
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: "ArrowUp" });
+			const header = document.activeElement as HTMLElement;
+			expect(header.getAttribute("role")).toBe("columnheader");
+			fireEvent.keyDown(header, { key: "Enter" });
+			expect(header.textContent).toMatch(/▲|▼/);
+		});
 	});
 });

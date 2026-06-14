@@ -107,4 +107,21 @@ describe("Sheet", () => {
 		fireEvent.click(panel);
 		expect(onClose).not.toHaveBeenCalled();
 	});
+
+	it("locks body scroll while open and restores it on close", () => {
+		document.body.style.overflow = "scroll";
+		const { rerender } = render(
+			<Sheet open={true} onClose={() => {}}>
+				<p>x</p>
+			</Sheet>,
+		);
+		expect(document.body.style.overflow).toBe("hidden");
+		rerender(
+			<Sheet open={false} onClose={() => {}}>
+				<p>x</p>
+			</Sheet>,
+		);
+		expect(document.body.style.overflow).toBe("scroll");
+		document.body.style.overflow = "";
+	});
 });

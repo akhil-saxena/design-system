@@ -1,6 +1,14 @@
 import { type CSSProperties, type HTMLAttributes, forwardRef } from "react";
 
-export type AvatarSize = 24 | 28 | 32 | 36 | 40;
+/**
+ * Diameter of the avatar circle, in pixels. All internal proportions
+ * (font-size `size*0.35`, square radius `size*0.22`, presence dot `size*0.28`)
+ * are derived from this value, so any positive number renders correctly.
+ * The named values (24 / 28 / 32 / 36 / 40) remain the canonical design-system
+ * sizes; arbitrary sizes (e.g. 22 or 46) are also supported. Sensible range:
+ * ~16–96px.
+ */
+export type AvatarSize = number;
 export type AvatarShape = "circle" | "square";
 export type AvatarPresence = "online" | "away" | "offline" | "dnd";
 export type AvatarPresencePosition = "top-right" | "bottom-right" | "top-left" | "bottom-left";
@@ -35,7 +43,9 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
 	 * When not set, a solid color derived from the name is used.
 	 */
 	gradient?: [string, string] | true;
-	/** Diameter of the avatar circle in pixels.
+	/** Diameter of the avatar circle in pixels. Any positive number works
+	 * (all sub-element sizing is proportional); the named design-system sizes
+	 * are 24 / 28 / 32 / 36 / 40, sensible range ~16–96.
 	 * @default 32
 	 */
 	size?: AvatarSize;

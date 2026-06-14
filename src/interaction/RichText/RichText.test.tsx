@@ -53,6 +53,27 @@ describe("RichText - render", () => {
 		await waitForEditor();
 		expect(document.querySelector(".ProseMirror")).not.toBeNull();
 	});
+
+	it("renders a code-block value while highlight grammars lazy-load (no throw)", async () => {
+		// Grammars are registered lazily (dynamic import) only after mount, so the
+		// initial render must tolerate not-yet-registered languages. CodeBlockLowlight
+		// falls back to highlightAuto for unknown languages, so this must not throw.
+		const onChange = vi.fn();
+		render(
+			<RichText
+				value='<pre><code class="language-javascript">const x = 1;</code></pre>'
+				onChange={onChange}
+			/>,
+		);
+		await waitForEditor();
+		const pm = document.querySelector(".ProseMirror");
+		expect(pm?.textContent).toContain("const x = 1;");
+		// Lazy re-highlight uses { emitUpdate: false }, so no spurious onChange on mount.
+		await act(async () => {
+			await new Promise((r) => setTimeout(r, 50));
+		});
+		expect(onChange).not.toHaveBeenCalled();
+	});
 });
 
 // ─── Toolbar ARIA ─────────────────────────────────────────────────────────

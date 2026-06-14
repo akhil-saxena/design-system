@@ -1,4 +1,4 @@
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, useState } from "react";
 import { Star } from "../../icons";
 export type StarRatingSize = "default" | "compact";
 
@@ -54,6 +54,44 @@ export function StarRating({
 	const effective = interactive && hover != null ? hover : value;
 	const iconSize = STAR_SIZES[size];
 
+	// Roving tabindex: exactly one star is a tab stop. The selected star owns it;
+	// when nothing is selected (value outside 1–5) the first star does.
+	const rovingStar = value >= 1 && value <= 5 ? value : 1;
+
+	/**
+	 * Radiogroup keyboard pattern (WCAG / WAI-ARIA). Left/Down decrease, Right/Up
+	 * increase (and select on move), Home/End jump to min/max, Space/Enter select the
+	 * focused star. No-ops when not interactive.
+	 */
+	function handleKeyDown(e: ReactKeyboardEvent<HTMLButtonElement>, n: number) {
+		if (!interactive) return;
+		let next: number | null = null;
+		switch (e.key) {
+			case "ArrowRight":
+			case "ArrowUp":
+				next = Math.min(5, value < 1 ? 1 : value + 1);
+				break;
+			case "ArrowLeft":
+			case "ArrowDown":
+				next = Math.max(1, value < 1 ? 1 : value - 1);
+				break;
+			case "Home":
+				next = 1;
+				break;
+			case "End":
+				next = 5;
+				break;
+			case " ":
+			case "Enter":
+				next = n;
+				break;
+			default:
+				return; // let other keys (e.g. Tab) behave normally
+		}
+		e.preventDefault();
+		if (next !== value) onChange?.(next);
+	}
+
 	return (
 		<div
 			role="radiogroup"
@@ -77,9 +115,11 @@ export function StarRating({
 						aria-checked={n === value}
 						aria-label={`${n} star${n === 1 ? "" : "s"}`}
 						disabled={!interactive}
+						tabIndex={n === rovingStar ? 0 : -1}
 						onClick={() => {
 							if (interactive) onChange?.(n);
 						}}
+						onKeyDown={(e) => handleKeyDown(e, n)}
 						onMouseEnter={() => {
 							if (interactive) setHover(n);
 						}}

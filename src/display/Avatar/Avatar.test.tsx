@@ -160,6 +160,29 @@ describe("Avatar", () => {
 		// Math.round(32 * 0.22) === 7
 		expect(radius).toBe("7px");
 	});
+
+	it("accepts arbitrary (non-named) sizes and scales proportions", () => {
+		// AvatarSize is now `number`, so off-grid sizes like 22 / 46 are valid.
+		const small = render(<Avatar name="Maya Chen" size={22} />);
+		expect(rootOf(small.container).style.width).toBe("22px");
+		expect(rootOf(small.container).style.height).toBe("22px");
+		// font-size is proportional: round(22 * 0.35) === 8
+		expect(rootOf(small.container).style.fontSize).toBe("8px");
+
+		const large = render(<Avatar name="Maya Chen" size={46} shape="square" />);
+		expect(rootOf(large.container).style.width).toBe("46px");
+		// square radius is proportional: round(46 * 0.22) === 10
+		expect(rootOf(large.container).style.borderRadius).toBe("10px");
+	});
+
+	it("renders a proportional presence dot at an arbitrary size", () => {
+		const { container } = render(<Avatar name="x" size={46} presence="online" />);
+		const dot = container.querySelector("span[aria-hidden]") as HTMLElement;
+		expect(dot).not.toBeNull();
+		// presence dot is proportional: max(8, round(46 * 0.28)) === 13
+		expect(dot.style.width).toBe("13px");
+		expect(dot.style.height).toBe("13px");
+	});
 });
 
 describe("AvatarStack", () => {

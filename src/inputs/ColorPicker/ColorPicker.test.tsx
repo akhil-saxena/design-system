@@ -95,4 +95,89 @@ describe("ColorPicker", () => {
 		const blueSwatch = swatches[2] as HTMLButtonElement; // '#3b82f6' is index 2
 		expect(blueSwatch.style.border).toContain("2.5px solid var(--ink)");
 	});
+
+	// --- Keyboard accessibility (WCAG 2.1.1) ---
+
+	it("hue slider ArrowRight increases hue and emits a new color", () => {
+		const onChange = vi.fn();
+		const { container } = render(<ColorPicker onChange={onChange} value="#ff0000" />);
+		const hue = container.querySelector(".ds-atom-colorpicker-huebar") as HTMLElement;
+		const before = Number(hue.getAttribute("aria-valuenow"));
+		fireEvent.keyDown(hue, { key: "ArrowRight" });
+		expect(onChange).toHaveBeenCalledTimes(1);
+		expect(Number(hue.getAttribute("aria-valuenow"))).toBe(before + 1);
+	});
+
+	it("hue slider Shift+ArrowRight moves by 10", () => {
+		const { container } = render(<ColorPicker value="#ff0000" />);
+		const hue = container.querySelector(".ds-atom-colorpicker-huebar") as HTMLElement;
+		const before = Number(hue.getAttribute("aria-valuenow"));
+		fireEvent.keyDown(hue, { key: "ArrowRight", shiftKey: true });
+		expect(Number(hue.getAttribute("aria-valuenow"))).toBe(before + 10);
+	});
+
+	it("hue slider Home/End jump to min/max", () => {
+		const { container } = render(<ColorPicker value="#00ff00" />);
+		const hue = container.querySelector(".ds-atom-colorpicker-huebar") as HTMLElement;
+		fireEvent.keyDown(hue, { key: "End" });
+		expect(Number(hue.getAttribute("aria-valuenow"))).toBe(360);
+		fireEvent.keyDown(hue, { key: "Home" });
+		expect(Number(hue.getAttribute("aria-valuenow"))).toBe(0);
+	});
+
+	it("opacity slider ArrowLeft decreases opacity and PageDown drops by 10", () => {
+		const { container } = render(<ColorPicker value="#ff0000" />);
+		const op = container.querySelector(".ds-atom-colorpicker-opacitybar") as HTMLElement;
+		expect(Number(op.getAttribute("aria-valuenow"))).toBe(100);
+		fireEvent.keyDown(op, { key: "ArrowLeft" });
+		expect(Number(op.getAttribute("aria-valuenow"))).toBe(99);
+		fireEvent.keyDown(op, { key: "PageDown" });
+		expect(Number(op.getAttribute("aria-valuenow"))).toBe(89);
+	});
+
+	it("canvas ArrowUp changes brightness and emits", () => {
+		const onChange = vi.fn();
+		const { container } = render(<ColorPicker onChange={onChange} value="#7f0000" />);
+		const canvas = container.querySelector(".ds-atom-colorpicker-canvas") as HTMLElement;
+		fireEvent.keyDown(canvas, { key: "ArrowUp" });
+		expect(onChange).toHaveBeenCalledTimes(1);
+		// brightness up on a pure-red base yields a brighter red
+		expect(onChange.mock.calls[0][0]).toMatch(/^#[0-9a-f]{6}$/i);
+	});
+
+	it("unhandled keys (Tab) are ignored on sliders", () => {
+		const onChange = vi.fn();
+		const { container } = render(<ColorPicker onChange={onChange} value="#ff0000" />);
+		const hue = container.querySelector(".ds-atom-colorpicker-huebar") as HTMLElement;
+		fireEvent.keyDown(hue, { key: "Tab" });
+		expect(onChange).not.toHaveBeenCalled();
+	});
+
+	// --- Alpha is emitted, not silently dropped ---
+
+	it("emits 8-digit hex with alpha when opacity is reduced", () => {
+		const onChange = vi.fn();
+		const { container } = render(<ColorPicker onChange={onChange} value="#ff0000" />);
+		const op = container.querySelector(".ds-atom-colorpicker-opacitybar") as HTMLElement;
+		fireEvent.keyDown(op, { key: "Home" }); // opacity -> 0
+		expect(onChange).toHaveBeenLastCalledWith("#ff000000");
+	});
+
+	it("emits opaque 6-digit hex when opacity is full (preserves contract)", () => {
+		const onChange = vi.fn();
+		const { container } = render(<ColorPicker onChange={onChange} value="#ff0000" />);
+		const swatches = container.querySelectorAll<HTMLButtonElement>(".ds-atom-colorpicker-swatch");
+		fireEvent.click(swatches[2] as HTMLButtonElement); // '#3b82f6', opacity still 100
+		expect(onChange).toHaveBeenLastCalledWith("#3b82f6");
+	});
+
+	it("composes current alpha onto a newly picked base color", () => {
+		const onChange = vi.fn();
+		const { container } = render(<ColorPicker onChange={onChange} value="#ff0000" />);
+		const op = container.querySelector(".ds-atom-colorpicker-opacitybar") as HTMLElement;
+		fireEvent.keyDown(op, { key: "Home" }); // opacity -> 0
+		const swatches = container.querySelectorAll<HTMLButtonElement>(".ds-atom-colorpicker-swatch");
+		fireEvent.click(swatches[2] as HTMLButtonElement); // '#3b82f6'
+		expect(onChange).toHaveBeenLastCalledWith("#3b82f600");
+	});
 });

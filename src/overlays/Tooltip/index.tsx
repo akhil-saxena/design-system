@@ -204,13 +204,28 @@ export function Tooltip({ content, placement = "auto", delay = 150, children }: 
 	// Cleanup any pending open-timer on unmount.
 	useEffect(() => () => clearTimer(), [clearTimer]);
 
+	// Escape-to-dismiss while open (WCAG 1.4.13 - dismissible hover/focus content).
+	useEffect(() => {
+		if (!isOpen) return;
+		function onKey(e: KeyboardEvent) {
+			if (e.key === "Escape") close();
+		}
+		document.addEventListener("keydown", onKey);
+		return () => document.removeEventListener("keydown", onKey);
+	}, [isOpen, close]);
+
 	const surfaceStyle: CSSProperties = {
 		position: "absolute",
 		top: pos.top,
 		left: pos.left,
 		zIndex: 9999,
-		pointerEvents: "none",
 	};
+
+	// Allow the cursor to move onto the tooltip surface without dismissing it
+	// (WCAG 1.4.13 "hoverable"). Entering the surface cancels any pending close
+	// timer; leaving it closes the tooltip.
+	const handleSurfaceMouseEnter = () => clearTimer();
+	const handleSurfaceMouseLeave = () => close();
 
 	const trigger = cloneElement(child, {
 		// v2.0 simplification: consumer's ref is NOT preserved (deferred to v2.1
@@ -240,6 +255,8 @@ export function Tooltip({ content, placement = "auto", delay = 150, children }: 
 						data-placement={renderedPlacement}
 						data-state="open"
 						style={surfaceStyle}
+						onMouseEnter={handleSurfaceMouseEnter}
+						onMouseLeave={handleSurfaceMouseLeave}
 					>
 						{content}
 					</div>

@@ -55,23 +55,48 @@ import Placeholder from "@tiptap/extension-placeholder";
 import UnderlineExtension from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import css from "highlight.js/lib/languages/css";
-import javascript from "highlight.js/lib/languages/javascript";
-import json from "highlight.js/lib/languages/json";
-import python from "highlight.js/lib/languages/python";
-import typescript from "highlight.js/lib/languages/typescript";
-import xml from "highlight.js/lib/languages/xml";
 import { createLowlight } from "lowlight";
 
+// ─── Lazy code-highlight grammars (perf) ─────────────────────────────────────
+// highlight.js grammars are ~24 KB and would otherwise be pulled into the barrel
+// bundle and executed at import time for EVERY consumer of the package (even one
+// that only imports `Button`), defeating tree-shaking. Instead we create an EMPTY
+// lowlight instance at module scope and dynamically import + register the grammars
+// the first time a RichText actually mounts (see the useEffect below).
+//
+// CodeBlockLowlight tolerates not-yet-registered languages out of the box: its
+// decoration plugin checks `lowlight.listLanguages()` and falls back to
+// `highlightAuto` for unknown languages (which is safe on an empty instance),
+// so code blocks render unstyled until the grammars finish loading, then
+// re-highlight once registered.
 const lowlight = createLowlight();
-lowlight.register("html", xml);
-lowlight.register("css", css);
-lowlight.register("js", javascript);
-lowlight.register("javascript", javascript);
-lowlight.register("ts", typescript);
-lowlight.register("typescript", typescript);
-lowlight.register("json", json);
-lowlight.register("python", python);
+
+// Module-level singleton promise so the grammars are fetched/registered at most
+// once across all RichText instances and re-mounts.
+let grammarsPromise: Promise<void> | null = null;
+
+function loadCodeGrammars(): Promise<void> {
+	if (grammarsPromise) return grammarsPromise;
+	grammarsPromise = Promise.all([
+		import("highlight.js/lib/languages/xml"),
+		import("highlight.js/lib/languages/css"),
+		import("highlight.js/lib/languages/javascript"),
+		import("highlight.js/lib/languages/typescript"),
+		import("highlight.js/lib/languages/json"),
+		import("highlight.js/lib/languages/python"),
+	]).then(([xml, css, javascript, typescript, json, python]) => {
+		lowlight.register("html", xml.default);
+		lowlight.register("css", css.default);
+		lowlight.register("js", javascript.default);
+		lowlight.register("javascript", javascript.default);
+		lowlight.register("ts", typescript.default);
+		lowlight.register("typescript", typescript.default);
+		lowlight.register("json", json.default);
+		lowlight.register("python", python.default);
+	});
+	return grammarsPromise;
+}
+
 import { Highlighter } from "lucide-react";
 import { type CSSProperties, type ReactNode, forwardRef, useEffect, useRef, useState } from "react";
 import { DSDropdown } from "../../_internals/DSDropdown";
@@ -264,6 +289,40 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 			editor.setEditable(!readOnly);
 		}
 	}, [editor, readOnly]);
+
+	// ── Lazy code-highlight grammar load (perf) ─────────────────────────────
+	// Fire only once the editor has mounted, so the ~24 KB highlight.js grammars
+	// are fetched on demand instead of at barrel import time.
+	//
+	// CodeBlockLowlight's decoration plugin only recomputes decorations on a
+	// docChanged transaction, so any code block already present from the initial
+	// `value` won't re-highlight just because grammars finished registering. To
+	// force a fresh highlight pass without mutating content, we re-set the current
+	// document with { emitUpdate: false } (suppresses onUpdate per the controlled-
+	// value guard) and restore the prior selection. We skip the re-set entirely
+	// when there is no code block, so the common case (no code) is untouched.
+	useEffect(() => {
+		if (!editor) return;
+		let cancelled = false;
+		loadCodeGrammars().then(() => {
+			if (cancelled || editor.isDestroyed) return;
+			let hasCodeBlock = false;
+			editor.state.doc.descendants((node) => {
+				if (node.type.name === "codeBlock") hasCodeBlock = true;
+				return !hasCodeBlock;
+			});
+			if (!hasCodeBlock) return;
+			const { from, to } = editor.state.selection;
+			// Re-setting identical content yields a docChanged transaction, which
+			// makes the lowlight plugin re-decorate using the now-registered grammars.
+			editor.commands.setContent(editor.getJSON(), { emitUpdate: false });
+			const size = editor.state.doc.content.size;
+			editor.commands.setTextSelection({ from: Math.min(from, size), to: Math.min(to, size) });
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [editor]);
 
 	// ── Helpers ───────────────────────────────────────────────────────────
 	const isActive = (name: string, attrs?: Record<string, unknown>) =>

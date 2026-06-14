@@ -1,8 +1,10 @@
 import {
 	type CSSProperties,
 	type ChangeEvent,
+	type KeyboardEvent as ReactKeyboardEvent,
 	type PointerEvent as ReactPointerEvent,
 	useEffect,
+	useRef,
 	useState,
 } from "react";
 import { hexToHsv, hsvToHex } from "./colorUtils";
@@ -64,6 +66,25 @@ const TONAL_STRIPS: { label: string; colors: string[] }[] = [
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
+/** Clamp a number into the inclusive [min, max] range. */
+function clamp(n: number, min: number, max: number): number {
+	return Math.max(min, Math.min(max, n));
+}
+
+/**
+ * Compose a 6-digit hex with an opacity (0–100) into the emitted color string.
+ * Opaque (100%) stays 6-digit hex to preserve the existing onChange contract for the
+ * common case; anything less appends a 2-digit alpha channel (8-digit hex) so the
+ * announced opacity is truthful and not silently dropped.
+ */
+function withAlpha(hex: string, opacity: number): string {
+	if (opacity >= 100) return hex;
+	const alpha = clamp(Math.round((opacity / 100) * 255), 0, 255)
+		.toString(16)
+		.padStart(2, "0");
+	return `${hex}${alpha}`;
+}
+
 export interface ColorPickerProps {
 	/** Controlled hex value, e.g. '#f59e0b'. Optional — uncontrolled if absent. */
 	value?: string;
@@ -93,6 +114,16 @@ export function ColorPicker({
 	const [hue, setHue] = useState<number>(() => hexToHsv(initial)[0]);
 	const [opacity, setOpacity] = useState<number>(100);
 
+	// Active pointer-drag teardown. Stored in a ref so an unmount mid-drag can
+	// always remove the document-level listeners (avoids the leak from removing
+	// them only in the pointerup handler).
+	const dragCleanupRef = useRef<(() => void) | null>(null);
+	useEffect(() => {
+		return () => {
+			dragCleanupRef.current?.();
+		};
+	}, []);
+
 	// Sync controlled value — do NOT reset hue, preserve user's drag position.
 	useEffect(() => {
 		if (value !== undefined && value !== color) {
@@ -101,10 +132,22 @@ export function ColorPicker({
 		}
 	}, [value]);
 
-	function emit(next: string) {
+	/**
+	 * Commit a new base (6-digit) hex: update internal display state and notify the
+	 * consumer. Alpha is composed at this boundary so opacity is never silently
+	 * dropped, while opaque colors keep the original 6-digit contract.
+	 */
+	function emit(next: string, nextOpacity: number = opacity) {
 		setColor(next);
 		setHex(next);
-		onChange?.(next);
+		onChange?.(withAlpha(next, nextOpacity));
+	}
+
+	/** Set opacity and re-emit the current color so the alpha change reaches onChange. */
+	function emitOpacity(nextOpacity: number) {
+		const clamped = clamp(Math.round(nextOpacity), 0, 100);
+		setOpacity(clamped);
+		onChange?.(withAlpha(color, clamped));
 	}
 
 	function startDrag(
@@ -131,7 +174,7 @@ export function ColorPicker({
 				const [, s, v] = hexToHsv(color);
 				emit(hsvToHex(newHue, s || 1, v || 1));
 			} else {
-				setOpacity(Math.round(x * 100));
+				emitOpacity(x * 100);
 			}
 		}
 
@@ -140,12 +183,17 @@ export function ColorPicker({
 		function onMove(e: PointerEvent) {
 			update(e);
 		}
-		function onUp() {
+		function teardown() {
 			document.removeEventListener("pointermove", onMove);
 			document.removeEventListener("pointerup", onUp);
+			dragCleanupRef.current = null;
+		}
+		function onUp() {
+			teardown();
 		}
 		document.addEventListener("pointermove", onMove);
 		document.addEventListener("pointerup", onUp);
+		dragCleanupRef.current = teardown;
 	}
 
 	function handleHexChange(e: ChangeEvent<HTMLInputElement>) {
@@ -154,8 +202,93 @@ export function ColorPicker({
 		if (HEX_RE.test(next)) {
 			setColor(next);
 			setHue(hexToHsv(next)[0]);
-			onChange?.(next);
+			onChange?.(withAlpha(next, opacity));
 		}
+	}
+
+	/**
+	 * Keyboard interaction for the slider surfaces (WCAG 2.1.1). Mirrors pointer drag:
+	 * Arrow = ±step, Shift+Arrow / PageUp / PageDown = ±bigStep, Home / End = min / max.
+	 * Up/Right increase, Down/Left decrease.
+	 */
+	function handleSliderKey(
+		target: "canvas" | "hue" | "opacity",
+		e: ReactKeyboardEvent<HTMLDivElement>,
+	) {
+		const big = e.shiftKey || e.key === "PageUp" || e.key === "PageDown";
+		let dir = 0;
+		switch (e.key) {
+			case "ArrowRight":
+			case "ArrowUp":
+			case "PageUp":
+				dir = 1;
+				break;
+			case "ArrowLeft":
+			case "ArrowDown":
+			case "PageDown":
+				dir = -1;
+				break;
+			case "Home":
+				dir = -2; // sentinel: jump to min
+				break;
+			case "End":
+				dir = 2; // sentinel: jump to max
+				break;
+			default:
+				return; // ignore keys we don't handle (e.g. Tab)
+		}
+		e.preventDefault();
+
+		if (target === "hue") {
+			let next: number;
+			if (dir === -2) next = 0;
+			else if (dir === 2) next = 360;
+			else next = clamp(hue + dir * (big ? 10 : 1), 0, 360);
+			setHue(next);
+			const [, s, v] = hexToHsv(color);
+			emit(hsvToHex(next, s || 1, v || 1));
+			return;
+		}
+
+		if (target === "opacity") {
+			let next: number;
+			if (dir === -2) next = 0;
+			else if (dir === 2) next = 100;
+			else next = clamp(opacity + dir * (big ? 10 : 1), 0, 100);
+			emitOpacity(next);
+			return;
+		}
+
+		// canvas: Up/Down adjust brightness (value), Left/Right adjust saturation.
+		const [, s, v] = hexToHsv(color);
+		const step = (big ? 10 : 1) / 100;
+		let nextS = s;
+		let nextV = v;
+		switch (e.key) {
+			case "ArrowRight":
+				nextS = clamp(s + step, 0, 1);
+				break;
+			case "ArrowLeft":
+				nextS = clamp(s - step, 0, 1);
+				break;
+			case "ArrowUp":
+			case "PageUp":
+				nextV = clamp(v + step, 0, 1);
+				break;
+			case "ArrowDown":
+			case "PageDown":
+				nextV = clamp(v - step, 0, 1);
+				break;
+			case "Home":
+				nextS = 0;
+				nextV = 0;
+				break;
+			case "End":
+				nextS = 1;
+				nextV = 1;
+				break;
+		}
+		emit(hsvToHex(hue, nextS, nextV));
 	}
 
 	const [, sat, val] = hexToHsv(color);
@@ -183,6 +316,7 @@ export function ColorPicker({
 				tabIndex={0}
 				className="ds-atom-colorpicker-canvas"
 				onPointerDown={(e) => startDrag("canvas", e.currentTarget, e)}
+				onKeyDown={(e) => handleSliderKey("canvas", e)}
 				style={{
 					width: "100%",
 					height: 150,
@@ -218,6 +352,7 @@ export function ColorPicker({
 				tabIndex={0}
 				className="ds-atom-colorpicker-huebar"
 				onPointerDown={(e) => startDrag("hue", e.currentTarget, e)}
+				onKeyDown={(e) => handleSliderKey("hue", e)}
 				style={{
 					width: "100%",
 					height: 12,
@@ -254,6 +389,7 @@ export function ColorPicker({
 				tabIndex={0}
 				className="ds-atom-colorpicker-opacitybar"
 				onPointerDown={(e) => startDrag("opacity", e.currentTarget, e)}
+				onKeyDown={(e) => handleSliderKey("opacity", e)}
 				style={{
 					width: "100%",
 					height: 12,

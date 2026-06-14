@@ -125,8 +125,10 @@ export function Modal({
 					style={style}
 					tabIndex={-1}
 				>
-					<header id={titleId} className="ds-atom-modal-hd">
-						<span className="ds-atom-modal-hd-title">{title}</span>
+					<header className="ds-atom-modal-hd">
+						<span id={titleId} className="ds-atom-modal-hd-title">
+							{title}
+						</span>
 						<Button
 							variant="ghost"
 							size="sm"

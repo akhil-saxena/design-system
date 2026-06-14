@@ -101,6 +101,26 @@ describe("Modal", () => {
 		expect(onClose).not.toHaveBeenCalled();
 	});
 
+	it("aria-labelledby points at the title only — accessible name excludes the Close button", () => {
+		render(
+			<Modal open={true} onClose={() => {}} title="Edit profile">
+				<p>body</p>
+			</Modal>,
+		);
+		const panel = document.body.querySelector(".ds-atom-modal");
+		const labelledBy = panel?.getAttribute("aria-labelledby");
+		expect(labelledBy).toBeTruthy();
+		const labelEl = document.getElementById(labelledBy ?? "");
+		// The id must be on the title element, NOT the <header> (which also contains
+		// the Close button). The computed name is just the title, not "Edit profile Close".
+		expect(labelEl?.tagName).toBe("SPAN");
+		expect(labelEl?.textContent).toBe("Edit profile");
+		expect(labelEl?.textContent).not.toMatch(/Close/);
+		// The <header> must NOT carry the labelledby id anymore.
+		const header = document.body.querySelector(".ds-atom-modal-hd");
+		expect(header?.id).toBeFalsy();
+	});
+
 	it("focus trap: focuses the header close button (first focusable element) on open", () => {
 		render(
 			<Modal open={true} onClose={() => {}} title="Trap">

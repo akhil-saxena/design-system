@@ -95,9 +95,25 @@ export function Sheet({
 		return () => document.removeEventListener("keydown", onKey);
 	}, [open, onClose]);
 
+	// Body scroll-lock while open (SSR-guarded; restores prior overflow on
+	// close/unmount).
+	useEffect(() => {
+		if (!open || typeof document === "undefined") return;
+		const { body } = document;
+		const previousOverflow = body.style.overflow;
+		body.style.overflow = "hidden";
+		return () => {
+			body.style.overflow = previousOverflow;
+		};
+	}, [open]);
+
 	if (!open) return null;
 
-	const isDark = document.documentElement.classList.contains("dark");
+	// SSR-guarded: document is read in the render body, so guard it for server
+	// rendering (the component otherwise returns null before reaching here, but
+	// the guard makes the read explicitly safe).
+	const isDark =
+		typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
 	function handleBackdropClick(e: ReactMouseEvent<HTMLDivElement>) {
 		if (e.target === e.currentTarget && closeOnBackdropClick) {

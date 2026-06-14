@@ -48,7 +48,7 @@ describe("ConfirmDialog", () => {
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
-	it("calls onConfirm on Enter keydown", () => {
+	it("calls onConfirm when the confirm button is clicked", () => {
 		const onConfirm = vi.fn();
 		render(
 			<ConfirmDialog
@@ -57,10 +57,51 @@ describe("ConfirmDialog", () => {
 				onConfirm={onConfirm}
 				tone="danger"
 				title="Sure?"
+				confirmLabel="Confirm"
 			/>,
 		);
-		fireEvent.keyDown(document, { key: "Enter" });
+		fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
 		expect(onConfirm).toHaveBeenCalledTimes(1);
+	});
+
+	it("submitting the footer form (Enter on the confirm button) confirms", () => {
+		const onConfirm = vi.fn();
+		render(
+			<ConfirmDialog
+				open={true}
+				onClose={() => {}}
+				onConfirm={onConfirm}
+				tone="danger"
+				title="Sure?"
+				confirmLabel="Confirm"
+			/>,
+		);
+		const form = screen.getByRole("button", { name: "Confirm" }).closest("form") as HTMLFormElement;
+		fireEvent.submit(form);
+		expect(onConfirm).toHaveBeenCalledTimes(1);
+	});
+
+	it("a11y: Enter while focused on Cancel does NOT confirm (no global-Enter handler)", () => {
+		const onConfirm = vi.fn();
+		const onClose = vi.fn();
+		render(
+			<ConfirmDialog
+				open={true}
+				onClose={onClose}
+				onConfirm={onConfirm}
+				tone="danger"
+				title="Delete?"
+				cancelLabel="Cancel"
+			/>,
+		);
+		const cancel = screen.getByRole("button", { name: "Cancel" });
+		cancel.focus();
+		// A plain Enter keydown must no longer trigger the destructive confirm.
+		fireEvent.keyDown(document, { key: "Enter" });
+		expect(onConfirm).not.toHaveBeenCalled();
+		// Activating the focused Cancel button cancels.
+		fireEvent.click(cancel);
+		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
 	it("backdrop click does NOT call onClose", () => {
