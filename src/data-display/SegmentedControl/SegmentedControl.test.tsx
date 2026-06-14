@@ -270,6 +270,65 @@ describe("SegmentedControl", () => {
 		expect(screen.getAllByRole("radio")).toHaveLength(2);
 	});
 
+	it("deselectable: clicking the active segment fires onChange with empty string", () => {
+		const onChange = vi.fn();
+		render(
+			<SegmentedControl
+				options={VIEW_OPTIONS}
+				value="week"
+				onChange={onChange}
+				ariaLabel="View mode"
+				deselectable
+			/>,
+		);
+		fireEvent.click(screen.getByText("Week"));
+		expect(onChange).toHaveBeenCalledWith("");
+	});
+
+	it("deselectable: clicking an inactive segment still selects it normally", () => {
+		const onChange = vi.fn();
+		render(
+			<SegmentedControl
+				options={VIEW_OPTIONS}
+				value="week"
+				onChange={onChange}
+				ariaLabel="View mode"
+				deselectable
+			/>,
+		);
+		fireEvent.click(screen.getByText("Month"));
+		expect(onChange).toHaveBeenCalledWith("month");
+	});
+
+	it("without deselectable: clicking the active segment re-selects it (backward compatible)", () => {
+		const onChange = vi.fn();
+		render(
+			<SegmentedControl
+				options={VIEW_OPTIONS}
+				value="week"
+				onChange={onChange}
+				ariaLabel="View mode"
+			/>,
+		);
+		fireEvent.click(screen.getByText("Week"));
+		expect(onChange).toHaveBeenCalledWith("week");
+	});
+
+	it("non-matching value (e.g. empty string) renders all segments inactive", () => {
+		render(
+			<SegmentedControl
+				options={VIEW_OPTIONS}
+				value=""
+				onChange={() => {}}
+				ariaLabel="View mode"
+			/>,
+		);
+		for (const radio of screen.getAllByRole("radio")) {
+			expect(radio.getAttribute("aria-checked")).toBe("false");
+			expect(radio.getAttribute("data-active")).toBeNull();
+		}
+	});
+
 	it("supports 5-option maximum", () => {
 		const fiveOptions: SegmentedOption[] = [
 			{ value: "a", label: "A" },

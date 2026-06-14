@@ -58,6 +58,13 @@ export interface SegmentedControlProps<T extends string = string> {
 	ariaLabel: string;
 	className?: string;
 	style?: React.CSSProperties;
+	/**
+	 * Allow clearing the selection. When `true`, clicking the currently-active
+	 * segment fires `onChange("")` (clearing it) instead of re-selecting it. A
+	 * `value` that matches no option (e.g. `""`) renders every segment inactive.
+	 * @default false
+	 */
+	deselectable?: boolean;
 }
 
 function SegmentedControlInner<T extends string>(
@@ -70,6 +77,7 @@ function SegmentedControlInner<T extends string>(
 		ariaLabel,
 		className,
 		style,
+		deselectable = false,
 	}: SegmentedControlProps<T>,
 	ref: React.Ref<HTMLDivElement>,
 ) {
@@ -161,7 +169,10 @@ function SegmentedControlInner<T extends string>(
 						data-toned={isActive && opt.tone ? "true" : undefined}
 						style={toneStyle}
 						onClick={() => {
-							if (!disabled && !opt.disabled) onChange(opt.value);
+							if (disabled || opt.disabled) return;
+							// Deselectable: clicking the active segment clears the selection.
+							if (deselectable && isActive) onChange("" as T);
+							else onChange(opt.value);
 						}}
 						className="ds-atom-segmented-btn"
 					>

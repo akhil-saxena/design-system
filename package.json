@@ -1,6 +1,6 @@
 {
 	"name": "@akhil-saxena/design-system",
-	"version": "1.6.0",
+	"version": "1.7.0",
 	"type": "module",
 	"description": "Accessible React primitives with semantic tokens",
 	"license": "MIT",

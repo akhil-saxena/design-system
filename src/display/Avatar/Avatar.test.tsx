@@ -147,6 +147,19 @@ describe("Avatar", () => {
 		expect(withName).toBe(withSeed);
 		expect(withName).not.toBe("");
 	});
+
+	it("defaults to a circle (50% border-radius)", () => {
+		const { container } = render(<Avatar name="Maya Chen" size={32} />);
+		expect(rootOf(container).style.borderRadius).toBe("50%");
+	});
+
+	it("shape=square uses a rounded-square radius proportional to size, not 50%", () => {
+		const { container } = render(<Avatar name="Maya Chen" size={32} shape="square" />);
+		const radius = rootOf(container).style.borderRadius;
+		expect(radius).not.toBe("50%");
+		// Math.round(32 * 0.22) === 7
+		expect(radius).toBe("7px");
+	});
 });
 
 describe("AvatarStack", () => {

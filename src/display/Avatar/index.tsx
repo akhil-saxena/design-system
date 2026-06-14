@@ -1,6 +1,7 @@
 import { type CSSProperties, type HTMLAttributes, forwardRef } from "react";
 
 export type AvatarSize = 24 | 28 | 32 | 36 | 40;
+export type AvatarShape = "circle" | "square";
 export type AvatarPresence = "online" | "away" | "offline" | "dnd";
 export type AvatarPresencePosition = "top-right" | "bottom-right" | "top-left" | "bottom-left";
 
@@ -38,6 +39,14 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
 	 * @default 32
 	 */
 	size?: AvatarSize;
+	/**
+	 * Outline shape of the avatar. `"circle"` renders a full circle;
+	 * `"square"` renders a rounded-square (app-icon style) with a
+	 * `border-radius` proportional to `size`. Everything else (initials,
+	 * color, image, presence dot) is identical.
+	 * @default "circle"
+	 */
+	shape?: AvatarShape;
 	/** Shows a colored presence dot at the bottom-right edge. */
 	presence?: AvatarPresence;
 	/**
@@ -116,6 +125,7 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
 		alt,
 		gradient,
 		size = 32,
+		shape = "circle",
 		presence,
 		presencePosition = "bottom-right",
 		children,
@@ -137,11 +147,14 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
 		background = deriveSolidColor(colorSeed, palette);
 	}
 
+	// Circle → full pill (50%); square → rounded-square radius proportional to size.
+	const cornerRadius = shape === "square" ? Math.round(size * 0.22) : "50%";
+
 	const containerStyle: CSSProperties = {
 		position: "relative",
 		width: size,
 		height: size,
-		borderRadius: "50%",
+		borderRadius: cornerRadius,
 		background: src ? "transparent" : background,
 		color: "#ffffff",
 		display: "inline-flex",
