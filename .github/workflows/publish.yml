@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,10 +16,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: OIDC env presence (diagnostic)
+        run: |
+          echo "GITHUB_ACTIONS=${GITHUB_ACTIONS:-unset}"
+          echo "ID_TOKEN_REQUEST_URL_present=${ACTIONS_ID_TOKEN_REQUEST_URL:+YES}"
+
       # Deliberately NO `registry-url`: that input makes setup-node write an
       # .npmrc with a placeholder `_authToken`, which suppresses OIDC trusted
-      # publishing (npm uses the bogus token and the registry 404s). The
-      # publish registry comes from package.json `publishConfig.registry`.
+      # publishing. The publish registry comes from publishConfig.registry.
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -36,4 +41,4 @@ jobs:
       # No NODE_AUTH_TOKEN: npm exchanges the GitHub OIDC token for a
       # short-lived publish credential and attaches provenance automatically.
       - name: Publish to npm
-        run: npm publish
+        run: npm publish --loglevel verbose
