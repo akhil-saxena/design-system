@@ -5,6 +5,9 @@ Accessible React primitives with semantic tokens. Full dark mode, neutral paper 
 **v1.9.0 — 79 components across 9 categories.**
 
 [![npm](https://img.shields.io/npm/v/@akhil-saxena/design-system)](https://www.npmjs.com/package/@akhil-saxena/design-system)
+[![Storybook](https://img.shields.io/badge/Storybook-live-ff4785?logo=storybook&logoColor=white)](https://design-system-ed1.pages.dev)
+
+**📖 Live Storybook:** [design-system-ed1.pages.dev](https://design-system-ed1.pages.dev) — browse every component, with controls and dark mode.
 
 ## Install
 
