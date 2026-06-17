@@ -16,11 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: OIDC env presence (diagnostic)
-        run: |
-          echo "GITHUB_ACTIONS=${GITHUB_ACTIONS:-unset}"
-          echo "ID_TOKEN_REQUEST_URL_present=${ACTIONS_ID_TOKEN_REQUEST_URL:+YES}"
-
       # Deliberately NO `registry-url`: that input makes setup-node write an
       # .npmrc with a placeholder `_authToken`, which suppresses OIDC trusted
       # publishing. The publish registry comes from publishConfig.registry.
@@ -30,7 +25,6 @@ jobs:
 
       # Trusted publishing (OIDC) requires npm >= 11.5.1; Node 22 ships npm 10.
       - run: npm install -g npm@latest
-      - run: npm -v
 
       - run: npm ci
       - run: npm run typecheck
@@ -40,5 +34,7 @@ jobs:
 
       # No NODE_AUTH_TOKEN: npm exchanges the GitHub OIDC token for a
       # short-lived publish credential and attaches provenance automatically.
+      # NOTE: the npmjs trusted-publisher config must reference THIS filename
+      # (publish.yaml) exactly — a mismatch 404s as "package not found".
       - name: Publish to npm
-        run: npm publish --loglevel verbose
+        run: npm publish
