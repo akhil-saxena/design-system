@@ -352,7 +352,7 @@ function StatsStrip({ t, isMobile }: Readonly<{ t: T; isMobile: boolean }>) {
 		{ value: TOTAL, label: "Components" },
 		{ value: categories.length, label: "Categories" },
 		{ value: 3, label: "Patterns" },
-		{ value: "1.9.0", label: "Version" },
+		{ value: "1.9.1", label: "Version" },
 	] as const;
 	return (
 		<div
@@ -542,12 +542,16 @@ function PrinciplesGrid({
 
 function SwatchRow({ t }: Readonly<{ t: T }>) {
 	return (
-		<div style={{ display: "flex", gap: 10, marginBottom: 56, flexWrap: "wrap" }}>
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))",
+				gap: 10,
+				marginBottom: 56,
+			}}
+		>
 			{SWATCHES.map(({ name, value, light }) => (
-				<div
-					key={name}
-					style={{ flex: "1 1 72px", display: "flex", flexDirection: "column", gap: 6 }}
-				>
+				<div key={name} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
 					<div
 						style={{
 							height: 60,
@@ -604,7 +608,7 @@ export function OverviewPage() {
 						marginBottom: 20,
 					}}
 				>
-					@akhil-saxena · design system · v1.9.0
+					@akhil-saxena · design system · v1.9.1
 				</div>
 				<div
 					style={{
