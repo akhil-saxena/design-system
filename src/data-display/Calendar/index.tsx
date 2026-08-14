@@ -35,7 +35,15 @@ export interface CalendarEvent {
 	date: Date | string; // string interpreted as ISO
 	endDate?: Date | string; // multi-day support (per-day rendering, no spanning bars)
 	label: string;
-	color?: string; // chip color (default amber)
+	/**
+	 * Chip background (default amber).
+	 *
+	 * Must be a **light** colour: the chip paints `--ink-inverse` (dark) on top, so
+	 * the fill carries the contrast. The default `--amber` gives 8.14:1.
+	 * `--purple-vivid` reaches only 4.13:1 and the text-tuned `--purple` is 1.95:1
+	 * — both too dark. Use a light fill such as `--amber-l` or `--purple-l`.
+	 */
+	color?: string;
 	meta?: unknown; // passthrough for consumer rendering
 }
 
@@ -69,6 +77,15 @@ export interface CalendarProps {
 	 * @default 480
 	 */
 	dayViewHeight?: number;
+	/**
+	 * Freeze the component's notion of "now".
+	 *
+	 * The day view draws a live current-time line and scrolls itself to the
+	 * current hour, both read from the system clock — which makes the rendered
+	 * output time-dependent and its visual baseline permanently unstable. Pass a
+	 * fixed Date in tests and stories; omit it in real usage to track real time.
+	 */
+	nowOverride?: Date;
 	/** Accessible label for the calendar region.
 	 * @default "Calendar"
 	 */
@@ -222,6 +239,7 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 		weekStart = 1,
 		maxVisibleEventsPerDay = 3,
 		dayViewHeight = 480,
+		nowOverride,
 		ariaLabel = "Calendar",
 		className,
 		style,
@@ -242,7 +260,10 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 		return selectedDate ?? new Date();
 	});
 
-	const today = useMemo(() => new Date(), []);
+	// Also honours nowOverride: the "today" ring is clock-derived, so without this
+	// every Calendar visual baseline silently rots the next day — the highlighted
+	// cell moves even though nothing in the component changed.
+	const today = useMemo(() => nowOverride ?? new Date(), [nowOverride]);
 
 	// ── Mobile breakpoint - reactive via useMatchMedia hook (SSR-safe, subscribes to change events) ──
 	const isMobile = useMatchMedia("(max-width: 640px)");
@@ -254,24 +275,34 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 		events: [],
 	});
 	const overflowAnchorRef = useRef<HTMLButtonElement | null>(null);
-	const dayGridRef = useRef<HTMLDivElement | null>(null);
+	const dayGridRef = useRef<HTMLElement | null>(null);
 
 	// Live current time - updates every minute so the "now" line stays accurate.
-	const [now, setNow] = useState(() => new Date());
+	//
+	// `nowOverride` freezes the clock. Without it the day view is untestable: the
+	// "now" line position and the initial scroll below both derive from wall-clock
+	// time, so the DayView story rendered at a different height on every run and
+	// its visual baseline could never be stable.
+	const [now, setNow] = useState(() => nowOverride ?? new Date());
 	useEffect(() => {
+		if (nowOverride) {
+			setNow(nowOverride);
+			return;
+		}
 		const id = window.setInterval(() => setNow(new Date()), 60_000);
 		return () => window.clearInterval(id);
-	}, []);
+	}, [nowOverride]);
 	const HOUR_HEIGHT = 40; // must match .ds-atom-calendar-dayview-hour min-height
 	const nowOffsetPx = ((now.getHours() * 60 + now.getMinutes()) / 60) * HOUR_HEIGHT;
 	const isToday_dayView = sameDay(viewMonth, today);
 
 	// Scroll day view to current hour when it first opens (once, not on every tick).
+	// Reads the resolved `now` rather than calling new Date() again, so a frozen
+	// clock also freezes the scroll position.
 	useEffect(() => {
 		if (view !== "day" || !dayGridRef.current) return;
-		const h = new Date().getHours();
-		dayGridRef.current.scrollTop = Math.max(0, (h - 1) * HOUR_HEIGHT);
-	}, [view]);
+		dayGridRef.current.scrollTop = Math.max(0, (now.getHours() - 1) * HOUR_HEIGHT);
+	}, [view, now]);
 
 	// ── Navigation ──
 	const navigate = (delta: 1 | -1) => {
@@ -528,10 +559,16 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 										</ul>
 									</div>
 								)}
-								<div
+								{/* <section> rather than a div with role="group": a named section maps to
+								    role="region" natively, so the scroll container gets an accessible name
+								    without an ARIA role. */}
+								<section
 									ref={dayGridRef}
 									className="ds-atom-calendar-dayview-grid"
 									style={{ height: dayViewHeight, overflowY: "auto" }}
+									// biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable, or keyboard-only users cannot scroll it (axe: scrollable-region-focusable)
+									tabIndex={0}
+									aria-label="Day schedule"
 								>
 									{/* Current-time indicator - amber line with dot, only for today */}
 									{isToday_dayView && (
@@ -564,7 +601,7 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 											</div>
 										);
 									})}
-								</div>
+								</section>
 							</div>
 						);
 					})()}

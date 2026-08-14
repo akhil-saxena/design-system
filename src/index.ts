@@ -26,6 +26,9 @@ export {
 	type HeadingLevel,
 } from "./foundation/Heading";
 export { Divider, type DividerProps } from "./foundation/Divider";
+// Shared semantic tone vocabulary for Heading / Text / Eyebrow. `LegacyTone`
+// holds the deprecated raw-token spellings, kept working via resolveTone().
+export { type LegacyTone, type Tone, resolveTone } from "./foundation/tone";
 export { Link, type LinkProps, type LinkVariant } from "./foundation/Link";
 export { DotGrid, type DotGridProps } from "./foundation/DotGrid";
 export { SplitHero, type SplitHeroProps } from "./layout/SplitHero";
@@ -56,8 +59,14 @@ export { MiniBar, type MiniBarProps } from "./display/MiniBar";
 export { RangeSlider, type RangeSliderProps } from "./inputs/RangeSlider";
 export { StarRating, type StarRatingProps, type StarRatingSize } from "./inputs/StarRating";
 export { StatusPill, type StatusPillProps, type StatusPillStage } from "./inputs/StatusPill";
-export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./overlays/StickyNote";
-export { Card, type CardProps, type CardVariant } from "./overlays/Card";
+export { StickyNote, type StickyNoteProps, type StickyNoteRotation } from "./surfaces/StickyNote";
+export {
+	Card,
+	type CardProps,
+	type CardVariant,
+	type CardSurface,
+	type CardTone,
+} from "./surfaces/Card";
 export { DSPortal, type DSPortalProps } from "./_internals/DSPortal";
 export { Tooltip, type TooltipPlacement, type TooltipProps } from "./overlays/Tooltip";
 export {

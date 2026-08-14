@@ -247,6 +247,36 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 		],
 		content: value,
 		editable: !readOnly,
+		// TipTap renders the ProseMirror surface as a contenteditable with an
+		// implicit `textbox` role, and a textbox must have an accessible name.
+		// `ariaLabel` used to be applied only to the outer wrapper <div>, whose
+		// `generic` role cannot carry a name — so the editable region itself
+		// reached assistive tech unnamed (axe: aria-input-field-name).
+		//
+		// Applied only when editable: with `readOnly` the surface renders
+		// `contenteditable="false"`, which drops it back to the `generic` role —
+		// and naming a generic element is prohibited, not merely ignored.
+		// (`aria-placeholder` is deliberately not set: it is invalid on a generic
+		// role for the same reason, and the Placeholder extension already renders
+		// the hint visually.)
+		//
+		// `editorProps` is always an object: passing `undefined` explicitly
+		// overwrites TipTap's own default editorProps (which carry
+		// dispatchTransaction), and the editor throws while mounting.
+		editorProps: {
+			attributes: readOnly
+				? {}
+				: {
+						// Explicit role="textbox" alongside the label: a contenteditable div
+						// has an *implicit* textbox role, but axe (and older assistive tech)
+						// does not always infer it, so `aria-label` on it read as a naming
+						// violation on a role-less div. Stating the role removes the
+						// ambiguity. aria-multiline says it accepts newlines.
+						role: "textbox",
+						"aria-multiline": "true",
+						"aria-label": ariaLabel,
+					},
+		},
 		// MANDATORY: SSR-safe per D-17-19. Without this TipTap throws during SSR hydration.
 		immediatelyRender: false,
 		// Focus tracking only drives the optional `hints` strip; no behavioral impact when off.
@@ -696,7 +726,6 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 			className="ds-atom-richtext"
 			style={{ ...inlineRootStyle, ...style }}
 			data-inline={inline || undefined}
-			aria-label={ariaLabel}
 		>
 			{!readOnly && (toolbar ?? defaultToolbar)}
 			<div

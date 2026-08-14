@@ -57,7 +57,15 @@ export interface TableRootProps extends React.TableHTMLAttributes<HTMLTableEleme
 	sticky?: boolean;
 	/** Accessible label for the table (renders as aria-label). */
 	ariaLabel?: string;
-	/** When true, sets aria-multiselectable="true" for multi-row selection (D-17-09). */
+	/**
+	 * Announce multi-row selection to assistive tech (D-17-09).
+	 *
+	 * Implies `role="grid"`. `aria-multiselectable` is only valid on `grid`,
+	 * `listbox`, `tablist` and `tree` — a bare `<table>` maps to role `table`,
+	 * which does not support it, so setting the attribute alone was invalid ARIA
+	 * that screen readers ignored. DataGrid already paired the two correctly; a
+	 * hand-rolled `<Table.Root multiSelectable>` did not.
+	 */
 	multiSelectable?: boolean;
 }
 
@@ -151,6 +159,9 @@ export const TableRoot = forwardRef<HTMLTableElement, TableRootProps>(function T
 		<table
 			ref={ref}
 			aria-label={ariaLabel}
+			// role="grid" is what makes aria-multiselectable valid; a consumer-supplied
+			// role in `rest` still wins via the spread below.
+			role={multiSelectable ? "grid" : undefined}
 			aria-multiselectable={multiSelectable || undefined}
 			className={cls("ds-atom-table", className)}
 			data-density={density}

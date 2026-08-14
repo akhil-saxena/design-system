@@ -2,6 +2,7 @@ import {
 	type CSSProperties,
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
+	useCallback,
 	useEffect,
 	useId,
 	useMemo,
@@ -9,7 +10,9 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useScrollLock } from "../../hooks/useScrollLock";
 import { Kbd } from "../../inputs/Kbd";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -69,24 +72,20 @@ export function CommandPalette({
 	// Stable ids wiring the combobox/listbox/option ARIA relationships.
 	const baseId = useId();
 	const listId = `${baseId}-listbox`;
-	const optionId = (idx: number) => `${baseId}-option-${idx}`;
+	// useCallback so the scroll-into-view effect below can depend on it honestly.
+	// As a plain arrow it was re-created every render, so that effect re-ran on
+	// every render instead of only when activeIndex changed.
+	const optionId = useCallback((idx: number) => `${baseId}-option-${idx}`, [baseId]);
 
 	// Live ref to the listbox so we can scrollIntoView the active option.
 	const listRef = useRef<HTMLDivElement | null>(null);
 
 	useFocusTrap(panel, open);
 
-	// Body scroll-lock while open (SSR-guarded; restores prior overflow on
-	// close/unmount).
-	useEffect(() => {
-		if (!open || typeof document === "undefined") return;
-		const { body } = document;
-		const previousOverflow = body.style.overflow;
-		body.style.overflow = "hidden";
-		return () => {
-			body.style.overflow = previousOverflow;
-		};
-	}, [open]);
+	// Body scroll-lock while open — reference-counted so nested overlays
+	// (a ConfirmDialog raised from this surface) release correctly.
+	useScrollLock(open);
+	useDismiss(open, onClose);
 
 	// Filter items by query (case-insensitive substring match on label)
 	const filtered = useMemo(() => {
@@ -96,6 +95,7 @@ export function CommandPalette({
 	}, [items, query]);
 
 	// Reset activeIndex when query changes — prevents stale index pointing past filtered.length
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `query` is the change trigger, not a value read inside the effect. Removing it, as the rule suggests, would run the reset once on mount and never again.
 	useEffect(() => {
 		setActiveIndex(-1);
 	}, [query]);
@@ -120,12 +120,9 @@ export function CommandPalette({
 	// Document-level keyboard handler — only active when open
 	useEffect(() => {
 		if (!open) return;
+		// Escape is handled by useDismiss above; this listener owns only the
+		// list-navigation keys.
 		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") {
-				e.preventDefault();
-				onClose();
-				return;
-			}
 			if (e.key === "ArrowDown") {
 				e.preventDefault();
 				setActiveIndex((i) => Math.min(filtered.length - 1, i + 1));

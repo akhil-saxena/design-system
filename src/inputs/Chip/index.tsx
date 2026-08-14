@@ -31,12 +31,12 @@ const toneStyles: Record<ChipTone, CSSProperties> = {
 	default: { borderColor: "var(--rule)", background: "var(--cream-3)", color: "var(--ink)" },
 	match: {
 		background: "rgba(34,197,94,.12)",
-		color: "var(--green)",
+		color: "var(--green-ink)",
 		borderColor: "rgba(34,197,94,.25)",
 	},
 	miss: {
 		background: "rgba(239,68,68,.10)",
-		color: "var(--red)",
+		color: "var(--red-ink)",
 		borderColor: "rgba(239,68,68,.25)",
 	},
 	learning: {

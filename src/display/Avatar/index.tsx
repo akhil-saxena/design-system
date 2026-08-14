@@ -77,13 +77,19 @@ const AVATAR_PALETTE = [
 ] as const satisfies ReadonlyArray<readonly [string, string]>;
 
 // 6 solid colors - default background when gradient is not requested.
+//
+// Every swatch must clear 4.5:1 against the white initials painted on it. The
+// background is picked by hashing the user's name, so a swatch that fails puts
+// an arbitrary subset of users behind unreadable initials — amber (3.19:1),
+// green (3.30:1) and sky (4.10:1) previously did. Those three are darkened to
+// the nearest shade of the same hue that passes; blue/purple/red already did.
 const SOLID_PALETTE = [
-	"#d97706", // amber
-	"#2563eb", // blue
-	"#16a34a", // green
-	"#7c3aed", // purple
-	"#dc2626", // red
-	"#0284c7", // sky
+	"#b06005", // amber — 4.64:1 on white (was #d97706, 3.19:1)
+	"#2563eb", // blue  — 5.17:1
+	"#12873d", // green — 4.61:1 on white (was #16a34a, 3.30:1)
+	"#7c3aed", // purple — 5.70:1
+	"#dc2626", // red   — 4.83:1
+	"#027bb9", // sky   — 4.63:1 on white (was #0284c7, 4.10:1)
 ] as const;
 
 // djb2 hash on lowercased string (D-121).
@@ -117,6 +123,14 @@ export function deriveSolidColor(seed: string, palette: readonly string[] = SOLI
 	const idx = djb2(seed.toLowerCase()) % pool.length;
 	return pool[idx] ?? pool[0] ?? SOLID_PALETTE[0];
 }
+
+/** Spoken form of the presence dot, folded into the avatar's accessible name. */
+const PRESENCE_LABELS: Record<AvatarPresence, string> = {
+	online: "online",
+	away: "away",
+	offline: "offline",
+	dnd: "do not disturb",
+};
 
 const presenceColors: Record<AvatarPresence, string> = {
 	online: "var(--green-vivid)",
@@ -184,12 +198,34 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(function Avatar(
 	const presenceSize = Math.max(8, Math.round(size * 0.28));
 	const presenceOffset = -Math.round(presenceSize * 0.3);
 
+	// Accessible name. `aria-label` used to sit on this bare <div>, which has an
+	// implicit `generic` role — a role that does not support naming, so screen
+	// readers dropped it entirely. Without an image the only thing announced was
+	// the initials, so "Akhil Saxena" was read out as the letters "AS".
+	//
+	// Promoting the container to role="img" makes it a labelled leaf: the name is
+	// honoured and the decorative innards (initials or photo) are not announced
+	// separately. Presence folds into the same label so it stops being invisible
+	// to assistive tech.
+	const visualName = alt ?? name;
+	const accessibleName = [visualName, presence ? PRESENCE_LABELS[presence] : undefined]
+		.filter(Boolean)
+		.join(", ");
+
 	return (
-		<div ref={ref} style={containerStyle} aria-label={name} {...rest}>
+		<div
+			ref={ref}
+			style={containerStyle}
+			role={accessibleName ? "img" : undefined}
+			aria-label={accessibleName || undefined}
+			{...rest}
+		>
 			{src ? (
 				<img
 					src={src}
-					alt={alt ?? name ?? "Avatar"}
+					// The labelled role="img" container already carries the name; a
+					// second name here would announce the person twice.
+					alt=""
 					style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
 				/>
 			) : (
@@ -267,9 +303,12 @@ export function AvatarStack({ avatars, max = 4, size = 32, style, ...rest }: Ava
 						fontWeight: 700,
 						border: "2px solid var(--cream)",
 					}}
+					// role="img" for the same reason as Avatar: `aria-label` alone on a
+					// generic div is ignored, and the raw "+3" glyph reads poorly.
+					role="img"
 					aria-label={`${overflow} more`}
 				>
-					+{overflow}
+					<span aria-hidden="true">+{overflow}</span>
 				</div>
 			) : null}
 		</div>

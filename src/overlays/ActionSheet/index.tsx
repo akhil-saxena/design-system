@@ -1,13 +1,20 @@
 "use client";
 
-import { type CSSProperties, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { DSPortal } from "../../_internals/DSPortal";
+import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useScrollLock } from "../../hooks/useScrollLock";
 
 export interface ActionSheetItem {
+	/** Stable identity. Falls back to `label` when omitted — set it explicitly if
+	 * two items can share a label, otherwise React reuses the wrong node. */
+	id?: string;
 	label: string;
 	/** `"destructive"` renders the label in `--red`. */
 	variant?: "default" | "destructive";
+	/** Renders the item non-interactive and skips it during arrow-key roving. */
+	disabled?: boolean;
 	onSelect: () => void;
 }
 
@@ -17,9 +24,16 @@ export interface ActionSheetProps {
 	items: ActionSheetItem[];
 	/** Dismiss-without-picking label. Default "Close". Backdrop tap + Esc also dismiss. */
 	cancelLabel?: string;
-	/** Accessible name for the `role="menu"` list.
+	/**
+	 * Accessible name for the `role="menu"` list.
+	 *
+	 * 26 components in the library spell this prop `ariaLabel` and 3 spelled it
+	 * `"aria-label"`; the majority spelling is canonical.
+	 *
 	 * @default "Actions"
 	 */
+	ariaLabel?: string;
+	/** @deprecated Use `ariaLabel`. */
 	"aria-label"?: string;
 }
 
@@ -73,21 +87,25 @@ export function ActionSheet({
 	onClose,
 	items,
 	cancelLabel = "Close",
-	"aria-label": ariaLabel = "Actions",
+	ariaLabel,
+	"aria-label": ariaLabelLegacy,
 }: ActionSheetProps) {
-	const [mounted, setMounted] = useState(false);
+	const menuLabel = ariaLabel ?? ariaLabelLegacy ?? "Actions";
 	const [visible, setVisible] = useState(false);
 	// Callback-ref tracked as state so useFocusTrap re-runs once the portaled
 	// menu node commits (same pattern Modal uses for its panel).
 	const [menuEl, setMenuEl] = useState<HTMLDivElement | null>(null);
-
-	useEffect(() => setMounted(true), []);
+	const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
 	// Move focus into the sheet on open and trap Tab inside it; on close the
 	// trap's cleanup restores focus to the element that opened the sheet (the
 	// trigger). Driven by `open` (not `visible`) so focus is restored before the
 	// 260ms exit unmounts the node.
 	useFocusTrap(menuEl, open);
+	// Reference-counted: an ActionSheet raised from inside a Modal used to clear
+	// `body.overflow` outright on close, unlocking the page under the still-open
+	// Modal.
+	useScrollLock(open);
 
 	// Hold the node for a 260ms exit before unmounting.
 	useEffect(() => {
@@ -99,31 +117,46 @@ export function ActionSheet({
 		return () => clearTimeout(t);
 	}, [open]);
 
-	useEffect(() => {
-		document.body.style.overflow = open ? "hidden" : "";
-		return () => {
-			document.body.style.overflow = "";
-		};
-	}, [open]);
+	// Escape closes only the *topmost* layer — see useDismiss. Each overlay
+	// previously installed its own document listener, so one press closed every
+	// open layer at once.
+	useDismiss(open, onClose);
 
-	useEffect(() => {
-		if (!open) return;
-		const handler = (e: KeyboardEvent) => {
-			if (e.key === "Escape") onClose();
-		};
-		window.addEventListener("keydown", handler);
-		return () => window.removeEventListener("keydown", handler);
-	}, [open, onClose]);
+	// `role="menu"` is a promise to screen readers that arrow keys move between
+	// items — WAI-ARIA APG treats Up/Down/Home/End as required for the pattern.
+	// Without them the role was announcing an interaction model the component
+	// did not implement.
+	const enabled = items.map((it, i) => ({ it, i })).filter(({ it }) => !it.disabled);
+	const onMenuKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLDivElement>) => {
+			const keys = ["ArrowDown", "ArrowUp", "Home", "End"];
+			if (!keys.includes(e.key)) return;
+			if (enabled.length === 0) return;
+			e.preventDefault();
 
-	if (!mounted || !visible) return null;
+			const active = document.activeElement;
+			const pos = enabled.findIndex(({ i }) => itemRefs.current[i] === active);
+
+			let next: number;
+			if (e.key === "Home") next = 0;
+			else if (e.key === "End") next = enabled.length - 1;
+			else if (e.key === "ArrowDown") next = pos < 0 ? 0 : (pos + 1) % enabled.length;
+			else next = pos < 0 ? enabled.length - 1 : (pos - 1 + enabled.length) % enabled.length;
+
+			itemRefs.current[enabled[next]!.i]?.focus();
+		},
+		[enabled],
+	);
+
+	if (!visible) return null;
 
 	const fade: CSSProperties = {
 		opacity: open ? 1 : 0,
 		transition: open ? undefined : "opacity 260ms ease-in",
 	};
 
-	return createPortal(
-		<>
+	return (
+		<DSPortal>
 			<style>{KEYFRAMES}</style>
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop is aria-hidden; Esc + the Cancel button provide keyboard dismissal */}
 			<div
@@ -133,8 +166,8 @@ export function ActionSheet({
 				style={{
 					position: "fixed",
 					inset: 0,
-					background: "rgba(0,0,0,0.18)",
-					zIndex: 60,
+					background: "var(--scrim)",
+					zIndex: "var(--z-overlay)",
 					animation: open ? "ds-actionsheet-backdrop 240ms ease-out both" : undefined,
 					...fade,
 				}}
@@ -143,19 +176,22 @@ export function ActionSheet({
 				ref={setMenuEl}
 				style={{
 					position: "fixed",
-					left: 8,
-					right: 8,
-					bottom: "calc(8px + env(safe-area-inset-bottom))",
-					zIndex: 61,
+					left: "var(--space-2)",
+					right: "var(--space-2)",
+					bottom: "calc(var(--space-2) + env(safe-area-inset-bottom))",
+					// Was 61, i.e. below Modal (1000) — an ActionSheet opened from
+					// inside a dialog rendered behind it.
+					zIndex: "calc(var(--z-overlay) + 1)",
 					display: "flex",
 					flexDirection: "column",
-					gap: 8,
+					gap: "var(--space-2)",
 				}}
 			>
 				<div
 					role="menu"
-					aria-label={ariaLabel}
+					aria-label={menuLabel}
 					tabIndex={-1}
+					onKeyDown={onMenuKeyDown}
 					className="ds-actionsheet-items"
 					style={{
 						...blockStyle,
@@ -167,9 +203,13 @@ export function ActionSheet({
 				>
 					{items.map((item, idx) => (
 						<button
-							key={item.label}
+							key={item.id ?? item.label}
+							ref={(el) => {
+								itemRefs.current[idx] = el;
+							}}
 							type="button"
 							role="menuitem"
+							disabled={item.disabled}
 							onClick={() => {
 								item.onSelect();
 								onClose();
@@ -178,6 +218,7 @@ export function ActionSheet({
 								...itemBase,
 								borderBottom: idx < items.length - 1 ? "1px solid var(--rule)" : "none",
 								color: item.variant === "destructive" ? "var(--red)" : "var(--ink)",
+								...(item.disabled ? { opacity: 0.4, cursor: "not-allowed" } : null),
 							}}
 						>
 							{item.label}
@@ -203,7 +244,6 @@ export function ActionSheet({
 					</button>
 				</div>
 			</div>
-		</>,
-		document.body,
+		</DSPortal>
 	);
 }

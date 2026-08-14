@@ -1,4 +1,4 @@
-import { type CSSProperties, type ChangeEvent, useEffect, useState } from "react";
+import { type CSSProperties, type ChangeEvent, useEffect, useId, useState } from "react";
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
@@ -30,15 +30,23 @@ export function ColorInput({
 	className,
 	style,
 }: ColorInputProps) {
+	// The visible label was rendered as a bare <label> with no `htmlFor`, so it
+	// was not associated with the field: clicking it did not focus the input, and
+	// the accessible name came from a duplicate aria-label instead. Wiring
+	// htmlFor/id makes the visible text the name, which is the preferred source.
+	const inputId = useId();
 	const initial = value ?? defaultValue;
 	const [color, setColor] = useState<string>(initial);
 	const [hex, setHex] = useState<string>(initial);
 
+	// Comparing against `color` read a value the dependency list did not declare,
+	// so the guard could act on a stale colour. Dropping the comparison removes
+	// the stale read entirely: React bails out of a re-render when setState is
+	// called with the value it already holds, so the guard was never load-bearing.
 	useEffect(() => {
-		if (value !== undefined && value !== color) {
-			setColor(value);
-			setHex(value);
-		}
+		if (value === undefined) return;
+		setColor(value);
+		setHex(value);
 	}, [value]);
 
 	function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -53,7 +61,7 @@ export function ColorInput({
 	return (
 		<div className={["ds-atom-colorinput", className].filter(Boolean).join(" ")} style={style}>
 			{label && (
-				<label className="ds-label" style={{ display: "block", marginBottom: 4 }}>
+				<label htmlFor={inputId} className="ds-label" style={{ display: "block", marginBottom: 4 }}>
 					{label}
 				</label>
 			)}
@@ -70,10 +78,12 @@ export function ColorInput({
 					}}
 				/>
 				<input
+					id={inputId}
 					className="ds-input"
 					value={hex}
 					onChange={handleChange}
-					aria-label={label ?? "Color hex"}
+					// Only needed when there is no visible label to name the field.
+					aria-label={label ? undefined : "Color hex"}
 					style={{ fontFamily: "var(--mono)", fontSize: 12, flex: 1 }}
 				/>
 			</div>

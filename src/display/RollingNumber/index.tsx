@@ -54,8 +54,18 @@ export function RollingNumber({
 			className={["ds-atom-rolling", className].filter(Boolean).join(" ")}
 			data-variant={variant === "default" ? undefined : variant}
 			style={style}
+			// role="status" makes this a live region that *can* carry a name. As a
+			// bare <span> the element was role `generic`, which prohibits aria-label,
+			// so the label was discarded (axe: aria-prohibited-attr).
+			//
+			// The `?? display` fallback is gone: the rendered digits already are the
+			// announcement, and duplicating them into aria-label overrode the content
+			// with an identical string. aria-label now only applies when a consumer
+			// supplies a genuinely different one.
+			// biome-ignore lint/a11y/useSemanticElements: <output> carries form-association semantics (it pairs with inputs via `for`), which is wrong for a standalone animated counter; role="status" gives the same live-region mapping without that implication
+			role="status"
 			aria-live="polite"
-			aria-label={ariaLabel ?? display}
+			aria-label={ariaLabel}
 		>
 			{display.split("").map((char, i) => {
 				if (/[0-9]/.test(char)) {

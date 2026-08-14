@@ -21,7 +21,18 @@ export interface NumberStepperProps {
 	formatFn?: (value: number) => string;
 	/** When true, disables all interaction including both buttons and the input. */
 	disabled?: boolean;
-	/** Accessible label for the stepper container used by assistive technology. */
+	/**
+	 * Accessible label for the numeric field.
+	 *
+	 * Applied to the `<input>` itself. It previously landed on the wrapping
+	 * `<div>`, whose implicit `generic` role prohibits naming — so it was
+	 * discarded and the field reached assistive tech with no name at all.
+	 *
+	 * Defaults to `"Value"` so the field is never *unnamed*; always pass
+	 * something meaningful ("Quantity", "Guests", "Price") in real usage.
+	 *
+	 * @default "Value"
+	 */
 	ariaLabel?: string;
 	/** Additional className applied to the root wrapper element. */
 	className?: string;
@@ -48,7 +59,7 @@ export const NumberStepper = forwardRef<HTMLInputElement, NumberStepperProps>(
 			suffix,
 			formatFn,
 			disabled,
-			ariaLabel,
+			ariaLabel = "Value",
 			className,
 			style,
 		},
@@ -84,11 +95,11 @@ export const NumberStepper = forwardRef<HTMLInputElement, NumberStepperProps>(
 		const incDisabled = disabled || (typeof max === "number" && value >= max);
 
 		return (
-			<div
-				className={`ds-atom-stepper${className ? ` ${className}` : ""}`}
-				style={style}
-				aria-label={ariaLabel}
-			>
+			// `aria-label` used to sit here, on a role-less <div> — a generic role,
+			// which prohibits naming, so it was discarded. The numeric <input> below
+			// was therefore completely unnamed. The name now goes on the input, which
+			// is the control the user actually lands on.
+			<div className={`ds-atom-stepper${className ? ` ${className}` : ""}`} style={style}>
 				<button
 					type="button"
 					className="ds-atom-stepper-btn"
@@ -105,6 +116,7 @@ export const NumberStepper = forwardRef<HTMLInputElement, NumberStepperProps>(
 						className="ds-atom-stepper-input"
 						type="text"
 						inputMode="decimal"
+						aria-label={ariaLabel}
 						value={display}
 						disabled={disabled}
 						onFocus={() => {

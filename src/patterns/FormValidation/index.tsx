@@ -19,11 +19,14 @@ function segmentColor(index: number, score: number): string {
 	return "var(--amber)";
 }
 
+// Label colours must be text-safe. `--green-vivid` is documented decorative-only
+// ("never text") and measured 2.05:1 here; `--green` is the text-tuned sibling at
+// 5.08:1. The *segment fills* below keep using vivids, which is what they are for.
 function labelColor(score: number): string {
 	if (score <= 0) return "var(--ink-4)";
 	if (score === 1) return "var(--red)";
 	if (score <= 3) return "var(--amber-d)";
-	return "var(--green-vivid)";
+	return "var(--green)";
 }
 
 export function PasswordStrength({ score, className, style }: PasswordStrengthProps) {

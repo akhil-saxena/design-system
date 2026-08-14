@@ -244,6 +244,9 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 						<button
 							// biome-ignore lint/suspicious/noArrayIndexKey: index is stable for dot nav - slides order is fixed during render
 							key={i}
+							// Without this the dot defaults to type="submit" and submits any
+							// enclosing form when the user changes slide.
+							type="button"
 							role="tab"
 							aria-selected={i === index}
 							aria-label={`Go to slide ${i + 1}`}

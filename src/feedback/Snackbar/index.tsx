@@ -22,7 +22,16 @@ import { X } from "../../icons";
  * (Toast's translucent fill becomes hard to read on top-heavy apps).
  */
 
-export type SnackbarTone = "neutral" | "success" | "error";
+/**
+ * Semantic tone of the snackbar.
+ *
+ * Widened to match AlertBanner and Toast, which both offer the full
+ * info/success/warning/error set. Snackbar previously stopped at success/error,
+ * so a consumer who learned `tone="warning"` on Toast found it did not exist
+ * here — the same status concept spelled three different ways across the three
+ * feedback components.
+ */
+export type SnackbarTone = "neutral" | "info" | "success" | "warning" | "error";
 
 export interface SnackbarAction {
 	/** Visible label, e.g. "UNDO", "RETRY". Rendered mono caps amber. */
@@ -132,12 +141,16 @@ export function SnackbarProvider({ children, bottomOffset }: SnackbarProviderPro
 	const [entry, setEntry] = useState<SnackbarEntry | null>(null);
 	const dismissTimer = useRef<number | null>(null);
 
-	const clearTimer = () => {
+	// Stable identity: it only touches a ref, so it has no dependencies. It was a
+	// plain function re-created every render and then referenced from three
+	// hooks without being declared, which made those hooks' dependency lists
+	// dishonest even though the ref access happened to be safe.
+	const clearTimer = useCallback(() => {
 		if (dismissTimer.current !== null) {
 			window.clearTimeout(dismissTimer.current);
 			dismissTimer.current = null;
 		}
-	};
+	}, []);
 
 	const scheduleRemoval = useCallback(() => {
 		window.setTimeout(() => {
@@ -154,7 +167,7 @@ export function SnackbarProvider({ children, bottomOffset }: SnackbarProviderPro
 			});
 			scheduleRemoval();
 		},
-		[scheduleRemoval],
+		[scheduleRemoval, clearTimer],
 	);
 
 	const show = useCallback(
@@ -181,7 +194,7 @@ export function SnackbarProvider({ children, bottomOffset }: SnackbarProviderPro
 			}
 			return id;
 		},
-		[startDismiss],
+		[startDismiss, clearTimer],
 	);
 
 	const api = useMemo<SnackbarApi>(
@@ -196,7 +209,7 @@ export function SnackbarProvider({ children, bottomOffset }: SnackbarProviderPro
 		() => () => {
 			clearTimer();
 		},
-		[],
+		[clearTimer],
 	);
 
 	return (
@@ -242,8 +255,10 @@ interface SnackbarNodeProps {
 // is solid `--ink`); success/error pick up their accent tokens.
 const PROGRESS_COLOR: Record<SnackbarTone, string> = {
 	neutral: "var(--amber)",
-	success: "var(--green, #1f8a5b)",
-	error: "var(--red, #9b2c2c)",
+	info: "var(--blue)",
+	success: "var(--green)",
+	warning: "var(--amber-d)",
+	error: "var(--red)",
 };
 
 // Component-scoped keyframe (depletes width 100% → 0%). Scoped name avoids

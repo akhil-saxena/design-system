@@ -8,18 +8,37 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useScrollLock } from "../../hooks/useScrollLock";
 import { Button, type ButtonVariant } from "../../inputs/Button";
 import { Kbd } from "../../inputs/Kbd";
 import { TextInput } from "../../inputs/TextInput";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-export type ConfirmDialogTone = "danger" | "warn" | "success" | "neutral";
+/**
+ * Semantic tone of the confirmation.
+ *
+ * `"warning"` is the system-wide spelling — AlertBanner and Toast both use it.
+ * This component shipped `"warn"`, so that spelling is retained as a deprecated
+ * alias and behaves identically; prefer `"warning"` in new code.
+ *
+ * `"danger"` is deliberately *not* renamed to `"error"`: this tone selects the
+ * confirm button's appearance, and it maps onto `ButtonVariant["danger"]`. An
+ * irreversible action is a danger, not a reported error.
+ */
+export type ConfirmDialogTone = "danger" | "warning" | "success" | "neutral" | "warn";
+
+/** The tones the lookup tables are keyed by, once the `"warn"` alias is folded in. */
+type CanonicalTone = Exclude<ConfirmDialogTone, "warn">;
+
+const normalizeTone = (tone: ConfirmDialogTone): CanonicalTone =>
+	tone === "warn" ? "warning" : tone;
 
 // ─── Tone config ─────────────────────────────────────────────────────────────
 
-const tones: Record<ConfirmDialogTone, { color: string; bg: string; icon: ReactNode }> = {
+const tones: Record<CanonicalTone, { color: string; bg: string; icon: ReactNode }> = {
 	danger: {
 		color: "var(--red)",
 		bg: "rgba(239,68,68,.1)",
@@ -39,7 +58,7 @@ const tones: Record<ConfirmDialogTone, { color: string; bg: string; icon: ReactN
 			</svg>
 		),
 	},
-	warn: {
+	warning: {
 		color: "var(--amber-d)",
 		bg: "rgba(245,158,11,.12)",
 		icon: (
@@ -99,12 +118,9 @@ const tones: Record<ConfirmDialogTone, { color: string; bg: string; icon: ReactN
 
 // ─── Tone → button mapping ────────────────────────────────────────────────────
 
-const toneButtonStyle: Record<
-	ConfirmDialogTone,
-	{ variant: ButtonVariant; style?: CSSProperties }
-> = {
+const toneButtonStyle: Record<CanonicalTone, { variant: ButtonVariant; style?: CSSProperties }> = {
 	danger: { variant: "danger", style: { background: "var(--red)", borderColor: "var(--red)" } },
-	warn: { variant: "primary", style: undefined },
+	warning: { variant: "primary", style: undefined },
 	success: {
 		variant: "primary",
 		style: { background: "var(--amber-d)", borderColor: "var(--amber-d)", color: "#fff" },
@@ -173,20 +189,18 @@ export function ConfirmDialog({
 	const descId = body ? generatedDescId : undefined;
 
 	useFocusTrap(panel, open);
+	// Background must not scroll behind a modal surface.
+	useScrollLock(open);
 
 	// Document-level keyboard handler — Escape cancels.
 	// A11y fix: Enter no longer confirms globally. A global Enter handler fired
 	// onConfirm() regardless of focus, so Enter while focused on Cancel (or any
 	// element) triggered the possibly-destructive confirm. Confirm is now driven
 	// by the confirm button / form submit, so Enter on Cancel cancels instead.
-	useEffect(() => {
-		if (!open) return;
-		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") onClose();
-		}
-		document.addEventListener("keydown", onKey);
-		return () => document.removeEventListener("keydown", onKey);
-	}, [open, onClose]);
+	// Escape closes only the *topmost* layer — see useDismiss. Each overlay
+	// previously installed its own document listener, so one press closed every
+	// open layer at once.
+	useDismiss(open, onClose);
 
 	if (!open) return null;
 
@@ -203,8 +217,9 @@ export function ConfirmDialog({
 		onConfirm();
 	}
 
-	const t = tones[tone];
-	const btnConfig = toneButtonStyle[tone];
+	const canonicalTone = normalizeTone(tone);
+	const t = tones[canonicalTone];
+	const btnConfig = toneButtonStyle[canonicalTone];
 
 	return (
 		<DSPortal>
@@ -321,17 +336,19 @@ export function TypeToConfirm({
 	const titleId = title ? generatedTitleId : undefined;
 
 	useFocusTrap(panel, open);
+	// Background must not scroll behind a modal surface.
+	useScrollLock(open);
 
 	// Document-level keyboard handler (T-018-02-02: cleanup removes listener on unmount)
 	useEffect(() => {
 		if (!open) return;
+		// Escape is handled by useDismiss above; this listener owns only Enter.
 		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") onClose();
 			if (e.key === "Enter" && ok) onConfirm(); // T-018-02-03: Enter only fires when ok===true
 		}
 		document.addEventListener("keydown", onKey);
 		return () => document.removeEventListener("keydown", onKey);
-	}, [open, onClose, onConfirm, ok]);
+	}, [open, onConfirm, ok]);
 
 	// Reset input value when dialog closes
 	useEffect(() => {

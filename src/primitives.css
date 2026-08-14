@@ -3,6 +3,31 @@
      import "@akhil-saxena/design-system/primitives.css";
    Requires tokens.css to be imported first (uses --amber, --ink-2, --rule, etc.). */
 
+/* ─── Visually hidden ───────────────────────────────────────────────────
+   Text available to screen readers but not painted. The system had no shared
+   utility for this, so Checkbox/Radio/Toggle each inlined the legacy
+   `clip: rect(0,0,0,0)` recipe — deprecated, and it collapses the box to zero
+   width, which drops the text from the accessibility tree in some engines.
+
+   `clip-path: inset(50%)` on a 1px box is the current recommended form. The
+   `white-space: nowrap` guard stops long strings from being wrapped into a
+   1px column and inflating page height.
+
+   `.ds-visually-hidden-focusable` reveals itself when focused — for skip links
+   and other keyboard-only affordances. */
+.ds-visually-hidden,
+.ds-visually-hidden-focusable:not(:focus):not(:focus-within) {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip-path: inset(50%) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+}
+
 /* ─── DS atom: Button ────────────────────────────────────────────────────
    Pseudo-class states that inline style={{}} cannot express (D-103).
    Variant-specific hover states keyed off data-variant attribute.
@@ -42,7 +67,7 @@
 }
 .ds-atom-btn:focus-visible {
 	outline: none;
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+	box-shadow: var(--focus-ring);
 }
 /* Primary = brand amber. Hover darkens to amber-d. */
 .ds-atom-btn[data-variant="primary"]:hover:not(:disabled) {
@@ -85,12 +110,42 @@
 	color: var(--ink);
 }
 
+/* ─── DS atom: Field (label / hint / error) ─────────────────────────────
+   Shared field chrome for the labelled form controls. TextInput previously had
+   no `label` prop, so every consumer hand-wired <label htmlFor> + id — and the
+   ones that forgot shipped an unnamed input. */
+.ds-atom-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+}
+.ds-atom-field-label {
+	font-family: var(--font-body);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-semibold);
+	color: var(--ink-2);
+}
+.ds-atom-field-hint {
+	font-family: var(--font-body);
+	font-size: var(--text-xs);
+	line-height: var(--lh-relaxed);
+	color: var(--ink-3);
+}
+.ds-atom-field-error {
+	font-family: var(--font-body);
+	font-size: var(--text-xs);
+	line-height: var(--lh-relaxed);
+	/* --red-ink rather than --red: the message sits on the page surface, and the
+	   ink variant clears AA on the lighter surfaces in the ramp. */
+	color: var(--red-ink);
+}
+
 /* ─── DS atom: TextInput ─────────────────────────────────────────────────
    Background is var(--cream) inline - auto-flips in dark mode via tokens.
    Only dark-specific overrides needed here (border, focus ring strength). */
 .ds-atom-input:focus {
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .ds-atom-input:disabled {
 	opacity: 0.5;
@@ -98,7 +153,7 @@
 }
 .ds-atom-input[data-error="true"] {
 	border-color: var(--red);
-	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+	box-shadow: var(--error-ring);
 }
 .ds-atom-input::placeholder {
 	color: var(--ink-3);
@@ -108,39 +163,39 @@
 	border-color: var(--rule);
 }
 .dark .ds-atom-input:focus {
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.28);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .dark .ds-atom-input[data-error="true"] {
 	border-color: var(--red);
-	box-shadow: 0 0 0 3px rgba(251, 136, 136, 0.22);
+	box-shadow: var(--error-ring);
 }
 
 .ds-atom-input-wrap:focus-within {
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .ds-atom-input-wrap[data-error="true"] {
 	border-color: var(--red);
-	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+	box-shadow: var(--error-ring);
 }
 .ds-atom-input-wrap input::placeholder {
 	color: var(--ink-3);
 }
 .dark .ds-atom-input-wrap:focus-within {
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.28);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .dark .ds-atom-input-wrap[data-error="true"] {
 	border-color: var(--red);
-	box-shadow: 0 0 0 3px rgba(251, 136, 136, 0.22);
+	box-shadow: var(--error-ring);
 }
 
 /* ─── DS atom: Textarea ──────────────────────────────────────────────────
    Same token-flip pattern as TextInput. */
 .ds-atom-textarea:focus {
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .ds-atom-textarea:disabled {
 	opacity: 0.5;
@@ -148,18 +203,18 @@
 }
 .ds-atom-textarea[data-error="true"] {
 	border-color: var(--red);
-	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+	box-shadow: var(--error-ring);
 }
 .ds-atom-textarea::placeholder {
 	color: var(--ink-3);
 }
 .dark .ds-atom-textarea:focus {
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.28);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .dark .ds-atom-textarea[data-error="true"] {
 	border-color: var(--red);
-	box-shadow: 0 0 0 3px rgba(251, 136, 136, 0.22);
+	box-shadow: var(--error-ring);
 }
 
 /* ─── DS atom: Chip ──────────────────────────────────────────────────────
@@ -175,7 +230,7 @@
 	outline: none;
 }
 .ds-atom-chip[data-interactive]:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 .dark .ds-atom-chip {
@@ -205,7 +260,7 @@
 	display: inline-block !important;
 }
 .ds-atom-checkbox-input:focus-visible + .ds-atom-checkbox-box {
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+	box-shadow: var(--focus-ring);
 }
 .ds-atom-checkbox-label.is-disabled .ds-atom-checkbox-box {
 	cursor: not-allowed;
@@ -239,7 +294,7 @@
 	display: inline-block;
 }
 .ds-atom-radio-input:focus-visible + .ds-atom-radio-box {
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+	box-shadow: var(--focus-ring);
 }
 .ds-atom-radio-label.is-disabled .ds-atom-radio-box {
 	cursor: not-allowed;
@@ -286,7 +341,7 @@
 	transform: translateX(16px);
 }
 .ds-atom-toggle-input:focus-visible + .ds-atom-toggle-track {
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+	box-shadow: var(--focus-ring);
 }
 .ds-atom-toggle-label.is-disabled .ds-atom-toggle-track {
 	opacity: 0.4;
@@ -452,6 +507,10 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .ds-atom-rolling[data-variant="light"] .ds-atom-rolling-cell {
+	/* Intentionally a literal white, not var(--panel): this variant is a fixed
+	   light treatment designed to sit *on* dark surfaces, so it must not follow
+	   the theme. The shell above and the digit colour below are hardcoded for
+	   the same reason. */
 	background: #ffffff;
 	border-radius: 5px;
 	width: 20px;
@@ -548,8 +607,24 @@
 .ds-atom-range:hover .ds-atom-range-thumb {
 	box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15), 0 1px 4px rgba(0, 0, 0, 0.15);
 }
-.ds-atom-range[data-disabled="true"] {
+/* Disabled state.
+   `opacity: 0.5` on the whole control used to do the dimming, which dragged the
+   label and value text down with it — --ink-2 became #a6a39f (2.26:1) and
+   --amber-d became #d5a37d (2.02:1). Opacity cannot be undone by a descendant, so
+   the text was unreadable with no way to override it.
+
+   WCAG 1.4.3 does exempt inactive components, but "exempt" is not the same as
+   "legible": a disabled field's label still has to be readable to know what is
+   disabled. So the dimming now applies only to the non-text parts (track, fill,
+   thumb) and the text takes an explicitly muted — but AA-clearing — colour. */
+.ds-atom-range[data-disabled="true"] .ds-atom-range-track,
+.ds-atom-range[data-disabled="true"] .ds-atom-range-fill,
+.ds-atom-range[data-disabled="true"] .ds-atom-range-thumb {
 	opacity: 0.5;
+}
+.ds-atom-range[data-disabled="true"] .ds-atom-range-label,
+.ds-atom-range[data-disabled="true"] .ds-atom-range-value {
+	color: var(--ink-3);
 }
 .ds-atom-range[data-disabled="true"] .ds-atom-range-thumb {
 	cursor: not-allowed;
@@ -581,7 +656,7 @@
 	transform: scale(1.1);
 }
 .ds-atom-star-btn:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 	border-radius: 4px;
 }
@@ -749,12 +824,12 @@
    Source: design-handoff/design-system/ds-surfaces.jsx .ds-popover. */
 .ds-atom-popover {
 	position: fixed;
-	z-index: 100;
+	z-index: var(--z-popover);
 	/* Pure white floor + faint rule + layered shadow so the menu reads as a
 	   clean floating sheet above the cream page tone. Previous --cream bg sat
 	   at the page tone and the --rule border added a visible grey rim — both
 	   bled into the page and made the menu feel "dull". */
-	background: #ffffff;
+	background: var(--panel);
 	border: 1px solid rgba(31, 27, 23, 0.04);
 	border-radius: var(--radius-md);
 	box-shadow: 0 1px 2px rgba(31, 27, 23, 0.04), 0 12px 32px rgba(31, 27, 23, 0.12), 0 0 0 0.5px
@@ -766,7 +841,7 @@
 .dark .ds-atom-popover {
 	/* Dark-mode: lifted surface above the page bg, with a slightly stronger
 	   shadow to compensate for the lower contrast pop. */
-	background: #211d18;
+	background: var(--panel);
 	border-color: rgba(255, 255, 255, 0.06);
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.55);
 }
@@ -821,7 +896,7 @@
 	background: rgba(255, 255, 255, 0.06);
 }
 .ds-atom-popover-item:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: -2px;
 }
 .ds-atom-popover-item:disabled {
@@ -845,17 +920,17 @@
 .ds-atom-modal-backdrop {
 	position: fixed;
 	inset: 0;
-	background: rgba(0, 0, 0, 0.65);
+	background: var(--scrim);
 	-webkit-backdrop-filter: blur(2px);
 	backdrop-filter: blur(2px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 1000;
+	z-index: var(--z-overlay);
 	animation: ds-atom-modal-fadein 0.15s ease-out;
 }
 .ds-atom-modal {
-	background: #ffffff;
+	background: var(--panel);
 	border: 1px solid var(--rule);
 	border-radius: var(--radius-lg);
 	padding: 0;
@@ -941,10 +1016,10 @@
 .ds-atom-sheet-backdrop {
 	position: fixed;
 	inset: 0;
-	background: rgba(0, 0, 0, 0.65);
+	background: var(--scrim);
 	-webkit-backdrop-filter: blur(2px);
 	backdrop-filter: blur(2px);
-	z-index: 1000;
+	z-index: var(--z-overlay);
 	animation: ds-atom-sheet-fadein 0.15s ease-out;
 }
 .ds-atom-sheet {
@@ -953,13 +1028,13 @@
 	bottom: 0;
 	height: 100vh;
 	width: 400px;
-	background: #ffffff;
+	background: var(--panel);
 	box-shadow: var(--shadow-3);
 	display: flex;
 	flex-direction: column;
 	font-family: var(--font);
 	color: var(--ink);
-	z-index: 1001;
+	z-index: calc(var(--z-overlay) + 1);
 }
 .dark .ds-atom-sheet {
 	background: var(--cream-2);
@@ -1047,7 +1122,7 @@
 	font-size: 13px;
 	color: var(--ink);
 	animation: ds-atom-hovercard-fadein 0.15s ease-out;
-	z-index: 1500;
+	z-index: var(--z-tooltip);
 }
 .dark .ds-atom-hovercard {
 	background: var(--cream-2);
@@ -1082,10 +1157,10 @@
 .ds-atom-bottomsheet-backdrop {
 	position: fixed;
 	inset: 0;
-	background: rgba(0, 0, 0, 0.65);
+	background: var(--scrim);
 	-webkit-backdrop-filter: blur(2px);
 	backdrop-filter: blur(2px);
-	z-index: 1000;
+	z-index: var(--z-overlay);
 	display: flex;
 	align-items: flex-end;
 	justify-content: center;
@@ -1106,7 +1181,7 @@
 	overflow: hidden;
 	font-family: var(--font);
 	color: var(--ink);
-	z-index: 1001;
+	z-index: calc(var(--z-overlay) + 1);
 	/* snap-back transition; disabled while dragging via [data-dragging] */
 	transition: transform 0.2s ease-out;
 }
@@ -1148,6 +1223,15 @@
 	font-size: 16px;
 	color: var(--ink);
 }
+/* Matches Modal/Sheet's description treatment so the three dialog surfaces read
+   the same. Muted body type directly under the title. */
+.ds-atom-bottomsheet-desc {
+	padding: var(--space-1) var(--space-4) 0;
+	font-family: var(--font-body);
+	font-size: var(--text-sm);
+	line-height: var(--lh-relaxed);
+	color: var(--ink-3);
+}
 .ds-atom-bottomsheet-body {
 	flex: 1;
 	overflow-y: auto;
@@ -1180,7 +1264,7 @@
 	inset: 0;
 	background: rgba(0, 0, 0, 0.92);
 	animation: lightboxFade 0.2s ease-out;
-	z-index: 2000;
+	z-index: var(--z-max);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -1215,7 +1299,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 2001;
+	z-index: calc(var(--z-max) + 1);
 }
 .ds-atom-lightbox-close:hover {
 	background: rgba(0, 0, 0, 0.6);
@@ -1235,7 +1319,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 2001;
+	z-index: calc(var(--z-max) + 1);
 }
 .ds-atom-lightbox-prev {
 	left: var(--space-3);
@@ -1388,7 +1472,7 @@
 	color: var(--ink);
 }
 .ds-atom-banner-close:focus-visible {
-	outline: 2px solid var(--amber-d);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 /* Tone-keyed bg + border + icon-color (mirrors Card data-variant). */
@@ -1498,7 +1582,7 @@
 	position: fixed;
 	top: var(--space-4);
 	right: var(--space-4);
-	z-index: 1100;
+	z-index: var(--z-toast);
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
@@ -1558,7 +1642,7 @@
 	color: var(--ink);
 }
 .ds-atom-toast-close:focus-visible {
-	outline: 2px solid var(--amber-d);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 /* Tone-keyed bg + border + icon-color (sibling-CSS, mirrors Card data-variant). */
@@ -1608,7 +1692,7 @@
 	   fixed chrome such as a mobile FAB; SnackbarProvider's `bottomOffset`
 	   prop sets it inline. */
 	bottom: calc(var(--space-5) + var(--ds-snackbar-offset, 0px));
-	z-index: 1100;
+	z-index: var(--z-toast);
 	display: flex;
 	justify-content: center;
 	pointer-events: none;
@@ -1633,11 +1717,21 @@
 .ds-atom-snackbar[data-dismissing="true"] {
 	animation: ds-atom-snackbar-slideout 0.2s ease-out forwards;
 }
+/* Tone accent stripe. The set matches AlertBanner and Toast so the three
+   feedback surfaces share one status vocabulary. The snackbar fill is solid
+   --ink, so these use the pre-lightened dark-mode-safe status tokens directly
+   rather than the *-ink on-tint variants. */
+.ds-atom-snackbar[data-tone="info"] {
+	border-left: 3px solid var(--blue);
+}
 .ds-atom-snackbar[data-tone="success"] {
-	border-left: 3px solid var(--green, #1f8a5b);
+	border-left: 3px solid var(--green);
+}
+.ds-atom-snackbar[data-tone="warning"] {
+	border-left: 3px solid var(--amber);
 }
 .ds-atom-snackbar[data-tone="error"] {
-	border-left: 3px solid var(--red, #9b2c2c);
+	border-left: 3px solid var(--red);
 }
 .ds-atom-snackbar-msg {
 	flex: 1 1 auto;
@@ -1664,7 +1758,7 @@
 	color: var(--amber);
 }
 .ds-atom-snackbar-action:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 .ds-atom-snackbar-close {
@@ -1687,7 +1781,7 @@
 	color: var(--cream);
 }
 .ds-atom-snackbar-close:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 @keyframes ds-atom-snackbar-slidein {
@@ -1835,7 +1929,7 @@
 	background: var(--cream-2);
 }
 .ds-atom-copy:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 /* Copied state - green border + subtle tint so the whole button communicates success */
@@ -1939,10 +2033,23 @@
 	align-items: center;
 	justify-content: center;
 }
+/* The grid now nests `role="row"` elements between the grid and its cells, as
+   the ARIA grid pattern requires — a flat grid → gridcell structure violated
+   both aria-required-children and aria-required-parent.
+
+   Each row is its own 7-column grid rather than the parent being a 7x6 grid with
+   rows flattened via `display: contents`. `display: contents` is still
+   unreliable for table-ish roles in the accessibility tree, which would have
+   traded one ARIA bug for another. */
 .ds-atom-datepicker-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+.ds-atom-datepicker-row {
 	display: grid;
 	grid-template-columns: repeat(7, 34px);
-	grid-template-rows: repeat(6, 34px);
+	grid-template-rows: 34px;
 	gap: 0;
 }
 .ds-atom-datepicker-cell {
@@ -2102,7 +2209,8 @@
 	outline: none;
 }
 .ds-atom-datepicker-time input:focus {
-	border-color: var(--amber);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .ds-atom-datepicker-time-sep {
 	font-family: var(--mono);
@@ -2216,7 +2324,7 @@
 	border-color: var(--ink-3);
 }
 .ds-atom-datepicker-trigger:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 .ds-atom-datepicker-trigger.is-open {
@@ -2482,8 +2590,8 @@
 	box-sizing: border-box;
 }
 .ds-atom-autocomplete:focus {
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .ds-atom-autocomplete::placeholder {
 	color: var(--ink-3);
@@ -2577,7 +2685,7 @@
 	text-align: left;
 }
 .ds-atom-select:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 .ds-atom-select[data-state="open"] {
@@ -2665,7 +2773,8 @@
 	outline: none;
 }
 .ds-atom-select-search input:focus {
-	border-color: var(--amber);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .ds-atom-select-list {
 	list-style: none;
@@ -2752,7 +2861,7 @@
 	border-color: var(--amber);
 }
 .ds-atom-multiselect:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 /* Compact mode (single-row count summary): the trigger no longer needs to host
@@ -2987,7 +3096,7 @@
 	color: var(--ink);
 }
 .ds-atom-segmented-btn:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 .ds-atom-segmented-btn[data-active] {
@@ -3082,7 +3191,7 @@
 	color: var(--ink);
 }
 .ds-atom-breadcrumbs-more:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 .ds-atom-breadcrumbs-menu {
@@ -3268,7 +3377,7 @@
 	font: inherit;
 }
 .ds-atom-timeline-trigger:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 	border-radius: 4px;
 }
@@ -3362,7 +3471,7 @@
 	background: var(--surf-2);
 }
 .ds-atom-accordion-trigger:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: -2px;
 }
 .ds-atom-accordion-trigger:disabled {
@@ -3413,7 +3522,7 @@
 	border-radius: 8px;
 }
 .ds-atom-carousel:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 .ds-atom-carousel-viewport {
@@ -3453,7 +3562,7 @@
 	background: var(--surf-2);
 }
 .ds-atom-carousel-arrow:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 .ds-atom-carousel-arrow:disabled {
@@ -3487,7 +3596,7 @@
 	transform: scale(1.2);
 }
 .ds-atom-carousel-dot:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 /* Dark mode */
@@ -3511,6 +3620,16 @@
 .ds-atom-tabs {
 	display: flex;
 	flex-direction: column;
+}
+/* Inner element carrying role="tablist" — see the component for why the role is
+   not on .ds-atom-tabs-list. Mirrors the bar's flex row so the tabs lay out
+   exactly as before; `min-width: 0` keeps it shrinkable inside the bar so the
+   overflow measurement is unaffected. */
+.ds-atom-tabs-tablist {
+	display: flex;
+	gap: 4px;
+	align-items: stretch;
+	min-width: 0;
 }
 .ds-atom-tabs-list {
 	display: flex;
@@ -3548,7 +3667,7 @@
 	color: var(--ink);
 }
 .ds-atom-tabs-trigger:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: -2px;
 	border-radius: 4px;
 }
@@ -3601,7 +3720,7 @@
 	outline: none;
 }
 .ds-atom-tabs-panel:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 	border-radius: 4px;
 }
@@ -3623,7 +3742,7 @@
 	color: var(--ink);
 }
 .ds-atom-tabs-more:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: -2px;
 }
 /* Overflow dropdown menu */
@@ -3727,7 +3846,7 @@
 	color: var(--ink);
 }
 .ds-atom-table-headercell-sortable:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: -2px;
 }
 .ds-atom-table-headercell-label {
@@ -3892,7 +4011,7 @@
 	color: var(--ink);
 }
 .ds-atom-calendar-navbtn:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 .ds-atom-calendar-label {
@@ -3954,13 +4073,19 @@
 	background: var(--cream-3);
 }
 .ds-atom-calendar-cell:focus-visible {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: -2px;
 	z-index: 1;
 }
+/* Out-of-month days.
+   `opacity: 0.5` used to do the dimming, which silently destroyed the contrast of
+   an otherwise-compliant colour: --ink-3 (5.6:1) composited at 50% over --cream
+   renders as #b4b1ae, i.e. 2.08:1. These cells are interactive buttons, not
+   disabled controls, so WCAG's inactive-component exemption does not apply.
+   --ink-3 at full opacity still reads clearly quieter than the --ink day numbers
+   beside it (5.6:1 vs 16.6:1) without dropping below AA. */
 .ds-atom-calendar-cell[data-out-of-month] {
-	color: var(--ink-3, var(--ink-2));
-	opacity: 0.5;
+	color: var(--ink-3);
 }
 .ds-atom-calendar-cell[data-today] .ds-atom-calendar-cell-num {
 	background: var(--amber);
@@ -4229,8 +4354,8 @@
 	color: var(--ink-inverse, #000);
 }
 .dark .ds-atom-calendar-cell[data-out-of-month] {
-	color: var(--ink-2);
-	opacity: 0.5;
+	/* Same reasoning as the light rule — no opacity multiplier. */
+	color: var(--ink-3);
 }
 .dark .ds-atom-calendar-weekday {
 	color: var(--ink-2);
@@ -4290,7 +4415,8 @@
 	overflow: hidden;
 }
 .ds-atom-richtext:focus-within {
-	border-color: var(--amber);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 	outline: none;
 }
 .ds-atom-richtext--loading {
@@ -4563,7 +4689,7 @@
 	flex-direction: column;
 	gap: 8px;
 	min-width: 280px;
-	z-index: 1050;
+	z-index: var(--z-popover);
 	/* Ensure browser dialog outline/background don't interfere */
 	outline: none;
 }
@@ -4580,7 +4706,7 @@
 	box-sizing: border-box;
 }
 .ds-atom-richtext-linkinput:focus {
-	outline: 2px solid var(--amber);
+	outline: 2px solid var(--focus);
 	outline-offset: -1px;
 }
 .ds-atom-richtext-linkactions {
@@ -4646,7 +4772,7 @@
 	border-bottom: 1px solid var(--rule);
 	position: sticky;
 	top: 0;
-	z-index: 10;
+	z-index: var(--z-raised);
 }
 .ds-atom-appshell-sidebar {
 	grid-area: sidebar;
@@ -4717,8 +4843,8 @@
 	width: 220px;
 }
 .ds-atom-appbar-search:focus {
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .dark .ds-atom-appbar[data-scrolled="true"] {
 	background: rgba(28, 25, 23, 0.92);
@@ -4936,7 +5062,7 @@
 .ds-atom-form-error-summary ul {
 	margin: 6px 0 0 0;
 	padding-left: 16px;
-	color: var(--red);
+	color: var(--red-ink);
 	font-size: 12px;
 }
 
@@ -5015,7 +5141,7 @@
 }
 .ds-atom-inlineedit:focus-visible {
 	outline: none;
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+	box-shadow: var(--focus-ring);
 }
 .ds-atom-inlineedit-wrap {
 	display: inline-flex;
@@ -5030,7 +5156,7 @@
 	font-size: inherit;
 	color: var(--ink);
 	background: var(--cream);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+	box-shadow: var(--focus-ring-soft);
 	outline: none;
 	width: 100%;
 	box-sizing: border-box;
@@ -5077,8 +5203,8 @@
 	transition: border-color 0.15s, box-shadow 0.15s;
 }
 .ds-atom-searchfilters-input:focus {
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 .ds-atom-searchfilters-clear {
 	font-size: 12px;
@@ -5127,7 +5253,7 @@
 }
 .ds-atom-sortable-item:focus-visible {
 	outline: none;
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+	box-shadow: var(--focus-ring);
 }
 .ds-atom-sortable-item[data-dragging="true"] {
 	/* Source slot becomes a dotted amber outline - content hidden, space preserved */
@@ -5543,7 +5669,7 @@
 }
 .ds-atom-oauthbtn:focus-visible {
 	outline: none;
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+	box-shadow: var(--focus-ring);
 }
 .ds-atom-oauthbtn:hover:not(:disabled) {
 	background: var(--cream-2);
@@ -5570,7 +5696,7 @@
 }
 .ds-atom-link:focus-visible {
 	outline: none;
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+	box-shadow: var(--focus-ring);
 	border-radius: 2px;
 }
 .dark .ds-atom-link[data-variant="footer"],
@@ -5647,16 +5773,16 @@
 }
 .ds-atom-statuspill[data-stage="screening"] {
 	background: rgba(245, 158, 11, 0.1);
-	color: var(--amber-d);
+	color: var(--amber-ink);
 }
 .ds-atom-statuspill[data-stage="interviewing"] {
 	background: rgba(245, 158, 11, 0.18);
-	color: var(--amber-d);
+	color: var(--amber-ink);
 	font-weight: 700;
 }
 .ds-atom-statuspill[data-stage="offer"] {
 	background: rgba(34, 197, 94, 0.14);
-	color: var(--green);
+	color: var(--green-ink);
 }
 .ds-atom-statuspill[data-stage="closed"] {
 	background: var(--cream-3);
@@ -5664,7 +5790,7 @@
 }
 .dark .ds-atom-statuspill[data-stage="offer"] {
 	background: rgba(34, 197, 94, 0.18);
-	color: var(--green-vivid);
+	color: var(--green);
 }
 .ds-atom-statuspill:focus-visible {
 	outline: none;
@@ -5733,15 +5859,6 @@
 .ds-atom-heading[data-weight="black"] {
 	font-weight: 900;
 }
-.ds-atom-heading[data-tone="ink-2"] {
-	color: var(--ink-2);
-}
-.ds-atom-heading[data-tone="ink-3"] {
-	color: var(--ink-3);
-}
-.ds-atom-heading[data-tone="amber"] {
-	color: var(--amber-d);
-}
 
 /* ─── DS atom: Text (data-attr extensions) ────────────────────────────
    Adds a declarative path next to the existing `variant`-driven one.
@@ -5778,24 +5895,6 @@
 .ds-atom-text[data-weight="black"] {
 	font-weight: 700;
 }
-.ds-atom-text[data-tone="ink"] {
-	color: var(--ink);
-}
-.ds-atom-text[data-tone="ink-3"] {
-	color: var(--ink-3);
-}
-.ds-atom-text[data-tone="ink-4"] {
-	color: var(--ink-4);
-}
-.ds-atom-text[data-tone="amber"] {
-	color: var(--amber-d);
-}
-.ds-atom-text[data-tone="red"] {
-	color: var(--red);
-}
-.ds-atom-text[data-tone="green"] {
-	color: var(--green);
-}
 .ds-atom-text[data-mono="true"] {
 	font-family: var(--mono);
 	letter-spacing: 0.02em;
@@ -5813,11 +5912,47 @@
 /* ─── DS atom: Eyebrow (tone data-attr extension) ─────────────────────
    Existing `size` + `color` props still work via inline style; new `tone`
    prop is data-attr-driven. Bundle: §04. */
-.ds-atom-eyebrow[data-tone="amber"] {
+
+/* ─── Typographic tones (semantic) ──────────────────────────────────────
+   `data-tone` carries a semantic role name, not a token name. The components
+   normalise the deprecated raw-token spellings (ink / ink-2 / ink-3 / ink-4 /
+   amber / red / green) to these in TypeScript — see src/foundation/tone.ts — so
+   only one rule per role is needed here.
+
+   Every value each component accepts needs a rule: the components inline a base
+   colour *only* when `tone` is absent, so a tone with no rule would fall through
+   to the inherited colour. `primary` on Heading and `secondary` on Text
+   previously had no rule for exactly that reason — their colour came from the
+   inline base — and would have broken when the raw names became aliases. */
+.ds-atom-heading[data-tone="primary"],
+.ds-atom-text[data-tone="primary"],
+.ds-atom-eyebrow[data-tone="primary"] {
+	color: var(--ink);
+}
+.ds-atom-heading[data-tone="secondary"],
+.ds-atom-text[data-tone="secondary"],
+.ds-atom-eyebrow[data-tone="secondary"] {
+	color: var(--ink-2);
+}
+.ds-atom-heading[data-tone="muted"],
+.ds-atom-text[data-tone="muted"],
+.ds-atom-eyebrow[data-tone="muted"] {
+	color: var(--ink-3);
+}
+.ds-atom-heading[data-tone="accent"],
+.ds-atom-text[data-tone="accent"],
+.ds-atom-eyebrow[data-tone="accent"] {
 	color: var(--amber-d);
 }
-.ds-atom-eyebrow[data-tone="ink-4"] {
-	color: var(--ink-4);
+.ds-atom-heading[data-tone="danger"],
+.ds-atom-text[data-tone="danger"],
+.ds-atom-eyebrow[data-tone="danger"] {
+	color: var(--red);
+}
+.ds-atom-heading[data-tone="success"],
+.ds-atom-text[data-tone="success"],
+.ds-atom-eyebrow[data-tone="success"] {
+	color: var(--green);
 }
 
 /* ─── DS atom: Card (data-attr extensions) ────────────────────────────
@@ -5862,14 +5997,14 @@
 .dark .ds-atom-card[data-hover="elevate"]:hover {
 	border-color: var(--ink-4);
 }
-.ds-atom-card[data-tone="amber"] {
+.ds-atom-card[data-surface="tint"] {
 	background: var(--amber-l);
 	border-color: rgba(245, 158, 11, 0.3);
 }
-.ds-atom-card[data-tone="cream-2"] {
+.ds-atom-card[data-surface="subtle"] {
 	background: var(--cream-2);
 }
-.ds-atom-card[data-tone="flat"] {
+.ds-atom-card[data-surface="outline"] {
 	background: transparent;
 	border: 1px dashed var(--rule);
 }
@@ -5932,4 +6067,45 @@
 .ds-atom-divider[data-style="amber"] {
 	background: rgba(245, 158, 11, 0.3);
 	height: 2px;
+}
+
+/* ─── Reduced motion — system-wide guard ──────────────────────────────────
+   The sheet declares 20 @keyframes and ~74 transition/animation rules, but
+   only Button and Toast previously honoured `prefers-reduced-motion`. Every
+   entry/exit slide, scale and fade in the system was therefore unconditional,
+   which is exactly the large-area motion that triggers vestibular symptoms.
+
+   Durations collapse to 0.01ms rather than `animation: none` on purpose:
+   many entry animations use `both`/forwards to land their final opacity and
+   transform, and killing the animation outright would revert the element to
+   its *pre*-animation frame (invisible). Collapsing the duration keeps the
+   end state and removes the movement.
+
+   Selectors are anchored to a class-name boundary (`^="ds-"` / `*=" ds-"`)
+   rather than `*="ds-"`, which would also match consumer class names that
+   merely contain the substring — e.g. `cards-grid`. */
+@media (prefers-reduced-motion: reduce) {
+	[class^="ds-"],
+	[class^="ds-"]::before,
+	[class^="ds-"]::after,
+	[class*=" ds-"],
+	[class*=" ds-"]::before,
+	[class*=" ds-"]::after {
+		animation-duration: 0.01ms !important;
+		animation-delay: 0ms !important;
+		transition-duration: 0.01ms !important;
+		transition-delay: 0ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	/* Status indicators are exempt: they are the only affordance communicating
+	   "work in progress", and all three animate opacity or rotation on a small
+	   area rather than translating large surfaces. Killing them would leave a
+	   loading button, progress bar and skeleton looking permanently stalled. */
+	.ds-atom-btn-spinner,
+	.ds-atom-progress-dot,
+	.ds-atom-skeleton {
+		animation-duration: revert !important;
+		transition-duration: revert !important;
+	}
 }

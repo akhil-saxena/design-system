@@ -12,6 +12,7 @@ import {
 import { DSPortal } from "../../_internals/DSPortal";
 import { smartAnchorPos } from "../../_internals/floatingPos";
 import { useClickOutside } from "../../hooks/useClickOutside";
+import { useDismiss } from "../../hooks/useDismiss";
 export type HoverCardPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end";
 
 export interface HoverCardProps {
@@ -200,28 +201,26 @@ export function HoverCard({
 
 	// A11y: Escape dismisses the card (whether hovered or pinned) and returns
 	// focus to the anchor so keyboard users are not stranded inside the portal.
-	useEffect(() => {
-		if (!open) return;
-		function onKey(e: KeyboardEvent) {
-			if (e.key !== "Escape") return;
-			setPinned(false);
-			setOpen(false);
-			setPosition(null);
-			clearOpenTimer();
-			clearCloseTimer();
-			// Return focus to the anchor only if focus is currently inside the
-			// portaled panel — otherwise the anchor already holds focus. Suppress
-			// the focusin-reopen that restoring focus would otherwise trigger.
-			const active = document.activeElement;
-			if (active && panelRef.current?.contains(active)) {
-				suppressFocusOpenRef.current = true;
-				anchorRef.current?.focus?.();
-				suppressFocusOpenRef.current = false;
-			}
+	//
+	// modal: false — a hover card may sit above a dialog and should answer its own
+	// Escape rather than waiting to become the topmost layer.
+	const dismiss = useCallback(() => {
+		setPinned(false);
+		setOpen(false);
+		setPosition(null);
+		clearOpenTimer();
+		clearCloseTimer();
+		// Return focus to the anchor only if focus is currently inside the portaled
+		// panel — otherwise the anchor already holds focus. Suppress the
+		// focusin-reopen that restoring focus would otherwise trigger.
+		const active = document.activeElement;
+		if (active && panelRef.current?.contains(active)) {
+			suppressFocusOpenRef.current = true;
+			anchorRef.current?.focus?.();
+			suppressFocusOpenRef.current = false;
 		}
-		document.addEventListener("keydown", onKey);
-		return () => document.removeEventListener("keydown", onKey);
-	}, [open, anchorRef, clearOpenTimer, clearCloseTimer]);
+	}, [anchorRef, clearOpenTimer, clearCloseTimer]);
+	useDismiss(open, dismiss, { modal: false });
 
 	useClickOutside(
 		panelRef,

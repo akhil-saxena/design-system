@@ -9,13 +9,24 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useScrollLock } from "../../hooks/useScrollLock";
 export type BottomSheetHeight = "half" | "full";
 
 export interface BottomSheetProps {
 	open: boolean;
 	onClose: () => void;
 	title?: ReactNode;
+	/**
+	 * Short description rendered under the title and auto-wired to
+	 * `aria-describedby`.
+	 *
+	 * Modal and Sheet have always had this; BottomSheet did not, so the three
+	 * dialog surfaces disagreed — and its Storybook argTypes documented a
+	 * `description` prop that did not exist.
+	 */
+	description?: ReactNode;
 	footer?: ReactNode;
 	children: ReactNode;
 	height?: BottomSheetHeight;
@@ -71,6 +82,7 @@ export function BottomSheet({
 	open,
 	onClose,
 	title,
+	description,
 	footer,
 	children,
 	height = "half",
@@ -86,6 +98,8 @@ export function BottomSheet({
 	const [panelNode, setPanelNode] = useState<HTMLDivElement | null>(null);
 	const generatedTitleId = useId();
 	const titleId = title ? generatedTitleId : undefined;
+	const generatedDescId = useId();
+	const descId = description ? generatedDescId : undefined;
 	// Hoisted constant so biome's lint/a11y/useSemanticElements rule (which
 	// fires only on static "dialog" literals) doesn't insist we swap to a
 	// native <dialog> - that element doesn't honor non-modal backdrop click
@@ -93,6 +107,8 @@ export function BottomSheet({
 	const dialogRole = "dialog" as const;
 
 	useFocusTrap(panelNode, open);
+	// Background must not scroll behind a modal surface.
+	useScrollLock(open);
 
 	// Swipe-to-close gesture (v0.5.1 patch). Tracks pointerdown Y and current
 	// translateY delta; on pointerup, closes if delta exceeds threshold else
@@ -151,14 +167,10 @@ export function BottomSheet({
 	}
 
 	// Escape closes (useFocusTrap from Wave 0 only handles Tab).
-	useEffect(() => {
-		if (!open) return;
-		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") onClose();
-		}
-		document.addEventListener("keydown", onKey);
-		return () => document.removeEventListener("keydown", onKey);
-	}, [open, onClose]);
+	// Escape closes only the *topmost* layer — see useDismiss. Each overlay
+	// previously installed its own document listener, so one press closed every
+	// open layer at once.
+	useDismiss(open, onClose);
 
 	// Keep the footer riding above the mobile soft keyboard. SSR/desktop guard:
 	// bail when there is no window or no visualViewport, leaving kbOffset at 0
@@ -208,6 +220,7 @@ export function BottomSheet({
 					role={dialogRole}
 					aria-modal="true"
 					aria-labelledby={titleId}
+					aria-describedby={descId}
 					style={{
 						...style,
 						transform: dragOffset > 0 ? `translateY(${dragOffset}px)` : undefined,
@@ -226,6 +239,11 @@ export function BottomSheet({
 						<header id={titleId} className="ds-atom-bottomsheet-hd">
 							{title}
 						</header>
+					) : null}
+					{description ? (
+						<div id={descId} className="ds-atom-bottomsheet-desc">
+							{description}
+						</div>
 					) : null}
 					<div className="ds-atom-bottomsheet-body">{children}</div>
 					{footer ? (

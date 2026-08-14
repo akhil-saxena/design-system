@@ -16,6 +16,7 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useDismiss } from "../../hooks/useDismiss";
 export type TooltipPlacement = "auto" | "top" | "right" | "bottom" | "left";
 
 export interface TooltipProps {
@@ -205,20 +206,18 @@ export function Tooltip({ content, placement = "auto", delay = 150, children }: 
 	useEffect(() => () => clearTimer(), [clearTimer]);
 
 	// Escape-to-dismiss while open (WCAG 1.4.13 - dismissible hover/focus content).
-	useEffect(() => {
-		if (!isOpen) return;
-		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") close();
-		}
-		document.addEventListener("keydown", onKey);
-		return () => document.removeEventListener("keydown", onKey);
-	}, [isOpen, close]);
+	// modal: false — a tooltip can legitimately be open on top of a dialog and
+	// should still answer its own Escape, so it stays out of the layer stack.
+	useDismiss(isOpen, close, { modal: false });
 
 	const surfaceStyle: CSSProperties = {
 		position: "absolute",
 		top: pos.top,
 		left: pos.left,
-		zIndex: 9999,
+		// Was a bare 9999, which put the tooltip above the Lightbox takeover.
+		// --z-tooltip keeps it above every interactive surface but below the
+		// full-screen media layer.
+		zIndex: "var(--z-tooltip)",
 	};
 
 	// Allow the cursor to move onto the tooltip surface without dismissing it

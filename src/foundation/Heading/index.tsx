@@ -1,4 +1,5 @@
 import { type CSSProperties, type ElementType, type HTMLAttributes, forwardRef } from "react";
+import { type LegacyTone, type Tone, resolveTone } from "../tone";
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 export type HeadingSizeToken =
@@ -13,7 +14,15 @@ export type HeadingSizeToken =
 	| "3xl"
 	| "4xl";
 export type HeadingWeightToken = "regular" | "medium" | "bold" | "black";
-export type HeadingTone = "ink" | "ink-2" | "ink-3" | "amber";
+/**
+ * Tone override for Heading. Omit for the component's default colour.
+ *
+ * Semantic names (`primary` | `secondary` | `muted` | `accent`) describe the role; the
+ * deprecated raw-token spellings (`ink`, `ink-2`, `ink-3`, `ink-4`, `amber`, …)
+ * still work and render identically. See src/foundation/tone.ts for why the
+ * vocabulary changed.
+ */
+export type HeadingTone = Extract<Tone, "primary" | "secondary" | "muted" | "accent"> | LegacyTone;
 
 export interface HeadingProps extends HTMLAttributes<HTMLHeadingElement> {
 	/** Semantic heading level. @default 2 */
@@ -47,7 +56,7 @@ export interface HeadingProps extends HTMLAttributes<HTMLHeadingElement> {
  *
  * @example
  * <Heading level={1} size={72} weight={900}>Job search, organized.</Heading>
- * <Heading level={2} size="2xl" weight="black" tone="amber">Settings</Heading>
+ * <Heading level={2} size="2xl" weight="black" tone="accent">Settings</Heading>
  */
 export const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(function Heading(
 	{ level = 2, size = 28, weight = 900, color, tone, as, className, style, children, ...rest },
@@ -86,7 +95,7 @@ export const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(function Hea
 			className={`ds-atom-heading${className ? ` ${className}` : ""}`}
 			data-size={dataSize}
 			data-weight={dataWeight}
-			data-tone={tone}
+			data-tone={resolveTone(tone)}
 			style={composed}
 			{...rest}
 		>

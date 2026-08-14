@@ -26,35 +26,56 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	 * @default "md"
 	 */
 	size?: ButtonSize;
-	/** When true, replaces the icon with a spinner and disables interaction. */
+	/**
+	 * When true, replaces the icon with a spinner, sets `aria-busy` and disables
+	 * interaction. The label is deliberately left untouched so the button's
+	 * accessible name is stable across the loading transition — `getByRole
+	 * ("button", { name: "Save" })` keeps matching, and screen readers don't
+	 * re-announce a renamed control.
+	 */
 	loading?: boolean;
 	/** Optional icon rendered before the label. Pass a sized `<Icon>` or lucide component. */
 	icon?: ReactNode;
 }
 
 const baseStyle: CSSProperties = {
-	fontSize: 12,
+	// Type and radius resolve through the token scales rather than raw px. Button
+	// was the least token-compliant component in the system despite being the
+	// flagship: fontSize 10/11/12/13 and borderRadius 5/7/9, none of which sat on
+	// --text-* or --radius-*. The nearest scale steps move each value by at most
+	// 0.5px (type) and 1px (radius), so the buttons look the same while becoming
+	// re-themable by overriding a token.
+	//
+	// `padding` and `gap` deliberately stay in px: 7/14 and 6 are not on the 4px
+	// spacing grid, and snapping them would change button height and label
+	// spacing visibly. Worth revisiting as a deliberate design change.
+	fontSize: "var(--text-sm)",
 	padding: "7px 14px",
-	borderRadius: 7,
-	fontWeight: 500,
+	borderRadius: "var(--radius-md)",
+	fontWeight: "var(--weight-medium)" as CSSProperties["fontWeight"],
 	border: "1px solid var(--rule)",
 	display: "inline-flex",
 	alignItems: "center",
-	gap: 6,
+	justifyContent: "center",
+	gap: "var(--space-1)",
 	cursor: "pointer",
-	fontFamily: "var(--font)",
+	fontFamily: "var(--font-body)",
 	whiteSpace: "nowrap",
-	transition: "all .15s",
 	outline: "none",
+	// `transition` is intentionally absent: .ds-atom-btn in primitives.css owns
+	// it, enumerating the exact properties (transform/background/border/color/
+	// box-shadow/filter) instead of `all`, and pairs it with a
+	// prefers-reduced-motion guard. Declaring `transition: all` inline would win
+	// over the stylesheet and silently defeat both.
 };
 
 const variantStyles: Record<ButtonVariant, CSSProperties> = {
 	// Primary = brand amber CTA. Use for the most-prominent action in any context.
 	primary: {
 		background: "var(--amber)",
-		color: "#1c1917",
+		color: "var(--ink-inverse)",
 		borderColor: "var(--amber-d)",
-		fontWeight: 600,
+		fontWeight: "var(--weight-semibold)" as CSSProperties["fontWeight"],
 	},
 	// Secondary = clean white outlined surface. Use for second-priority actions.
 	// Previous translucent glass (var(--g-bg) + backdrop-filter) rendered as a
@@ -62,10 +83,10 @@ const variantStyles: Record<ButtonVariant, CSSProperties> = {
 	// border reads crisply on any background. Dark-mode override in primitives.css
 	// flips background to translucent-white over dark surfaces.
 	secondary: {
-		background: "#fff",
+		background: "var(--panel)",
 		color: "var(--ink-2)",
-		borderColor: "var(--wire, rgba(0, 0, 0, 0.18))",
-		fontWeight: 600,
+		borderColor: "var(--wire)",
+		fontWeight: "var(--weight-semibold)" as CSSProperties["fontWeight"],
 	},
 	// Ghost = transparent, text-only. Use for tertiary / icon-only / cancel-in-modal.
 	// Color flips via `:root.dark .ds-atom-btn[data-variant="ghost"]` in primitives.css.
@@ -74,25 +95,40 @@ const variantStyles: Record<ButtonVariant, CSSProperties> = {
 		borderColor: "transparent",
 		color: "var(--ink-2)",
 	},
-	// Danger = rich crimson, stays vivid in both themes (no pink flip in dark mode).
-	// Same pattern as primary amber: fixed colour, dark border, always-dark text on bg.
+	// Danger = rich crimson, deliberately fixed rather than tokenised: --red flips
+	// to a pale pink in dark mode (#f0a4a0) because it is tuned as a *text*
+	// colour, which would leave the white label at 2.0:1 on the fill. Holding the
+	// crimson in both themes keeps the label at 4.83:1. Same rationale as the
+	// primary amber fill (8.14:1 against --ink-inverse).
 	danger: {
 		background: "#dc2626",
 		color: "#fff",
 		borderColor: "#b91c1c",
-		fontWeight: 600,
+		fontWeight: "var(--weight-semibold)" as CSSProperties["fontWeight"],
 	},
 };
 
 const sizeStyles: Record<ButtonSize, CSSProperties> = {
-	xs: { fontSize: 10, padding: "3px 8px", borderRadius: 5 },
-	sm: { fontSize: 11, padding: "5px 10px" },
+	xs: {
+		fontSize: "var(--text-2xs)",
+		padding: "3px var(--space-2)",
+		borderRadius: "var(--radius-sm)",
+	},
+	sm: { fontSize: "var(--text-xs)", padding: "5px 10px" },
 	md: {},
 	// lg aligns with OAuthButton's shape so primary CTAs and OAuth buttons
 	// stack at the same height (44px) on auth/onboarding forms. fontSize: 13
 	// matches OAuthButton; padding swapped from 10px 20px (~40px implicit
 	// height) to explicit 0 20px + height 44px for a deterministic match.
-	lg: { fontSize: 13, height: 44, padding: "0 20px", borderRadius: 9, fontWeight: 700 },
+	// Every value here lands exactly on a token step except the radius, which moves
+	// 9px → 8px.
+	lg: {
+		fontSize: "var(--text-base)",
+		height: "var(--space-11)",
+		padding: "0 var(--space-5)",
+		borderRadius: "var(--radius-md)",
+		fontWeight: "var(--weight-bold)" as CSSProperties["fontWeight"],
+	},
 };
 
 /**
@@ -130,6 +166,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 			className={`ds-atom-btn${className ? ` ${className}` : ""}`}
 			data-variant={variant}
 			data-loading={loading ? "true" : undefined}
+			// aria-busy marks the control as mid-operation. Previously the only
+			// signal was a decorative, aria-hidden spinner plus `disabled`, so the
+			// transition into a loading state was silent to assistive tech.
+			aria-busy={loading || undefined}
 			disabled={disabled || loading}
 			style={{
 				...baseStyle,

@@ -90,17 +90,12 @@ const labelStyle: CSSProperties = {
 	userSelect: "none",
 };
 
-const inputStyle: CSSProperties = {
-	position: "absolute",
-	width: 1,
-	height: 1,
-	padding: 0,
-	margin: -1,
-	overflow: "hidden",
-	clip: "rect(0,0,0,0)",
-	whiteSpace: "nowrap",
-	border: 0,
-};
+// The native control stays focusable and hit-testable; only its painting is
+// suppressed, so the styled box beside it is a pure visual proxy. Uses the
+// shared `.ds-visually-hidden` rule (primitives.css) rather than re-inlining
+// the legacy `clip: rect(0,0,0,0)` recipe this file used to carry — that
+// property is deprecated, and Checkbox/Radio/Toggle each kept their own copy.
+const VISUALLY_HIDDEN = "ds-visually-hidden";
 
 // Box uses separate border properties (NOT shorthand) so the CSS
 // :checked rule can override border-color without !important fighting
@@ -141,7 +136,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
 			<input
 				ref={ref}
 				type="radio"
-				className="ds-atom-radio-input"
+				className={`ds-atom-radio-input ${VISUALLY_HIDDEN}`}
 				name={resolvedName}
 				value={value}
 				checked={resolvedChecked}
@@ -150,7 +145,6 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
 					ctx?.onChange(value, e);
 					onChange?.(e);
 				}}
-				style={inputStyle}
 				{...rest}
 			/>
 			<span className="ds-atom-radio-box" style={boxStyle} aria-hidden="true">

@@ -2,12 +2,13 @@ import {
 	type CSSProperties,
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
-	useEffect,
 	useId,
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useScrollLock } from "../../hooks/useScrollLock";
 import { X } from "../../icons";
 import { Button } from "../../inputs/Button";
 export type SheetSide = "right" | "left";
@@ -86,26 +87,14 @@ export function Sheet({
 	useFocusTrap(panel, open);
 
 	// Escape closes (useFocusTrap from Wave 0 only handles Tab).
-	useEffect(() => {
-		if (!open) return;
-		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") onClose();
-		}
-		document.addEventListener("keydown", onKey);
-		return () => document.removeEventListener("keydown", onKey);
-	}, [open, onClose]);
+	// Escape closes only the *topmost* layer — see useDismiss. Each overlay
+	// previously installed its own document listener, so one press closed every
+	// open layer at once.
+	useDismiss(open, onClose);
 
-	// Body scroll-lock while open (SSR-guarded; restores prior overflow on
-	// close/unmount).
-	useEffect(() => {
-		if (!open || typeof document === "undefined") return;
-		const { body } = document;
-		const previousOverflow = body.style.overflow;
-		body.style.overflow = "hidden";
-		return () => {
-			body.style.overflow = previousOverflow;
-		};
-	}, [open]);
+	// Body scroll-lock while open — reference-counted so nested overlays
+	// (a ConfirmDialog raised from this surface) release correctly.
+	useScrollLock(open);
 
 	if (!open) return null;
 

@@ -1,6 +1,8 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useScrollLock } from "../../hooks/useScrollLock";
 import { ChevronLeft, ChevronRight, X } from "../../icons";
 export interface LightboxItem {
 	src: string;
@@ -71,17 +73,10 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange }: L
 	// first focusable child, so it receives initial focus.
 	useFocusTrap(panel, open);
 
-	// Body scroll-lock while open (SSR-guarded; restores prior overflow on
-	// close/unmount).
-	useEffect(() => {
-		if (!open || typeof document === "undefined") return;
-		const { body } = document;
-		const previousOverflow = body.style.overflow;
-		body.style.overflow = "hidden";
-		return () => {
-			body.style.overflow = previousOverflow;
-		};
-	}, [open]);
+	// Body scroll-lock while open — reference-counted so nested overlays
+	// (a ConfirmDialog raised from this surface) release correctly.
+	useScrollLock(open);
+	useDismiss(open, onClose);
 
 	// Keep internal index in sync with the activeIndex prop when uncontrolled
 	// (lets a parent set an initial slide without taking over navigation).
@@ -89,15 +84,18 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange }: L
 		if (!isControlled && activeIndex != null) setInternalIndex(activeIndex);
 	}, [activeIndex, isControlled]);
 
-	function navigateTo(next: number) {
-		const wrapped = ((next % safeLength) + safeLength) % safeLength;
-		if (isControlled) {
+	// useCallback so the document keydown effect below can declare it. As a plain
+	// function it was re-created every render while the effect's dependency list
+	// omitted it — the listener therefore closed over whichever `navigateTo` was
+	// current when `open`/`index`/`length` last changed.
+	const navigateTo = useCallback(
+		(next: number) => {
+			const wrapped = ((next % safeLength) + safeLength) % safeLength;
+			if (!isControlled) setInternalIndex(wrapped);
 			onIndexChange?.(wrapped);
-		} else {
-			setInternalIndex(wrapped);
-			onIndexChange?.(wrapped);
-		}
-	}
+		},
+		[safeLength, isControlled, onIndexChange],
+	);
 
 	function goPrev() {
 		if (!showNav) return;
@@ -112,11 +110,10 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange }: L
 	useEffect(() => {
 		if (!open) return;
 
+		// Escape is handled by useDismiss above so nested layers unwind correctly;
+		// this listener owns only the navigation keys.
 		function onKeyDown(e: KeyboardEvent) {
-			if (e.key === "Escape") {
-				e.preventDefault();
-				onClose();
-			} else if (e.key === "ArrowLeft") {
+			if (e.key === "ArrowLeft") {
 				e.preventDefault();
 				if (length <= 1) return;
 				navigateTo(index - 1);
@@ -131,7 +128,7 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange }: L
 		return () => document.removeEventListener("keydown", onKeyDown);
 		// navigateTo is recreated each render but closes over the latest `index`;
 		// re-subscribing on index change keeps the handler current.
-	}, [open, index, length, onClose]);
+	}, [open, index, length, navigateTo]);
 
 	if (!open || !current) return null;
 

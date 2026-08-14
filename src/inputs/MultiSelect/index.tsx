@@ -18,6 +18,16 @@ export interface MultiSelectProps {
 	 * @default "Select…"
 	 */
 	placeholder?: string;
+	/**
+	 * Accessible name for the trigger. **Required in practice**: the trigger
+	 * carries `role="combobox"`, and combobox is `nameFrom: author` — the visible
+	 * selected value does *not* name it. Without this (or `ariaLabelledBy`) the
+	 * control reaches assistive tech unnamed, which axe reports as a critical
+	 * `button-name` violation.
+	 */
+	ariaLabel?: string;
+	/** Id of a visible label element, when the form already renders one. */
+	ariaLabelledBy?: string;
 	/** When true, the trigger renders as a single-line count summary instead of
 	 * the default chips-in-trigger layout. Useful in filter bars where the
 	 * trigger height needs to stay stable regardless of selection count.
@@ -76,6 +86,8 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 		onChange,
 		options,
 		placeholder = "Select…",
+		ariaLabel,
+		ariaLabelledBy,
 		compact = false,
 		allSelectedLabel = "All",
 		tone = "default",
@@ -129,6 +141,12 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 				className={`ds-atom-multiselect${compact ? " ds-atom-multiselect-compact" : ""}${className ? ` ${className}` : ""}`}
 				// biome-ignore lint/a11y/useSemanticElements: D-501 mandates role="combobox" on the <button> trigger so screen readers announce the listbox-popup pattern; native <select> doesn't support multi-value chip rendering
 				role="combobox"
+				// Falls back to the placeholder so the trigger is never *unnamed*.
+				// "Select…" is a weak name — pass ariaLabel/ariaLabelledBy for a real
+				// one — but an approximate name beats none, and it keeps the default
+				// configuration free of a critical violation.
+				aria-label={ariaLabelledBy ? undefined : (ariaLabel ?? placeholder)}
+				aria-labelledby={ariaLabelledBy}
 				aria-expanded={open}
 				aria-haspopup="listbox"
 				aria-controls={listId}

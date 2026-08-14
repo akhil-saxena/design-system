@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useClickOutside } from "../../hooks/useClickOutside";
+import { useDismiss } from "../../hooks/useDismiss";
 import { Button } from "../../inputs/Button";
 /** Props injected into the trigger element by InlineConfirm. */
 export interface InlineConfirmTriggerProps {
@@ -149,17 +150,8 @@ export function InlineConfirm({
 		onConfirm();
 	}, [clearTimer, onConfirm]);
 
-	// Escape key handler - only active when pending
-	useEffect(() => {
-		if (!pending) return;
-		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") {
-				cancel();
-			}
-		}
-		document.addEventListener("keydown", onKey);
-		return () => document.removeEventListener("keydown", onKey);
-	}, [pending, cancel]);
+	// Escape cancels — topmost layer only, via the shared dismiss primitive.
+	useDismiss(pending, cancel);
 
 	// Click-outside dismissal - uses the canonical useClickOutside hook
 	// (Popover line 95 pattern). Third arg `pending` gates the listener so

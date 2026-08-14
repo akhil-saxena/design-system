@@ -37,7 +37,12 @@ export const OAuthButton = forwardRef<HTMLButtonElement, OAuthButtonProps>(funct
 ) {
 	const composedStyle: CSSProperties = {
 		background: dark ? "rgba(255,255,255,.06)" : "#fff",
-		color: dark ? "var(--cream)" : "var(--ink-2)",
+		// `dark` is an always-dark surface, not "follow the theme", so its label
+		// needs a fixed light colour. It previously used --cream — a *surface*
+		// token, which flips to #181818 in dark mode and left the label at 1.19:1
+		// on the dark fill. Matches the fixed light ink used by the other
+		// always-dark variants (RollingNumber, Card variant="dark").
+		color: dark ? "#f0ede8" : "var(--ink-2)",
 		border: dark ? "1.5px solid rgba(255,255,255,.2)" : "1.5px solid var(--wire)",
 		...style,
 	};

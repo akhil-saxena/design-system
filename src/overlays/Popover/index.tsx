@@ -11,6 +11,7 @@ import {
 import { DSPortal } from "../../_internals/DSPortal";
 import { smartAnchorPos } from "../../_internals/floatingPos";
 import { useClickOutside } from "../../hooks/useClickOutside";
+import { useDismiss } from "../../hooks/useDismiss";
 export type PopoverPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end";
 
 export type PopoverVariant = "default" | "contextmenu";
@@ -122,14 +123,10 @@ export function Popover({
 	useClickOutside(panelRef, () => onOpenChange(false), open);
 
 	// Escape dismissal - listener installed only while open.
-	useEffect(() => {
-		if (!open) return;
-		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") onOpenChange(false);
-		}
-		document.addEventListener("keydown", onKey);
-		return () => document.removeEventListener("keydown", onKey);
-	}, [open, onOpenChange]);
+	useDismiss(
+		open,
+		useCallback(() => onOpenChange(false), [onOpenChange]),
+	);
 
 	if (!open) return null;
 

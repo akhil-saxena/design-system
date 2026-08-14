@@ -1,7 +1,16 @@
 import { type CSSProperties, type HTMLAttributes, forwardRef } from "react";
+import { type LegacyTone, type Tone, resolveTone } from "../tone";
 
 export type EyebrowSize = "xs" | "sm" | "md";
-export type EyebrowTone = "ink-3" | "ink-4" | "amber";
+/**
+ * Tone override for Eyebrow. Omit for the component's default colour.
+ *
+ * Semantic names (`muted` | `accent`) describe the role; the
+ * deprecated raw-token spellings (`ink`, `ink-2`, `ink-3`, `ink-4`, `amber`, …)
+ * still work and render identically. See src/foundation/tone.ts for why the
+ * vocabulary changed.
+ */
+export type EyebrowTone = Extract<Tone, "muted" | "accent"> | LegacyTone;
 
 export interface EyebrowProps extends HTMLAttributes<HTMLSpanElement> {
 	/** Type-scale token. @default "sm" */
@@ -37,7 +46,7 @@ const sizeStyles: Record<EyebrowSize, CSSProperties> = {
  *
  * @example
  * <Eyebrow>FULL NAME</Eyebrow>
- * <Eyebrow size="md" tone="amber">WELCOME BACK</Eyebrow>
+ * <Eyebrow size="md" tone="accent">WELCOME BACK</Eyebrow>
  */
 export const Eyebrow = forwardRef<HTMLSpanElement, EyebrowProps>(function Eyebrow(
 	{ size = "sm", color, tone, className, style, children, ...rest },
@@ -47,7 +56,7 @@ export const Eyebrow = forwardRef<HTMLSpanElement, EyebrowProps>(function Eyebro
 		<span
 			ref={ref}
 			className={`ds-atom-eyebrow${className ? ` ${className}` : ""}`}
-			data-tone={tone}
+			data-tone={resolveTone(tone)}
 			style={{
 				...baseStyle,
 				...sizeStyles[size],

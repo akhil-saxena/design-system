@@ -227,40 +227,52 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 			style={style}
 			data-variant={variant}
 		>
-			{/* Tablist */}
-			<div
-				ref={tablistRef}
-				role="tablist"
-				aria-orientation="horizontal"
-				aria-label={ariaLabel}
-				className="ds-atom-tabs-list"
-				onKeyDown={onKeyDown}
-			>
-				{tabs.slice(0, visibleCount).map((t) => {
-					const isActive = t.id === value;
-					return (
-						<button
-							key={t.id}
-							type="button"
-							role="tab"
-							id={tabId(t.id)}
-							aria-selected={isActive}
-							aria-controls={panelId(t.id)}
-							tabIndex={isActive ? 0 : -1}
-							disabled={t.disabled}
-							onClick={() => {
-								if (!t.disabled) onChange(t.id);
-							}}
-							className="ds-atom-tabs-trigger"
-							data-active={isActive || undefined}
-						>
-							<span className="ds-atom-tabs-label">{t.label}</span>
-							{typeof t.count === "number" && <span className="ds-atom-tabs-count">{t.count}</span>}
-						</button>
-					);
-				})}
+			{/* Tab bar.
+			    `role="tablist"` sits on the inner element, not this one, because an
+			    ARIA tablist may only contain `tab` children — and the overflow
+			    "More" button below is a menu trigger, not a tab. It used to live
+			    inside the tablist (axe: aria-required-children), where it also had
+			    to be in the roving-tabindex cycle.
 
-				{/* More button - part of the tablist keyboard cycle */}
+			    This outer element keeps the ref, class, CSS and keydown handler, so
+			    overflow measurement and arrow-key navigation are unchanged; only the
+			    role moved inward. */}
+			<div ref={tablistRef} className="ds-atom-tabs-list" onKeyDown={onKeyDown}>
+				<div
+					role="tablist"
+					aria-orientation="horizontal"
+					aria-label={ariaLabel}
+					className="ds-atom-tabs-tablist"
+				>
+					{tabs.slice(0, visibleCount).map((t) => {
+						const isActive = t.id === value;
+						return (
+							<button
+								key={t.id}
+								type="button"
+								role="tab"
+								id={tabId(t.id)}
+								aria-selected={isActive}
+								aria-controls={panelId(t.id)}
+								tabIndex={isActive ? 0 : -1}
+								disabled={t.disabled}
+								onClick={() => {
+									if (!t.disabled) onChange(t.id);
+								}}
+								className="ds-atom-tabs-trigger"
+								data-active={isActive || undefined}
+							>
+								<span className="ds-atom-tabs-label">{t.label}</span>
+								{typeof t.count === "number" && (
+									<span className="ds-atom-tabs-count">{t.count}</span>
+								)}
+							</button>
+						);
+					})}
+				</div>
+
+				{/* More button — a sibling of the tablist, still inside the bar so it
+				    stays on the same row and inside the keydown handler above. */}
 				{hasOverflow && (
 					<button
 						ref={moreBtnRef}

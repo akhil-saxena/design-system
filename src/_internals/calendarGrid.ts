@@ -11,8 +11,14 @@ export interface DayCell {
 }
 
 export interface MonthGrid {
-	weeks: DayCell[][]; // 6 weeks × 7 days
-	cells: DayCell[]; // flat 42 cells, same order
+	/**
+	 * Weeks of 7, with a trailing week dropped when every one of its cells falls
+	 * outside the month — so this is 5 *or* 6 rows, not always 6. Callers that
+	 * need a fixed-height grid should chunk `cells` instead.
+	 */
+	weeks: DayCell[][];
+	/** Always exactly 42 cells (6×7), same order as `weeks` before trimming. */
+	cells: DayCell[];
 	weekStart: 0 | 1;
 	monthStart: Date;
 }

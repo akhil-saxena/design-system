@@ -8,7 +8,9 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useScrollLock } from "../../hooks/useScrollLock";
 import { X } from "../../icons";
 import { Button } from "../../inputs/Button";
 export type ModalRole = "dialog" | "alertdialog";
@@ -85,6 +87,8 @@ export function Modal({
 	const descId = description ? generatedDescId : undefined;
 
 	useFocusTrap(panel, open);
+	// Background must not scroll behind a modal surface.
+	useScrollLock(open);
 
 	useEffect(() => {
 		if (!open) return;
@@ -94,14 +98,10 @@ export function Modal({
 		}
 	}, [open, initialFocus]);
 
-	useEffect(() => {
-		if (!open) return;
-		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") onClose();
-		}
-		document.addEventListener("keydown", onKey);
-		return () => document.removeEventListener("keydown", onKey);
-	}, [open, onClose]);
+	// Escape closes only the *topmost* layer — see useDismiss. Each overlay
+	// previously installed its own document listener, so one press closed every
+	// open layer at once.
+	useDismiss(open, onClose);
 
 	if (!open) return null;
 

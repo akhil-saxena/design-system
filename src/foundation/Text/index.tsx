@@ -1,10 +1,21 @@
 import { type CSSProperties, type HTMLAttributes, forwardRef } from "react";
+import { type LegacyTone, type Tone, resolveTone } from "../tone";
 
 export type TextVariant = "body" | "small" | "caption" | "legal";
 export type TextElement = "p" | "span" | "div";
 export type TextSizeToken = "2xs" | "xs" | "sm" | "base" | "md" | "lg";
 export type TextWeightToken = "regular" | "medium" | "bold" | "black";
-export type TextTone = "ink" | "ink-2" | "ink-3" | "ink-4" | "amber" | "red" | "green";
+/**
+ * Tone override for Text. Omit for the component's default colour.
+ *
+ * Semantic names (`primary` | `secondary` | `muted` | `accent` | `danger` | `success`) describe the role; the
+ * deprecated raw-token spellings (`ink`, `ink-2`, `ink-3`, `ink-4`, `amber`, …)
+ * still work and render identically. See src/foundation/tone.ts for why the
+ * vocabulary changed.
+ */
+export type TextTone =
+	| Extract<Tone, "primary" | "secondary" | "muted" | "accent" | "danger" | "success">
+	| LegacyTone;
 export type TextLeading = "tight" | "snug" | "normal" | "relaxed";
 
 export interface TextProps extends HTMLAttributes<HTMLElement> {
@@ -56,7 +67,7 @@ const variantStyles: Record<TextVariant, CSSProperties> = {
  *
  * @example
  * <Text>Mark every step of your job search.</Text>
- * <Text size="sm" tone="ink-3">Applied 3d ago</Text>
+ * <Text size="sm" tone="muted">Applied 3d ago</Text>
  * <Text variant="caption" maxWidth={360}>Sent to alex@example.com…</Text>
  */
 export const Text = forwardRef<HTMLElement, TextProps>(function Text(
@@ -102,7 +113,7 @@ export const Text = forwardRef<HTMLElement, TextProps>(function Text(
 			data-variant={variant}
 			data-size={size}
 			data-weight={weight}
-			data-tone={tone}
+			data-tone={resolveTone(tone)}
 			data-mono={mono ? "true" : undefined}
 			data-leading={leading}
 			style={composed}

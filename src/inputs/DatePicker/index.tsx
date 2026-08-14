@@ -136,25 +136,41 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 	);
 
 	// Sync viewMonth when caller swaps `value` to a different month while controlled.
+	//
+	// The month comparison happens inside the updater rather than against the
+	// `viewMonth` binding: reading state the dependency list does not declare
+	// meant the guard could compare against a stale month. Returning `prev`
+	// unchanged makes React bail out of the re-render, which is what the original
+	// early-return was for — `startOfMonth` allocates a fresh Date every call, so
+	// an unguarded setViewMonth would re-render on every `value` change.
+	//
+	// (The stale `eslint-disable` comment removed here was inert: this project
+	// lints with Biome, so the suppression silenced nothing.)
 	useEffect(() => {
-		if (value) {
-			const target = startOfMonth(value);
-			if (
-				target.getFullYear() !== viewMonth.getFullYear() ||
-				target.getMonth() !== viewMonth.getMonth()
-			) {
-				setViewMonth(target);
-			}
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		if (!value) return;
+		const target = startOfMonth(value);
+		setViewMonth((prev) =>
+			prev.getFullYear() === target.getFullYear() && prev.getMonth() === target.getMonth()
+				? prev
+				: target,
+		);
 	}, [value]);
 
 	const today = new Date();
 
-	const { cells } = useMemo(
-		() => buildMonthGrid(viewMonth.getFullYear(), viewMonth.getMonth(), 0),
-		[viewMonth],
-	);
+	// Rows are needed so the markup can nest role="row" between the grid and its
+	// gridcells — a flat grid → gridcell structure is invalid ARIA.
+	//
+	// Chunked from the flat 42-cell list rather than using buildMonthGrid's own
+	// `weeks`, which drops a trailing all-out-of-month week and so yields 5 rows
+	// in some months. DatePicker renders a fixed 6-row grid on purpose: it is used
+	// inside a popover, and a variable row count would make the panel change
+	// height as the user pages between months. (Calendar renders inline, so it
+	// uses the trimmed `weeks` and is right to.)
+	const rows = useMemo(() => {
+		const { cells } = buildMonthGrid(viewMonth.getFullYear(), viewMonth.getMonth(), 0);
+		return Array.from({ length: 6 }, (_, w) => cells.slice(w * 7, (w + 1) * 7));
+	}, [viewMonth]);
 
 	function step(n: number) {
 		const next = addMonths(viewMonth, n);
@@ -264,48 +280,58 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 
 			{/* biome-ignore lint/a11y/useSemanticElements: <table> is form-tabular semantic; ARIA grid role on a div is the standard pattern for interactive calendars where each cell is a focusable button (matches react-aria + Radix Calendar) */}
 			<div className="ds-atom-datepicker-grid" role="grid">
-				{cells.map(({ date, inMonth }) => {
-					const selected = isCellSelected
-						? isCellSelected(date)
-						: !!(value && isSameDay(date, value));
-					const todayCell = isToday(date);
-					const isDisabled = !!disabled?.(date) || isPastDisabled(date) || isFutureDisabled(date);
-					const inRangeMatch = !!inRange?.(date);
-					const isRangeStartCell = !!isRangeStart?.(date);
-					const isRangeEndCell = !!isRangeEnd?.(date);
-					const hasEvent = eventSet.has(dayKey(date));
-					const cls = [
-						"ds-atom-datepicker-cell",
-						!inMonth && "is-out",
-						selected && "is-selected",
-						isRangeStartCell && "is-range-start",
-						isRangeEndCell && "is-range-end",
-						todayCell && "is-today",
-						isDisabled && "is-disabled",
-						inRangeMatch && "is-in-range",
-					]
-						.filter(Boolean)
-						.join(" ");
-					return (
-						<button
-							key={dayKey(date)}
-							type="button"
-							// biome-ignore lint/a11y/useSemanticElements: <td> is for tabular form data; gridcell role on a <button> is required so each calendar day is keyboard-focusable + clickable via Enter/Space (matches react-aria + Radix Calendar pattern)
-							role="gridcell"
-							aria-selected={selected ? true : undefined}
-							aria-current={todayCell ? "date" : undefined}
-							aria-disabled={isDisabled || undefined}
-							className={cls}
-							disabled={isDisabled}
-							onClick={() => handleSelect(date)}
-						>
-							<span className="ds-atom-datepicker-cell-num">{date.getDate()}</span>
-							{hasEvent ? (
-								<span className="ds-atom-datepicker-event-dot" aria-hidden="true" />
-							) : null}
-						</button>
-					);
-				})}
+				{rows.map((week) => (
+					// An ARIA `grid` must contain `row`s, and a `gridcell` must have a
+					// `row` parent. The cells were emitted as a flat list directly under
+					// the grid, which broke both requirements.
+					// biome-ignore lint/a11y/useSemanticElements: <tr> belongs to a <table>; role="row" on a div is required by the ARIA grid pattern — same rationale as the grid's own suppression above
+					// biome-ignore lint/a11y/useFocusableInteractive: the row is a grouping container, not a stop — the gridcell buttons inside carry focusability
+					<div key={`wk-${dayKey(week[0]!.date)}`} className="ds-atom-datepicker-row" role="row">
+						{week.map(({ date, inMonth }) => {
+							const selected = isCellSelected
+								? isCellSelected(date)
+								: !!(value && isSameDay(date, value));
+							const todayCell = isToday(date);
+							const isDisabled =
+								!!disabled?.(date) || isPastDisabled(date) || isFutureDisabled(date);
+							const inRangeMatch = !!inRange?.(date);
+							const isRangeStartCell = !!isRangeStart?.(date);
+							const isRangeEndCell = !!isRangeEnd?.(date);
+							const hasEvent = eventSet.has(dayKey(date));
+							const cls = [
+								"ds-atom-datepicker-cell",
+								!inMonth && "is-out",
+								selected && "is-selected",
+								isRangeStartCell && "is-range-start",
+								isRangeEndCell && "is-range-end",
+								todayCell && "is-today",
+								isDisabled && "is-disabled",
+								inRangeMatch && "is-in-range",
+							]
+								.filter(Boolean)
+								.join(" ");
+							return (
+								<button
+									key={dayKey(date)}
+									type="button"
+									// biome-ignore lint/a11y/useSemanticElements: <td> is for tabular form data; gridcell role on a <button> is required so each calendar day is keyboard-focusable + clickable via Enter/Space (matches react-aria + Radix Calendar pattern)
+									role="gridcell"
+									aria-selected={selected ? true : undefined}
+									aria-current={todayCell ? "date" : undefined}
+									aria-disabled={isDisabled || undefined}
+									className={cls}
+									disabled={isDisabled}
+									onClick={() => handleSelect(date)}
+								>
+									<span className="ds-atom-datepicker-cell-num">{date.getDate()}</span>
+									{hasEvent ? (
+										<span className="ds-atom-datepicker-event-dot" aria-hidden="true" />
+									) : null}
+								</button>
+							);
+						})}
+					</div>
+				))}
 			</div>
 
 			{showTime ? (

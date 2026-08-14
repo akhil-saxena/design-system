@@ -29,7 +29,11 @@ const DefaultLogo = () => (
 				width: 22,
 				height: 22,
 				borderRadius: 6,
-				background: "var(--ink)",
+				// Fixed dark chip, not var(--ink): --ink is a theme-aware *text* token
+				// that becomes #ededed in dark mode, so the amber mark on it dropped to
+				// 1.83:1. A brand mark should not invert — pinning the chip keeps amber
+				// at 8.1:1 in both themes.
+				background: "#1c1c1a",
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",

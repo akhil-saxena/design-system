@@ -4,6 +4,7 @@ import {
 	type KeyboardEvent as ReactKeyboardEvent,
 	type PointerEvent as ReactPointerEvent,
 	useEffect,
+	useId,
 	useRef,
 	useState,
 } from "react";
@@ -109,6 +110,12 @@ export function ColorPicker({
 	style,
 }: ColorPickerProps) {
 	const initial = value ?? defaultValue;
+	// The HEX and ALPHA captions were bare <label> elements with no `htmlFor`, so
+	// neither focused its field on click; the accessible names came from duplicate
+	// aria-labels. Associating them makes the visible caption the name.
+	const fieldIdBase = useId();
+	const hexInputId = `${fieldIdBase}-hex`;
+	const alphaInputId = `${fieldIdBase}-alpha`;
 	const [color, setColor] = useState<string>(initial);
 	const [hex, setHex] = useState<string>(initial);
 	const [hue, setHue] = useState<number>(() => hexToHsv(initial)[0]);
@@ -125,11 +132,14 @@ export function ColorPicker({
 	}, []);
 
 	// Sync controlled value — do NOT reset hue, preserve user's drag position.
+	// Comparing against `color` read a value the dependency list did not declare,
+	// so the guard could act on a stale colour. Dropping the comparison removes
+	// the stale read entirely: React bails out of a re-render when setState is
+	// called with the value it already holds, so the guard was never load-bearing.
 	useEffect(() => {
-		if (value !== undefined && value !== color) {
-			setColor(value);
-			setHex(value);
-		}
+		if (value === undefined) return;
+		setColor(value);
+		setHex(value);
 	}, [value]);
 
 	/**
@@ -437,6 +447,7 @@ export function ColorPicker({
 				/>
 				<div style={{ flex: 1 }}>
 					<label
+						htmlFor={hexInputId}
 						style={{
 							fontFamily: "var(--mono)",
 							fontSize: 9,
@@ -449,15 +460,16 @@ export function ColorPicker({
 						HEX
 					</label>
 					<input
+						id={hexInputId}
 						className="ds-input"
 						value={hex}
 						onChange={handleHexChange}
-						aria-label="Hex color"
 						style={{ fontFamily: "var(--mono)", fontSize: 12, width: "100%" }}
 					/>
 				</div>
 				<div style={{ width: 56 }}>
 					<label
+						htmlFor={alphaInputId}
 						style={{
 							fontFamily: "var(--mono)",
 							fontSize: 9,
@@ -470,10 +482,10 @@ export function ColorPicker({
 						ALPHA
 					</label>
 					<input
+						id={alphaInputId}
 						className="ds-input"
 						value={`${opacity}%`}
 						readOnly
-						aria-label="Alpha opacity"
 						style={{
 							fontFamily: "var(--mono)",
 							fontSize: 12,

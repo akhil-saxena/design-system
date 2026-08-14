@@ -35,8 +35,15 @@ export interface InfiniteListProps<T = unknown> {
 	/** Called when the sentinel element enters the viewport; consumer triggers the next page fetch. */
 	onLoadMore: () => void;
 	/** Custom loading indicator; replaces the default 3-Skeleton row. */
+	/**
+	 * Content for the loading row. Rendered *inside* an `<li>` the component
+	 * provides — pass content, not a list item.
+	 */
 	loadingSlot?: ReactNode;
-	/** Custom end-of-list message; replaces the default "End of list" text. */
+	/**
+	 * Content for the end-of-list row, replacing the default "End of list" text.
+	 * Rendered *inside* an `<li>` the component provides.
+	 */
 	endSlot?: ReactNode;
 	/** IntersectionObserver rootMargin for pre-fetching before the sentinel reaches the viewport.
 	 * @default "200px"
@@ -105,26 +112,33 @@ function InfiniteListInner<T>(
 				</li>
 			))}
 
+			{/* Slot content is wrapped in <li> by the component, not by the consumer.
+			    A <ul> may only contain <li> (plus <script>/<template>), and both slots
+			    are consumer-supplied — so a plain <div> slot, which is the natural
+			    thing to pass, produced invalid list markup (axe: `list`). Owning the
+			    wrapper here makes the API correct by construction. */}
 			{hasMore && (
 				<>
-					{loading &&
-						(loadingSlot ?? (
-							<li aria-hidden="true" className="ds-atom-infinitelist-loading">
-								<Skeleton shape="text" />
-								<Skeleton shape="text" />
-								<Skeleton shape="text" />
-							</li>
-						))}
+					{loading && (
+						<li aria-hidden="true" className="ds-atom-infinitelist-loading">
+							{loadingSlot ?? (
+								<>
+									<Skeleton shape="text" />
+									<Skeleton shape="text" />
+									<Skeleton shape="text" />
+								</>
+							)}
+						</li>
+					)}
 					<li ref={sentinelRef} aria-hidden="true" className="ds-atom-infinitelist-sentinel" />
 				</>
 			)}
 
-			{!hasMore &&
-				(endSlot ?? (
-					<li className="ds-atom-infinitelist-end" aria-live="polite">
-						End of list
-					</li>
-				))}
+			{!hasMore && (
+				<li className="ds-atom-infinitelist-end" aria-live="polite">
+					{endSlot ?? "End of list"}
+				</li>
+			)}
 		</ul>
 	);
 }
