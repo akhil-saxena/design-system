@@ -6,6 +6,195 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## 1.10.0 — Production-hardening pass
+
+A systematic audit and remediation pass. No component was removed and no
+published API was broken; the visible changes are the focus ring and a handful of
+status colours, all driven by measured contrast failures.
+
+### Fixed — visible
+
+- **Focus indicator now meets WCAG 1.4.11.** `--focus` was the brand `--amber`
+  (#f59e0b), which measures **2.09:1** on `--cream` against a required 3:1 — the
+  system's focus ring was not a compliant indicator anywhere in light mode. It is
+  now keyed to `--amber-d`: 4.57–5.02:1 across the light surface ramp, 9.9–11.4:1
+  in dark. **Focus rings therefore render a deeper amber than before.** Override
+  `--focus` to restyle every focus state in the library at once.
+- **28 font declarations were being dropped by the browser.** A wave of components
+  (SegmentedControl → RichText, including Tabs, Table, Calendar, Timeline) was
+  authored against `--font-body` / `--font-display` / `--font-mono`, which the
+  token layer never defined — it defines `--font` / `--display` / `--mono`. 28 of
+  31 had no fallback, so the declarations were invalid at computed-value time and
+  the text silently inherited the body font. Every "monospace" data cell in the
+  system was rendering in Inter. `--font-*` is now the canonical vocabulary, with
+  the short names kept as aliases.
+- **Dark-mode muted text failed AA.** `--ink-4` was used as a text colour in ~28
+  places and measured **1.96:1** in dark mode — invisible in review because light
+  mode had `--ink-4` and `--ink-3` set to the identical value, so the bug existed
+  in only one theme. `--ink-4` is now an explicit alias of `--ink-3`, and dark
+  `--ink-3` was raised to #919191 (was 3.44:1).
+- **Avatar palette.** Three of six default swatches failed AA for their white
+  initials (amber 3.19:1, green 3.30:1, sky 4.10:1). Since the swatch is chosen by
+  hashing the user's name, whether a given user's initials were legible was
+  effectively random. Darkened to the nearest compliant shade of the same hue.
+- **Three components used *surface* tokens as text colours**, so they inverted
+  with the theme while their pair did not: OAuthButton `dark` (1.19:1 in dark
+  mode), AppBar's logo chip (1.83:1 in dark), FormValidation's strength label
+  (2.05:1, using a `--*-vivid` token the token layer documents as never-for-text).
+
+### Fixed — behaviour
+
+- **Overlays rendered behind each other.** z-index was unscaled (0, 10, 60, 100,
+  1000, 1500, 9999): ActionSheet at 61 and Popover at 100 sat *below* Modal at
+  1000, so either one opened from inside a dialog was invisible. Added a `--z-*`
+  layering scale.
+- **Modal, ConfirmDialog and BottomSheet never locked body scroll**, and
+  ActionSheet's version cleared `overflow` outright — unlocking the page beneath a
+  still-open Modal. Replaced five divergent copies with a reference-counted
+  `useScrollLock`.
+- **One Escape press closed every open overlay.** Fifteen components each
+  installed their own document keydown listener. `useDismiss` keeps a layer stack
+  so only the topmost responds.
+- **ActionSheet declared `role="menu"` with no keyboard support** — no arrow keys,
+  Home or End. The role promised an interaction model the component did not
+  implement. Now follows the WAI-ARIA menu pattern, and skips disabled items.
+- **DatePicker's ARIA grid was invalid**: `role="grid"` containing
+  `role="gridcell"` with no `role="row"` between. DateRangePicker composes it, so
+  both were affected.
+- **Select and MultiSelect were unnameable.** Their triggers carry
+  `role="combobox"`, which is `nameFrom: author`, and neither component had any
+  naming prop. Added `ariaLabel` / `ariaLabelledBy`.
+- **Avatar's accessible name never reached assistive tech** — `aria-label` sat on a
+  bare `<div>`, whose `generic` role does not support naming, so screen readers
+  read the initials instead ("Akhil Saxena" announced as "A S"). Presence is now
+  part of the name rather than `aria-hidden`.
+- **RichText's editable surface and NumberStepper's input were unnamed**, for the
+  same reason — the label was on a role-less wrapper.
+- **`prefers-reduced-motion` was almost entirely unimplemented**: 20 keyframes and
+  ~74 transition rules with 2 guards. Worse, Button's inline `transition: all
+  .15s` overrode both the stylesheet's transition *and* its reduced-motion block.
+  Added a system-wide guard, with loading indicators deliberately exempt.
+- **The package could not be used from a React Server Component.** `use client`
+  did not survive the build at all (esbuild strips module directives; tsup's
+  `treeshake` runs rollup, which strips them again), so all 46 stateful components
+  were undeclared client components.
+- Carousel's dot-nav button had no `type`, so changing slide submitted any
+  enclosing form. Three Modal stories still used a ConfirmDialog API deleted in
+  Phase 18. ColorPicker's "HEX"/"ALPHA" labels were never associated with their
+  fields.
+
+### Added
+
+- `useScrollLock(active)` — reference-counted body scroll lock, safe to nest.
+- `useDismiss(active, onDismiss, { modal })` — topmost-only Escape handling.
+- `--z-*` layering scale, `--scrim` / `--scrim-strong`, `--focus-ring-soft`,
+  `--error-ring`, `--wire`, `--ink-inverse`, `--green-ink` / `--red-ink`
+  (on-tint text colours; `--amber-ink` already existed), light-mode
+  `--rule-strong`.
+- `.ds-visually-hidden` utility. Checkbox/Radio/Toggle previously each inlined the
+  deprecated `clip: rect(0,0,0,0)` recipe.
+- `Badge` gains the semantic status tones `info` / `success` / `warning` / `error`,
+  matching AlertBanner and Toast. The README's own first example used
+  `tone="amber"`, which was never a valid `BadgeTone`.
+- `Snackbar` tones widened to `info` / `warning` for parity with Toast and
+  AlertBanner.
+- `ConfirmDialog` accepts `tone="warning"`; the original `"warn"` spelling still
+  works and resolves identically.
+- `Calendar` gains `nowOverride` so its clock-derived rendering is testable.
+
+### Changed — API (deprecations, no removals)
+
+Every rename below keeps the old spelling working, so no consumer breaks. The old
+names are marked `@deprecated` and resolve to the new ones at runtime.
+
+- **Heading / Text / Eyebrow tones are semantic.** They exposed three *different
+  subsets of raw token names* — `HeadingTone` had `ink | ink-2 | ink-3 | amber`,
+  `TextTone` added `ink-4 | red | green`, `EyebrowTone` had only three. That
+  leaked the internal ramp into the public API (so the ramp could never be
+  renamed), and `ink-4` was an alias of `ink-3`, meaning two spellings for one
+  colour. All three now share one vocabulary:
+  `primary | secondary | muted | accent | danger | success`. The raw names still
+  work — see `src/foundation/tone.ts`.
+- **`Card`'s two style axes are untangled.** `variant` and `tone` both accepted
+  `amber` while rendering *differently* (gradient vs flat wash); `tone="cream-2"`
+  leaked a token name; `tone="flat"` was a border style, not a tone. `tone` is
+  replaced by `surface`: `amber → tint`, `cream-2 → subtle`, `flat → outline`.
+  Renderings are unchanged.
+- **`Card`'s `hover` is a boolean.** It was a single-member union (`"elevate"`)
+  used as one. The string still works.
+- **`ActionSheet` takes `ariaLabel`.** 26 components spell this prop `ariaLabel`
+  and 3 spelled it `"aria-label"`; the majority now wins. The old spelling is
+  still accepted.
+- **Card and StickyNote moved from `overlays/` to a new `surfaces/` category.**
+  Neither is an overlay. `exports` has no `./overlays/*` subpath, so this is
+  internal only — imports from the package root are unaffected.
+
+### Added — API
+
+- **`TextInput` and `Textarea` take `label`, `hint` and `errorMessage`.**
+  Neither had a label prop, so every consumer hand-wired `<label htmlFor>` + `id`
+  — and the ones that forgot shipped an unnamed field. The system's own SplitHero
+  showcase passed `label="Email"`, which React silently dropped onto the DOM,
+  leaving both sign-in fields unnamed. `errorMessage` implies `error`, and both
+  components now set `aria-invalid` (previously only `data-error`, which is
+  styling-only and invisible to assistive tech).
+- **`BottomSheet` takes `description`**, auto-wired to `aria-describedby`, for
+  parity with Modal and Sheet. Its Storybook argTypes had documented this prop
+  for some time; it did not exist.
+- **`useDismiss(active, onDismiss, { modal })`** — Escape closes only the topmost
+  layer. Fifteen components each installed their own document keydown listener, so
+  a single Escape closed *every* open layer: press it in a ConfirmDialog raised
+  from a Sheet and both vanished. Eleven overlays now share the primitive; the
+  four remaining Escape handlers are field-level "cancel this edit" handlers on
+  inputs, which correctly stay out of the layer stack.
+- **Per-component stylesheets.** `@akhil-saxena/design-system/css/<component>`
+  plus a 4.7KB `css/base`, so a Button-only consumer ships ~8KB instead of 165KB.
+  Generated from `primitives.css` at build time — a test asserts the split
+  round-trips byte-for-byte, so the granular and whole-sheet paths cannot diverge.
+  `primitives.css` is unchanged and remains the default.
+
+### Fixed — more contrast
+
+- **`Button` now resolves type, radius and weight through the token scales.** It
+  was the least token-compliant component in the system despite being the
+  flagship: `fontSize` 10/11/12/13 and `borderRadius` 5/7/9, none on `--text-*` or
+  `--radius-*`, so it could not be re-themed by overriding a token. The nearest
+  scale steps move each value by at most 0.5px (type) and 1px (radius). `padding`
+  and `gap` deliberately stay in px — 7/14 and 6 are off the 4px grid and snapping
+  them would change button height visibly.
+- **Calendar's out-of-month days failed AA at 2.08:1.** The dimming came from
+  `opacity: 0.5`, which silently destroyed the contrast of an otherwise-compliant
+  colour: `--ink-3` (5.6:1) composited at 50% renders as `#b4b1ae`. These cells
+  are interactive buttons, so WCAG's inactive-component exemption does not apply.
+- **Calendar event chips using `--purple-vivid` failed at 4.13:1** — andwhite
+  text on it only reaches 4.23:1, so neither direction passes. Chips must use the
+  text-tuned siblings; `CalendarEvent.color` now documents that.
+- **`Snackbar` tones widened** to `info | warning` for parity with Toast and
+  AlertBanner.
+
+### Removed
+
+- `src/_tokens.ts` — 40 lines of dead code with zero imports, encoding a sixth
+  contradictory focus ring and glass values with no dark-mode handling.
+
+### Tooling
+
+- `npm run typecheck` now covers the 179 test and story files that `tsconfig.json`
+  excluded. This surfaced **104 type errors across 36 files**, all fixed.
+- axe-core runs over every story (`npm run test:a11y`). Violations went from
+  **105 to 27 (-74%)**, with every structural ARIA bug resolved.
+- Coverage thresholds enforced as a ratchet; `npm run test:coverage`.
+- Visual-regression suite made deterministic. It had never been stable — no
+  animation freezing, 11 live network image fetches, and clock-derived rendering
+  meant each re-record produced a different flaky story.
+- Token-layer guardrail tests: no dark-only tokens, no undefined `var()`
+  references, all focus states routed through tokens, no bare z-index, and
+  computed WCAG ratios for the ink ramp and focus ring.
+- Re-enabled the Biome rules that were switched off (`useExhaustiveDependencies`,
+  `useButtonType`, `noLabelWithoutControl`, `noExplicitAny`).
+
+---
+
 ## 1.0.0 — Wave 7: Layout Shell, Patterns, Interaction + Illustrations
 
 ### New primitives (DS-71 through DS-81)

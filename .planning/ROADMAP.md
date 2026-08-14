@@ -224,11 +224,73 @@
   6. All components pass axe-core with zero violations in light + dark mode
 **Plans**: TBD
 
+### Phase 28: Tier 1 — Packaging & Typecheck Correctness
+
+**Goal**: The package is consumable from a React Server Component tree, and `npm run typecheck` actually covers every TypeScript file in the repo.
+**Depends on**: Phases 1–27 (all shipped components)
+**Requirements**: REQ-hardening-rsc, REQ-hardening-typecheck
+**Status**: ready
+**Source**: Production-readiness audit (2026-08-14)
+**Success Criteria** (what must be TRUE):
+  1. `grep -c 'use client' dist/index.js` returns > 0 — the directive currently does not survive tsup/esbuild bundling at all (0 occurrences), so all 46 stateful components are undeclared client components
+  2. Importing any interactive component from a Next.js App Router server component does not throw a "useState only works in Client Components" build error
+  3. `tsc --noEmit` type-checks the 179 previously-excluded `*.test.tsx` / `*.stories.tsx` files
+  4. All type errors surfaced by (3) are fixed, not suppressed
+  5. Full suite still green: tests, lint, build
+**Plans**: TBD
+
+### Phase 29: Tier 2 — Quality Automation
+
+**Goal**: The classes of defect found by hand in the audit are caught automatically on every run.
+**Depends on**: Phase 28
+**Requirements**: REQ-hardening-lint, REQ-hardening-axe, REQ-hardening-coverage
+**Status**: ready
+**Source**: Production-readiness audit (2026-08-14)
+**Success Criteria** (what must be TRUE):
+  1. `useExhaustiveDependencies` is re-enabled in biome.json and all resulting findings are resolved (this rule guards the stale-closure class across ~50 hook-using components)
+  2. `useButtonType`, `noLabelWithoutControl` and `noExplicitAny` are re-enabled and clean
+  3. `@storybook/addon-a11y` is installed and axe runs over every story via `@storybook/test-runner`
+  4. Zero axe violations across all stories in light mode, or every accepted exception is documented inline with a reason
+  5. Vitest coverage thresholds are configured and met, so coverage cannot silently regress
+  6. Playwright visual baselines are regenerated for the intentional focus-ring / scrim / Avatar-palette changes from the hardening pass
+**Plans**: TBD
+
+### Phase 30: Tier 3 — Shared Primitives & Styling Architecture
+
+**Goal**: Overlay dismissal is one primitive rather than 15 copies, the inline-vs-CSS boundary is explicit and enforced, and consumers only download the CSS they use.
+**Depends on**: Phase 29
+**Requirements**: REQ-hardening-dismiss, REQ-hardening-style-boundary, REQ-hardening-css-split
+**Status**: ready
+**Source**: Production-readiness audit (2026-08-14)
+**Success Criteria** (what must be TRUE):
+  1. A shared dismiss hook replaces the document-level Escape handler duplicated across 15 files
+  2. With nested overlays open, Escape closes only the topmost — today every open overlay responds to a single Escape
+  3. The inline-vs-CSS boundary is documented and enforced by a test: no inline style may declare a property that `primitives.css` also declares for the same component (the failure mode that let Button's inline `transition: all .15s` silently override its own reduced-motion guard)
+  4. `primitives.css` is split per component with `exports` subpaths, so importing only Button no longer ships 160KB of CSS
+  5. The existing single-file CSS entrypoints keep working for current consumers
+**Plans**: TBD
+
+### Phase 31: Tier 4 — API Debt
+
+**Goal**: The public API stops leaking internals and stops contradicting itself, in one deliberate breaking release.
+**Depends on**: Phase 30
+**Requirements**: REQ-hardening-api
+**Status**: ready
+**Source**: Production-readiness audit (2026-08-14)
+**Success Criteria** (what must be TRUE):
+  1. Heading/Text/Eyebrow take semantic tones (e.g. `default | muted | accent`) instead of leaking raw token names like `tone="ink-3"`
+  2. Button's sizes resolve through `--text-*` and `--radius-*` instead of arbitrary px (fontSize 10/11/12/13, borderRadius 5/7/9)
+  3. Card's overlapping `variant` and `tone` axes are resolved into one coherent model (both currently accept `amber`; `variant` is self-documented as "legacy")
+  4. Snackbar's tone set matches Toast and AlertBanner rather than being narrower
+  5. Card and StickyNote no longer live under `overlays/`, since neither is an overlay
+  6. Every breaking change ships with a deprecation alias or a codemod, and CHANGELOG.md documents the hardening pass including the visible focus-ring change
+**Plans**: TBD
+
 ---
 
 ## Progress
 
-**Execution Order:** Phases execute in numeric order: 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 25 → 26 → 27. All phases now have spec-level intel; phases 24–27 are ready to plan.
+**Execution Order:** Phases execute in numeric order: 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 25 → 26 → 27, then the hardening track 28 → 29 → 30 → 31. Phases 28–31 come from the production-readiness audit and do not depend on 24–27 (which remain blocked on spec ingest), so the hardening track can proceed independently. All phases now have spec-level intel; phases 24–27 are ready to plan.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -244,3 +306,7 @@
 | 25. NotificationCenter | Milestone 2 | 0/TBD | Blocked | - |
 | 26. FileUploadZone | Milestone 2 | 0/TBD | Blocked | - |
 | 27. MediaCard + StatusPages | Milestone 2 | 0/TBD | Blocked | - |
+| 28. Tier 1 — Packaging & Typecheck | Hardening | 2/2 | Complete | 2026-08-14 |
+| 29. Tier 2 — Quality Automation | Hardening | 4/4 | Complete | 2026-08-14 |
+| 30. Tier 3 — Primitives & Styling | Hardening | 3/3 | Complete | 2026-08-14 |
+| 31. Tier 4 — API Debt | Hardening | 6/6 | Complete | 2026-08-14 |

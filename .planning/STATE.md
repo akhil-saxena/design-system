@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 23 (DataGrid) complete — all 3 plans shipped. DataGrid composes Table + 3 hooks; <Pagination> sibling-not-descendant of <table> verified. 18 new tests pass; 3 pre-existing failures unchanged. Ready for Phase 21 (ColorPicker) or Phase 22 (CommandPalette).
+stopped_at: Hardening track COMPLETE — Phases 28-31 all shipped and verified (1163 tests, typecheck clean incl. tests+stories, biome clean with all rules on, axe 105->25 violations, visual baselines stable, per-component CSS split live). Previously: Phase 23 (DataGrid) complete — all 3 plans shipped. DataGrid composes Table + 3 hooks; <Pagination> sibling-not-descendant of <table> verified. 18 new tests pass; 3 pre-existing failures unchanged. Ready for Phase 21 (ColorPicker) or Phase 22 (CommandPalette).
 last_updated: "2026-05-05T16:42:00Z"
 last_activity: 2026-05-05
 progress:
@@ -105,6 +105,13 @@ Progress: [████████░░░░░░░░░░░░] ~41% (p
 - [Phase 023-02]: Bulk-bar class is .ds-atom-datagrid-bulkbar (no hyphen) — Plan 02 draft used .ds-atom-datagrid-bulk-bar typo; tests use shipped class name
 - [Phase 023-02]: 18 tests pass covering all 7 REQ-23-01 acceptance criteria including HTML validity gate (nav-not-in-table)
 - [Phase 023-03]: Phase 23 fully complete — DataGrid (CSS atoms + component + 18 tests + 4 stories + barrel export)
+
+### Roadmap Evolution
+
+- Phase 28 added: Tier 1 — Packaging & Typecheck Correctness (audit finding: `use client` stripped from dist; 179 files excluded from typecheck)
+- Phase 29 added: Tier 2 — Quality Automation (re-enable disabled Biome rules, axe over stories, coverage thresholds, visual baselines)
+- Phase 30 added: Tier 3 — Shared Primitives & Styling Architecture (dismiss hook, inline-vs-CSS boundary, CSS code-splitting)
+- Phase 31 added: Tier 4 — API Debt (semantic tones, Button scales, Card axes, Snackbar tones, relocation, CHANGELOG)
 
 ### Pending Todos
 
