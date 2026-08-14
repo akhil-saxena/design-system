@@ -35,7 +35,7 @@ describe("Eyebrow", () => {
 	it("tone emits data-tone and omits inline color fallback", () => {
 		const { container } = render(<Eyebrow tone="amber">x</Eyebrow>);
 		const el = container.querySelector("span") as HTMLSpanElement;
-		expect(el.dataset.tone).toBe("amber");
+		expect(el.dataset.tone).toBe("accent");
 		expect(el.style.color).toBe("");
 	});
 
@@ -55,5 +55,40 @@ describe("Eyebrow", () => {
 		const ref = createRef<HTMLSpanElement>();
 		render(<Eyebrow ref={ref}>x</Eyebrow>);
 		expect(ref.current).toBeInstanceOf(HTMLSpanElement);
+	});
+});
+
+describe("Eyebrow — semantic tones", () => {
+	// The public vocabulary is semantic; the deprecated raw-token spellings are
+	// normalised to it so `primitives.css` needs only one rule per role.
+	it("passes a semantic tone straight through", () => {
+		const { container } = render(<Eyebrow tone="accent">x</Eyebrow>);
+		const el = container.querySelector("span") as HTMLSpanElement;
+		expect(el.dataset.tone).toBe("accent");
+		expect(el.style.color).toBe("");
+	});
+
+	it("maps the deprecated raw-token names onto semantic roles", () => {
+		const cases: Array<[string, string]> = [
+			["amber", "accent"],
+			["ink-3", "muted"],
+			// --ink-4 is an alias of --ink-3, so both spellings mean "muted".
+			["ink-4", "muted"],
+		];
+		for (const [legacy, semantic] of cases) {
+			const { container, unmount } = render(
+				// biome-ignore lint/suspicious/noExplicitAny: exercising the deprecated union members by string
+				<Eyebrow tone={legacy as any}>x</Eyebrow>,
+			);
+			const el = container.querySelector("span") as HTMLSpanElement;
+			expect(el.dataset.tone, `${legacy} should map to ${semantic}`).toBe(semantic);
+			unmount();
+		}
+	});
+
+	it("omits data-tone entirely when no tone is given", () => {
+		const { container } = render(<Eyebrow>x</Eyebrow>);
+		const el = container.querySelector("span") as HTMLSpanElement;
+		expect(el.dataset.tone).toBeUndefined();
 	});
 });

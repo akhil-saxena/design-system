@@ -79,7 +79,7 @@ export const WithLabel: Story = {
 					fontFamily: "var(--mono)",
 					fontSize: 13,
 					fontWeight: 600,
-					color: "var(--ink-1)",
+					color: "var(--ink)",
 				}}
 			>
 				65%

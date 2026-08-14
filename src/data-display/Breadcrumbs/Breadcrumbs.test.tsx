@@ -68,8 +68,8 @@ describe("Breadcrumbs", () => {
 	it("renders anchor when href is provided, span when not", () => {
 		render(<Breadcrumbs items={THREE_ITEMS} />);
 		// Home and Section have href → rendered as <a>
-		expect(screen.getAllByRole("link", { name: "Home" })[0].tagName).toBe("A");
-		expect(screen.getAllByRole("link", { name: "Section" })[0].tagName).toBe("A");
+		expect(screen.getAllByRole("link", { name: "Home" })[0]!.tagName).toBe("A");
+		expect(screen.getAllByRole("link", { name: "Section" })[0]!.tagName).toBe("A");
 		// "Current Page" has no href → rendered as span (not a link)
 		expect(screen.queryByRole("link", { name: "Current Page" })).toBeNull();
 	});

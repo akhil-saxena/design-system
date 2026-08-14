@@ -8,9 +8,15 @@ function TrapHarness({ active }: { active: boolean }) {
 	useFocusTrap(node, active);
 	return (
 		<div ref={setNode}>
-			<button data-testid="first">First</button>
-			<button data-testid="middle">Middle</button>
-			<button data-testid="last">Last</button>
+			<button type="button" data-testid="first">
+				First
+			</button>
+			<button type="button" data-testid="middle">
+				Middle
+			</button>
+			<button type="button" data-testid="last">
+				Last
+			</button>
 		</div>
 	);
 }

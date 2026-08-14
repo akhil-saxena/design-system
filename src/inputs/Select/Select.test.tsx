@@ -66,7 +66,7 @@ describe("Select", () => {
 		// activeIndex starts at 0; ArrowDown moves to 1, Enter selects index 1.
 		fireEvent.keyDown(document, { key: "ArrowDown" });
 		fireEvent.keyDown(document, { key: "Enter" });
-		expect(onChange).toHaveBeenCalledWith(STATUS_OPTIONS[1].value);
+		expect(onChange).toHaveBeenCalledWith(STATUS_OPTIONS[1]!.value);
 	});
 
 	it("search filters options by case-insensitive label substring", () => {
@@ -79,7 +79,7 @@ describe("Select", () => {
 		fireEvent.change(search!, { target: { value: "off" } });
 		const visible = Array.from(document.body.querySelectorAll('[role="option"]'));
 		expect(visible.length).toBe(1);
-		expect(visible[0].textContent).toContain("Offer");
+		expect(visible[0]!.textContent).toContain("Offer");
 	});
 
 	it("empty filter result shows the No results empty state", () => {

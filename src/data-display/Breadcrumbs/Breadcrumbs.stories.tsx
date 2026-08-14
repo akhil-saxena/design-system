@@ -220,10 +220,12 @@ export const DarkMode: Story = {
 			</div>
 		),
 	],
+	// Distinct ariaLabels: two <nav> landmarks with the same name in one view are
+	// indistinguishable to a screen reader's landmark list.
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-			<Breadcrumbs items={THREE_ITEMS} />
-			<Breadcrumbs items={SEVEN_ITEMS} maxVisible={4} />
+			<Breadcrumbs items={THREE_ITEMS} ariaLabel="Breadcrumb (short)" />
+			<Breadcrumbs items={SEVEN_ITEMS} maxVisible={4} ariaLabel="Breadcrumb (collapsed)" />
 		</div>
 	),
 };

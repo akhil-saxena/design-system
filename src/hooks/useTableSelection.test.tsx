@@ -42,19 +42,19 @@ function Harness({
 					{String(isSelected(id))}
 				</div>
 			))}
-			<button onClick={() => toggle(1)} data-testid="toggle-1">
+			<button type="button" onClick={() => toggle(1)} data-testid="toggle-1">
 				toggle 1
 			</button>
-			<button onClick={() => toggle(2)} data-testid="toggle-2">
+			<button type="button" onClick={() => toggle(2)} data-testid="toggle-2">
 				toggle 2
 			</button>
-			<button onClick={() => toggle(3)} data-testid="toggle-3">
+			<button type="button" onClick={() => toggle(3)} data-testid="toggle-3">
 				toggle 3
 			</button>
-			<button onClick={() => toggleAll()} data-testid="toggleAll">
+			<button type="button" onClick={() => toggleAll()} data-testid="toggleAll">
 				toggle all
 			</button>
-			<button onClick={() => clear()} data-testid="clear">
+			<button type="button" onClick={() => clear()} data-testid="clear">
 				clear
 			</button>
 		</div>

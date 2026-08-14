@@ -155,9 +155,9 @@ describe("SegmentedControl", () => {
 			/>,
 		);
 		const radios = screen.getAllByRole("radio");
-		expect(radios[0].getAttribute("tabindex")).toBe("-1"); // Day
-		expect(radios[1].getAttribute("tabindex")).toBe("0"); // Week (active)
-		expect(radios[2].getAttribute("tabindex")).toBe("-1"); // Month
+		expect(radios[0]!.getAttribute("tabindex")).toBe("-1"); // Day
+		expect(radios[1]!.getAttribute("tabindex")).toBe("0"); // Week (active)
+		expect(radios[2]!.getAttribute("tabindex")).toBe("-1"); // Month
 	});
 
 	it("disabled group: clicking does not fire onChange", () => {
@@ -203,9 +203,9 @@ describe("SegmentedControl", () => {
 			/>,
 		);
 		const buttons = container.querySelectorAll("button[role='radio']");
-		expect(buttons[0].getAttribute("data-active")).toBeNull();
-		expect(buttons[1].getAttribute("data-active")).toBe("true");
-		expect(buttons[2].getAttribute("data-active")).toBeNull();
+		expect(buttons[0]!.getAttribute("data-active")).toBeNull();
+		expect(buttons[1]!.getAttribute("data-active")).toBe("true");
+		expect(buttons[2]!.getAttribute("data-active")).toBeNull();
 	});
 
 	it("renders with size prop applied as data-size", () => {

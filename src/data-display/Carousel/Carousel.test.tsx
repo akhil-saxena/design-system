@@ -149,7 +149,7 @@ describe("Carousel", () => {
 	it("clicking a dot jumps to that slide index", () => {
 		render(<Carousel slides={makeSlides(3)} ariaLabel="Demo" />);
 		const dots = screen.getAllByRole("tab");
-		fireEvent.click(dots[2]);
+		fireEvent.click(dots[2]!);
 		// dot[2] should now be selected
 		expect(dots[2]).toHaveAttribute("aria-selected", "true");
 		expect(dots[0]).toHaveAttribute("aria-selected", "false");

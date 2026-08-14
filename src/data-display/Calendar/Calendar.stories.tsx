@@ -11,8 +11,7 @@ return (
   <Calendar
     events={events}
     selectedDate={selected}
-    onSelectedDateChange={setSelected}
-  />
+    onSelectedDateChange={setSelected} nowOverride={PINNED_NOW} />
 );`,
 	MonthOverflowChips: `const [selected, setSelected] = useState(new Date(2026, 3, 1));
 return (
@@ -20,19 +19,17 @@ return (
     events={events}
     selectedDate={selected}
     onSelectedDateChange={setSelected}
-    maxVisibleEventsPerDay={3}
-  />
+    maxVisibleEventsPerDay={3} nowOverride={PINNED_NOW} />
 );`,
 	MultiDayEvent: `const [selected, setSelected] = useState(new Date(2026, 3, 1));
 return (
   <Calendar
     events={[
-      { id: "m1", date: new Date(2026, 3, 5), endDate: new Date(2026, 3, 8), label: "Phase 1", color: "var(--purple-vivid)" },
+      { id: "m1", date: new Date(2026, 3, 5), endDate: new Date(2026, 3, 8), label: "Phase 1", color: "var(--purple-l)" },
       { id: "m2", date: new Date(2026, 3, 20), endDate: new Date(2026, 3, 22), label: "Hackathon", color: "var(--green-vivid)" },
     ]}
     selectedDate={selected}
-    onSelectedDateChange={setSelected}
-  />
+    onSelectedDateChange={setSelected} nowOverride={PINNED_NOW} />
 );`,
 	WeekView: `const [selected, setSelected] = useState(new Date(2026, 3, 6));
 return (
@@ -40,8 +37,7 @@ return (
     defaultView="week"
     events={events}
     selectedDate={selected}
-    onSelectedDateChange={setSelected}
-  />
+    onSelectedDateChange={setSelected} nowOverride={PINNED_NOW} />
 );`,
 	DayView: `const [selected, setSelected] = useState(new Date(2026, 3, 15));
 return (
@@ -49,14 +45,13 @@ return (
     defaultView="day"
     events={events}
     selectedDate={selected}
-    onSelectedDateChange={setSelected}
-  />
+    onSelectedDateChange={setSelected} nowOverride={PINNED_NOW} />
 );`,
 	AgendaSlot: `<div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}>
   <Calendar events={events} selectedDate={selectedDate} onSelectedDateChange={() => {}} />
   <div>
     <h3>Upcoming</h3>
-    <Calendar.Agenda events={events} />
+    <Calendar.Agenda events={events} nowOverride={PINNED_NOW} />
   </div>
 </div>`,
 	SundayFirst: `<Calendar
@@ -69,8 +64,7 @@ return (
   <Calendar
     events={events}
     selectedDate={selected}
-    onSelectedDateChange={setSelected}
-  />
+    onSelectedDateChange={setSelected} nowOverride={PINNED_NOW} />
 );`,
 	Playground: `const [selected, setSelected] = useState(null);
 const [view, setView] = useState("month");
@@ -80,8 +74,7 @@ return (
     onViewChange={setView}
     events={events}
     selectedDate={selected}
-    onSelectedDateChange={setSelected}
-  />
+    onSelectedDateChange={setSelected} nowOverride={PINNED_NOW} />
 );`,
 };
 
@@ -156,7 +149,7 @@ const BASE_EVENTS: CalendarEvent[] = [
 		id: "e2",
 		date: new Date(2026, 3, 7),
 		label: "Planning meeting",
-		color: "var(--purple-vivid, #7c3aed)",
+		color: "var(--purple-l)",
 	},
 	{
 		id: "e3",
@@ -196,7 +189,7 @@ const OVERFLOW_EVENTS: CalendarEvent[] = [
 		id: "o1",
 		date: new Date(2026, 3, 12),
 		label: "Design review",
-		color: "var(--purple-vivid, #7c3aed)",
+		color: "var(--purple-l)",
 	},
 	{ id: "o2", date: new Date(2026, 3, 12), label: "PM sync", color: "var(--blue-vivid, #1d6aff)" },
 	{ id: "o3", date: new Date(2026, 3, 12), label: "Retro", color: "var(--amber, #f59e0b)" },
@@ -214,7 +207,7 @@ const MULTIDAY_EVENTS: CalendarEvent[] = [
 		date: new Date(2026, 3, 5),
 		endDate: new Date(2026, 3, 8),
 		label: "Sprint 12",
-		color: "var(--purple-vivid, #7c3aed)",
+		color: "var(--purple-l)",
 	},
 	{
 		id: "m2",
@@ -236,7 +229,7 @@ const WEEK_EVENTS: CalendarEvent[] = [
 		id: "w2",
 		date: new Date(2026, 3, 7, 14, 0),
 		label: "Design review",
-		color: "var(--purple-vivid, #7c3aed)",
+		color: "var(--purple-l)",
 	},
 	{
 		id: "w3",
@@ -271,7 +264,7 @@ const DAY_EVENTS: CalendarEvent[] = [
 		id: "d2",
 		date: new Date(2026, 3, 15, 11, 0),
 		label: "Design review",
-		color: "var(--purple-vivid, #7c3aed)",
+		color: "var(--purple-l)",
 	},
 	{
 		id: "d3",
@@ -292,12 +285,23 @@ export const MonthDefault: Story = {
 	parameters: { docs: { source: { code: SRC.MonthDefault } } },
 };
 
+// The "today" ring is clock-derived, so a story that pins only `selectedDate`
+// still renders differently tomorrow. Pinning the clock as well makes every
+// Calendar baseline stable over time; APRIL_2026 is the month these fixtures
+// describe.
+const PINNED_NOW = new Date(2026, 3, 15, 10, 30);
+
 export const MonthWithEvents: Story = {
 	parameters: { docs: { source: { code: SRC.MonthWithEvents } } },
 	render: () => {
 		const [selected, setSelected] = useState<Date>(APRIL_2026);
 		return (
-			<Calendar events={BASE_EVENTS} selectedDate={selected} onSelectedDateChange={setSelected} />
+			<Calendar
+				events={BASE_EVENTS}
+				selectedDate={selected}
+				onSelectedDateChange={setSelected}
+				nowOverride={PINNED_NOW}
+			/>
 		);
 	},
 };
@@ -313,6 +317,7 @@ export const MonthOverflowChips: Story = {
 				selectedDate={selected}
 				onSelectedDateChange={setSelected}
 				maxVisibleEventsPerDay={3}
+				nowOverride={PINNED_NOW}
 			/>
 		);
 	},
@@ -328,6 +333,7 @@ export const MultiDayEvent: Story = {
 				events={MULTIDAY_EVENTS}
 				selectedDate={selected}
 				onSelectedDateChange={setSelected}
+				nowOverride={PINNED_NOW}
 			/>
 		);
 	},
@@ -344,6 +350,7 @@ export const WeekView: Story = {
 				events={WEEK_EVENTS}
 				selectedDate={selected}
 				onSelectedDateChange={setSelected}
+				nowOverride={PINNED_NOW}
 			/>
 		);
 	},
@@ -361,8 +368,13 @@ export const DayView: Story = {
 		},
 	},
 	render: () => {
-		// Default to today so the current-time line is visible on load
-		const [selected, setSelected] = useState<Date>(() => new Date());
+		// Pinned rather than `new Date()`: the day view's current-time line and its
+		// initial scroll position both derive from the clock, so a live date made
+		// this story render at a different height on every run and its visual
+		// baseline could never settle. `nowOverride` keeps the time line visible
+		// while making the output deterministic.
+		const pinnedNow = new Date(2026, 3, 15, 10, 30);
+		const [selected, setSelected] = useState<Date>(pinnedNow);
 		return (
 			<Calendar
 				defaultView="day"
@@ -370,6 +382,7 @@ export const DayView: Story = {
 				selectedDate={selected}
 				onSelectedDateChange={setSelected}
 				dayViewHeight={480}
+				nowOverride={pinnedNow}
 			/>
 		);
 	},
@@ -422,7 +435,12 @@ export const DarkMode: Story = {
 	render: () => {
 		const [selected, setSelected] = useState<Date>(APRIL_2026);
 		return (
-			<Calendar events={BASE_EVENTS} selectedDate={selected} onSelectedDateChange={setSelected} />
+			<Calendar
+				events={BASE_EVENTS}
+				selectedDate={selected}
+				onSelectedDateChange={setSelected}
+				nowOverride={PINNED_NOW}
+			/>
 		);
 	},
 };

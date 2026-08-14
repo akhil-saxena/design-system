@@ -72,12 +72,13 @@ function ColorInputFormRowDemo() {
 		<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 			<div>
 				<label
+					htmlFor="colorinput-story-brand"
 					className="ds-label"
 					style={{ display: "block", marginBottom: 4, fontSize: 12, fontWeight: 600 }}
 				>
 					Brand name
 				</label>
-				<TextInput placeholder="Acme Corp" defaultValue="Acme Corp" />
+				<TextInput id="colorinput-story-brand" placeholder="Acme Corp" defaultValue="Acme Corp" />
 			</div>
 			<ColorInput label="Primary" value={primary} onChange={setPrimary} />
 			<ColorInput label="Accent" value={accent} onChange={setAccent} />

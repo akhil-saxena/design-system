@@ -58,7 +58,9 @@ const Swatch: FC<SwatchProps> = ({ v, name }) => (
 			alignItems: "center",
 		}}
 	>
-		<div style={swatchTile(v)} aria-label={`${name} swatch`} />
+		{/* role="img" so the label is honoured — aria-label is prohibited on a
+		    role-less div, which axe reports and screen readers ignore. */}
+		<div style={swatchTile(v)} role="img" aria-label={`${name} swatch`} />
 		<span
 			style={{
 				fontFamily: "var(--mono)",
@@ -395,6 +397,7 @@ const TokenCheck: FC = () => (
 						borderRadius: 6,
 						border: "1px solid var(--ink-5)",
 					}}
+					role="img"
 					aria-label=".ds-dot-grid"
 				/>
 			</div>

@@ -20,8 +20,7 @@ beforeEach(() => {
 		resizeCallback = cb;
 		return { observe: vi.fn(), disconnect: vi.fn(), unobserve: vi.fn() };
 	});
-	// @ts-expect-error assigning mock class to global
-	globalThis.ResizeObserver = MockRO;
+	globalThis.ResizeObserver = MockRO as unknown as typeof ResizeObserver;
 });
 
 // ── Test fixture ──────────────────────────────────────────────────────────────

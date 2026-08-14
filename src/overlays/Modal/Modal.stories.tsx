@@ -305,7 +305,7 @@ function ConfirmDialogBasicDemo() {
 				open={open}
 				onClose={() => setOpen(false)}
 				title="Send to contact?"
-				description="Jordan Lee will receive the file."
+				body="Jordan Lee will receive the file."
 				confirmLabel="Send"
 				onConfirm={() => {
 					setOpen(false);
@@ -330,10 +330,10 @@ function ConfirmDialogDestructiveDemo() {
 				open={open}
 				onClose={() => setOpen(false)}
 				title="Delete item?"
-				description="This will permanently remove the item and all associated notes, documents, and history."
+				body="This will permanently remove the item and all associated notes, documents, and history."
 				confirmLabel="Yes, delete"
 				cancelLabel="Cancel"
-				danger={true}
+				tone="danger"
 				onConfirm={() => {
 					setOpen(false);
 				}}
@@ -355,7 +355,7 @@ function ConfirmDialogWithDescriptionNodeDemo() {
 				open={open}
 				onClose={() => setOpen(false)}
 				title="Move 12 items to archive?"
-				description={
+				body={
 					<>
 						<p>Archived items stop receiving follow-up reminders.</p>
 						<p>You can restore them at any time from the archive view.</p>

@@ -13,7 +13,7 @@ describe("RangeSlider", () => {
 		render(<RangeSlider value={50} onChange={fn} ariaLabel="x" />);
 		fireEvent.change(screen.getByRole("slider"), { target: { value: "75" } });
 		expect(fn).toHaveBeenCalled();
-		expect(fn.mock.calls[0][0]).toBe(75);
+		expect(fn.mock.calls[0]![0]).toBe(75);
 	});
 
 	it("pct correctly computed for value=50, min=0, max=100", () => {

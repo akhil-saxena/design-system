@@ -83,7 +83,7 @@ describe("Autocomplete", () => {
 		// activeIndex starts at 0 → Enter selects first item ("Stripe").
 		fireEvent.keyDown(document, { key: "Enter" });
 		expect(onSelect).toHaveBeenCalledTimes(1);
-		expect(onSelect.mock.calls[0][0].name).toBe("Stripe");
+		expect(onSelect.mock.calls[0]![0].name).toBe("Stripe");
 	});
 
 	it("shows + Add button when items=[] + onCreate provided", () => {

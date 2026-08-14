@@ -86,7 +86,11 @@ const meta: Meta<typeof NumberStepper> = {
 			description: "Custom display formatter called when the input is not focused.",
 		},
 		disabled: { control: "boolean", description: "When true, disables all interaction." },
-		ariaLabel: { control: "text", description: "Accessible label for the stepper container." },
+		ariaLabel: {
+			control: "text",
+			description:
+				'Accessible label applied to the numeric input. Defaults to "Value" — override it with something meaningful.',
+		},
 		className: { control: false },
 		style: { control: false },
 	},

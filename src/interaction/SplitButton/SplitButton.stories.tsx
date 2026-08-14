@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Archive, FileText, Save, Trash2, X } from "lucide-react";
-import { SplitButton } from ".";
+import { SplitButton, type SplitButtonProps } from ".";
 const SRC = {
 	default: `<SplitButton
   actions={[
@@ -80,7 +80,7 @@ const meta: Meta<typeof SplitButton> = {
 export default meta;
 type Story = StoryObj<typeof SplitButton>;
 
-const baseActions: [(typeof baseActions)[0], ...typeof baseActions] = [
+const baseActions: SplitButtonProps["actions"] = [
 	{ label: "Save", onClick: () => {} },
 	{ label: "Save as draft", onClick: () => {} },
 	{ label: "Save and close", onClick: () => {} },

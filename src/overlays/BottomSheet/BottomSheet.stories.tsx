@@ -153,8 +153,9 @@ const meta: Meta<typeof BottomSheet> = {
 		},
 		description: {
 			control: "text",
-			description: "Optional secondary text rendered below the title in the header.",
-			table: { type: { summary: "string" } },
+			description:
+				"Optional secondary text under the title, auto-wired to aria-describedby (parity with Modal and Sheet).",
+			table: { type: { summary: "ReactNode" } },
 		},
 		height: {
 			control: { type: "select" },

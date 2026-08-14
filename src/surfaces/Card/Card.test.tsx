@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { Card } from ".";
+import { Card, type CardProps } from ".";
 describe("Card", () => {
 	it("renders default variant 'glass' on the root", () => {
 		const { container } = render(<Card>hi</Card>);
@@ -66,5 +66,55 @@ describe("Card", () => {
 		const root = container.firstChild as HTMLElement;
 		// Inline style is set; CSS rules in primitives.css don't run in jsdom but inline does.
 		expect(root.style.padding).toBe("999px");
+	});
+});
+
+describe("Card — surface axis", () => {
+	it("emits data-surface for the semantic names", () => {
+		const { container } = render(<Card surface="subtle">x</Card>);
+		expect((container.firstElementChild as HTMLElement).dataset.surface).toBe("subtle");
+	});
+
+	it("maps the deprecated tone names onto surface", () => {
+		// `tone` was three unrelated things and collided with `variant` on "amber".
+		const cases: Array<[NonNullable<CardProps["tone"]>, string]> = [
+			["amber", "tint"],
+			["cream-2", "subtle"],
+			["flat", "outline"],
+		];
+		for (const [tone, surface] of cases) {
+			const { container, unmount } = render(<Card tone={tone}>x</Card>);
+			expect((container.firstElementChild as HTMLElement).dataset.surface).toBe(surface);
+			unmount();
+		}
+	});
+
+	it("lets surface win when both are given", () => {
+		const { container } = render(
+			<Card surface="outline" tone="amber">
+				x
+			</Card>,
+		);
+		expect((container.firstElementChild as HTMLElement).dataset.surface).toBe("outline");
+	});
+
+	it("keeps variant and surface independent, so amber no longer means two things", () => {
+		const { container } = render(
+			<Card variant="amber" surface="tint">
+				x
+			</Card>,
+		);
+		const el = container.firstElementChild as HTMLElement;
+		expect(el.dataset.variant).toBe("amber");
+		expect(el.dataset.surface).toBe("tint");
+	});
+
+	it("accepts hover as a boolean and as the legacy string", () => {
+		const { container: a } = render(<Card hover>x</Card>);
+		expect((a.firstElementChild as HTMLElement).dataset.hover).toBe("elevate");
+		const { container: b } = render(<Card hover="elevate">x</Card>);
+		expect((b.firstElementChild as HTMLElement).dataset.hover).toBe("elevate");
+		const { container: c } = render(<Card>x</Card>);
+		expect((c.firstElementChild as HTMLElement).dataset.hover).toBeUndefined();
 	});
 });

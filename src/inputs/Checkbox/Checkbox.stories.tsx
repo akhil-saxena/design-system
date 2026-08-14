@@ -6,7 +6,7 @@ const SRC = {
 	Checked: `<Checkbox label="I agree" defaultChecked />`,
 	Disabled: `<Checkbox label="I agree" disabled />`,
 	DisabledChecked: `<Checkbox label="I agree" disabled defaultChecked />`,
-	NoLabel: "<Checkbox />",
+	NoLabel: '<Checkbox aria-label="Standalone checkbox" />',
 	Controlled: `const [checked, setChecked] = useState(false);
 return (
   <Checkbox
@@ -70,7 +70,10 @@ export const DisabledChecked: Story = {
 	parameters: { docs: { source: { code: SRC.DisabledChecked } } },
 };
 export const NoLabel: Story = {
-	args: { label: undefined },
+	// "No label" means no *visible* label — the control still needs an accessible
+	// name, or it reaches assistive tech as an unnamed checkbox. This story
+	// documents the correct label-less pattern rather than an inaccessible one.
+	args: { label: undefined, "aria-label": "Standalone checkbox" },
 	parameters: { docs: { source: { code: SRC.NoLabel } } },
 };
 

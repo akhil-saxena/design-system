@@ -36,7 +36,7 @@ const SRC = {
 };
 
 const meta: Meta<typeof StickyNote> = {
-	title: "Overlays/StickyNote",
+	title: "Surfaces/StickyNote",
 	component: StickyNote,
 	tags: ["autodocs"],
 	parameters: {

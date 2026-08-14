@@ -36,7 +36,7 @@ describe("Text", () => {
 	it("tone emits data-tone and skips inline color", () => {
 		const { container } = render(<Text tone="amber">x</Text>);
 		const el = container.querySelector(".ds-atom-text") as HTMLElement;
-		expect(el.dataset.tone).toBe("amber");
+		expect(el.dataset.tone).toBe("accent");
 		expect(el.style.color).toBe("");
 	});
 
@@ -63,5 +63,40 @@ describe("Text", () => {
 		const ref = createRef<HTMLElement>();
 		render(<Text ref={ref}>x</Text>);
 		expect(ref.current).not.toBeNull();
+	});
+});
+
+describe("Text — semantic tones", () => {
+	// The public vocabulary is semantic; the deprecated raw-token spellings are
+	// normalised to it so `primitives.css` needs only one rule per role.
+	it("passes a semantic tone straight through", () => {
+		const { container } = render(<Text tone="accent">x</Text>);
+		const el = container.querySelector(".ds-atom-text") as HTMLElement;
+		expect(el.dataset.tone).toBe("accent");
+		expect(el.style.color).toBe("");
+	});
+
+	it("maps the deprecated raw-token names onto semantic roles", () => {
+		const cases: Array<[string, string]> = [
+			["amber", "accent"],
+			["ink-3", "muted"],
+			// --ink-4 is an alias of --ink-3, so both spellings mean "muted".
+			["ink-4", "muted"],
+		];
+		for (const [legacy, semantic] of cases) {
+			const { container, unmount } = render(
+				// biome-ignore lint/suspicious/noExplicitAny: exercising the deprecated union members by string
+				<Text tone={legacy as any}>x</Text>,
+			);
+			const el = container.querySelector(".ds-atom-text") as HTMLElement;
+			expect(el.dataset.tone, `${legacy} should map to ${semantic}`).toBe(semantic);
+			unmount();
+		}
+	});
+
+	it("omits data-tone entirely when no tone is given", () => {
+		const { container } = render(<Text>x</Text>);
+		const el = container.querySelector(".ds-atom-text") as HTMLElement;
+		expect(el.dataset.tone).toBeUndefined();
 	});
 });

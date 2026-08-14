@@ -31,7 +31,7 @@ describe("DateRangePicker", () => {
 		expect(target).toBeTruthy();
 		fireEvent.click(target!);
 		expect(onChange).toHaveBeenCalledTimes(1);
-		const arg = onChange.mock.calls[0][0] as { start: Date | null; end: Date | null };
+		const arg = onChange.mock.calls[0]![0] as { start: Date | null; end: Date | null };
 		expect(arg.start).toBeInstanceOf(Date);
 		expect(arg.end).toBeNull();
 	});
@@ -44,7 +44,7 @@ describe("DateRangePicker", () => {
 		// Click cell "20" in the calendar (April 2026 view because start drives the view).
 		fireEvent.click(cellByDay("20"));
 		expect(onChange).toHaveBeenCalledTimes(1);
-		const arg = onChange.mock.calls[0][0] as { start: Date; end: Date };
+		const arg = onChange.mock.calls[0]![0] as { start: Date; end: Date };
 		expect(arg.start.getDate()).toBe(10);
 		expect(arg.start.getMonth()).toBe(3);
 		expect(arg.end.getDate()).toBe(20);
@@ -58,7 +58,7 @@ describe("DateRangePicker", () => {
 		);
 		fireEvent.click(cellByDay("10"));
 		expect(onChange).toHaveBeenCalledTimes(1);
-		const arg = onChange.mock.calls[0][0] as { start: Date; end: Date };
+		const arg = onChange.mock.calls[0]![0] as { start: Date; end: Date };
 		// New start became the earlier date; old start became end.
 		expect(arg.start.getDate()).toBe(10);
 		expect(arg.end.getDate()).toBe(15);
@@ -74,7 +74,7 @@ describe("DateRangePicker", () => {
 		);
 		fireEvent.click(cellByDay("12"));
 		expect(onChange).toHaveBeenCalledTimes(1);
-		const arg = onChange.mock.calls[0][0] as { start: Date; end: Date | null };
+		const arg = onChange.mock.calls[0]![0] as { start: Date; end: Date | null };
 		expect(arg.start.getDate()).toBe(12);
 		expect(arg.end).toBeNull();
 	});

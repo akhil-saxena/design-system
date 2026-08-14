@@ -20,7 +20,7 @@ describe("DatePicker", () => {
 		expect(target).toBeTruthy();
 		fireEvent.click(target!);
 		expect(onChange).toHaveBeenCalledTimes(1);
-		const arg = onChange.mock.calls[0][0] as Date;
+		const arg = onChange.mock.calls[0]![0] as Date;
 		expect(arg.getDate()).toBe(20);
 		expect(arg.getMonth()).toBe(3);
 		expect(arg.getFullYear()).toBe(2026);
@@ -37,7 +37,7 @@ describe("DatePicker", () => {
 		);
 		fireEvent.click(screen.getByLabelText("Previous month"));
 		expect(onMonthChange).toHaveBeenCalledTimes(1);
-		const arg = onMonthChange.mock.calls[0][0] as Date;
+		const arg = onMonthChange.mock.calls[0]![0] as Date;
 		expect(arg.getMonth()).toBe(2); // March
 	});
 
@@ -51,7 +51,7 @@ describe("DatePicker", () => {
 			/>,
 		);
 		fireEvent.click(screen.getByLabelText("Next month"));
-		const arg = onMonthChange.mock.calls[0][0] as Date;
+		const arg = onMonthChange.mock.calls[0]![0] as Date;
 		expect(arg.getMonth()).toBe(4); // May
 	});
 
@@ -61,7 +61,7 @@ describe("DatePicker", () => {
 			.getAllByRole("gridcell")
 			.filter((c) => c.getAttribute("aria-current") === "date");
 		expect(todayCells.length).toBe(1);
-		expect(todayCells[0].className).toContain("is-today");
+		expect(todayCells[0]!.className).toContain("is-today");
 	});
 
 	it("disablePast dims past dates with aria-disabled", () => {

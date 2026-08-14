@@ -30,7 +30,10 @@ const meta: Meta<typeof Textarea> = {
 			},
 		},
 	},
-	args: { placeholder: "Type a note…", rows: 4 },
+	// "aria-label" so every story inherits an accessible name: a bare field
+	// with no label is an axe `label` violation, and a story is the one place
+	// a component should be shown used correctly.
+	args: { placeholder: "Type a note…", rows: 4, "aria-label": "Example field" },
 	argTypes: {
 		error: { control: "boolean", description: "When true, applies error-state border color." },
 		disabled: { control: "boolean", description: "When true, disables the textarea." },
@@ -115,11 +118,12 @@ export const DarkMode: Story = {
 			</div>
 		),
 	],
+	// `render` bypasses the meta-level args, so each field needs its own name.
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 8, width: W }}>
-			<Textarea placeholder="Default" rows={3} />
-			<Textarea defaultValue="With value content here." rows={3} />
-			<Textarea defaultValue="Error state" error rows={3} />
+			<Textarea label="Default" placeholder="Default" rows={3} />
+			<Textarea label="With value" defaultValue="With value content here." rows={3} />
+			<Textarea label="Error state" defaultValue="Error state" error rows={3} />
 		</div>
 	),
 };

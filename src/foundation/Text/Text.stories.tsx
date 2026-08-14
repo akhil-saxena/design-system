@@ -65,13 +65,13 @@ export const Tokens: Story = {
 			<Text size="lg" weight="bold">
 				lg / bold
 			</Text>
-			<Text size="md" tone="ink-2">
+			<Text size="md" tone="secondary">
 				md / ink-2
 			</Text>
-			<Text size="base" tone="ink-3">
+			<Text size="base" tone="muted">
 				base / ink-3
 			</Text>
-			<Text size="sm" tone="amber" mono>
+			<Text size="sm" tone="accent" mono>
 				sm / amber / mono
 			</Text>
 		</div>
@@ -81,13 +81,13 @@ export const Tokens: Story = {
 export const Tones: Story = {
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-			<Text tone="ink">ink (primary)</Text>
-			<Text tone="ink-2">ink-2</Text>
-			<Text tone="ink-3">ink-3</Text>
-			<Text tone="ink-4">ink-4</Text>
-			<Text tone="amber">amber</Text>
-			<Text tone="red">red</Text>
-			<Text tone="green">green</Text>
+			<Text tone="primary">primary</Text>
+			<Text tone="secondary">secondary</Text>
+			<Text tone="muted">muted</Text>
+			<Text tone="muted">muted (was ink-4)</Text>
+			<Text tone="accent">amber</Text>
+			<Text tone="danger">red</Text>
+			<Text tone="success">green</Text>
 		</div>
 	),
 };

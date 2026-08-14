@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ConfirmDialog, TypeToConfirm } from ".";
 
@@ -283,5 +283,22 @@ describe("TypeToConfirm", () => {
 
 		fireEvent.change(screen.getByRole("textbox"), { target: { value: "REMOVE" } });
 		expect(confirmBtn).not.toBeDisabled();
+	});
+});
+
+describe("ConfirmDialog — tone vocabulary", () => {
+	// AlertBanner and Toast both spell this tone "warning"; ConfirmDialog shipped
+	// "warn". Both now resolve to the same presentation so the system reads as one
+	// vocabulary, without breaking consumers on the old spelling.
+	it("treats the legacy 'warn' spelling as 'warning'", () => {
+		const { container: withAlias } = render(
+			<ConfirmDialog open tone="warn" title="T" onConfirm={() => {}} onClose={() => {}} />,
+		);
+		const aliasHtml = withAlias.innerHTML;
+		cleanup();
+		const { container: withCanonical } = render(
+			<ConfirmDialog open tone="warning" title="T" onConfirm={() => {}} onClose={() => {}} />,
+		);
+		expect(aliasHtml).toBe(withCanonical.innerHTML);
 	});
 });

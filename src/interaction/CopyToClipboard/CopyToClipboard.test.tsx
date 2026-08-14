@@ -45,7 +45,7 @@ describe("CopyToClipboard", () => {
 		const btn = screen.getByRole("button");
 		fireEvent.click(btn);
 		await waitFor(() => expect(onError).toHaveBeenCalledTimes(1));
-		expect(onError.mock.calls[0][0]).toBeInstanceOf(Error);
+		expect(onError.mock.calls[0]![0]).toBeInstanceOf(Error);
 		expect(btn.getAttribute("data-state")).toBe("idle");
 		expect(btn.querySelector(".ds-atom-copy-icon-check")).toBeNull();
 		expect(warn).toHaveBeenCalled();

@@ -50,7 +50,7 @@ describe("SplitButton", () => {
 		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
 
 		const items = screen.getAllByRole("menuitem");
-		fireEvent.click(items[1]); // pick "Save as draft"
+		fireEvent.click(items[1]!); // pick "Save as draft"
 		expect(a1).toHaveBeenCalledTimes(1);
 
 		// Primary face is now "Save as draft"
@@ -73,9 +73,9 @@ describe("SplitButton", () => {
 		render(<SplitButton actions={actions} />);
 		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
 		const items = screen.getAllByRole("menuitem");
-		expect(items[0].hasAttribute("data-action-variant")).toBe(false);
-		expect(items[1].getAttribute("data-action-variant")).toBe("secondary");
-		expect(items[2].getAttribute("data-action-variant")).toBe("danger");
+		expect(items[0]!.hasAttribute("data-action-variant")).toBe(false);
+		expect(items[1]!.getAttribute("data-action-variant")).toBe("secondary");
+		expect(items[2]!.getAttribute("data-action-variant")).toBe("danger");
 	});
 
 	it("v0.5.4 - when all actions inherit (no explicit variant), no menu item carries data-action-variant", () => {
@@ -97,9 +97,9 @@ describe("SplitButton", () => {
 		render(<SplitButton actions={actions} />);
 		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
 		const items = screen.getAllByRole("menuitem");
-		expect(items[0].hasAttribute("data-action-variant")).toBe(false);
-		expect(items[1].hasAttribute("data-action-variant")).toBe(false);
-		expect(items[2].getAttribute("data-action-variant")).toBe("danger");
+		expect(items[0]!.hasAttribute("data-action-variant")).toBe(false);
+		expect(items[1]!.hasAttribute("data-action-variant")).toBe(false);
+		expect(items[2]!.getAttribute("data-action-variant")).toBe("danger");
 	});
 
 	it("selecting an action with a different variant updates the primary face's data-variant (v0.5.1)", () => {
@@ -112,7 +112,7 @@ describe("SplitButton", () => {
 		expect(wrapper.getAttribute("data-variant")).toBe("primary");
 
 		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
-		fireEvent.click(screen.getAllByRole("menuitem")[1]); // pick "Discard"
+		fireEvent.click(screen.getAllByRole("menuitem")[1]!); // pick "Discard"
 		expect(wrapper.getAttribute("data-variant")).toBe("danger");
 		const primary = screen.getByRole("button", { name: "Discard" });
 		expect(primary.getAttribute("data-variant")).toBe("danger");
@@ -145,7 +145,7 @@ describe("SplitButton", () => {
 
 		fireEvent.click(screen.getByRole("button", { name: "More actions" }));
 		const items = screen.getAllByRole("menuitem");
-		fireEvent.click(items[2]); // pick "Save and close"
+		fireEvent.click(items[2]!); // pick "Save and close"
 
 		expect(screen.getByRole("button", { name: "Save and close" })).toHaveAttribute(
 			"data-part",

@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, it } from "vitest";
 import { Avatar, AvatarStack, deriveGradient, deriveInitials, deriveSolidColor } from ".";
@@ -274,5 +274,68 @@ describe("presence position", () => {
 			<AvatarStack avatars={[{ name: "Alpha" }, { name: "Beta" }]} max={4} />,
 		);
 		expect(container.querySelectorAll("[aria-label]").length).toBe(2);
+	});
+});
+
+describe("Avatar — accessible name", () => {
+	// `aria-label` on a bare <div> (implicit role=generic) is not a supported
+	// naming combination, so screen readers ignored it. The container is now a
+	// labelled role="img".
+	it("exposes the name through a nameable role", () => {
+		render(<Avatar name="Akhil Saxena" />);
+		expect(screen.getByRole("img", { name: "Akhil Saxena" })).toBeInTheDocument();
+	});
+
+	it("prefers alt over name when both are given", () => {
+		render(<Avatar name="Akhil Saxena" alt="Profile photo" src="/a.png" />);
+		expect(screen.getByRole("img", { name: "Profile photo" })).toBeInTheDocument();
+	});
+
+	it("names the photo once, not twice", () => {
+		// The inner <img> is decorative; the labelled container carries the name.
+		const { container } = render(<Avatar name="Akhil Saxena" src="/a.png" />);
+		expect(container.querySelector("img")).toHaveAttribute("alt", "");
+		expect(screen.getAllByRole("img", { name: "Akhil Saxena" })).toHaveLength(1);
+	});
+
+	it("folds presence into the accessible name instead of hiding it", () => {
+		render(<Avatar name="Akhil Saxena" presence="dnd" />);
+		expect(screen.getByRole("img", { name: "Akhil Saxena, do not disturb" })).toBeInTheDocument();
+	});
+
+	it("stays unnamed and role-less when there is nothing to announce", () => {
+		const { container } = render(<Avatar />);
+		expect(container.firstElementChild).not.toHaveAttribute("role");
+		expect(container.firstElementChild).not.toHaveAttribute("aria-label");
+	});
+
+	it("AvatarStack announces the overflow count", () => {
+		render(
+			<AvatarStack
+				max={2}
+				avatars={[{ name: "A B" }, { name: "C D" }, { name: "E F" }, { name: "G H" }]}
+			/>,
+		);
+		expect(screen.getByRole("img", { name: "2 more" })).toBeInTheDocument();
+	});
+});
+
+describe("Avatar — palette contrast", () => {
+	it("every default swatch clears AA against the white initials it carries", () => {
+		// The swatch is chosen by hashing the name, so a failing colour makes an
+		// arbitrary subset of users unreadable. amber/green/sky used to fail.
+		const srgb = (c: number) => {
+			const v = c / 255;
+			return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+		};
+		const ratio = (hex: string) => {
+			const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+			const l = 0.2126 * srgb(r!) + 0.7152 * srgb(g!) + 0.0722 * srgb(b!);
+			return 1.05 / (l + 0.05);
+		};
+		const seen = new Set<string>();
+		for (let i = 0; i < 200; i++) seen.add(deriveSolidColor(`user-${i}`));
+		const failures = [...seen].filter((c) => ratio(c) < 4.5);
+		expect(failures).toEqual([]);
 	});
 });

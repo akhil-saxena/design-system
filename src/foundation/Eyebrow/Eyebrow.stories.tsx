@@ -44,8 +44,8 @@ export const Tones: Story = {
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
 			<Eyebrow>DEFAULT (INK-3)</Eyebrow>
-			<Eyebrow tone="ink-4">INK-4</Eyebrow>
-			<Eyebrow tone="amber">AMBER</Eyebrow>
+			<Eyebrow tone="muted">MUTED</Eyebrow>
+			<Eyebrow tone="accent">ACCENT</Eyebrow>
 		</div>
 	),
 };

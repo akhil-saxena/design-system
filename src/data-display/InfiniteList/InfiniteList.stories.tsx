@@ -1,8 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { InfiniteList } from ".";
+import { InfiniteList, type InfiniteListProps } from ".";
 import { Skeleton } from "../../feedback/Skeleton";
-const meta: Meta<typeof InfiniteList> = {
+/**
+ * InfiniteList is generic in its item type. `Meta<typeof InfiniteList>` resolves
+ * the parameter to its `unknown` default, which made `renderItem` in `args`
+ * contravariantly incompatible with any concretely-typed render function. Binding
+ * the story types to the fixture's item shape is the idiomatic fix, and it means
+ * the args are checked against the real signature.
+ */
+type Item = { id: number; label: string; sub: string };
+
+const meta: Meta<InfiniteListProps<Item>> = {
 	title: "Data Display/InfiniteList",
 	component: InfiniteList,
 	tags: ["autodocs"],
@@ -42,7 +51,7 @@ const meta: Meta<typeof InfiniteList> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof InfiniteList>;
+type Story = StoryObj<InfiniteListProps<Item>>;
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 const makeItems = (start: number, count: number) =>
@@ -150,7 +159,7 @@ const onLoadMore = () => {
   onLoadMore={() => {}}
   ariaLabel="Item list"
   endSlot={
-    <div style={{ padding: 16, textAlign: "center", color: "var(--amber)", fontWeight: 600 }}>
+    <div style={{ padding: 16, textAlign: "center", color: "var(--amber-d)", fontWeight: 600 }}>
       You have reached the end
     </div>
   }
@@ -189,7 +198,10 @@ export const Default: Story = {
 		};
 
 		return (
-			<div
+			<section
+				// biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable, or keyboard-only users cannot scroll it (axe: scrollable-region-focusable)
+				tabIndex={0}
+				aria-label="Scrollable feed"
 				style={{
 					height: 320,
 					overflowY: "auto",
@@ -206,7 +218,7 @@ export const Default: Story = {
 					onLoadMore={onLoadMore}
 					ariaLabel="Item list"
 				/>
-			</div>
+			</section>
 		);
 	},
 };
@@ -277,7 +289,10 @@ export const LongList: Story = {
 		};
 
 		return (
-			<div
+			<section
+				// biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable, or keyboard-only users cannot scroll it (axe: scrollable-region-focusable)
+				tabIndex={0}
+				aria-label="Scrollable feed"
 				style={{
 					height: 400,
 					overflowY: "auto",
@@ -294,7 +309,7 @@ export const LongList: Story = {
 					onLoadMore={onLoadMore}
 					ariaLabel="Item list"
 				/>
-			</div>
+			</section>
 		);
 	},
 };
@@ -317,7 +332,7 @@ export const CustomSlots: Story = {
 							padding: "16px",
 							textAlign: "center",
 							fontSize: 13,
-							color: "var(--amber)",
+							color: "var(--amber-d)",
 							fontWeight: 600,
 						}}
 					>
@@ -356,7 +371,7 @@ export const DarkMode: Story = {
 				maxWidth: 400,
 				width: "100%",
 				padding: 16,
-				background: "var(--surf-0, #0f172a)",
+				background: "var(--cream-2)",
 				borderRadius: 8,
 			}}
 		>
@@ -389,9 +404,7 @@ export const DarkMode: Story = {
 export const Playground: Story = {
 	args: {
 		items: makeItems(0, 10),
-		renderItem: (item: { id: number; label: string; sub: string }) => (
-			<ItemRow label={item.label} sub={item.sub} />
-		),
+		renderItem: (item) => <ItemRow label={item.label} sub={item.sub} />,
 		hasMore: true,
 		loading: false,
 		onLoadMore: () => {},

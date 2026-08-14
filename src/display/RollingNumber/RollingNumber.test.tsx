@@ -10,16 +10,16 @@ describe("RollingNumber", () => {
 	it("each digit cell has correct translateY (digit 4 → -88px, digit 2 → -44px)", () => {
 		const { container } = render(<RollingNumber value={42} />);
 		const strips = container.querySelectorAll<HTMLElement>(".ds-atom-rolling-strip");
-		expect(strips[0].style.transform).toBe("translateY(-88px)");
-		expect(strips[1].style.transform).toBe("translateY(-44px)");
+		expect(strips[0]!.style.transform).toBe("translateY(-88px)");
+		expect(strips[1]!.style.transform).toBe("translateY(-44px)");
 	});
 
 	it("rerendering with new value updates strip translateY", () => {
 		const { container, rerender } = render(<RollingNumber value={42} />);
 		rerender(<RollingNumber value={53} />);
 		const strips = container.querySelectorAll<HTMLElement>(".ds-atom-rolling-strip");
-		expect(strips[0].style.transform).toBe("translateY(-110px)");
-		expect(strips[1].style.transform).toBe("translateY(-66px)");
+		expect(strips[0]!.style.transform).toBe("translateY(-110px)");
+		expect(strips[1]!.style.transform).toBe("translateY(-66px)");
 	});
 
 	it("format prop transforms display; commas render as static spans", () => {
@@ -32,7 +32,7 @@ describe("RollingNumber", () => {
 		const { container } = render(<RollingNumber value={50} suffix="%" />);
 		const statics = container.querySelectorAll<HTMLElement>(".ds-atom-rolling-static");
 		expect(statics.length).toBe(1);
-		expect(statics[0].textContent).toBe("%");
+		expect(statics[0]!.textContent).toBe("%");
 	});
 
 	it("aria-label is set and aria-live is polite", () => {

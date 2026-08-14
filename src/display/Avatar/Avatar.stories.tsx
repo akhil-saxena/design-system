@@ -1,12 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Avatar, type AvatarPresencePosition, AvatarStack } from ".";
+import { storyAvatar } from "../../_internals/storyImage";
 const SRC = {
 	Default: `// Solid colour derived from name by default
 <Avatar name="Alex Morgan" />`,
 
 	Image: `// Pass src to show a photo - initials/bg are hidden
-<Avatar name="Alex Morgan" src="https://i.pravatar.cc/80?u=akhil" size={40} />
-<Avatar name="Sam Chen"   src="https://i.pravatar.cc/80?u=maya"  size={40} />`,
+<Avatar name="Alex Morgan" src={storyAvatar("akhil")} size={40} />
+<Avatar name="Sam Chen"   src={storyAvatar("maya")}  size={40} />`,
 
 	Sizes: `<Avatar name="Sam Chen"     size={24} />
 <Avatar name="David Swanson" size={28} />
@@ -60,7 +61,7 @@ const BRAND = [
 
 	DarkMode: `<Avatar name="Sam Chen"     size={32} />
 <Avatar name="David Swanson" size={32} presence="online" />
-<Avatar name="Jake Kim"      size={32} src="https://i.pravatar.cc/80?u=jake" />
+<Avatar name="Jake Kim"      size={32} src={storyAvatar("jake")} />
 <AvatarStack avatars={[{ name: "A" }, { name: "B" }, { name: "C" }]} max={3} />`,
 };
 
@@ -144,14 +145,9 @@ export const WithImage: Story = {
 	},
 	render: () => (
 		<div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-			<Avatar name="Alex Morgan" src="https://i.pravatar.cc/80?u=akhil" size={40} />
-			<Avatar name="Sam Chen" src="https://i.pravatar.cc/80?u=maya" size={40} />
-			<Avatar
-				name="David Swanson"
-				src="https://i.pravatar.cc/80?u=david"
-				size={40}
-				presence="online"
-			/>
+			<Avatar name="Alex Morgan" src={storyAvatar("akhil")} size={40} />
+			<Avatar name="Sam Chen" src={storyAvatar("maya")} size={40} />
+			<Avatar name="David Swanson" src={storyAvatar("david")} size={40} presence="online" />
 		</div>
 	),
 };
@@ -363,7 +359,7 @@ export const DarkMode: Story = {
 		<div style={{ display: "flex", gap: 16, alignItems: "center" }}>
 			<Avatar name="Sam Chen" size={40} />
 			<Avatar name="David Swanson" size={40} presence="online" />
-			<Avatar name="Jake Kim" size={40} src="https://i.pravatar.cc/80?u=jake" presence="away" />
+			<Avatar name="Jake Kim" size={40} src={storyAvatar("jake")} presence="away" />
 			<AvatarStack
 				avatars={[{ name: "A" }, { name: "B" }, { name: "C" }, { name: "D" }, { name: "E" }]}
 				max={3}

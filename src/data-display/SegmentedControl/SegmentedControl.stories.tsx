@@ -122,11 +122,6 @@ const meta: Meta<typeof SegmentedControl> = {
 			description: "Called with the new value when the user selects a different option.",
 			table: { type: { summary: "(value: string) => void" } },
 		},
-		defaultValue: {
-			control: "text",
-			description: "Initial selected value when uncontrolled.",
-			table: { type: { summary: "string" } },
-		},
 		size: {
 			control: { type: "select" },
 			options: ["sm", "md", "lg"],

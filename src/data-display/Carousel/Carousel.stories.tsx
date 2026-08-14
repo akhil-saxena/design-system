@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Carousel, type CarouselSlide } from ".";
+import { storyImage } from "../../_internals/storyImage";
 const meta: Meta<typeof Carousel> = {
 	title: "Data Display/Carousel",
 	component: Carousel,
@@ -192,8 +193,11 @@ const TESTIMONIALS: CarouselSlide[] = [
 						fontSize: 9.5,
 						letterSpacing: ".08em",
 						textTransform: "uppercase",
-						opacity: 0.6,
-						color: "var(--ink)",
+						// --ink-3 at full opacity instead of --ink at 0.6: the opacity
+						// multiplier composited to #737270 (4.33:1), just under AA. Same
+						// trap as Calendar's out-of-month cells — dimming with opacity
+						// silently defeats a compliant colour.
+						color: "var(--ink-3)",
 					}}
 				>
 					Testimonial
@@ -236,8 +240,11 @@ const TESTIMONIALS: CarouselSlide[] = [
 						fontSize: 9.5,
 						letterSpacing: ".08em",
 						textTransform: "uppercase",
-						opacity: 0.6,
-						color: "var(--ink)",
+						// --ink-3 at full opacity instead of --ink at 0.6: the opacity
+						// multiplier composited to #737270 (4.33:1), just under AA. Same
+						// trap as Calendar's out-of-month cells — dimming with opacity
+						// silently defeats a compliant colour.
+						color: "var(--ink-3)",
 					}}
 				>
 					Case study
@@ -280,8 +287,11 @@ const TESTIMONIALS: CarouselSlide[] = [
 						fontSize: 9.5,
 						letterSpacing: ".08em",
 						textTransform: "uppercase",
-						opacity: 0.6,
-						color: "var(--ink)",
+						// --ink-3 at full opacity instead of --ink at 0.6: the opacity
+						// multiplier composited to #737270 (4.33:1), just under AA. Same
+						// trap as Calendar's out-of-month cells — dimming with opacity
+						// silently defeats a compliant colour.
+						color: "var(--ink-3)",
 					}}
 				>
 					Review
@@ -311,7 +321,7 @@ const IMAGE_SLIDES: CarouselSlide[] = [
 		ariaLabel: "Slide 1: Office workspace",
 		content: (
 			<img
-				src="https://picsum.photos/seed/job1/800/400"
+				src={storyImage("job1")}
 				alt="Office workspace"
 				style={{ width: "100%", height: 220, objectFit: "cover", display: "block" }}
 			/>
@@ -322,7 +332,7 @@ const IMAGE_SLIDES: CarouselSlide[] = [
 		ariaLabel: "Slide 2: Team collaboration",
 		content: (
 			<img
-				src="https://picsum.photos/seed/job2/800/400"
+				src={storyImage("job2")}
 				alt="Team collaboration"
 				style={{ width: "100%", height: 220, objectFit: "cover", display: "block" }}
 			/>
@@ -333,7 +343,7 @@ const IMAGE_SLIDES: CarouselSlide[] = [
 		ariaLabel: "Slide 3: Developer at desk",
 		content: (
 			<img
-				src="https://picsum.photos/seed/job3/800/400"
+				src={storyImage("job3")}
 				alt="Developer at standing desk"
 				style={{ width: "100%", height: 220, objectFit: "cover", display: "block" }}
 			/>
@@ -344,7 +354,7 @@ const IMAGE_SLIDES: CarouselSlide[] = [
 		ariaLabel: "Slide 4: Remote work",
 		content: (
 			<img
-				src="https://picsum.photos/seed/job4/800/400"
+				src={storyImage("job4")}
 				alt="Coffee shop remote work"
 				style={{ width: "100%", height: 220, objectFit: "cover", display: "block" }}
 			/>

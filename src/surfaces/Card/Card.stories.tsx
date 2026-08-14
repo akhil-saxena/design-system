@@ -39,7 +39,7 @@ const SRC = {
       <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 15 }}>Acme Corp</div>
       <div style={{ fontSize: 12, color: "var(--ink-3)" }}>Staff Engineer</div>
     </div>
-    <Badge tone="amber">In Progress</Badge>
+    <Badge tone="warning">In Progress</Badge>
   </div>
   <div style={{ display: "flex", gap: 8 }}>
     <Button variant="primary" size="sm">Mark Approved</Button>
@@ -63,7 +63,7 @@ const SRC = {
 };
 
 const meta: Meta<typeof Card> = {
-	title: "Overlays/Card",
+	title: "Surfaces/Card",
 	component: Card,
 	tags: ["autodocs"],
 	parameters: {
@@ -286,7 +286,7 @@ export const ApplicationCard: Story = {
 					</div>
 					<div style={{ fontSize: 12, color: "var(--ink-3)" }}>Staff Engineer</div>
 				</div>
-				<Badge tone="amber">In Progress</Badge>
+				<Badge tone="warning">In Progress</Badge>
 			</div>
 
 			<div

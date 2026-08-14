@@ -63,13 +63,13 @@ export const TokenScale: Story = {
 export const Tones: Story = {
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-			<Heading tone="ink-2" size="xl">
+			<Heading tone="secondary" size="xl">
 				ink-2
 			</Heading>
-			<Heading tone="ink-3" size="xl">
+			<Heading tone="muted" size="xl">
 				ink-3
 			</Heading>
-			<Heading tone="amber" size="xl">
+			<Heading tone="accent" size="xl">
 				amber
 			</Heading>
 		</div>

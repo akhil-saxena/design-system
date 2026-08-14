@@ -24,6 +24,10 @@ function PaginationDemo(props: {
 	totalPages: number;
 	initialPage?: number;
 	variant?: "full" | "compact";
+	/** Distinct name per instance: stories render several side by side, and two
+	 *  <nav> landmarks sharing a name are indistinguishable in a screen reader's
+	 *  landmark list (axe: landmark-unique). */
+	ariaLabel?: string;
 }) {
 	const [page, setPage] = useState(props.initialPage ?? 3);
 	return (
@@ -32,6 +36,7 @@ function PaginationDemo(props: {
 			currentPage={page}
 			onPageChange={setPage}
 			variant={props.variant ?? "full"}
+			ariaLabel={props.ariaLabel}
 		/>
 	);
 }
@@ -73,7 +78,14 @@ export const CompactVariant: Story = {
 	parameters: {
 		docs: { source: { code: SRC.CompactVariant } },
 	},
-	render: () => <PaginationDemo totalPages={12} initialPage={3} variant="compact" />,
+	render: () => (
+		<PaginationDemo
+			totalPages={12}
+			initialPage={3}
+			variant="compact"
+			ariaLabel="Pagination (compact)"
+		/>
+	),
 };
 
 /**
@@ -126,7 +138,7 @@ export const DarkMode: Story = {
 				>
 					Full variant
 				</p>
-				<PaginationDemo totalPages={12} initialPage={6} />
+				<PaginationDemo totalPages={12} initialPage={6} ariaLabel="Pagination (full)" />
 			</div>
 			<div>
 				<p
@@ -139,7 +151,12 @@ export const DarkMode: Story = {
 				>
 					Compact variant
 				</p>
-				<PaginationDemo totalPages={12} initialPage={6} variant="compact" />
+				<PaginationDemo
+					totalPages={12}
+					initialPage={6}
+					variant="compact"
+					ariaLabel="Pagination (compact)"
+				/>
 			</div>
 		</div>
 	),

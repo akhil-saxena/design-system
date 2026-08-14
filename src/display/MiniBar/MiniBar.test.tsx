@@ -13,7 +13,7 @@ describe("MiniBar", () => {
 		const allStyled = container.querySelectorAll<HTMLElement>("[style]");
 		const barDivs = Array.from(allStyled).filter((el) => el.style.borderRadius === "4px 4px 0 0");
 		// data[1] = 10 = max, so its bar should be 70%
-		const maxBar = barDivs[1];
+		const maxBar = barDivs[1]!;
 		expect(maxBar.style.height).toBe("70%");
 	});
 

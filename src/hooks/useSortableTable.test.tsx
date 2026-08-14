@@ -47,8 +47,12 @@ function Harness({
 					</li>
 				))}
 			</ul>
-			<button onClick={() => toggleSort("name")}>sort-name</button>
-			<button onClick={() => toggleSort("age")}>sort-age</button>
+			<button type="button" onClick={() => toggleSort("name")}>
+				sort-name
+			</button>
+			<button type="button" onClick={() => toggleSort("age")}>
+				sort-age
+			</button>
 		</div>
 	);
 }

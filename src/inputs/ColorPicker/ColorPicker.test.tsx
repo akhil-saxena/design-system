@@ -142,7 +142,7 @@ describe("ColorPicker", () => {
 		fireEvent.keyDown(canvas, { key: "ArrowUp" });
 		expect(onChange).toHaveBeenCalledTimes(1);
 		// brightness up on a pure-red base yields a brighter red
-		expect(onChange.mock.calls[0][0]).toMatch(/^#[0-9a-f]{6}$/i);
+		expect(onChange.mock.calls[0]![0]).toMatch(/^#[0-9a-f]{6}$/i);
 	});
 
 	it("unhandled keys (Tab) are ignored on sliders", () => {

@@ -25,6 +25,7 @@ describe("Tooltip", () => {
 		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 		expect(() =>
 			render(
+				// @ts-expect-error deliberately invalid: asserting the runtime guard rejects multiple children
 				<Tooltip content="Help">
 					<button type="button">A</button>
 					<button type="button">B</button>

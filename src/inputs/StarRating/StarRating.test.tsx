@@ -18,11 +18,11 @@ describe("StarRating", () => {
 	it("renders amber-vivid fill for stars 1..value, transparent for the rest", () => {
 		const { container } = render(<StarRating value={3} onChange={() => {}} label="x" />);
 		const svgs = container.querySelectorAll<SVGElement>(".ds-atom-star-btn svg");
-		expect(svgs[0].getAttribute("fill")).toBe("var(--amber-vivid)");
-		expect(svgs[1].getAttribute("fill")).toBe("var(--amber-vivid)");
-		expect(svgs[2].getAttribute("fill")).toBe("var(--amber-vivid)");
-		expect(svgs[3].getAttribute("fill")).toBe("transparent");
-		expect(svgs[4].getAttribute("fill")).toBe("transparent");
+		expect(svgs[0]!.getAttribute("fill")).toBe("var(--amber-vivid)");
+		expect(svgs[1]!.getAttribute("fill")).toBe("var(--amber-vivid)");
+		expect(svgs[2]!.getAttribute("fill")).toBe("var(--amber-vivid)");
+		expect(svgs[3]!.getAttribute("fill")).toBe("transparent");
+		expect(svgs[4]!.getAttribute("fill")).toBe("transparent");
 	});
 
 	it("readOnly disables buttons and prevents onChange", () => {
@@ -37,9 +37,9 @@ describe("StarRating", () => {
 		const { container } = render(<StarRating value={2} onChange={() => {}} label="x" />);
 		fireEvent.mouseEnter(screen.getByLabelText("4 stars"));
 		const svgs = container.querySelectorAll<SVGElement>(".ds-atom-star-btn svg");
-		expect(svgs[0].getAttribute("fill")).toBe("var(--amber-vivid)");
-		expect(svgs[3].getAttribute("fill")).toBe("var(--amber-vivid)");
-		expect(svgs[4].getAttribute("fill")).toBe("transparent");
+		expect(svgs[0]!.getAttribute("fill")).toBe("var(--amber-vivid)");
+		expect(svgs[3]!.getAttribute("fill")).toBe("var(--amber-vivid)");
+		expect(svgs[4]!.getAttribute("fill")).toBe("transparent");
 	});
 
 	it("disabled adds data-disabled and prevents onChange", () => {

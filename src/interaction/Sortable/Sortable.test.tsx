@@ -5,8 +5,10 @@ import { Sortable, SortableDndContext, SortableItem } from ".";
 import type { SortableItemData } from ".";
 // @dnd-kit PointerSensor requires setPointerCapture on elements
 beforeEach(() => {
-	(document.body as any).setPointerCapture = vi.fn();
-	(document.body as any).releasePointerCapture = vi.fn();
+	// jsdom does not implement pointer capture, which @dnd-kit's PointerSensor
+	// requires. Assigning to the typed members avoids widening to `any`.
+	document.body.setPointerCapture = vi.fn() as unknown as Element["setPointerCapture"];
+	document.body.releasePointerCapture = vi.fn() as unknown as Element["releasePointerCapture"];
 });
 
 const ITEMS: SortableItemData[] = [
@@ -205,9 +207,9 @@ describe("Sortable", () => {
 			{ id: "3", label: "C" },
 		];
 		const reordered = arrayMove(items, 0, 2);
-		expect(reordered[0].id).toBe("2");
-		expect(reordered[1].id).toBe("3");
-		expect(reordered[2].id).toBe("1");
+		expect(reordered[0]!.id).toBe("2");
+		expect(reordered[1]!.id).toBe("3");
+		expect(reordered[2]!.id).toBe("1");
 	});
 
 	it("Test 15: SortableDndContext accepts onMove as required prop", () => {

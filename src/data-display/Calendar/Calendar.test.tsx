@@ -57,7 +57,7 @@ describe("Calendar - month view", () => {
 		);
 		fireEvent.click(cells[0]!);
 		expect(handler).toHaveBeenCalledOnce();
-		const called = handler.mock.calls[0][0] as Date;
+		const called = handler.mock.calls[0]![0] as Date;
 		expect(called instanceof Date).toBe(true);
 	});
 

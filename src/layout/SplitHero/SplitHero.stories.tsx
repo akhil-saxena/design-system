@@ -51,11 +51,11 @@ const Aside = () => (
 	>
 		<DotGrid />
 		<div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 12 }}>
-			<Eyebrow tone="amber">WELCOME BACK</Eyebrow>
+			<Eyebrow tone="accent">WELCOME BACK</Eyebrow>
 			<Heading level={1} size="3xl" weight="black" color="var(--cream)">
 				Sign in to your trail.
 			</Heading>
-			<Text tone="ink-4" maxWidth={360}>
+			<Text tone="muted" maxWidth={360}>
 				Pick up your job search exactly where you left off.
 			</Text>
 		</div>
@@ -67,6 +67,8 @@ const Main = () => (
 		<Heading level={2} size="2xl" weight="bold">
 			Welcome back
 		</Heading>
+		{/* TextInput now owns label/id wiring, so the hand-rolled Field wrapper this
+		    story used to need is gone. */}
 		<TextInput label="Email" placeholder="you@example.com" />
 		<TextInput label="Password" type="password" />
 		<Button variant="primary" size="lg">

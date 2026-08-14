@@ -30,7 +30,10 @@ const meta: Meta<typeof TextInput> = {
 			},
 		},
 	},
-	args: { placeholder: "Type here…" },
+	// "aria-label" so every story inherits an accessible name: a bare field
+	// with no label is an axe `label` violation, and a story is the one place
+	// a component should be shown used correctly.
+	args: { placeholder: "Type here…", "aria-label": "Example field" },
 	decorators: [
 		(Story) => (
 			<div style={{ width: "100%", maxWidth: 480 }}>
@@ -102,13 +105,17 @@ export const WithUrlIcon: Story = {
 
 export const DarkMode: Story = {
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
+	// `render` bypasses the meta-level args, so these fields do not inherit the
+	// shared aria-label — they need their own names, or every one of them is an
+	// unlabelled input. Uses the `label` prop rather than aria-label so the story
+	// also demonstrates the visible-label path.
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", maxWidth: 400 }}>
-			<TextInput placeholder="Default" />
-			<TextInput defaultValue="With value" />
-			<TextInput error defaultValue="Error state" />
-			<TextInput disabled defaultValue="Disabled" />
-			<TextInput icon={<Search size={14} />} placeholder="With icon" />
+			<TextInput label="Default" placeholder="Default" />
+			<TextInput label="With value" defaultValue="With value" />
+			<TextInput label="Error state" error defaultValue="Error state" />
+			<TextInput label="Disabled" disabled defaultValue="Disabled" />
+			<TextInput label="With icon" icon={<Search size={14} />} placeholder="With icon" />
 		</div>
 	),
 	decorators: [

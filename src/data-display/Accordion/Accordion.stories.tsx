@@ -81,14 +81,14 @@ ${ITEMS.slice(0, 3)
 </Accordion>`,
 
 	disabled: `<Accordion mode="single">
-  <Accordion.Item id="${ITEMS[0].id}" title="${ITEMS[0].q}">
-    ${ITEMS[0].a}
+  <Accordion.Item id="${ITEMS[0]!.id}" title="${ITEMS[0]!.q}">
+    ${ITEMS[0]!.a}
   </Accordion.Item>
   <Accordion.Item id="item-disabled" title="This item is disabled" disabled>
     You cannot see this content because the item is disabled.
   </Accordion.Item>
-  <Accordion.Item id="${ITEMS[2].id}" title="${ITEMS[2].q}">
-    ${ITEMS[2].a}
+  <Accordion.Item id="${ITEMS[2]!.id}" title="${ITEMS[2]!.q}">
+    ${ITEMS[2]!.a}
   </Accordion.Item>
 </Accordion>`,
 };
@@ -201,14 +201,14 @@ export const DisabledItem: Story = {
 	},
 	render: () => (
 		<Accordion mode="single" style={{ maxWidth: 560 }}>
-			<Accordion.Item id="item-1" title={ITEMS[0].q}>
-				{ITEMS[0].a}
+			<Accordion.Item id="item-1" title={ITEMS[0]!.q}>
+				{ITEMS[0]!.a}
 			</Accordion.Item>
 			<Accordion.Item id="item-2" title="This item is disabled" disabled>
 				You cannot see this content because the item is disabled.
 			</Accordion.Item>
-			<Accordion.Item id="item-3" title={ITEMS[2].q}>
-				{ITEMS[2].a}
+			<Accordion.Item id="item-3" title={ITEMS[2]!.q}>
+				{ITEMS[2]!.a}
 			</Accordion.Item>
 		</Accordion>
 	),

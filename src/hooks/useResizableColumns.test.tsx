@@ -60,10 +60,10 @@ function Harness({
 		<div>
 			<div data-testid="width-name">{widths.name}</div>
 			<div data-testid="width-role">{widths.role}</div>
-			<button data-testid="set-name-80" onClick={() => setWidth("name", 80)}>
+			<button type="button" data-testid="set-name-80" onClick={() => setWidth("name", 80)}>
 				set 80
 			</button>
-			<button data-testid="set-name-20" onClick={() => setWidth("name", 20)}>
+			<button type="button" data-testid="set-name-20" onClick={() => setWidth("name", 20)}>
 				set 20 (below min)
 			</button>
 		</div>
@@ -81,14 +81,14 @@ function buildSpyCapture() {
 		.spyOn(document, "addEventListener")
 		.mockImplementation((type: string, fn: EventListenerOrEventListenerObject) => {
 			if (type === "pointermove" || type === "pointerup") {
-				handlers[type].push(fn as (e: PointerEvent) => void);
+				handlers[type]!.push(fn as (e: PointerEvent) => void);
 			}
 		});
 	const removeSpy = vi
 		.spyOn(document, "removeEventListener")
 		.mockImplementation((type: string, fn: EventListenerOrEventListenerObject) => {
 			if (type === "pointermove" || type === "pointerup") {
-				handlers[type] = handlers[type].filter((h) => h !== fn);
+				handlers[type] = handlers[type]!.filter((h) => h !== fn);
 			}
 		});
 	return {
@@ -150,12 +150,12 @@ describe("useResizableColumns", () => {
 				harnessRef.current!.startResize("name", fakePointerEvent(0));
 			});
 
-			expect(spy.handlers.pointermove).toHaveLength(1);
-			expect(spy.handlers.pointerup).toHaveLength(1);
+			expect(spy.handlers.pointermove!).toHaveLength(1);
+			expect(spy.handlers.pointerup!).toHaveLength(1);
 
 			// Invoke captured pointermove handler: delta = 50 → new width = 150
 			act(() => {
-				spy.handlers.pointermove[0]({ clientX: 50, pointerId: 1 } as PointerEvent);
+				spy.handlers.pointermove![0]!({ clientX: 50, pointerId: 1 } as PointerEvent);
 			});
 			expect(getByTestId("width-name").textContent).toBe("150");
 		} finally {
@@ -177,10 +177,10 @@ describe("useResizableColumns", () => {
 				harnessRef.current!.startResize("name", fakePointerEvent(0));
 			});
 			act(() => {
-				spy.handlers.pointermove[0]({ clientX: 50, pointerId: 1 } as PointerEvent);
+				spy.handlers.pointermove![0]!({ clientX: 50, pointerId: 1 } as PointerEvent);
 			});
 			act(() => {
-				spy.handlers.pointerup[0]({ clientX: 50, pointerId: 1 } as PointerEvent);
+				spy.handlers.pointerup![0]!({ clientX: 50, pointerId: 1 } as PointerEvent);
 			});
 
 			expect(onWidthsChange).toHaveBeenCalledWith({ name: 150 });
@@ -199,14 +199,14 @@ describe("useResizableColumns", () => {
 			act(() => {
 				harnessRef.current!.startResize("name", fakePointerEvent(0));
 			});
-			expect(spy.handlers.pointermove).toHaveLength(1);
+			expect(spy.handlers.pointermove!).toHaveLength(1);
 
 			// Fire pointerup - listeners should be removed
 			act(() => {
-				spy.handlers.pointerup[0]({ clientX: 50, pointerId: 1 } as PointerEvent);
+				spy.handlers.pointerup![0]!({ clientX: 50, pointerId: 1 } as PointerEvent);
 			});
-			expect(spy.handlers.pointermove).toHaveLength(0);
-			expect(spy.handlers.pointerup).toHaveLength(0);
+			expect(spy.handlers.pointermove!).toHaveLength(0);
+			expect(spy.handlers.pointerup!).toHaveLength(0);
 		} finally {
 			spy.restore();
 		}
@@ -224,7 +224,7 @@ describe("useResizableColumns", () => {
 				harnessRef.current!.startResize("name", fakePointerEvent(0));
 			});
 			act(() => {
-				spy.handlers.pointermove[0]({ clientX: -200, pointerId: 1 } as PointerEvent);
+				spy.handlers.pointermove![0]!({ clientX: -200, pointerId: 1 } as PointerEvent);
 			});
 			expect(getByTestId("width-name").textContent).toBe("60");
 		} finally {

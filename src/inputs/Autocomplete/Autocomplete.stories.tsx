@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Autocomplete } from ".";
 import { Avatar } from "../../display/Avatar";
@@ -23,7 +23,7 @@ return (
     value={value}
     onValueChange={setValue}
     items={items}
-    recentItems={[COMPANIES[0], COMPANIES[2], COMPANIES[3]]}
+    recentItems={[COMPANIES[0]!, COMPANIES[2]!, COMPANIES[3]!]}
     onSelect={(c) => setValue(c.name)}
     getItemLabel={(c) => c.name}
     getItemKey={(c) => c.id}
@@ -69,7 +69,7 @@ return (
     getItemKey={(c) => c.id}
     renderItem={(c, isActive) => (
       <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontWeight: isActive ? 600 : 400 }}>
-        <Avatar name={c.name} size="xs" />
+        <Avatar name={c.name} size={20} />
         <span>{c.name}</span>
       </span>
     )}
@@ -83,14 +83,14 @@ return (
     value={value}
     onValueChange={setValue}
     items={items}
-    recentItems={[COMPANIES[0], COMPANIES[1]]}
+    recentItems={[COMPANIES[0]!, COMPANIES[1]!]}
     onSelect={(c) => setValue(c.name)}
     onCreate={(q) => alert(\`Create: \${q}\`)}
     getItemLabel={(c) => c.name}
     getItemKey={(c) => c.id}
     renderItem={(c, isActive) => (
       <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontWeight: isActive ? 600 : 400 }}>
-        <Avatar name={c.name} size="xs" />
+        <Avatar name={c.name} size={20} />
         <span>{c.name}</span>
       </span>
     )}
@@ -104,7 +104,7 @@ return (
     value={value}
     onValueChange={setValue}
     items={items}
-    recentItems={[COMPANIES[0], COMPANIES[2]]}
+    recentItems={[COMPANIES[0]!, COMPANIES[2]!]}
     onSelect={(c) => setValue(c.name)}
     onCreate={(q) => alert(\`Create: \${q}\`)}
     getItemLabel={(c) => c.name}
@@ -162,7 +162,7 @@ function CompanyPicker(props: {
 										fontWeight: isActive ? 600 : 400,
 									}}
 								>
-									<Avatar name={c.name} size="xs" />
+									<Avatar name={c.name} size={20} />
 									<span>{c.name}</span>
 								</span>
 							)
@@ -222,7 +222,7 @@ export const Default: Story = {
 
 export const WithRecents: Story = {
 	parameters: { docs: { source: { code: SRC.WithRecents } } },
-	render: () => <CompanyPicker recents={[COMPANIES[0], COMPANIES[2], COMPANIES[3]]} />,
+	render: () => <CompanyPicker recents={[COMPANIES[0]!, COMPANIES[2]!, COMPANIES[3]!]} />,
 };
 
 export const WithOnCreate: Story = {
@@ -262,7 +262,9 @@ export const CustomRenderItem: Story = {
 
 export const Playground: Story = {
 	parameters: { docs: { source: { code: SRC.Playground } } },
-	render: () => <CompanyPicker recents={[COMPANIES[0], COMPANIES[1]]} withOnCreate customRender />,
+	render: () => (
+		<CompanyPicker recents={[COMPANIES[0]!, COMPANIES[1]!]} withOnCreate customRender />
+	),
 };
 
 export const DarkMode: Story = {
@@ -283,5 +285,5 @@ export const DarkMode: Story = {
 			</div>
 		),
 	],
-	render: () => <CompanyPicker recents={[COMPANIES[0], COMPANIES[2]]} withOnCreate />,
+	render: () => <CompanyPicker recents={[COMPANIES[0]!, COMPANIES[2]!]} withOnCreate />,
 };
