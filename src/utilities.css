@@ -60,8 +60,8 @@
 .ds-focus-ring:focus,
 .ds-focus-ring:focus-within {
 	outline: none;
-	border-color: var(--amber);
-	box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+	border-color: var(--focus);
+	box-shadow: var(--focus-ring-soft);
 }
 
 /* ─── Optional dot-grid background helper ───────────────────────────────

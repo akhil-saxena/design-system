@@ -24,21 +24,49 @@
 
 /* ─── Light mode tokens ─────────────────────────────────────────────── */
 :root {
-	/* Type stacks */
-	--font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", system-ui,
+	/* Type stacks.
+	   `--font-*` is the canonical, self-describing vocabulary. The short
+	   `--font` / `--mono` / `--display` / `--serif` names are the original
+	   published spelling and are kept as aliases so existing consumers keep
+	   working — both resolve to the same stack. Prefer `--font-*` in new code. */
+	--font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", system-ui,
 		sans-serif;
-	--mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
-	--display: "Archivo", system-ui, sans-serif;
-	--serif: "Newsreader Variable", Georgia, serif;
+	--font-mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+	--font-display: "Archivo", system-ui, sans-serif;
+	--font-serif: "Newsreader Variable", Georgia, serif;
 
-	/* Ink ramp (text + dark surfaces). Sourced from Cairn. --ink-4/--ink-5 are
-	   AA-tuned (darker than a pure tonal ramp) so muted text + decorative
-	   separators clear WCAG AA (4.5:1) against the light surfaces. */
+	/* Back-compat aliases (published since v0.1.0). */
+	--font: var(--font-body);
+	--mono: var(--font-mono);
+	--display: var(--font-display);
+	--serif: var(--font-serif);
+
+	/* Ink ramp (text + dark surfaces). Sourced from Cairn.
+	   Contrast contract — measured against the *lightest* surface each step is
+	   used on in light mode and the *darkest* in dark mode:
+	     --ink    primary text      >= 14:1
+	     --ink-2  secondary text    >= 6:1
+	     --ink-3  muted text        >= 4.5:1  (WCAG AA body)
+	     --ink-4  alias of --ink-3  — NOT a separate step. It was historically
+	              equal to --ink-3 in light but a much dimmer grey in dark,
+	              which silently dropped ~28 text usages to 2.4:1 in dark mode.
+	              Aliasing keeps both modes honest.
+	     --ink-5  decorative only   — hairlines/separators. Never use for text. */
 	--ink: #1c1c1a;
 	--ink-2: #57534e;
 	--ink-3: #6b6560;
-	--ink-4: #6b6560;
+	--ink-4: var(--ink-3);
 	--ink-5: #8e8782;
+
+	/* Text colour for use ON a filled accent surface (amber CTA, vivid chips).
+	   Previously referenced by primitives.css but never defined, so every
+	   `var(--ink-inverse, #000)` silently fell back to pure black. */
+	--ink-inverse: #1c1917;
+
+	/* Hairline border for raised controls sitting on a light surface. Referenced
+	   by Button/OAuthButton since v0.1.0 but never defined — OAuthButton had no
+	   fallback, so its border collapsed to currentColor. */
+	--wire: rgba(0, 0, 0, 0.18);
 
 	/* Surface ramp — neutral near-white (sourced from Cairn). The ramp reads as
 	   clean paper rather than warm cream; warmth in the system is carried by the
@@ -53,14 +81,23 @@
 	--amber-d: #b45309;
 	--amber-l: #fef3c7;
 
+	/* Light purple, mirroring --amber-l. Needed for chip/pill *fills* that paint
+	   --ink-inverse on top: --purple-vivid reaches only 4.13:1 against that dark
+	   ink and --purple is 1.95:1, so neither works as a fill. #a78bfa gives
+	   6.43:1. */
+	--purple-l: #a78bfa;
+
 	/* Status text-safe. --green / --red reskinned to Cairn's editorial values. */
 	--blue: #1e3a8a;
 	--purple: #5b21b6;
 	--green: #2f7a52;
 	--red: #b8463f;
 
-	/* Hairline rule */
+	/* Hairline rule. --rule-strong is the emphasised divider (active/selected
+	   separators); it previously existed only in the dark block, so any light-mode
+	   consumer of it resolved to nothing. */
 	--rule: rgba(0, 0, 0, 0.08);
+	--rule-strong: rgba(0, 0, 0, 0.14);
 
 	/* Vivids - decorative-only (dots, fills, borders), never text */
 	--amber-vivid: #f59e0b;
@@ -82,7 +119,17 @@
 	--paper-deep: #ededed;
 	--pg: #e6e6e6;
 	--rule-s: #d4d4d4;
+	/* "Ink" variants: text colours for use *on a tinted pill* of the same hue
+	   (Badge, Chip, StatusPill, error summaries). The plain --green / --red are
+	   tuned for text on a neutral surface and land at 4.2–4.5:1 once a 12–15%
+	   tint of their own hue is composited underneath — below the AA floor for the
+	   9.5–12px labels these pills use. --amber-ink already existed for exactly
+	   this role; these are its missing siblings.
+	   Measured with a 15% tint over the full light surface ramp:
+	     --amber-ink 5.50:1   --green-ink 4.88:1   --red-ink 4.87:1 */
 	--amber-ink: #92400e;
+	--green-ink: #296b48;
+	--red-ink: #9b3b35;
 	--amber-soft: #fef3c7;
 	--amber-warm: #fdf6e3;
 	--green-bg: #e2efe6;
@@ -181,9 +228,43 @@
 	--surf-2: rgba(255, 255, 255, 0.55);
 	--surf-3: rgba(255, 255, 255, 0.7);
 
-	/* Focus tokens - handoff v1.0 */
-	--focus: var(--amber);
-	--focus-ring: 0 0 0 3px rgba(245, 158, 11, 0.45);
+	/* Focus tokens.
+	   The ring must clear WCAG 1.4.11 (non-text contrast, 3:1) against every
+	   surface it can land on. The brand amber (#f59e0b) only reaches 2.09:1 on
+	   --cream and 1.95:1 on --cream-2, so it fails as a focus indicator despite
+	   being the correct *brand* colour. --amber-d measures 4.57–5.02:1 across the
+	   light surface ramp and 9.9–11.4:1 in dark, so the ring is keyed to it.
+	   --focus-ring is the single source of truth: every :focus-visible rule in
+	   primitives.css uses it, so the indicator is identical system-wide. */
+	--focus: var(--amber-d);
+	--focus-ring: 0 0 0 3px var(--focus);
+	--focus-ring-offset: 0 0 0 2px var(--page-bg), 0 0 0 5px var(--focus);
+	/* Softer glow for text fields, where the border colour change carries the
+	   indication and a solid 3px ring would read as an error state. Was
+	   hand-rolled at 0.12 / 0.2 / 0.25 / 0.28 / 0.35 alpha across the sheet. */
+	--focus-ring-soft: 0 0 0 3px rgba(180, 83, 9, 0.22);
+	/* Invalid-field ring. Was 0.1 / 0.22 alpha in four different places. */
+	--error-ring: 0 0 0 3px rgba(184, 70, 63, 0.18);
+
+	/* Layering scale. Overlays previously picked ad-hoc z-indexes (60, 100, 1000,
+	   1500, 9999), so an ActionSheet (60) or Popover (100) opened from inside a
+	   Modal (1000) rendered *behind* it. The scale below is the contract:
+	   anything that can be opened on top of a dialog must sit above it. */
+	--z-base: 0;
+	--z-raised: 10; /* sticky app chrome (AppShell topbar, table headers) */
+	--z-dropdown: 1000; /* select/autocomplete menus anchored to a field */
+	--z-overlay: 1100; /* modal, sheet, bottom sheet, action sheet backdrops */
+	--z-popover: 1200; /* popover/context menu — may open from inside a dialog */
+	--z-toast: 1300; /* transient notifications, above dialogs */
+	--z-tooltip: 1400; /* tooltip + hover card, above everything interactive */
+	--z-max: 1500; /* lightbox — a full-screen takeover */
+
+	/* Scrim behind modal surfaces. Was hand-rolled per component at 0.18 / 0.25 /
+	   0.3 / 0.35 / 0.65 alpha. 0.65 matches Modal/Sheet/BottomSheet — the three
+	   surfaces that already agreed — so the shared value is theirs.
+	   --scrim-strong is for full-screen media takeovers (Lightbox). */
+	--scrim: rgba(0, 0, 0, 0.65);
+	--scrim-strong: rgba(0, 0, 0, 0.92);
 
 	/* Illustration surface fills - use these instead of --cream in SVGs */
 	--ds-illust-bg: var(--cream-2);
@@ -204,9 +285,20 @@
 	   - Rules are cool-white at 9% / 14% (strong) for active dividers. */
 	--ink: #ededed;
 	--ink-2: #ababab;
-	--ink-3: #7c7c7c;
-	--ink-4: #565656;
+	/* --ink-3 raised from #7c7c7c: that value measured 3.44:1 on --cream-3 and
+	   3.63:1 on --paper-deep, below the 4.5:1 AA floor for the muted *text* role
+	   it fills in ~50 places. #919191 is the lightest grey that clears 4.5:1 on
+	   every dark surface in the ramp, so the step stays visibly muted. */
+	--ink-3: #919191;
+	/* Alias, matching light mode — see the light-block note. */
+	--ink-4: var(--ink-3);
+	/* Decorative hairlines only; never text. */
 	--ink-5: #363636;
+
+	/* On a filled amber/vivid surface the text stays dark in both themes — the
+	   accent fills do not flip. */
+	--ink-inverse: #1c1917;
+	--wire: rgba(255, 255, 255, 0.22);
 
 	--cream: #181818;
 	--cream-2: #1f1f1f;
@@ -241,8 +333,12 @@
 	--surf-2: rgba(255, 255, 255, 0.055);
 	--surf-3: rgba(255, 255, 255, 0.09);
 
-	/* Focus ring - dark-mode amber-d glow */
-	--focus-ring: 0 0 0 3px rgba(251, 191, 36, 0.5);
+	/* Focus ring — --amber-d is #fbbf24 in dark, measuring 9.9–11.4:1 across the
+	   dark surface ramp. `--focus`/`--focus-ring` derive from --amber-d on :root
+	   and re-resolve here automatically; only the tinted rings need restating so
+	   their alpha is keyed to the dark accent rather than the light one. */
+	--focus-ring-soft: 0 0 0 3px rgba(251, 191, 36, 0.3);
+	--error-ring: 0 0 0 3px rgba(240, 164, 160, 0.24);
 
 	/* Illustration surface fills lift to visible translucent white in dark mode */
 	--ds-illust-bg: rgba(255, 255, 255, 0.13);
@@ -259,6 +355,13 @@
 	--pg: #0b0b0b;
 	--rule-s: #333333;
 	--amber-ink: #f5c56b;
+	/* Chip fills stay light in dark mode too: the ink painted on them does not
+	   flip, so the fill must not either. */
+	--purple-l: #a78bfa;
+	/* On dark surfaces the standard status colours are already pre-lightened and
+	   clear AA on their own tints (7.6–8.9:1), so the ink variants alias them. */
+	--green-ink: var(--green);
+	--red-ink: var(--red);
 	--amber-soft: #3a2e10;
 	--amber-warm: #2a2110;
 	--green-bg: #1b2a22;
