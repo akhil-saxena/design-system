@@ -1,6 +1,6 @@
 {
 	"name": "@akhil-saxena/design-system",
-	"version": "1.9.1",
+	"version": "1.10.0",
 	"type": "module",
 	"description": "Accessible React primitives with semantic tokens",
 	"license": "MIT",
@@ -33,7 +33,11 @@
 		},
 		"./tokens.css": "./dist/tokens.css",
 		"./primitives.css": "./dist/primitives.css",
-		"./utilities.css": "./dist/utilities.css"
+		"./utilities.css": "./dist/utilities.css",
+		"./css/*": {
+			"style": "./dist/css/*.css",
+			"default": "./dist/css/*.css"
+		}
 	},
 	"scripts": {
 		"build": "tsup",
@@ -45,9 +49,13 @@
 		"build-storybook": "storybook build",
 		"check": "biome check .",
 		"format": "biome format --write .",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit",
 		"prepare": "is-ci || husky",
-		"prepublishOnly": "npm run build && npm test"
+		"prepublishOnly": "npm run build && npm test",
+		"test:a11y": "start-server-and-test \"npm run storybook -- --quiet --no-open\" http://localhost:6006 \"DS_TEST_MODE=a11y test-storybook\"",
+		"test:visual:capture": "start-server-and-test \"npm run storybook -- --quiet --no-open\" http://localhost:6006 \"DS_TEST_MODE=visual test-storybook\"",
+		"test:coverage": "vitest run --coverage",
+		"css:check": "node scripts/split-css.mjs --check"
 	},
 	"peerDependencies": {
 		"react": "^19.0.0",
@@ -75,6 +83,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"@playwright/test": "^1.59.1",
+		"@storybook/addon-a11y": "^8.6.18",
 		"@storybook/addon-essentials": "^8.6.14",
 		"@storybook/preview-api": "^8.6.18",
 		"@storybook/react-vite": "^8.6.18",
@@ -86,6 +95,7 @@
 		"@types/react-dom": "^19.2.3",
 		"@vitejs/plugin-react": "^4.3.4",
 		"@vitest/coverage-v8": "^4.1.4",
+		"axe-playwright": "^2.2.2",
 		"husky": "^9.1.7",
 		"is-ci": "^4.1.0",
 		"jsdom": "^25.0.1",

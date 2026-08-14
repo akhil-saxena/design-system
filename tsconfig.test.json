@@ -1,0 +1,25 @@
+{
+	// Type-checks the files the build config deliberately excludes: tests and
+	// stories. `tsconfig.json` omits them because they must not reach the emitted
+	// declaration output — but omitting them from the build also removed them
+	// from `tsc --noEmit`, so 179 files (97 test + 81 story + setup) were never
+	// type-checked at all. Stories are the documentation consumers read, so type
+	// errors there shipped silently.
+	//
+	// Run via `npm run typecheck`, which checks both projects.
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true,
+		// No declaration output from this project, so these are meaningless here
+		// and `declarationMap` without `declaration` is an error.
+		"declaration": false,
+		"declarationMap": false,
+		"composite": false,
+		// Stories and tests legitimately hold unused fixture bindings while a case
+		// is being written; the build config keeps these strict for shipped code.
+		"noUnusedLocals": false,
+		"noUnusedParameters": false
+	},
+	"include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.stories.tsx", "src/test-setup.ts"],
+	"exclude": ["node_modules", "dist"]
+}

@@ -5,6 +5,11 @@ export default defineConfig({
 	format: ["esm"],
 	dts: true,
 	splitting: true,
+	// NOTE: the "use client" directive is applied by scripts/postbuild.mjs, not by
+	// a `banner` here. esbuild does inject a banner, but `treeshake: true` below
+	// pipes the output through rollup, which strips module level directives
+	// ("Module level directives cause errors when bundled ... was ignored"). See
+	// that script for the full rationale.
 	sourcemap: true,
 	clean: true,
 	treeshake: true,
@@ -19,8 +24,5 @@ export default defineConfig({
 		"@tiptap/extension-underline",
 		"@tiptap/pm",
 	],
-	// CSS files copied to dist/ post-build. src/*.css doesn't exist until
-	// 13.5-04 lands tokens.css/primitives.css/utilities.css; the `|| true`
-	// hides the no-source error until then.
-	onSuccess: "cp src/*.css dist/ 2>/dev/null || true",
+	onSuccess: "node scripts/postbuild.mjs",
 });
