@@ -3,12 +3,14 @@
 //   import { useFocusTrap } from "@akhil-saxena/design-system/hooks";
 
 export { useClickOutside } from "./useClickOutside";
+export { useDismiss, type UseDismissOptions } from "./useDismiss";
 export { useComposedRefs } from "./useComposedRefs";
 export { useFocusTrap } from "./useFocusTrap";
 export { useKeyboardShortcut } from "./useKeyboardShortcut";
 export { type LongPressHandlers, useLongPress } from "./useLongPress";
 export { useMatchMedia } from "./useMatchMedia";
 export { useReducedMotion } from "./useReducedMotion";
+export { useScrollLock } from "./useScrollLock";
 export { useSortableTable, type SortState } from "./useSortableTable";
 export { useTableSelection, type SelectionMode } from "./useTableSelection";
 export { useResizableColumns } from "./useResizableColumns";
