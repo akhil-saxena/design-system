@@ -1,9 +1,9 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, HTMLAttributes, Ref } from "react";
 import { Sparkline } from "../Sparkline";
 
 export type StatCardChangeDir = "up" | "down";
 
-export interface StatCardProps {
+export interface StatCardProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	/** Monospace uppercase label, e.g. "Total Applications" */
 	label: string;
 	/** Primary metric value as string or number, e.g. "24", "42%", "4.2d" */
@@ -14,6 +14,8 @@ export interface StatCardProps {
 	changeDir?: StatCardChangeDir;
 	/** Sparkline data points — renders chart when provided (min 2 points) */
 	data?: number[];
+	/** Ref to the root element. */
+	ref?: Ref<HTMLDivElement>;
 	/** Additional className forwarded to the root div */
 	className?: string;
 	/** Additional inline styles for the root div */
@@ -28,6 +30,8 @@ export function StatCard({
 	data,
 	className,
 	style,
+	ref,
+	...rest
 }: StatCardProps) {
 	const up = changeDir === "up";
 	const sentimentColor =
@@ -35,8 +39,10 @@ export function StatCard({
 
 	return (
 		<div
+			ref={ref}
 			className={["glass", className].filter(Boolean).join(" ")}
 			style={{ padding: 16, borderRadius: 12, ...style }}
+			{...rest}
 		>
 			{/* Label */}
 			<div

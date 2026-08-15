@@ -1,8 +1,8 @@
-import { type CSSProperties, useEffect, useRef } from "react";
+import { type CSSProperties, type HTMLAttributes, type Ref, useEffect, useRef } from "react";
 
 export type RollingNumberVariant = "default" | "dark" | "light";
 
-export interface RollingNumberProps {
+export interface RollingNumberProps extends HTMLAttributes<HTMLSpanElement> {
 	/** Numeric value to display; digit columns animate vertically when the value changes. */
 	value: number;
 	/** Custom formatter applied before splitting into individual characters; defaults to `String(value)`. */
@@ -22,6 +22,8 @@ export interface RollingNumberProps {
 	/** Accessible label for the `aria-live` region; defaults to the full rendered display string. */
 	ariaLabel?: string;
 	/** Additional className applied to the root `<span>` element. */
+	/** Ref to the root `<span>`. */
+	ref?: Ref<HTMLSpanElement>;
 	className?: string;
 	/** Inline styles applied to the root `<span>` element. */
 	style?: CSSProperties;
@@ -38,6 +40,8 @@ export function RollingNumber({
 	ariaLabel,
 	className,
 	style,
+	ref,
+	...rest
 }: RollingNumberProps) {
 	const core = format ? format(value) : String(value);
 	const display = `${prefix ?? ""}${core}${suffix ?? ""}`;
@@ -56,6 +60,8 @@ export function RollingNumber({
 			data-first-render={firstRender.current ? "true" : undefined}
 			data-variant={variant === "default" ? undefined : variant}
 			style={style}
+			ref={ref}
+			{...rest}
 			// role="status" makes this a live region that *can* carry a name. As a
 			// bare <span> the element was role `generic`, which prohibits aria-label,
 			// so the label was discarded (axe: aria-prohibited-attr).

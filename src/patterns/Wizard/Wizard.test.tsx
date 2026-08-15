@@ -247,3 +247,66 @@ describe("Wizard", () => {
 		expect(stepEls[0]).toHaveAttribute("data-status", "active");
 	});
 });
+
+describe("Wizard — step count changing underneath the active index", () => {
+	const four = [{ label: "A" }, { label: "B" }, { label: "C" }, { label: "D" }];
+	const two = [{ label: "A" }, { label: "B" }];
+
+	function next() {
+		fireEvent.click(screen.getByRole("button", { name: /Next|Finish/ }));
+	}
+
+	it("stays finishable when the steps array shrinks past the active step", () => {
+		// Conditional steps are the normal case — a branch drops out once an earlier
+		// answer rules it out. `current` was never clamped to the array, so once it
+		// pointed past the end, `current === steps.length - 1` was false forever: the
+		// button read "Next" permanently and onComplete could never be reached.
+		const onComplete = vi.fn();
+		const { rerender } = render(
+			<Wizard steps={four} onComplete={onComplete}>
+				<div />
+			</Wizard>,
+		);
+		next();
+		next(); // now on step index 2, beyond what `two` will contain
+
+		rerender(
+			<Wizard steps={two} onComplete={onComplete}>
+				<div />
+			</Wizard>,
+		);
+
+		expect(screen.getByRole("button", { name: /Next|Finish/ })).toHaveTextContent("Finish");
+		next();
+		expect(onComplete).toHaveBeenCalledTimes(1);
+	});
+
+	it("does not strand the user on an empty steps array", () => {
+		// An empty array is reachable transiently while steps load or filter. It
+		// previously produced a "Next" button that incremented an unbounded counter
+		// and never completed.
+		const onComplete = vi.fn();
+		render(
+			<Wizard steps={[]} onComplete={onComplete}>
+				<div />
+			</Wizard>,
+		);
+		expect(screen.getByRole("button", { name: /Next|Finish/ })).toHaveTextContent("Finish");
+		next();
+		expect(onComplete).toHaveBeenCalledTimes(1);
+	});
+
+	it("still advances normally through a stable step list", () => {
+		const onComplete = vi.fn();
+		render(
+			<Wizard steps={two} onComplete={onComplete}>
+				<div />
+			</Wizard>,
+		);
+		expect(screen.getByRole("button", { name: /Next|Finish/ })).toHaveTextContent("Next");
+		next();
+		expect(screen.getByRole("button", { name: /Next|Finish/ })).toHaveTextContent("Finish");
+		next();
+		expect(onComplete).toHaveBeenCalledTimes(1);
+	});
+});

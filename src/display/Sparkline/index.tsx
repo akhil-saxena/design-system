@@ -1,4 +1,10 @@
-export interface SparklineProps {
+import type { Ref, SVGAttributes } from "react";
+
+// `fill` and `color` are omitted from the inherited SVG attributes because this
+// component already owns both names with different meanings: `fill` is a boolean
+// toggling the area under the line, not an SVG paint value. Renaming them would
+// be a breaking change for every existing caller, so the SVG attributes lose.
+export interface SparklineProps extends Omit<SVGAttributes<SVGSVGElement>, "color" | "fill"> {
 	data: number[];
 	width?: number;
 	height?: number;
@@ -6,6 +12,8 @@ export interface SparklineProps {
 	fill?: boolean;
 	/** Accessible label. Defaults to "Trend chart". */
 	ariaLabel?: string;
+	/** Ref to the root `<svg>`. */
+	ref?: Ref<SVGSVGElement>;
 }
 
 export function Sparkline({
@@ -15,6 +23,10 @@ export function Sparkline({
 	color = "var(--amber)",
 	fill = true,
 	ariaLabel = "Trend chart",
+	className,
+	style,
+	ref,
+	...rest
 }: SparklineProps) {
 	if (data.length < 2) {
 		if (process.env.NODE_ENV !== "production") {
@@ -42,12 +54,15 @@ export function Sparkline({
 
 	return (
 		<svg
+			ref={ref}
 			width={width}
 			height={height}
 			viewBox={`0 0 ${width} ${height}`}
-			style={{ display: "block" }}
+			className={className}
+			style={{ display: "block", ...style }}
 			role="img"
 			aria-label={ariaLabel}
+			{...rest}
 		>
 			{fill && <path d={fillPath} fill={color} opacity=".1" />}
 			<polyline

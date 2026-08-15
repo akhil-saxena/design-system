@@ -39,7 +39,17 @@ export interface WizardProps {
  * responsibility. Wizard manages step state only.
  */
 export function Wizard({ steps, onComplete, onCancel, orientation, children }: WizardProps) {
-	const [current, setCurrent] = useState(0);
+	const [rawCurrent, setCurrent] = useState(0);
+	// `current` was never bounded by `steps`. Wizard steps are commonly
+	// conditional — a branch drops out once an earlier answer rules it out — and
+	// once the array shrinks past the active index, `current === steps.length - 1`
+	// is false forever. The primary button keeps reading "Next", `onComplete`
+	// becomes unreachable, and every further click pushes `current` further past
+	// the end: the wizard is permanently unfinishable. Clamping the index derives
+	// the correct step even when the array shrinks underneath it.
+	const lastIndex = Math.max(0, steps.length - 1);
+	const current = Math.min(rawCurrent, lastIndex);
+	const isLast = current >= lastIndex;
 	const [error, setError] = useState<string | null>(null);
 	const [trapEl, setTrapEl] = useState<HTMLDivElement | null>(null);
 
@@ -63,21 +73,24 @@ export function Wizard({ steps, onComplete, onCancel, orientation, children }: W
 
 		setError(null);
 
-		if (current === steps.length - 1) {
+		if (isLast) {
 			onComplete();
 			return;
 		}
 
-		setCurrent((c) => c + 1);
+		// Seeded from the clamped `current`, not the raw state, so a shrink that
+		// happened while this step was open cannot be stepped off the end.
+		setCurrent(current + 1);
 	};
 
 	const handleBack = () => {
 		if (current === 0) return;
 		setError(null);
-		setCurrent((c) => c - 1);
+		setCurrent(current - 1);
 	};
 
-	const pct = ((current + 1) / steps.length) * 100;
+	// Explicit rather than leaning on ProgressBar clamping (1 / 0) to 100.
+	const pct = steps.length === 0 ? 100 : ((current + 1) / steps.length) * 100;
 
 	return (
 		<div ref={setTrapEl} className="ds-atom-wizard" data-orientation={orientation ?? "horizontal"}>
@@ -129,7 +142,7 @@ export function Wizard({ steps, onComplete, onCancel, orientation, children }: W
 					Back
 				</Button>
 				<Button variant="primary" size="sm" onClick={handleNext}>
-					{current === steps.length - 1 ? "Finish" : "Next"}
+					{isLast ? "Finish" : "Next"}
 				</Button>
 			</div>
 		</div>

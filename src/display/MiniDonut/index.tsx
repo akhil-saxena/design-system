@@ -1,4 +1,6 @@
-export interface MiniDonutProps {
+import type { Ref, SVGAttributes } from "react";
+
+export interface MiniDonutProps extends Omit<SVGAttributes<SVGSVGElement>, "color"> {
 	value: number;
 	max?: number;
 	size?: number;
@@ -6,6 +8,8 @@ export interface MiniDonutProps {
 	color?: string;
 	/** Accessible label. Defaults to "{percentage}%". */
 	ariaLabel?: string;
+	/** Ref to the root `<svg>`. */
+	ref?: Ref<SVGSVGElement>;
 }
 
 export function MiniDonut({
@@ -15,6 +19,10 @@ export function MiniDonut({
 	strokeWidth = 5,
 	color = "var(--amber)",
 	ariaLabel,
+	className,
+	style,
+	ref,
+	...rest
 }: MiniDonutProps) {
 	const r = (size - strokeWidth) / 2;
 	const circ = 2 * Math.PI * r;
@@ -28,12 +36,15 @@ export function MiniDonut({
 
 	return (
 		<svg
+			ref={ref}
 			width={size}
 			height={size}
 			viewBox={`0 0 ${size} ${size}`}
-			style={{ display: "block", transform: "rotate(-90deg)" }}
+			className={className}
+			style={{ display: "block", transform: "rotate(-90deg)", ...style }}
 			role="img"
 			aria-label={ariaLabel ?? `${Math.round(pct * 100)}%`}
+			{...rest}
 		>
 			<circle
 				cx={size / 2}

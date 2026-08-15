@@ -26,6 +26,14 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 - `data-testid="colorpicker-swatch"`, matching the existing `-hex` and `-alpha`
   hooks. The swatch is the only element painting the committed colour unblended,
   and it had no way to be queried.
+- **`className`, `style`, `ref` and arbitrary `data-*` on the chart primitives.**
+  MiniBar, MiniDonut and Sparkline accepted *none* of these, so a consumer could
+  not attach a test hook, restyle them, measure them, or observe them for
+  visibility — while RollingNumber and StatCard, the same category of component,
+  always could. RollingNumber and StatCard had the subtler version of the same
+  gap: they took `className` and `style` but dropped every other prop silently,
+  so a `data-testid` on either simply vanished. All five now forward a ref and
+  spread the rest onto their root. Pinned in `test-hooks.test.tsx`.
 
 ### Fixed
 
@@ -40,6 +48,13 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
   value it already held — produced no sync, and the swatch went on displaying a
   colour the parent had refused. The colour is now derived from `value` when
   controlled, which makes the divergence unrepresentable.
+- **Wizard became permanently unfinishable when its step list shrank.** `current`
+  was never bounded by `steps`, and wizard steps are commonly conditional — a
+  branch drops out once an earlier answer rules it out. Once the array shrank past
+  the active index, `current === steps.length - 1` was false forever: the primary
+  button read "Next" permanently, `onComplete` was unreachable, and every further
+  click pushed `current` further past the end. An empty `steps` array (reachable
+  while steps load or filter) behaved the same way. The index is now clamped.
 - **MiniBar rendered `height: NaN%` for an all-zero series.** The bar height was
   `value / Math.max(...data)`, so a series of all zeros — which is simply what "no
   sales yet this week" looks like — divided by zero, and an empty series made the

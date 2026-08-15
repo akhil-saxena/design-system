@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import type { ReactElement } from "react";
+import { type ReactElement, createRef } from "react";
 import { describe, expect, it } from "vitest";
 import * as DS from "./index";
 
@@ -42,6 +42,14 @@ const cases: Array<[string, () => ReactElement]> = [
 	["Text", () => <DS.Text data-testid="hook">t</DS.Text>],
 	["Divider", () => <DS.Divider data-testid="hook" />],
 	["ColorInput", () => <DS.ColorInput data-testid="hook" label="Brand" />],
+	// The three charts accepted no className, style, ref or data-* at all, so a
+	// consumer could neither hook nor measure them — while RollingNumber and
+	// StatCard, the same category, always could.
+	["MiniBar", () => <DS.MiniBar data-testid="hook" data={[1, 2, 3]} />],
+	["MiniDonut", () => <DS.MiniDonut data-testid="hook" value={40} />],
+	["Sparkline", () => <DS.Sparkline data-testid="hook" data={[1, 2, 3]} />],
+	["RollingNumber", () => <DS.RollingNumber data-testid="hook" value={42} />],
+	["StatCard", () => <DS.StatCard data-testid="hook" label="Revenue" value="1" />],
 ];
 
 describe("test hooks", () => {
@@ -52,6 +60,22 @@ describe("test hooks", () => {
 			unmount();
 		});
 	}
+
+	it("charts expose their root node via ref, for measuring and observing", () => {
+		const bar = createRef<HTMLDivElement>();
+		const donut = createRef<SVGSVGElement>();
+		const spark = createRef<SVGSVGElement>();
+		render(
+			<>
+				<DS.MiniBar data={[1, 2]} ref={bar} />
+				<DS.MiniDonut value={40} ref={donut} />
+				<DS.Sparkline data={[1, 2]} ref={spark} />
+			</>,
+		);
+		expect(bar.current).toBeInstanceOf(HTMLElement);
+		expect(donut.current?.tagName).toBe("svg");
+		expect(spark.current?.tagName).toBe("svg");
+	});
 
 	it("ColorInput exposes its swatch, which has no role or name of its own", () => {
 		// The swatch is aria-hidden — the hex text beside it carries the value — so
