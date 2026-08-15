@@ -38,7 +38,15 @@
  * Density: Table.Root density prop → data-density attr → CSS row-height variants.
  */
 
-import { type KeyboardEventHandler, type MouseEventHandler, forwardRef } from "react";
+import {
+	type KeyboardEventHandler,
+	type MouseEventHandler,
+	type ReactNode,
+	forwardRef,
+	useRef,
+} from "react";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
+import { useGridNavigation } from "../../hooks/useGridNavigation";
 import { Button } from "../../inputs/Button";
 import { Checkbox } from "../../inputs/Checkbox";
 // ── className helper ──────────────────────────────────────────────────────────
@@ -155,9 +163,18 @@ export const TableRoot = forwardRef<HTMLTableElement, TableRootProps>(function T
 	{ density = "comfortable", sticky, ariaLabel, multiSelectable, className, children, ...rest },
 	ref,
 ) {
+	// `multiSelectable` is what promotes this to role="grid", and a grid owes the
+	// caller arrow-key navigation — declaring the role without it is a contract
+	// the table was not keeping. Gated on the same flag so a plain table stays
+	// static content, where arrow keys would fight the screen reader's own cursor.
+	const tableRef = useRef<HTMLTableElement | null>(null);
+	const composedRef = useComposedRefs<HTMLTableElement>(tableRef, ref);
+	const grid = useGridNavigation({ tableRef, enabled: Boolean(multiSelectable) });
+
 	return (
 		<table
-			ref={ref}
+			ref={composedRef}
+			onKeyDown={grid.onKeyDown}
 			aria-label={ariaLabel}
 			// role="grid" is what makes aria-multiselectable valid; a consumer-supplied
 			// role in `rest` still wins via the spread below.
@@ -441,13 +458,47 @@ export const TablePagination = forwardRef<HTMLElement, TablePaginationProps>(
 	},
 );
 
+// ── TableStateRow ─────────────────────────────────────────────────────────────
+
+export interface TableStateRowProps {
+	/** Number of columns to span — usually the full width of the table. */
+	colSpan: number;
+	/** Message to display, e.g. "Loading…" or "No results". */
+	children: ReactNode;
+	/**
+	 * Announce the message when it appears or changes. On by default, because the
+	 * point of this row is a state the user is waiting on.
+	 */
+	live?: boolean;
+}
+
+/**
+ * A full-width row for a body-level state — loading, empty, error.
+ *
+ * `Table` is compositional: the consumer supplies the rows, so unlike DataGrid it
+ * has nowhere to put a `loading` prop without taking ownership of `children`.
+ * This gives the same announced, correctly-spanning row without every consumer
+ * hand-rolling a `<tr><td colSpan>` and forgetting the live region.
+ */
+export const TableStateRow = forwardRef<HTMLTableRowElement, TableStateRowProps>(
+	function TableStateRow({ colSpan, children, live = true }, ref) {
+		return (
+			<tr ref={ref} className="ds-atom-table-staterow">
+				<td colSpan={colSpan} aria-live={live ? "polite" : undefined}>
+					{children}
+				</td>
+			</tr>
+		);
+	},
+);
+
 // ── Compound namespace ────────────────────────────────────────────────────────
 
 /**
  * Table - compound primitive (DS-61, parts 1 + 2).
  *
  * Members: Table.Root, Table.Header, Table.HeaderCell, Table.Body, Table.Row, Table.Cell
- *          Table.SelectAllCell, Table.SelectCell, Table.Pagination
+ *          Table.SelectAllCell, Table.SelectCell, Table.Pagination, Table.StateRow
  *
  * Important: render <Table.Pagination /> as a sibling of <Table.Root>, NOT a child.
  * <nav> inside <table> is invalid HTML. See TablePaginationProps JSDoc for details.
@@ -462,4 +513,5 @@ export const Table = {
 	SelectAllCell: TableSelectAllCell,
 	SelectCell: TableSelectCell,
 	Pagination: TablePagination,
+	StateRow: TableStateRow,
 };

@@ -4,6 +4,7 @@ import { InlineEditField } from ".";
 
 const meta: Meta<typeof InlineEditField> = {
 	title: "Inputs/InlineEditField",
+	tags: ["autodocs"],
 	component: InlineEditField,
 };
 

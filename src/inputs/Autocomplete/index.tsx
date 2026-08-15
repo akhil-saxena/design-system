@@ -47,6 +47,15 @@ export interface AutocompleteProps<T> {
 	error?: boolean;
 	/** Validation message under the control; sets `aria-invalid` and is announced. */
 	errorMessage?: ReactNode;
+	/**
+	 * Show a loading row instead of the options while results are being fetched.
+	 * Without it an async list that had not arrived rendered "No results", which
+	 * tells the user their query matched nothing rather than that nothing has
+	 * come back yet.
+	 */
+	loading?: boolean;
+	/** Text shown while `loading`. @default "Loading…" */
+	loadingText?: string;
 }
 
 /**
@@ -83,6 +92,8 @@ export function Autocomplete<T>({
 	placeholder = "Search…",
 	className,
 	style,
+	loading = false,
+	loadingText = "Loading…",
 	ref,
 	hint,
 	error,
@@ -102,8 +113,10 @@ export function Autocomplete<T>({
 	const hasRecents = (recentItems?.length ?? 0) > 0;
 	const showRecents = open && queryEmpty && hasRecents;
 	const displayed = showRecents ? (recentItems as T[]) : items;
-	const showCreate = open && !queryEmpty && items.length === 0 && !!onCreate;
-	const showNoResults = open && !queryEmpty && items.length === 0 && !onCreate;
+	// `loading` suppresses both the create affordance and the empty state: neither
+	// is true yet while results are still in flight.
+	const showCreate = open && !loading && !queryEmpty && items.length === 0 && !!onCreate;
+	const showNoResults = open && !loading && !queryEmpty && items.length === 0 && !onCreate;
 
 	const itemCount = showCreate ? 0 : displayed.length;
 
@@ -201,7 +214,13 @@ export function Autocomplete<T>({
 				typeAheadGetText={(i) => (displayed[i] ? getItemLabel(displayed[i]) : "")}
 			>
 				{showRecents ? <div className="ds-atom-autocomplete-section-header">RECENT</div> : null}
-				{showCreate ? (
+				{loading ? (
+					// aria-live because the listbox is never focused (activedescendant
+					// pattern), so nothing else would announce the change.
+					<div className="ds-atom-autocomplete-empty" aria-live="polite">
+						{loadingText}
+					</div>
+				) : showCreate ? (
 					<button type="button" className="ds-atom-autocomplete-create" onClick={handleCreate}>
 						+ Add "{value}" as new
 					</button>

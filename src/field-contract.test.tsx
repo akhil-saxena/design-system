@@ -165,3 +165,56 @@ describe("async dropdown loading state", () => {
 		expect(screen.getByText("Loading…")).toHaveAttribute("aria-live", "polite");
 	});
 });
+
+describe("loading state on async-fed collections", () => {
+	it("Autocomplete shows loading instead of 'No results'", () => {
+		// The two states were indistinguishable: a list still in flight rendered
+		// "No results", which asserts the query matched nothing.
+		render(
+			<DS.Autocomplete
+				value="ad"
+				onValueChange={() => {}}
+				items={[]}
+				getItemLabel={(i: string) => i}
+				getItemKey={(i: string) => i}
+				onSelect={() => {}}
+				loading
+			/>,
+		);
+		fireEvent.focus(screen.getByRole("combobox"));
+		expect(screen.queryByText("No results")).toBeNull();
+		expect(screen.getByText("Loading…")).toHaveAttribute("aria-live", "polite");
+	});
+
+	it("DataGrid shows a loading row spanning every column", () => {
+		render(
+			<DS.DataGrid
+				columns={[
+					{ key: "a", label: "A", width: 100 },
+					{ key: "b", label: "B", width: 100 },
+				]}
+				rows={[]}
+				loading
+			/>,
+		);
+		const cell = screen.getByText("Loading…");
+		// +1 for the selection column, or the row would not span the full width.
+		expect(cell.getAttribute("colspan")).toBe("3");
+		expect(cell).toHaveAttribute("aria-live", "polite");
+	});
+
+	it("Table.StateRow gives the compositional API the same affordance", () => {
+		// Table cannot take a `loading` prop — the consumer owns the body — so the
+		// state row is a compound member instead.
+		render(
+			<DS.Table.Root ariaLabel="t">
+				<DS.Table.Body>
+					<DS.Table.StateRow colSpan={2}>Loading…</DS.Table.StateRow>
+				</DS.Table.Body>
+			</DS.Table.Root>,
+		);
+		const cell = screen.getByText("Loading…");
+		expect(cell.getAttribute("colspan")).toBe("2");
+		expect(cell).toHaveAttribute("aria-live", "polite");
+	});
+});

@@ -84,7 +84,6 @@ const categories = [
 		components: [
 			"ActionSheet",
 			"BottomSheet",
-			"Card",
 			"CommandPalette",
 			"ConfirmDialog",
 			"HoverCard",
@@ -92,7 +91,6 @@ const categories = [
 			"Modal",
 			"Popover",
 			"Sheet",
-			"StickyNote",
 			"Tooltip",
 		],
 	},
@@ -139,6 +137,9 @@ const categories = [
 			"SplitButton",
 		],
 	},
+	// Card and StickyNote are filed under Surfaces in Storybook, not Overlays;
+	// the Overview still listed them as overlays, so both tiles 404'd.
+	{ name: "Surfaces", id: "surfaces", components: ["Card", "StickyNote"] },
 	{ name: "Layout", id: "layout", components: ["AppBar", "AppShell", "Footer", "SplitHero"] },
 	{
 		name: "Display",
@@ -491,7 +492,7 @@ export function OverviewPage() {
 					<span className="crumb">Overview</span>
 				</div>
 				<div className="mast-right">
-					<span className="edition">v1.11.1</span>
+					<span className="edition">v1.11.2</span>
 					<div className="toggle" role="radiogroup" aria-label="Color theme">
 						<button type="button" aria-pressed={!isDark} onClick={() => setTheme(false)}>
 							<SunIcon />
@@ -637,7 +638,7 @@ export function OverviewPage() {
 						Set in <b>Archivo</b>, <b>Inter</b> and <b>JetBrains&nbsp;Mono</b>. Calm by default,
 						editorial type, considered motion. Tuned for AAA contrast in light and dark.
 					</div>
-					<div className="mono">@akhil-saxena/design-system · v1.11.1 · 2026</div>
+					<div className="mono">@akhil-saxena/design-system · v1.11.2 · 2026</div>
 				</footer>
 			</main>
 		</div>

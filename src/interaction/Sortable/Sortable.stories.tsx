@@ -5,6 +5,7 @@ import { Sortable, SortableDndContext } from ".";
 import type { SortableItemData } from ".";
 const meta: Meta<typeof Sortable> = {
 	title: "Interaction/Sortable",
+	tags: ["autodocs"],
 	component: Sortable,
 	parameters: {
 		layout: "padded",

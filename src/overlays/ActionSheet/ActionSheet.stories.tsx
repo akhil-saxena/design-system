@@ -5,6 +5,7 @@ import { ActionSheet } from "./index";
 
 const meta: Meta<typeof ActionSheet> = {
 	title: "Overlays / ActionSheet",
+	tags: ["autodocs"],
 	component: ActionSheet,
 	parameters: {
 		docs: {

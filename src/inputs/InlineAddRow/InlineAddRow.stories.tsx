@@ -3,6 +3,7 @@ import { InlineAddRow } from "./index";
 
 const meta: Meta<typeof InlineAddRow> = {
 	title: "Inputs / InlineAddRow",
+	tags: ["autodocs"],
 	component: InlineAddRow,
 	args: {
 		placeholder: "Add a question…",

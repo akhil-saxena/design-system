@@ -4,6 +4,7 @@ import { FileInput } from ".";
 
 const meta: Meta<typeof FileInput> = {
 	title: "Inputs/FileInput",
+	tags: ["autodocs"],
 	component: FileInput,
 };
 

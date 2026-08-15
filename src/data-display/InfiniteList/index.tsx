@@ -146,3 +146,8 @@ function InfiniteListInner<T>(
 export const InfiniteList = forwardRef(InfiniteListInner) as <T>(
 	props: InfiniteListProps<T> & { ref?: React.Ref<HTMLUListElement> },
 ) => ReturnType<typeof InfiniteListInner>;
+
+// forwardRef inherits the *render function's* name, which here is the internal
+// one — so React DevTools showed "InfiniteListInner" instead of the name the
+// consumer actually wrote.
+(InfiniteList as { displayName?: string }).displayName = "InfiniteList";

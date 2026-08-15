@@ -4,6 +4,11 @@
 
 export { useClickOutside } from "./useClickOutside";
 export { useDateGrid, type UseDateGrid, type UseDateGridOptions } from "./useDateGrid";
+export {
+	useGridNavigation,
+	type UseGridNavigation,
+	type UseGridNavigationOptions,
+} from "./useGridNavigation";
 export { useDismiss, type UseDismissOptions } from "./useDismiss";
 export { useComposedRefs } from "./useComposedRefs";
 export { useFocusTrap } from "./useFocusTrap";

@@ -9,6 +9,7 @@ import { TextInput } from "../../inputs/TextInput";
 
 const meta: Meta<typeof SplitHero> = {
 	title: "Layout/SplitHero",
+	tags: ["autodocs"],
 	component: SplitHero,
 	parameters: {
 		layout: "fullscreen",

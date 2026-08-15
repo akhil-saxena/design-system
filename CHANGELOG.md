@@ -6,6 +6,41 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## 1.11.2 — Table's grid contract, broken Overview links, loading states
+
+### Fixed
+
+- **Eight broken links on the Overview page**, not the one that was reported.
+  Each component tile derives its href as `${categoryId}-${name}--docs`, which is
+  only correct while the story exists, sits under the matching title prefix, and
+  carries the `autodocs` tag that generates a `--docs` entry. Nothing enforced
+  any of that, and a wrong link fails silently until someone clicks it.
+  ActionSheet, FileInput, InlineAddRow, InlineEditField, Sortable and SplitHero
+  had stories but no `autodocs` tag; Card and StickyNote had been relocated to
+  the Surfaces category in an earlier release without the Overview being
+  updated, so both tiles 404'd. `overview-links.test.ts` now validates every
+  link against the built Storybook index.
+- **Table declared `role="grid"` and implemented none of the grid keyboard
+  contract.** `multiSelectable` promotes the table to `grid` — it must, since
+  `aria-multiselectable` is invalid on a plain `table` role — but arrow keys did
+  nothing and every focusable cell was its own tab stop. `useGridNavigation`
+  gives it one tab stop with arrow, Home/End and Ctrl+Home/End navigation, and
+  treats header and body as one continuous grid so ArrowUp from the first row
+  reaches the column header. It reads the DOM rather than a data model, because
+  `Table` is compositional and has no row array to index — which also means
+  colspans, conditional columns and filtered rows need no special handling.
+  Gated on `multiSelectable`, so a plain table stays static content where arrow
+  keys belong to the screen reader's reading cursor.
+- **SegmentedControl and InfiniteList showed as "…Inner" in React DevTools.**
+  `forwardRef` inherits its render function's name, which was the internal one.
+
+### Added
+
+- `loading` on Autocomplete and DataGrid, and `Table.StateRow` for the
+  compositional table — completing the set started in 1.11.0. `Table` itself
+  cannot take a `loading` prop, since the consumer owns the body, so the state
+  row is a compound member that spans the row and announces politely.
+
 ## 1.11.1 — Completing the validation work 1.11.0 overclaimed
 
 ### Fixed

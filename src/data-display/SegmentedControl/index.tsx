@@ -213,3 +213,8 @@ function SegmentedControlInner<T extends string>(
 export const SegmentedControl = forwardRef(SegmentedControlInner) as <T extends string>(
 	props: SegmentedControlProps<T> & { ref?: React.Ref<HTMLDivElement> },
 ) => ReturnType<typeof SegmentedControlInner>;
+
+// forwardRef inherits the *render function's* name, which here is the internal
+// one — so React DevTools showed "SegmentedControlInner" instead of the name the
+// consumer actually wrote.
+(SegmentedControl as { displayName?: string }).displayName = "SegmentedControl";

@@ -75,6 +75,14 @@ export interface DataGridProps extends React.HTMLAttributes<HTMLDivElement> {
 	onPageChange?: (page: number) => void;
 	/** Fires whenever the selected row IDs change. */
 	onSelectionChange?: (ids: Array<string | number>) => void;
+	/**
+	 * Show a loading row instead of the body while rows are being fetched. An
+	 * empty grid and a grid that has not loaded look identical otherwise, so the
+	 * user cannot tell "no matches" from "not yet".
+	 */
+	loading?: boolean;
+	/** Text shown while `loading`. @default "Loading…" */
+	loadingText?: string;
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -98,6 +106,8 @@ export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataG
 	{
 		columns,
 		rows,
+		loading = false,
+		loadingText = "Loading…",
 		page = 1,
 		totalPages = 1,
 		onPageChange,
@@ -267,76 +277,87 @@ export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataG
 					</Table.Header>
 
 					<Table.Body>
-						{sorted.map((row, rowIdx) => (
-							<Table.Row key={String(row.id)} selected={isSelected(row.id)}>
-								<Table.SelectCell
-									selected={isSelected(row.id)}
-									onToggle={() => toggle(row.id)}
-									tabIndex={focusedCell[0] === rowIdx && focusedCell[1] === 0 ? 0 : -1}
-								/>
-								{columns.map((col, colIdx) => {
-									const cellTabIndex =
-										focusedCell[0] === rowIdx && focusedCell[1] === colIdx + 1 ? 0 : -1;
-
-									if (col.key === "status") {
-										const entry = STATUS_BADGE[row[col.key] as string];
-										return (
-											<Table.Cell key={col.key} tabIndex={cellTabIndex}>
-												<Badge tone={entry?.tone ?? "neutral"}>
-													{entry?.label ?? String(row[col.key])}
-												</Badge>
-											</Table.Cell>
-										);
-									}
-
-									if (col.key === "priority") {
-										const color = PRIORITY_COLOR[row[col.key] as string] ?? "var(--ink-4)";
-										return (
-											<Table.Cell key={col.key} tabIndex={cellTabIndex}>
-												<span
-													style={{
-														display: "inline-flex",
-														alignItems: "center",
-														gap: 6,
-													}}
-												>
-													<span
-														data-part="priority-dot"
-														style={{
-															width: 6,
-															height: 6,
-															borderRadius: "50%",
-															background: color,
-															flexShrink: 0,
-															display: "inline-block",
-														}}
-														aria-hidden="true"
-													/>
-													<span
-														style={{
-															fontSize: 12,
-															textTransform: "capitalize",
-														}}
-													>
-														{String(row[col.key])}
-													</span>
-												</span>
-											</Table.Cell>
-										);
-									}
-
-									return (
-										<Table.Cell
-											key={col.key}
-											tabIndex={cellTabIndex}
-											style={{ textAlign: col.align ?? "left" }}
-										>
-											{String(row[col.key] ?? "")}
-										</Table.Cell>
-									);
-								})}
+						{loading ? (
+							<Table.Row>
+								{/* aria-live so the transition out of loading is announced; the
+								    cell spans the checkbox column plus every data column. */}
+								<Table.Cell colSpan={columns.length + 1} aria-live="polite">
+									{loadingText}
+								</Table.Cell>
 							</Table.Row>
-						))}
+						) : null}
+						{loading
+							? null
+							: sorted.map((row, rowIdx) => (
+									<Table.Row key={String(row.id)} selected={isSelected(row.id)}>
+										<Table.SelectCell
+											selected={isSelected(row.id)}
+											onToggle={() => toggle(row.id)}
+											tabIndex={focusedCell[0] === rowIdx && focusedCell[1] === 0 ? 0 : -1}
+										/>
+										{columns.map((col, colIdx) => {
+											const cellTabIndex =
+												focusedCell[0] === rowIdx && focusedCell[1] === colIdx + 1 ? 0 : -1;
+
+											if (col.key === "status") {
+												const entry = STATUS_BADGE[row[col.key] as string];
+												return (
+													<Table.Cell key={col.key} tabIndex={cellTabIndex}>
+														<Badge tone={entry?.tone ?? "neutral"}>
+															{entry?.label ?? String(row[col.key])}
+														</Badge>
+													</Table.Cell>
+												);
+											}
+
+											if (col.key === "priority") {
+												const color = PRIORITY_COLOR[row[col.key] as string] ?? "var(--ink-4)";
+												return (
+													<Table.Cell key={col.key} tabIndex={cellTabIndex}>
+														<span
+															style={{
+																display: "inline-flex",
+																alignItems: "center",
+																gap: 6,
+															}}
+														>
+															<span
+																data-part="priority-dot"
+																style={{
+																	width: 6,
+																	height: 6,
+																	borderRadius: "50%",
+																	background: color,
+																	flexShrink: 0,
+																	display: "inline-block",
+																}}
+																aria-hidden="true"
+															/>
+															<span
+																style={{
+																	fontSize: 12,
+																	textTransform: "capitalize",
+																}}
+															>
+																{String(row[col.key])}
+															</span>
+														</span>
+													</Table.Cell>
+												);
+											}
+
+											return (
+												<Table.Cell
+													key={col.key}
+													tabIndex={cellTabIndex}
+													style={{ textAlign: col.align ?? "left" }}
+												>
+													{String(row[col.key] ?? "")}
+												</Table.Cell>
+											);
+										})}
+									</Table.Row>
+								))}
 					</Table.Body>
 				</Table.Root>
 			</div>

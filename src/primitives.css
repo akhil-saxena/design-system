@@ -6364,3 +6364,14 @@ fieldset.ds-atom-field {
 .ds-atom-rolling[data-first-render="true"] .ds-atom-rolling-strip {
 	transition: none;
 }
+
+/* ─── DS atom: TableStateRow ─────────────────────────────────────────────── */
+/* Body-level state row (loading / empty / error). Centred and muted so it reads
+   as a status rather than as data. */
+.ds-atom-table-staterow > td {
+	text-align: center;
+	padding: var(--space-5) var(--space-3);
+	color: var(--ink-3);
+	font-family: var(--font-body);
+	font-size: var(--text-sm);
+}
