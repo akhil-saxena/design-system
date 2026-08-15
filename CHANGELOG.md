@@ -40,6 +40,14 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
   value it already held — produced no sync, and the swatch went on displaying a
   colour the parent had refused. The colour is now derived from `value` when
   controlled, which makes the divergence unrepresentable.
+- **MiniBar rendered `height: NaN%` for an all-zero series.** The bar height was
+  `value / Math.max(...data)`, so a series of all zeros — which is simply what "no
+  sales yet this week" looks like — divided by zero, and an empty series made the
+  max `-Infinity`. Negative data drew inverted bars. All three are now clamped.
+- **MiniDonut announced "NaN percent" to screen readers when `max={0}`.** The
+  NaN reached both `strokeDashoffset` (the arc vanished) and the default
+  `aria-label`. A negative `value` drove the offset past the circumference and
+  drew the arc backwards. Both clamped, matching ProgressBar's existing guard.
 - **Portaled overlays rendered light inside a scoped dark container.** `DSPortal`
   moves content to `document.body`, escaping any ancestor `.dark`, so each overlay
   re-detects the theme — and all four had drifted apart: Sheet and BottomSheet

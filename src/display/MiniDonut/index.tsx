@@ -18,7 +18,13 @@ export function MiniDonut({
 }: MiniDonutProps) {
 	const r = (size - strokeWidth) / 2;
 	const circ = 2 * Math.PI * r;
-	const pct = Math.min(value / max, 1);
+	// `max={0}` yields 0/0 = NaN, which reaches both `strokeDashoffset` (the arc
+	// vanishes) and the default `aria-label` — a screen reader announcing "NaN
+	// percent". A negative `value` drives the offset past the circumference and
+	// draws the arc backwards. Both are clamped here, matching the `max <= 0`
+	// guard ProgressBar already applies.
+	const safeMax = max > 0 ? max : 1;
+	const pct = Math.min(Math.max(value, 0) / safeMax, 1);
 
 	return (
 		<svg

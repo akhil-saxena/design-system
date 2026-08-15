@@ -39,3 +39,32 @@ describe("MiniBar", () => {
 		expect(screen.queryByText("C")).not.toBeInTheDocument();
 	});
 });
+
+describe("MiniBar — degenerate data", () => {
+	function barHeights(container: HTMLElement): string[] {
+		return [...container.querySelectorAll<HTMLElement>(".ds-atom-minibar-bar")].map(
+			(b) => b.style.height,
+		);
+	}
+
+	it("renders an all-zero series as empty bars, not NaN", () => {
+		// An all-zero series is a normal state — "no sales yet this week" — but it
+		// makes the max 0, and the height was computed as 0/0.
+		const { container } = render(<MiniBar data={[0, 0, 0]} />);
+		for (const h of barHeights(container)) {
+			expect(h).not.toContain("NaN");
+			expect(h).toBe("0%");
+		}
+	});
+
+	it("renders nothing rather than crashing on an empty series", () => {
+		// Math.max() with no arguments is -Infinity.
+		const { container } = render(<MiniBar data={[]} />);
+		expect(barHeights(container)).toHaveLength(0);
+	});
+
+	it("clamps a negative datum to an empty bar instead of inverting it", () => {
+		const { container } = render(<MiniBar data={[-5, 10]} />);
+		expect(barHeights(container)[0]).toBe("0%");
+	});
+});

@@ -6,7 +6,13 @@ export interface MiniBarProps {
 }
 
 export function MiniBar({ data, labels, height = 100, barColor = "var(--amber)" }: MiniBarProps) {
-	const max = Math.max(...data);
+	// `Math.max()` of an empty array is -Infinity, and an all-zero series gives a
+	// max of 0 — so the bar height became `NaN%` or a negative percentage and the
+	// chart silently rendered nothing. An all-zero series is not a degenerate
+	// input; it is what "no sales yet this week" looks like. Bars are clamped at
+	// zero so a negative datum reads as empty rather than inverting the column.
+	const max = data.length > 0 ? Math.max(...data) : 0;
+	const scale = max > 0 ? max : 1;
 
 	return (
 		<div style={{ display: "flex", alignItems: "flex-end", gap: 6, height }}>
@@ -39,7 +45,7 @@ export function MiniBar({ data, labels, height = 100, barColor = "var(--amber)" 
 						style={{
 							// Only the data-derived values stay inline; the rest is in CSS so
 							// the reduced-motion guard and any consumer override apply.
-							height: `${(v / max) * 70}%`,
+							height: `${(Math.max(v, 0) / scale) * 70}%`,
 							background: barColor,
 						}}
 					/>

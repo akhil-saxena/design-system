@@ -39,3 +39,21 @@ describe("MiniDonut", () => {
 		expect(Number(circles[1]!.getAttribute("stroke-dashoffset"))).toBeCloseTo(0, 1);
 	});
 });
+
+describe("MiniDonut — degenerate input", () => {
+	it("does not announce 'NaN%' when max is zero", () => {
+		// value/max is 0/0 here. The NaN reached the default aria-label, so a screen
+		// reader read out "NaN percent".
+		const { container } = render(<MiniDonut value={0} max={0} />);
+		expect(container.querySelector("svg")?.getAttribute("aria-label")).toBe("0%");
+	});
+
+	it("clamps a negative value to an empty arc", () => {
+		// A negative pct drives strokeDashoffset past the circumference, drawing the
+		// arc backwards around the ring.
+		const { container } = render(<MiniDonut value={-10} max={100} />);
+		const arc = container.querySelectorAll("circle")[1];
+		const circ = Number(arc?.getAttribute("stroke-dasharray"));
+		expect(Number(arc?.getAttribute("stroke-dashoffset"))).toBeCloseTo(circ);
+	});
+});
