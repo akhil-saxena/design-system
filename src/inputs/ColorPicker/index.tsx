@@ -3,6 +3,7 @@ import {
 	type ChangeEvent,
 	type KeyboardEvent as ReactKeyboardEvent,
 	type PointerEvent as ReactPointerEvent,
+	type Ref,
 	useEffect,
 	useId,
 	useRef,
@@ -99,6 +100,8 @@ export interface ColorPickerProps {
 	className?: string;
 	/** Inline styles applied to the root wrapper. */
 	style?: CSSProperties;
+	/** Ref to the ColorPicker root element. */
+	ref?: Ref<HTMLDivElement>;
 }
 
 export function ColorPicker({
@@ -108,6 +111,7 @@ export function ColorPicker({
 	presets = PRESETS_DEFAULT,
 	className,
 	style,
+	ref,
 }: ColorPickerProps) {
 	const initial = value ?? defaultValue;
 	// The HEX and ALPHA captions were bare <label> elements with no `htmlFor`, so
@@ -331,6 +335,7 @@ export function ColorPicker({
 	return (
 		<div
 			className={["ds-atom-colorpicker", className].filter(Boolean).join(" ")}
+			ref={ref}
 			style={{ width: 260, padding: 16, borderRadius: 14, ...style }}
 		>
 			{/* Gradient canvas */}

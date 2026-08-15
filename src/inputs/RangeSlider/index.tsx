@@ -1,4 +1,4 @@
-import { type ChangeEvent, type InputHTMLAttributes, forwardRef } from "react";
+import { type ChangeEvent, type InputHTMLAttributes, forwardRef, useState } from "react";
 
 export interface RangeSliderProps
 	extends Omit<
@@ -48,6 +48,13 @@ export const RangeSlider = forwardRef<HTMLInputElement, RangeSliderProps>(functi
 	},
 	ref,
 ) {
+	// While the pointer is down the user is driving the value continuously, and any
+	// transition on the fill makes it trail the thumb — the thumb has no transition,
+	// so the amber fill visibly lagged behind the knob for the whole drag. The glide
+	// is still wanted for discrete changes (arrow keys, a programmatic set), so it
+	// is suppressed only for the duration of the drag rather than deleted.
+	const [dragging, setDragging] = useState(false);
+
 	const range = max - min;
 	const pct = range > 0 ? Math.max(0, Math.min(100, ((value - min) / range) * 100)) : 0;
 
@@ -61,6 +68,7 @@ export const RangeSlider = forwardRef<HTMLInputElement, RangeSliderProps>(functi
 			className={`ds-atom-range${className ? ` ${className}` : ""}`}
 			style={style}
 			data-disabled={disabled ? "true" : undefined}
+			data-dragging={dragging ? "true" : undefined}
 		>
 			{(label != null || valueFormat) && (
 				<div className="ds-atom-range-label-row">
@@ -78,6 +86,13 @@ export const RangeSlider = forwardRef<HTMLInputElement, RangeSliderProps>(functi
 					step={step}
 					value={value}
 					onChange={handleChange}
+					onPointerDown={() => setDragging(true)}
+					// pointerup fires on the input; pointercancel covers a drag interrupted
+					// by a scroll gesture or the pointer leaving the window, which would
+					// otherwise strand the flag on and disable the glide permanently.
+					onPointerUp={() => setDragging(false)}
+					onPointerCancel={() => setDragging(false)}
+					onLostPointerCapture={() => setDragging(false)}
 					disabled={disabled}
 					aria-label={ariaLabel ?? label}
 					{...rest}

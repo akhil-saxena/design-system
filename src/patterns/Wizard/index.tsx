@@ -1,5 +1,6 @@
-import { Fragment, type ReactNode, useState } from "react";
+import { Fragment, type ReactNode, type Ref, useState } from "react";
 import { ProgressBar } from "../../feedback/ProgressBar";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { Check } from "../../icons";
 import { Button } from "../../inputs/Button";
@@ -17,6 +18,8 @@ export interface WizardProps {
 	/** @default "horizontal" */
 	orientation?: "horizontal" | "vertical";
 	children: ReactNode | ((step: number) => ReactNode);
+	/** Ref to the Wizard root element. */
+	ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -38,7 +41,7 @@ export interface WizardProps {
  * Does NOT wrap content in a <form> - step fields are the consumer's
  * responsibility. Wizard manages step state only.
  */
-export function Wizard({ steps, onComplete, onCancel, orientation, children }: WizardProps) {
+export function Wizard({ steps, onComplete, onCancel, orientation, children, ref }: WizardProps) {
 	const [rawCurrent, setCurrent] = useState(0);
 	// `current` was never bounded by `steps`. Wizard steps are commonly
 	// conditional — a branch drops out once an earlier answer rules it out — and
@@ -52,6 +55,9 @@ export function Wizard({ steps, onComplete, onCancel, orientation, children }: W
 	const isLast = current >= lastIndex;
 	const [error, setError] = useState<string | null>(null);
 	const [trapEl, setTrapEl] = useState<HTMLDivElement | null>(null);
+	// Composed, not replaced: the internal ref drives the focus trap and must keep
+	// receiving the node.
+	const composedRootRef = useComposedRefs<HTMLDivElement>(setTrapEl, ref);
 
 	// Focus trap is always active while the Wizard is mounted.
 	useFocusTrap(trapEl, true);
@@ -93,7 +99,11 @@ export function Wizard({ steps, onComplete, onCancel, orientation, children }: W
 	const pct = steps.length === 0 ? 100 : ((current + 1) / steps.length) * 100;
 
 	return (
-		<div ref={setTrapEl} className="ds-atom-wizard" data-orientation={orientation ?? "horizontal"}>
+		<div
+			ref={composedRootRef}
+			className="ds-atom-wizard"
+			data-orientation={orientation ?? "horizontal"}
+		>
 			{/* Stepper */}
 			<div className="ds-atom-wizard-stepper">
 				{steps.map((step, i) => {

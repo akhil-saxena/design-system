@@ -2,11 +2,13 @@ import {
 	type CSSProperties,
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
+	type Ref,
 	useId,
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
 import { isDarkContext } from "../../_internals/darkContext";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -39,6 +41,11 @@ export interface SheetProps {
 	className?: string;
 	/** Inline styles applied to the sheet panel. */
 	style?: CSSProperties;
+	/**
+	 * Ref to the Sheet panel element. The panel is portaled and only exists
+	 * while the overlay is open, so this is `null` when it is closed.
+	 */
+	ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -72,8 +79,13 @@ export function Sheet({
 	closeOnBackdropClick = true,
 	className,
 	style,
+	ref,
 }: SheetProps) {
 	const [panel, setPanel] = useState<HTMLDivElement | null>(null);
+	// The panel already carries an internal callback ref (focus trap and
+	// positioning need the live node); composing lets a consumer's ref observe
+	// the same element without displacing it.
+	const composedPanelRef = useComposedRefs<HTMLDivElement>(setPanel, ref);
 	const generatedTitleId = useId();
 	const generatedDescId = useId();
 	const titleId = title ? generatedTitleId : undefined;
@@ -113,7 +125,7 @@ export function Sheet({
 		// biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close via document Escape handler
 		<div className="ds-atom-sheet-backdrop" onClick={handleBackdropClick}>
 			<div
-				ref={setPanel}
+				ref={composedPanelRef}
 				className={["ds-atom-sheet", className].filter(Boolean).join(" ")}
 				data-side={side}
 				role={dialogRole}

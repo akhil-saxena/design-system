@@ -1,5 +1,6 @@
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, type Ref, useCallback, useEffect, useRef, useState } from "react";
 import { useClickOutside } from "../../hooks/useClickOutside";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 import { Button } from "../../inputs/Button";
 /** Props injected into the trigger element by InlineConfirm. */
@@ -48,6 +49,8 @@ export interface InlineConfirmProps {
 	 * @default "Are you sure?"
 	 */
 	promptText?: ReactNode;
+	/** Ref to the InlineConfirm root element. */
+	ref?: Ref<HTMLDivElement>;
 }
 
 const DEFAULT_AUTO_CANCEL_MS = 4000;
@@ -86,9 +89,13 @@ export function InlineConfirm({
 	confirmVariant = "danger",
 	autoCancelMs = DEFAULT_AUTO_CANCEL_MS,
 	promptText = "Are you sure?",
+	ref,
 }: InlineConfirmProps) {
 	const [pending, setPending] = useState(false);
 	const rowRef = useRef<HTMLDivElement>(null);
+	// Composed, not replaced: the internal ref drives the click-outside dismissal and must keep
+	// receiving the node.
+	const composedRootRef = useComposedRefs<HTMLDivElement>(rowRef, ref);
 	const timerRef = useRef<number | null>(null);
 	const startedAtRef = useRef<number>(0);
 	const remainingRef = useRef<number>(autoCancelMs);
@@ -171,7 +178,7 @@ export function InlineConfirm({
 
 	return (
 		<div
-			ref={rowRef}
+			ref={composedRootRef}
 			className="ds-atom-confirm"
 			// biome-ignore lint/a11y/useSemanticElements: <fieldset> implies a form-grouping semantic we don't want for a transient confirm prompt
 			role="group"

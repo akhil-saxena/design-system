@@ -2,12 +2,14 @@ import {
 	type CSSProperties,
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
+	type Ref,
 	type RefObject,
 	useEffect,
 	useId,
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -42,6 +44,11 @@ export interface ModalProps {
 	className?: string;
 	/** Inline styles applied to the modal panel. */
 	style?: CSSProperties;
+	/**
+	 * Ref to the Modal panel element. The panel is portaled and only exists
+	 * while the overlay is open, so this is `null` when it is closed.
+	 */
+	ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -76,11 +83,16 @@ export function Modal({
 	initialFocus,
 	className,
 	style,
+	ref,
 }: ModalProps) {
 	// Callback-ref pattern: panel state flips from null to the DOM node when
 	// React commits it. Passing the node (not a RefObject) into useFocusTrap
 	// guarantees the trap engages exactly when the portal commits its child.
 	const [panel, setPanel] = useState<HTMLDivElement | null>(null);
+	// The panel already carries an internal callback ref (focus trap and
+	// positioning need the live node); composing lets a consumer's ref observe
+	// the same element without displacing it.
+	const composedPanelRef = useComposedRefs<HTMLDivElement>(setPanel, ref);
 	const generatedTitleId = useId();
 	const generatedDescId = useId();
 	const titleId = title ? generatedTitleId : undefined;
@@ -116,7 +128,7 @@ export function Modal({
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above on `document` (handles all focus contexts, including the panel) */}
 			<div className="ds-atom-modal-backdrop" onClick={handleBackdropClick}>
 				<div
-					ref={setPanel}
+					ref={composedPanelRef}
 					className={`ds-atom-modal${className ? ` ${className}` : ""}`}
 					role={role}
 					aria-modal="true"

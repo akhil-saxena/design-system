@@ -2,6 +2,7 @@ import {
 	type CSSProperties,
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
+	type Ref,
 	useCallback,
 	useEffect,
 	useId,
@@ -10,6 +11,7 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -51,6 +53,11 @@ export interface CommandPaletteProps {
 	className?: string;
 	/** Optional inline style applied to the panel. */
 	style?: CSSProperties;
+	/**
+	 * Ref to the CommandPalette panel element. The panel is portaled and only exists
+	 * while the overlay is open, so this is `null` when it is closed.
+	 */
+	ref?: Ref<HTMLDivElement>;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -63,11 +70,16 @@ export function CommandPalette({
 	emptyText,
 	className,
 	style,
+	ref,
 }: CommandPaletteProps) {
 	// Callback-ref pattern: panel state flips from null to the DOM node when
 	// React commits it. Required for portal-mounted nodes — useFocusTrap must
 	// receive the node, not a RefObject.
 	const [panel, setPanel] = useState<HTMLDivElement | null>(null);
+	// The panel already carries an internal callback ref (focus trap and
+	// positioning need the live node); composing lets a consumer's ref observe
+	// the same element without displacing it.
+	const composedPanelRef = useComposedRefs<HTMLDivElement>(setPanel, ref);
 	const [query, setQuery] = useState("");
 	const [activeIndex, setActiveIndex] = useState(-1);
 
@@ -181,7 +193,7 @@ export function CommandPalette({
 				onClick={handleBackdropClick}
 			>
 				<div
-					ref={setPanel}
+					ref={composedPanelRef}
 					// biome-ignore lint/a11y/useSemanticElements: role="dialog" + aria-modal is the standard ARIA pattern; native <dialog> conflicts with DSPortal mounting + keyboard navigation
 					role="dialog"
 					aria-modal="true"

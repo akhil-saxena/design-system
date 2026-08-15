@@ -1,7 +1,8 @@
 "use client";
 
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { type CSSProperties, type Ref, useCallback, useEffect, useRef, useState } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -35,6 +36,11 @@ export interface ActionSheetProps {
 	ariaLabel?: string;
 	/** @deprecated Use `ariaLabel`. */
 	"aria-label"?: string;
+	/**
+	 * Ref to the ActionSheet panel element. The panel is portaled and only exists
+	 * while the overlay is open, so this is `null` when it is closed.
+	 */
+	ref?: Ref<HTMLDivElement>;
 }
 
 const KEYFRAMES = `
@@ -89,12 +95,17 @@ export function ActionSheet({
 	cancelLabel = "Close",
 	ariaLabel,
 	"aria-label": ariaLabelLegacy,
+	ref,
 }: ActionSheetProps) {
 	const menuLabel = ariaLabel ?? ariaLabelLegacy ?? "Actions";
 	const [visible, setVisible] = useState(false);
 	// Callback-ref tracked as state so useFocusTrap re-runs once the portaled
 	// menu node commits (same pattern Modal uses for its panel).
 	const [menuEl, setMenuEl] = useState<HTMLDivElement | null>(null);
+	// The panel already carries an internal callback ref (focus trap and
+	// positioning need the live node); composing lets a consumer's ref observe
+	// the same element without displacing it.
+	const composedPanelRef = useComposedRefs<HTMLDivElement>(setMenuEl, ref);
 	const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
 	// Move focus into the sheet on open and trap Tab inside it; on close the
@@ -173,7 +184,7 @@ export function ActionSheet({
 				}}
 			/>
 			<div
-				ref={setMenuEl}
+				ref={composedPanelRef}
 				style={{
 					position: "fixed",
 					left: "var(--space-2)",

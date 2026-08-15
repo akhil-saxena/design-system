@@ -1,4 +1,9 @@
-import { type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, useState } from "react";
+import {
+	type CSSProperties,
+	type KeyboardEvent as ReactKeyboardEvent,
+	type Ref,
+	useState,
+} from "react";
 import { Star } from "../../icons";
 export type StarRatingSize = "default" | "compact";
 
@@ -32,6 +37,8 @@ export interface StarRatingProps {
 	className?: string;
 	/** Inline styles applied to the root element. */
 	style?: CSSProperties;
+	/** Ref to the StarRating root element. */
+	ref?: Ref<HTMLDivElement>;
 }
 
 const STAR_SIZES: Record<StarRatingSize, number> = {
@@ -48,6 +55,7 @@ export function StarRating({
 	disabled,
 	className,
 	style,
+	ref,
 }: StarRatingProps) {
 	const [hover, setHover] = useState<number | null>(null);
 	const interactive = !readOnly && !disabled;
@@ -94,6 +102,7 @@ export function StarRating({
 
 	return (
 		<div
+			ref={ref}
 			role="radiogroup"
 			aria-label={label}
 			className={`ds-atom-star${className ? ` ${className}` : ""}`}

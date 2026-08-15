@@ -26,6 +26,16 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 - `data-testid="colorpicker-swatch"`, matching the existing `-hex` and `-alpha`
   hooks. The swatch is the only element painting the committed colour unblended,
   and it had no way to be queried.
+- **`ref` on the overlay panels and the remaining composites** — Modal, Sheet,
+  BottomSheet, Popover, HoverCard, Lightbox, ActionSheet, CommandPalette,
+  ConfirmDialog, StarRating, ColorPicker, Wizard, InlineConfirm and
+  SearchAndFilters. Each already kept an *internal* callback ref on that same
+  node (the focus trap and the positioning code need the live element), so the
+  consumer ref is composed with it rather than replacing it — a test asserts
+  focus is still trapped, because a ref that displaced the internal one would
+  leave every overlay working and only the consumer's ref silently null. A panel
+  ref is `null` while its overlay is closed, since the panel is not mounted; that
+  is documented on each prop.
 - **`className`, `style`, `ref` and arbitrary `data-*` on the chart primitives.**
   MiniBar, MiniDonut and Sparkline accepted *none* of these, so a consumer could
   not attach a test hook, restyle them, measure them, or observe them for
@@ -48,6 +58,18 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
   value it already held — produced no sync, and the swatch went on displaying a
   colour the parent had refused. The colour is now derived from `value` when
   controlled, which makes the divergence unrepresentable.
+- **The RangeSlider fill lagged behind the thumb during a drag.** The thumb is
+  positioned with no transition, but the fill animated its width over 150ms — so
+  for the whole drag the amber fill visibly trailed the white knob. The glide is
+  still wanted when the value changes discretely (arrow keys, a programmatic set),
+  so it is now suppressed only while the pointer is down, via `data-dragging` —
+  the same mechanism BottomSheet already used for its swipe. `pointercancel` and
+  `lostpointercapture` clear the flag, so a drag interrupted by a scroll gesture
+  cannot strand it on.
+- **ProgressBar eased its fill over half a second.** A progress value is normally
+  updated continuously — an upload, a step count, a slider-driven demo — so 500ms
+  of easing left the bar permanently that far behind the number next to it. Now
+  200ms, which still smooths a jumpy series without reading as lag.
 - **Wizard became permanently unfinishable when its step list shrank.** `current`
   was never bounded by `steps`, and wizard steps are commonly conditional — a
   branch drops out once an earlier answer rules it out. Once the array shrank past

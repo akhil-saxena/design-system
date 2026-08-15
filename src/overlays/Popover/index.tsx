@@ -1,6 +1,7 @@
 import {
 	type CSSProperties,
 	type ReactNode,
+	type Ref,
 	type RefObject,
 	useCallback,
 	useEffect,
@@ -12,6 +13,7 @@ import { DSPortal } from "../../_internals/DSPortal";
 import { isDarkContext } from "../../_internals/darkContext";
 import { smartAnchorPos } from "../../_internals/floatingPos";
 import { useClickOutside } from "../../hooks/useClickOutside";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 export type PopoverPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end";
 
@@ -42,6 +44,11 @@ export interface PopoverProps {
 	className?: string;
 	/** Inline styles applied to the panel element. */
 	style?: CSSProperties;
+	/**
+	 * Ref to the Popover panel element. The panel is portaled and only exists
+	 * while the overlay is open, so this is `null` when it is closed.
+	 */
+	ref?: Ref<HTMLDivElement>;
 }
 
 // computePosition replaced by smartAnchorPos from floatingPos - auto-flips + clamps.
@@ -64,6 +71,7 @@ export function Popover({
 	children,
 	className,
 	style,
+	ref,
 }: PopoverProps) {
 	// Callback-ref state: useLayoutEffect must re-run AFTER DSPortal mounts the
 	// panel (DSPortal returns null on first render until its useEffect flips
@@ -75,6 +83,11 @@ export function Popover({
 		panelRef.current = node;
 		setPanel(node);
 	};
+	// The panel already carries an internal callback ref (focus trap and
+	// positioning need the live node); composing lets a consumer's ref observe
+	// the same element without displacing it.
+	const composedPanelRef = useComposedRefs<HTMLDivElement>(setPanelRef, ref);
+
 	const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
 	// Position computation: auto-flip + viewport clamp via smartAnchorPos.
@@ -135,7 +148,7 @@ export function Popover({
 
 	const popoverEl = (
 		<div
-			ref={setPanelRef}
+			ref={composedPanelRef}
 			className={["ds-atom-popover", className].filter(Boolean).join(" ")}
 			data-placement={placement}
 			data-variant={variant === "contextmenu" ? "contextmenu" : undefined}

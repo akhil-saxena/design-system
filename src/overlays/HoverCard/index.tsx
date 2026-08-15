@@ -2,6 +2,7 @@ import {
 	type CSSProperties,
 	type FocusEvent as ReactFocusEvent,
 	type ReactNode,
+	type Ref,
 	type RefObject,
 	useCallback,
 	useEffect,
@@ -13,6 +14,7 @@ import { DSPortal } from "../../_internals/DSPortal";
 import { isDarkContext } from "../../_internals/darkContext";
 import { smartAnchorPos } from "../../_internals/floatingPos";
 import { useClickOutside } from "../../hooks/useClickOutside";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 export type HoverCardPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end";
 
@@ -39,6 +41,11 @@ export interface HoverCardProps {
 	closeDelay?: number;
 	/** Additional className applied to the panel root element. */
 	className?: string;
+	/**
+	 * Ref to the HoverCard panel `<dialog>`. The panel is portaled and only exists
+	 * while the overlay is open, so this is `null` when it is closed.
+	 */
+	ref?: Ref<HTMLDialogElement>;
 }
 
 interface Position {
@@ -70,6 +77,7 @@ export function HoverCard({
 	openDelay = 300,
 	closeDelay = 150,
 	className,
+	ref,
 }: HoverCardProps) {
 	const [open, setOpen] = useState(false);
 	const [pinned, setPinned] = useState(false);
@@ -81,6 +89,11 @@ export function HoverCard({
 		panelRef.current = node;
 		setPanelEl(node);
 	};
+	// The panel already carries an internal callback ref (focus trap and
+	// positioning need the live node); composing lets a consumer's ref observe
+	// the same element without displacing it.
+	const composedPanelRef = useComposedRefs<HTMLDialogElement>(setPanelRef, ref);
+
 	const openTimerRef = useRef<number | null>(null);
 	const closeTimerRef = useRef<number | null>(null);
 	// Set briefly after an Escape dismiss so restoring focus to the anchor does
@@ -278,7 +291,7 @@ export function HoverCard({
 
 	const cardEl = (
 		<dialog
-			ref={setPanelRef}
+			ref={composedPanelRef}
 			open
 			className={["ds-atom-hovercard", className].filter(Boolean).join(" ")}
 			data-placement={placement}

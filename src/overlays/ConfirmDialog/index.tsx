@@ -3,11 +3,13 @@ import {
 	type FormEvent as ReactFormEvent,
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
+	type Ref,
 	useEffect,
 	useId,
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -167,6 +169,8 @@ export interface ConfirmDialogProps {
 	 * @default "Cancel"
 	 */
 	cancelLabel?: string;
+	/** Ref to the ConfirmDialog root element. */
+	ref?: Ref<HTMLDivElement>;
 }
 
 export function ConfirmDialog({
@@ -178,11 +182,15 @@ export function ConfirmDialog({
 	body,
 	confirmLabel = "Confirm",
 	cancelLabel = "Cancel",
+	ref,
 }: ConfirmDialogProps) {
 	// Callback-ref pattern: panel state flips from null to the DOM node when
 	// React commits it. Passing the node (not a RefObject) into useFocusTrap
 	// guarantees the trap engages exactly when the portal commits its child.
 	const [panel, setPanel] = useState<HTMLDivElement | null>(null);
+	// Composed, not replaced: the internal ref drives the focus trap and must keep
+	// receiving the node.
+	const composedRootRef = useComposedRefs<HTMLDivElement>(setPanel, ref);
 	const generatedTitleId = useId();
 	const generatedDescId = useId();
 	const titleId = title ? generatedTitleId : undefined;
@@ -226,7 +234,7 @@ export function ConfirmDialog({
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above on `document` */}
 			<div className="ds-atom-modal-backdrop" onClick={handleBackdropClick}>
 				<div
-					ref={setPanel}
+					ref={composedRootRef}
 					className="ds-atom-confirm-panel"
 					role="alertdialog"
 					aria-modal="true"

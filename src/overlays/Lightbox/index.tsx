@@ -1,5 +1,6 @@
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { type ReactNode, type Ref, useCallback, useEffect, useState } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -24,6 +25,11 @@ export interface LightboxProps {
 	activeIndex?: number;
 	/** Called when the user navigates to a different image with the new index. */
 	onIndexChange?: (index: number) => void;
+	/**
+	 * Ref to the Lightbox panel element. The panel is portaled and only exists
+	 * while the overlay is open, so this is `null` when it is closed.
+	 */
+	ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -50,10 +56,14 @@ export interface LightboxProps {
  * button, and restores focus to the opener on close; ArrowLeft/Right + Escape
  * via a global document keydown listener.
  */
-export function Lightbox({ open, onClose, items, activeIndex, onIndexChange }: LightboxProps) {
+export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref }: LightboxProps) {
 	// Callback-ref pattern: the portal-mounted backdrop materializes one tick
 	// after render, so useFocusTrap must receive the live node.
 	const [panel, setPanel] = useState<HTMLDivElement | null>(null);
+	// The panel already carries an internal callback ref (focus trap and
+	// positioning need the live node); composing lets a consumer's ref observe
+	// the same element without displacing it.
+	const composedPanelRef = useComposedRefs<HTMLDivElement>(setPanel, ref);
 	const length = items.length;
 
 	// Controlled when the parent both supplies an index AND a change handler;
@@ -138,7 +148,7 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange }: L
 	return (
 		<DSPortal>
 			<div
-				ref={setPanel}
+				ref={composedPanelRef}
 				className="ds-atom-lightbox-backdrop"
 				// biome-ignore lint/a11y/useSemanticElements: role="dialog" + aria-modal is the standard ARIA pattern; native <dialog> behavior conflicts with custom DSPortal mounting + arrow-key navigation
 				role="dialog"

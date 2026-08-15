@@ -3,6 +3,7 @@ import {
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
 	type PointerEvent as ReactPointerEvent,
+	type Ref,
 	useEffect,
 	useId,
 	useRef,
@@ -10,6 +11,7 @@ import {
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
 import { isDarkContext } from "../../_internals/darkContext";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -47,6 +49,11 @@ export interface BottomSheetProps {
 	trackKeyboard?: boolean;
 	className?: string;
 	style?: CSSProperties;
+	/**
+	 * Ref to the BottomSheet panel element. The panel is portaled and only exists
+	 * while the overlay is open, so this is `null` when it is closed.
+	 */
+	ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -92,11 +99,16 @@ export function BottomSheet({
 	trackKeyboard = true,
 	className,
 	style,
+	ref,
 }: BottomSheetProps) {
 	// Callback-ref pattern: panel state flips from null to the DOM node when
 	// the portal commits. Passing the node (not a RefObject) into useFocusTrap
 	// guarantees the trap engages exactly when the panel attaches.
 	const [panelNode, setPanelNode] = useState<HTMLDivElement | null>(null);
+	// The panel already carries an internal callback ref (focus trap and
+	// positioning need the live node); composing lets a consumer's ref observe
+	// the same element without displacing it.
+	const composedPanelRef = useComposedRefs<HTMLDivElement>(setPanelNode, ref);
 	const generatedTitleId = useId();
 	const titleId = title ? generatedTitleId : undefined;
 	const generatedDescId = useId();
@@ -215,7 +227,7 @@ export function BottomSheet({
 				onClick={handleBackdropClick}
 			>
 				<div
-					ref={setPanelNode}
+					ref={composedPanelRef}
 					className={["ds-atom-bottomsheet", className].filter(Boolean).join(" ")}
 					data-height={height}
 					data-dragging={dragging ? "true" : undefined}

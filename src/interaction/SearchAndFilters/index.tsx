@@ -1,4 +1,4 @@
-import { type CSSProperties, useRef, useState } from "react";
+import { type CSSProperties, type Ref, useRef, useState } from "react";
 import { DSDropdown } from "../../_internals/DSDropdown";
 import { Button } from "../../inputs/Button";
 import { Chip } from "../../inputs/Chip";
@@ -38,6 +38,8 @@ export interface SearchAndFiltersProps {
 	onClearFilters?: () => void;
 	className?: string;
 	style?: CSSProperties;
+	/** Ref to the SearchAndFilters root element. */
+	ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -70,6 +72,7 @@ export function SearchAndFilters({
 	onClearFilters,
 	className,
 	style,
+	ref,
 }: SearchAndFiltersProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [open, setOpen] = useState(false);
@@ -100,7 +103,11 @@ export function SearchAndFilters({
 	}
 
 	return (
-		<div className={["ds-atom-searchfilters", className].filter(Boolean).join(" ")} style={style}>
+		<div
+			ref={ref}
+			className={["ds-atom-searchfilters", className].filter(Boolean).join(" ")}
+			style={style}
+		>
 			<div className="ds-atom-searchfilters-bar">
 				<TextInput
 					ref={inputRef}

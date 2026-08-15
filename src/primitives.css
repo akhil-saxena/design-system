@@ -724,6 +724,13 @@
 	pointer-events: none;
 	transition: width 150ms ease;
 }
+/* The thumb is positioned with no transition, so any transition on the fill makes
+   the amber trail the knob for the whole drag. The glide is still wanted when the
+   value changes discretely — arrow keys, or a programmatic set — so it is
+   suppressed only while the pointer is down. */
+.ds-atom-range[data-dragging="true"] .ds-atom-range-fill {
+	transition: none;
+}
 .ds-atom-range-thumb {
 	position: absolute;
 	top: 50%;
@@ -1493,7 +1500,11 @@
 	height: 100%;
 	background: var(--amber);
 	border-radius: var(--radius-pill);
-	transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+	/* Was 0.5s. A progress value is usually updated continuously (an upload, a
+	   step counter, a slider-driven demo), and half a second of easing means the
+	   bar is permanently that far behind the number beside it. 200ms still
+	   smooths a jumpy series without reading as lag. */
+	transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 /* Loading variant - hide track, render 3-dot pulse instead. */
 .ds-atom-progress[data-loading="true"] .ds-atom-progress-track {
