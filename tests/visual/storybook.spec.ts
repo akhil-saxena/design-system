@@ -28,8 +28,21 @@ const TIME_DEPENDENT = new Set([
 	"display-rollingnumber--counter-light",
 ]);
 
+/**
+ * A fixed instant for the whole suite.
+ *
+ * Five stories rendered from the real clock — DatePicker/DateRangePicker
+ * `disablePast`, and RelativeTime's "x days ago" — so their baselines went stale
+ * the moment the date rolled over. Because the suite is one test looping over
+ * every story, that failure used to abort the run and everything after it went
+ * unchecked; freezing the clock removes the cause rather than the symptom, and
+ * `expect.soft` below means a future mismatch can no longer hide the rest.
+ */
+const FIXED_NOW = new Date("2026-06-15T12:00:00Z");
+
 test.describe("Storybook visual baselines", () => {
 	test("captures all stories", async ({ page }) => {
+		await page.clock.setFixedTime(FIXED_NOW);
 		await page.goto("http://localhost:6006/index.json");
 		const indexJson = await page.evaluate(() => document.body.innerText);
 		const stories: { id: string }[] = Object.values(JSON.parse(indexJson).entries ?? {}).filter(
@@ -63,7 +76,12 @@ test.describe("Storybook visual baselines", () => {
 			// `.then(() => undefined)` because document.fonts.ready resolves to a
 			// FontFaceSet, which Playwright cannot serialize back across the bridge.
 			await page.evaluate(() => document.fonts.ready.then(() => undefined));
-			await expect(page).toHaveScreenshot(`${story.id}.png`, {
+			// `expect.soft` so one mismatch does not abort the loop. This was a hard
+			// `expect`, and the suite is a *single test* iterating every story — so the
+			// first differing story ended the run and every story after it went
+			// unchecked. A date-dependent DatePicker story failing on a date rollover
+			// was silently hiding the rest of the suite.
+			await expect.soft(page).toHaveScreenshot(`${story.id}.png`, {
 				fullPage: true,
 				// Nothing previously froze the system's 20 @keyframes / ~74 transitions
 				// for this suite, so a story with an entry animation could be captured

@@ -185,3 +185,58 @@ describe("token contrast (WCAG)", () => {
 		expect(failures).toEqual([]);
 	});
 });
+
+/**
+ * Inset surfaces — the unfilled part of a slider or progress track, and the
+ * skeleton placeholder — must be visible against the page they sit on.
+ *
+ * All three were painted with `--cream-2`, the *raised* surface token, which
+ * sits 1.06:1 against the page: a slider showed no groove at all and a skeleton
+ * showed nothing. Nothing caught it, because `--cream-2` is a legitimate token
+ * and axe only assesses text contrast.
+ *
+ * The threshold is deliberately below WCAG 1.4.11's 3:1. That rule governs the
+ * parts needed to *identify* a control — here the thumb and the filled portion,
+ * which clear it comfortably. The unfilled groove only has to be perceivable,
+ * and forcing it to 3:1 would mean a near-black track on a white page.
+ */
+describe("inset surface visibility", () => {
+	const css = tokensCss;
+
+	/** Composite a translucent token over an opaque backdrop. */
+	function over(rgba: string, backdrop: string): string {
+		const n = (rgba.match(/[\d.]+/g) ?? []).map(Number);
+		const a = n.length > 3 ? (n[3] as number) : 1;
+		const bg = [1, 3, 5].map((i) => Number.parseInt(backdrop.slice(i, i + 2), 16));
+		const out = [0, 1, 2].map((i) =>
+			Math.round((n[i] as number) * a + (bg[i] as number) * (1 - a)),
+		);
+		return `#${out.map((c) => c.toString(16).padStart(2, "0")).join("")}`;
+	}
+
+	for (const [theme, selector, page] of [
+		["light", ":root {", "#fcfcfc"],
+		["dark", ":root.dark,", "#181818"],
+	] as const) {
+		it(`--track is a translucent ink in ${theme}, not a surface alias`, () => {
+			// Asserted on the declared value, not only on a computed ratio: the point
+			// of the token is that it composites, so it holds the same contrast on the
+			// page, on a card and on a panel. An opaque surface token — which is what
+			// `--cream-2` was — only ever works on one backdrop.
+			expect(resolve(css, selector, "--track")).toMatch(/^rgba\(/);
+		});
+
+		it(`--track is perceivable against the ${theme} page`, () => {
+			const painted = over(resolve(css, selector, "--track"), page);
+			expect(contrast(painted, page)).toBeGreaterThanOrEqual(1.35);
+		});
+
+		it(`--fill-disabled reads against the ${theme} track, not into it`, () => {
+			// A disabled fill that matches the groove behind it conveys nothing. This
+			// is why dark cannot reuse --ink-5, which is darker than the track there.
+			const track = over(resolve(css, selector, "--track"), page);
+			const fill = resolve(css, selector, "--fill-disabled");
+			expect(contrast(fill, track)).toBeGreaterThanOrEqual(1.4);
+		});
+	}
+});

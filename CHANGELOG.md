@@ -6,6 +6,40 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## 1.11.4 — Invisible tracks, and a visual suite that was hiding failures
+
+### Fixed
+
+- **Slider and progress tracks, and the skeleton placeholder, were invisible.**
+  All three were painted with `--cream-2` — the *raised* surface token — which
+  sits **1.06:1** against the page in both themes. A slider showed no groove, and
+  a skeleton showed nothing at all. They now use a new `--track` token, which is
+  translucent ink rather than an opaque surface so it holds the same contrast on
+  the page, on a card, and on any panel between: 1.45:1 light, 1.76:1 dark.
+  Dark mode previously had ad-hoc per-component overrides that disagreed with
+  each other (progress `0.2`, skeleton `0.06`, slider none); those are gone.
+- **A disabled slider was a muddy brown smear.** `opacity: 0.5` on the track,
+  fill and thumb — the last of the opacity-dimming cases in the system.
+  Multiplying with the track's own alpha dropped the groove below 1.3:1 and faded
+  the amber fill into an indeterminate colour instead of reading as inactive.
+  Replaced with an explicit `--fill-disabled`, which cannot be `--ink-5` in dark:
+  that token is *darker* than the track composites to, so the fill would vanish
+  into the groove.
+
+### Fixed — test infrastructure
+
+- **The visual suite was silently checking only part of itself.** It is a single
+  test looping over every story with a hard assertion, so the first mismatch
+  aborted the run and every story after it went unchecked. Five stories rendered
+  from the real clock (`DatePicker`/`DateRangePicker` `disablePast`,
+  `RelativeTime`), so a date rollover reliably triggered that abort. The clock is
+  now frozen for the suite, and the assertion is `expect.soft`, so one mismatch
+  can never hide another.
+- `--track` and `--fill-disabled` have token-level contrast guards. The first
+  version of that check passed regardless of the token's value, because the
+  compositing helper parsed `#f4f4f4` by harvesting its hex digits as channel
+  numbers; caught by reverting the token and watching the test still pass.
+
 ## 1.11.3 — Visual defects the test suite could not see
 
 Every check was passing while two components rendered visibly wrong. The

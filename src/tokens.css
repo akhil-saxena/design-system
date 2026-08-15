@@ -67,6 +67,19 @@
 	   by Button/OAuthButton since v0.1.0 but never defined — OAuthButton had no
 	   fallback, so its border collapsed to currentColor. */
 	--wire: rgba(0, 0, 0, 0.18);
+	/* Inset surface: the unfilled part of a slider or progress track, and the
+	   skeleton placeholder. These were all painted with --cream-2, the *raised*
+	   surface token, which sits 1.06:1 against the page — invisible, so a slider
+	   showed no groove and a skeleton showed nothing at all. Alpha rather than a
+	   fixed grey so it holds the same contrast on the page, on a card, and on any
+	   panel in between. */
+	--track: rgba(0, 0, 0, 0.16);
+	/* Fill of an inactive control — a disabled slider's filled portion, and its
+	   thumb ring. Dimming with `opacity` instead washes the fill *and* the track
+	   underneath it toward the page colour, which is how a locked slider ended up
+	   a muddy brown smear with no visible groove. An explicit colour keeps the
+	   control legible while still reading as inactive. */
+	--fill-disabled: #8e8782;
 
 	/* Surface ramp — neutral near-white (sourced from Cairn). The ramp reads as
 	   clean paper rather than warm cream; warmth in the system is carried by the
@@ -299,6 +312,10 @@
 	   accent fills do not flip. */
 	--ink-inverse: #1c1917;
 	--wire: rgba(255, 255, 255, 0.22);
+	--track: rgba(255, 255, 255, 0.18);
+	/* Not --ink-5 here: on dark, --ink-5 (#363636) is a *darker* grey than the
+	   track composites to, so a disabled fill would vanish into it. */
+	--fill-disabled: #6b6b6b;
 
 	--cream: #181818;
 	--cream-2: #1f1f1f;
