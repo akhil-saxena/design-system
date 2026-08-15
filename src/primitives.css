@@ -385,8 +385,42 @@ fieldset.ds-atom-field {
 	border-color: rgba(255, 255, 255, 0.18);
 	color: var(--ink);
 }
+
+/* ─── Minimum hit area ───────────────────────────────────────────────────
+   WCAG 2.5.8 (AA) requires a 24×24 CSS-px target. Several controls here are
+   deliberately small glyphs — a chip's dismiss ×, a carousel dot, a rating star
+   — and simply growing them would change the design. This expands the *hit
+   area* with a centred pseudo-element instead, leaving the painted size exactly
+   as it was. Measured targets before this: 8×8 (carousel dot), 10×10 (chip ×),
+   14×12 (multiselect chip ×), 18×18 (star). */
+.ds-hit-24 {
+	position: relative;
+}
+.ds-hit-24::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 24px;
+	height: 24px;
+	transform: translate(-50%, -50%);
+	/* Purely a pointer target: no paint, and it must not eat the parent's own
+	   hover or block a sibling behind it. */
+	pointer-events: auto;
+}
+
 .ds-atom-chip-x {
 	opacity: 0.65;
+	position: relative;
+}
+.ds-atom-chip-x::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 24px;
+	height: 24px;
+	transform: translate(-50%, -50%);
 }
 .dark .ds-atom-chip-x {
 	opacity: 1;
@@ -807,7 +841,18 @@ fieldset.ds-atom-field {
 	justify-content: center;
 	transition: transform 100ms;
 	color: inherit;
+	position: relative;
 }
+.ds-atom-star-btn::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 24px;
+	height: 24px;
+	transform: translate(-50%, -50%);
+}
+
 .ds-atom-star-btn:hover:not(:disabled) {
 	transform: scale(1.1);
 }
@@ -3118,7 +3163,18 @@ fieldset.ds-atom-field {
 	padding: 0 0 0 2px;
 	display: inline-flex;
 	align-items: center;
+	position: relative;
 }
+.ds-atom-multiselect-chip-x::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 24px;
+	height: 24px;
+	transform: translate(-50%, -50%);
+}
+
 .ds-atom-multiselect-chip-x:hover {
 	color: var(--ink);
 }
@@ -3536,7 +3592,11 @@ fieldset.ds-atom-field {
 	color: inherit;
 	font: inherit;
 }
-.ds-atom-timeline-trigger:focus-visible {
+/* `display: contents` above removes the button's own box, so an outline declared
+   on the button itself has nothing to paint on — a keyboard user got no visible
+   focus indicator at all on a clickable event. The ring goes on the child, which
+   is the box actually occupying the grid cell. */
+.ds-atom-timeline-trigger:focus-visible > * {
 	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 	border-radius: 4px;
@@ -3750,7 +3810,18 @@ fieldset.ds-atom-field {
 	padding: 0;
 	cursor: pointer;
 	transition: background-color 120ms ease, transform 120ms ease;
+	position: relative;
 }
+.ds-atom-carousel-dot::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 24px;
+	height: 24px;
+	transform: translate(-50%, -50%);
+}
+
 .ds-atom-carousel-dot[data-active] {
 	background: var(--amber);
 	transform: scale(1.2);
@@ -5661,6 +5732,17 @@ fieldset.ds-atom-field {
 
 /* result item */
 .ds-atom-cmd-item {
+	/* This rule was written when the row was a <div>. It later became a <button>
+	   so that role="option" sat on a genuinely focusable element — but the UA
+	   button chrome was never reset, so every row rendered with a 2px outset
+	   black border, a grey fill and shrink-to-fit width instead of a flush
+	   full-width row. */
+	appearance: none;
+	background: none;
+	border: 0;
+	width: calc(100% - 12px);
+	font: inherit;
+	text-align: left;
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -5901,7 +5983,17 @@ fieldset.ds-atom-field {
    "full-opacity underline on hover" convention. No :active transform —
    links aren't buttons; the underline change is the press affordance. */
 .ds-atom-link {
-	transition: color 0.15s, text-decoration-color 0.15s;
+	/* Link renders an <a> or, with `as="button"`, a <button> — and the button form
+	   inherited the UA chrome (2px outset border, grey fill, centred button font),
+	   so the same "link" looked like two different controls depending on the
+	   element. Resetting here is harmless on an <a>, which has none of these. */
+	appearance: none;
+	background: none;
+	border: 0;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	text-align: inherit;
 	text-decoration: underline;
 	text-underline-offset: 2px;
 	cursor: pointer;
@@ -6335,6 +6427,13 @@ fieldset.ds-atom-field {
 /* Moved out of an inline style object so the reduced-motion guard and any
    consumer override can reach it. */
 .ds-atom-fileinput {
+	/* The dropzone is a <button>, and a button does not inherit `font` — it takes
+	   the UA's 13.33px Arial. So the one component in the system rendered its text
+	   in a different typeface entirely. Same root cause as .ds-atom-cmd-item and
+	   .ds-atom-link: a control that needs the UA chrome reset explicitly. */
+	appearance: none;
+	font: inherit;
+	color: inherit;
 	transition: background-color 0.15s, border-color 0.15s;
 }
 

@@ -452,7 +452,12 @@ export function ColorPicker({
 				style={{
 					display: "flex",
 					gap: 8,
-					alignItems: "center",
+					// The HEX and ALPHA fields carry a label above the input, so each is
+					// taller than the input itself. Centring made the swatch centre on the
+					// whole label+input column, leaving it floating ~7px above the inputs
+					// it sits beside. Aligning to the end puts every control on the same
+					// baseline, with the labels above.
+					alignItems: "flex-end",
 					marginBottom: 14,
 				}}
 			>
@@ -462,8 +467,13 @@ export function ColorPicker({
 					// Named consistently with the -hex and -alpha hooks below.
 					data-testid="colorpicker-swatch"
 					style={{
-						width: 36,
-						height: 36,
+						// Matched to the .ds-atom-colorpicker-hex height so the swatch and
+						// the fields form one clean row rather than three different sizes.
+						width: 30,
+						height: 30,
+						// Without this the 1px border adds to the box and the swatch stands
+						// 2px taller than the fields beside it.
+						boxSizing: "border-box",
 						borderRadius: 8,
 						background: color,
 						border: "1px solid var(--rule)",

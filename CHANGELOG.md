@@ -6,6 +6,48 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## 1.11.3 — Visual defects the test suite could not see
+
+Every check was passing while two components rendered visibly wrong. The
+screenshot baselines only prove nothing *changed*, and both defects were
+recorded into the baseline when it was first taken, so they compared clean for
+as long as they existed. Unit tests assert behaviour and axe assesses
+accessibility; neither looks at paint. Two rendered-output audits now close that
+gap, and they found three more defects than were reported.
+
+### Fixed
+
+- **CommandPalette rows rendered with the browser's default button chrome** — a
+  2px outset black border, a grey fill and shrink-to-fit width instead of flush
+  full-width rows. The rule was written when the row was a `<div>`; it later
+  became a `<button>` so `role="option"` sat on a genuinely focusable element,
+  and the UA styles were never reset.
+- **`Link as="button"` had the same defect**, so the same link looked like two
+  different controls depending on which element it rendered. This also affected
+  Breadcrumbs, which composes Link.
+- **FileInput's dropzone rendered in 13px Arial.** It is a `<button>`, and a
+  button does not inherit `font` — the one component in the system that was off
+  the type scale entirely. Same root cause as the two above.
+- **ColorPicker's swatch floated ~7px above the fields beside it.** The HEX and
+  ALPHA fields carry a label above the input, so each column is taller than its
+  input; centring aligned the swatch to the column rather than to the inputs.
+  The row now aligns to the end, and the swatch matches the field height.
+- **Timeline's clickable event had no visible focus indicator.** The trigger uses
+  `display: contents` so its children flow into the parent grid, which leaves the
+  button with no box for an outline to paint on. The ring moves to the child.
+- **Four targets below the WCAG 2.5.8 minimum** — carousel dot (8×8), chip
+  dismiss (10×10), multiselect chip dismiss (14×12), rating star (18×18). Each
+  now has a 24×24 hit area from a centred pseudo-element, so the painted size is
+  unchanged: no visual baseline moved.
+
+### Testing
+
+- `control-chrome.spec.ts` fails any control rendering with UA form chrome,
+  detected by both the outset border and the UA font. The border check alone
+  missed FileInput.
+- `polish-audit.spec.ts` sweeps every story for zero-size interactive elements,
+  sub-24px targets and text the same colour as its background.
+
 ## 1.11.2 — Table's grid contract, broken Overview links, loading states
 
 ### Fixed
