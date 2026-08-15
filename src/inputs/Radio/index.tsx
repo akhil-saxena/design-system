@@ -9,6 +9,7 @@ import {
 	useMemo,
 	useState,
 } from "react";
+import { Field, useField } from "../Field";
 
 interface RadioGroupContextValue {
 	readonly name: string;
@@ -33,6 +34,17 @@ export interface RadioGroupProps {
 	style?: CSSProperties;
 	/** Additional className applied to the `role="radiogroup"` div. */
 	className?: string;
+	/** Visible group label, rendered as a `<legend>`. */
+	label?: ReactNode;
+	/** Helper text under the group, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error state. Implied by `errorMessage`. */
+	error?: boolean;
+	/**
+	 * Validation message under the group. "You must choose one" is the canonical
+	 * case for a radio group, and there was previously no way to express it.
+	 */
+	errorMessage?: ReactNode;
 }
 
 export function RadioGroup({
@@ -43,6 +55,10 @@ export function RadioGroup({
 	children,
 	style,
 	className,
+	label,
+	hint,
+	error,
+	errorMessage,
 }: Readonly<RadioGroupProps>) {
 	// Uncontrolled internal state - used when `value` prop is not provided.
 	const [internalValue, setInternalValue] = useState<string | undefined>(defaultValue);
@@ -57,17 +73,34 @@ export function RadioGroup({
 		[isControlled, onChange],
 	);
 
+	const wiring = useField({ error, errorMessage, hint });
+
 	const ctx = useMemo(() => ({ name, value, onChange: handleChange }), [name, value, handleChange]);
+
+	const groupEl = (
+		<div
+			role="radiogroup"
+			className={className}
+			aria-invalid={wiring.invalid || undefined}
+			aria-describedby={wiring.describedBy}
+			style={{ display: "flex", flexDirection: "column", gap: 8, ...style }}
+		>
+			{children}
+		</div>
+	);
 
 	return (
 		<RadioGroupContext.Provider value={ctx}>
-			<div
-				role="radiogroup"
-				className={className}
-				style={{ display: "flex", flexDirection: "column", gap: 8, ...style }}
-			>
-				{children}
-			</div>
+			{/* A radio group has no single labelable control, so `<label for>` cannot
+			    name it — Field renders a <fieldset>/<legend> instead, which is the
+			    correct grouping label. */}
+			{label || hint || errorMessage ? (
+				<Field label={label} hint={hint} errorMessage={errorMessage} wiring={wiring} group>
+					{groupEl}
+				</Field>
+			) : (
+				groupEl
+			)}
 		</RadioGroupContext.Provider>
 	);
 }

@@ -1,4 +1,11 @@
-import { type ChangeEvent, type InputHTMLAttributes, forwardRef, useState } from "react";
+import {
+	type ChangeEvent,
+	type InputHTMLAttributes,
+	type ReactNode,
+	forwardRef,
+	useState,
+} from "react";
+import { Field, useField } from "../Field";
 
 export interface RangeSliderProps
 	extends Omit<
@@ -29,6 +36,12 @@ export interface RangeSliderProps
 	disabled?: boolean;
 	/** Accessible label for the underlying `<input type="range">`; falls back to `label`. */
 	ariaLabel?: string;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error-state styling. Implied by `errorMessage`. */
+	error?: boolean;
+	/** Validation message under the control; sets `aria-invalid` and is announced. */
+	errorMessage?: ReactNode;
 }
 
 export const RangeSlider = forwardRef<HTMLInputElement, RangeSliderProps>(function RangeSlider(
@@ -42,6 +55,9 @@ export const RangeSlider = forwardRef<HTMLInputElement, RangeSliderProps>(functi
 		valueFormat,
 		disabled,
 		ariaLabel,
+		hint,
+		error,
+		errorMessage,
 		className,
 		style,
 		...rest
@@ -55,6 +71,7 @@ export const RangeSlider = forwardRef<HTMLInputElement, RangeSliderProps>(functi
 	// is suppressed only for the duration of the drag rather than deleted.
 	const [dragging, setDragging] = useState(false);
 
+	const wiring = useField({ error, errorMessage, hint, id: rest.id });
 	const range = max - min;
 	const pct = range > 0 ? Math.max(0, Math.min(100, ((value - min) / range) * 100)) : 0;
 
@@ -63,12 +80,13 @@ export const RangeSlider = forwardRef<HTMLInputElement, RangeSliderProps>(functi
 		onChange(next, e);
 	};
 
-	return (
+	const control = (
 		<div
 			className={`ds-atom-range${className ? ` ${className}` : ""}`}
 			style={style}
 			data-disabled={disabled ? "true" : undefined}
 			data-dragging={dragging ? "true" : undefined}
+			data-error={wiring.invalid ? "true" : undefined}
 		>
 			{(label != null || valueFormat) && (
 				<div className="ds-atom-range-label-row">
@@ -86,6 +104,9 @@ export const RangeSlider = forwardRef<HTMLInputElement, RangeSliderProps>(functi
 					step={step}
 					value={value}
 					onChange={handleChange}
+					id={wiring.controlId}
+					aria-invalid={wiring.invalid || undefined}
+					aria-describedby={wiring.describedBy}
 					onPointerDown={() => setDragging(true)}
 					// pointerup fires on the input; pointercancel covers a drag interrupted
 					// by a scroll gesture or the pointer leaving the window, which would
@@ -103,5 +124,15 @@ export const RangeSlider = forwardRef<HTMLInputElement, RangeSliderProps>(functi
 				<div className="ds-atom-range-thumb" style={{ left: `${pct}%` }} aria-hidden="true" />
 			</div>
 		</div>
+	);
+
+	// The visible label already sits in the control's own label row, so Field
+	// contributes only the message here.
+	if (!hint && !errorMessage) return control;
+
+	return (
+		<Field hint={hint} errorMessage={errorMessage} wiring={wiring}>
+			{control}
+		</Field>
 	);
 });

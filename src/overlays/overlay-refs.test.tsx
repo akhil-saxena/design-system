@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react";
-import { createRef } from "react";
+import { render, screen } from "@testing-library/react";
+import { createRef, useRef } from "react";
 import { describe, expect, it } from "vitest";
 import * as DS from "../index";
 
@@ -95,5 +95,29 @@ describe("overlay panel refs", () => {
 			</DS.Modal>,
 		);
 		expect(ref.current?.contains(document.activeElement)).toBe(true);
+	});
+});
+
+describe("Popover accessible name", () => {
+	function Harness({ label }: { label?: string }) {
+		const anchor = useRef<HTMLButtonElement>(null);
+		return (
+			<>
+				<button type="button" ref={anchor}>
+					Open
+				</button>
+				<DS.Popover anchorRef={anchor} open onOpenChange={() => {}} ariaLabel={label}>
+					content
+				</DS.Popover>
+			</>
+		);
+	}
+
+	it("names the dialog from ariaLabel", () => {
+		// The panel carries role="dialog", and a dialog with no accessible name is
+		// an aria-dialog-name violation — serious, and there was previously no prop
+		// to supply one, so every consumer produced it.
+		render(<Harness label="Filters" />);
+		expect(screen.getByRole("dialog", { name: "Filters" })).toBeTruthy();
 	});
 });

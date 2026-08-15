@@ -1,12 +1,30 @@
-import { type CSSProperties, type InputHTMLAttributes, forwardRef, useEffect, useRef } from "react";
+import {
+	type CSSProperties,
+	type InputHTMLAttributes,
+	type ReactNode,
+	forwardRef,
+	useEffect,
+	useRef,
+} from "react";
 import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { Check } from "../../icons";
+import { Field, useField } from "../Field";
 export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
 	/** Visible text label rendered beside the checkbox. */
 	label?: string;
 	/** When true, sets the native DOM `indeterminate` property (the "some selected" tri-state).
 	 * Cannot be expressed as a JSX attribute - set imperatively via a DOM property. */
 	indeterminate?: boolean;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error-state styling. Implied by `errorMessage`. */
+	error?: boolean;
+	/**
+	 * Validation message rendered under the control — "you must accept the terms"
+	 * is the canonical case. Wired to `aria-describedby`, carries `role="alert"`,
+	 * and sets `aria-invalid` on the input.
+	 */
+	errorMessage?: ReactNode;
 }
 
 const labelStyle: CSSProperties = {
@@ -40,7 +58,7 @@ const boxStyle: CSSProperties = {
 };
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
-	{ label, className, disabled, style, indeterminate, ...rest },
+	{ label, className, disabled, style, indeterminate, hint, error, errorMessage, ...rest },
 	ref,
 ) {
 	const innerRef = useRef<HTMLInputElement>(null);
@@ -55,7 +73,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
 		}
 	}, [indeterminate]);
 
-	return (
+	const wiring = useField({ error, errorMessage, hint, id: rest.id });
+
+	const control = (
 		<label
 			className={["ds-atom-checkbox-label", disabled ? "is-disabled" : "", className ?? ""]
 				.filter(Boolean)
@@ -70,6 +90,10 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
 				type="checkbox"
 				className={`ds-atom-checkbox-input ${VISUALLY_HIDDEN}`}
 				disabled={disabled}
+				id={wiring.controlId}
+				aria-invalid={wiring.invalid || undefined}
+				aria-describedby={wiring.describedBy}
+				data-error={wiring.invalid ? "true" : undefined}
 				{...rest}
 			/>
 			<span className="ds-atom-checkbox-box" style={boxStyle} aria-hidden="true">
@@ -83,5 +107,15 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
 			</span>
 			{label ? <span style={style}>{label}</span> : null}
 		</label>
+	);
+
+	// The visible label stays inside the control's own <label>, so Field supplies
+	// only the message row here — a second <label htmlFor> would nest labels.
+	if (!hint && !errorMessage) return control;
+
+	return (
+		<Field hint={hint} errorMessage={errorMessage} wiring={wiring}>
+			{control}
+		</Field>
 	);
 });

@@ -60,6 +60,9 @@ export function Coachmark({
 				if (!open) dismiss();
 			}}
 			placement={placement}
+			// The panel is a dialog; without a name it is an aria-dialog-name
+			// violation. The coachmark's own title is the natural name.
+			ariaLabel={title}
 		>
 			<div className="ds-atom-coachmark">
 				{/* Header: title + dismiss */}

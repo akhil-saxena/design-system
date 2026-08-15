@@ -49,6 +49,15 @@ export interface PopoverProps {
 	 * while the overlay is open, so this is `null` when it is closed.
 	 */
 	ref?: Ref<HTMLDivElement>;
+	/**
+	 * Accessible name for the panel. The panel carries `role="dialog"`, and a
+	 * dialog with no name is an `aria-dialog-name` violation — there was no way to
+	 * supply one, so *every* Popover consumer produced it. Pass this, or
+	 * `ariaLabelledBy` when the panel already renders its own visible heading.
+	 */
+	ariaLabel?: string;
+	/** Id of a visible element naming the panel; preferred over `ariaLabel`. */
+	ariaLabelledBy?: string;
 }
 
 // computePosition replaced by smartAnchorPos from floatingPos - auto-flips + clamps.
@@ -72,6 +81,8 @@ export function Popover({
 	className,
 	style,
 	ref,
+	ariaLabel,
+	ariaLabelledBy,
 }: PopoverProps) {
 	// Callback-ref state: useLayoutEffect must re-run AFTER DSPortal mounts the
 	// panel (DSPortal returns null on first render until its useEffect flips
@@ -154,6 +165,8 @@ export function Popover({
 			data-variant={variant === "contextmenu" ? "contextmenu" : undefined}
 			// biome-ignore lint/a11y/useSemanticElements: native <dialog> implies modal/inert behavior we don't want for non-modal popovers
 			role="dialog"
+			aria-label={ariaLabelledBy ? undefined : ariaLabel}
+			aria-labelledby={ariaLabelledBy}
 			style={{
 				top: pos?.top ?? -9999,
 				left: pos?.left ?? -9999,

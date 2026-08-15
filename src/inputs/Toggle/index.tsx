@@ -1,8 +1,19 @@
-import { type CSSProperties, type InputHTMLAttributes, forwardRef } from "react";
+import { type CSSProperties, type InputHTMLAttributes, type ReactNode, forwardRef } from "react";
+import { Field, useField } from "../Field";
 
 export interface ToggleProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
 	/** Visible text label rendered beside the toggle track. */
 	label?: string;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error-state styling. Implied by `errorMessage`. */
+	error?: boolean;
+	/**
+	 * Validation message rendered under the control — "you must accept the terms"
+	 * is the canonical case. Wired to `aria-describedby`, carries `role="alert"`,
+	 * and sets `aria-invalid` on the input.
+	 */
+	errorMessage?: ReactNode;
 }
 
 const labelStyle: CSSProperties = {
@@ -24,11 +35,24 @@ const labelStyle: CSSProperties = {
 const VISUALLY_HIDDEN = "ds-visually-hidden";
 
 export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(function Toggle(
-	{ label, className, disabled, style, checked, defaultChecked, ...rest },
+	{
+		label,
+		className,
+		disabled,
+		style,
+		checked,
+		defaultChecked,
+		hint,
+		error,
+		errorMessage,
+		...rest
+	},
 	ref,
 ) {
 	const ariaChecked = checked ?? defaultChecked ?? false;
-	return (
+	const wiring = useField({ error, errorMessage, hint, id: rest.id });
+
+	const control = (
 		<label
 			className={`ds-atom-toggle-label${disabled ? " is-disabled" : ""}${className ? ` ${className}` : ""}`}
 			style={{
@@ -45,6 +69,10 @@ export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(function Toggle(
 				disabled={disabled}
 				checked={checked}
 				defaultChecked={defaultChecked}
+				id={wiring.controlId}
+				aria-invalid={wiring.invalid || undefined}
+				aria-describedby={wiring.describedBy}
+				data-error={wiring.invalid ? "true" : undefined}
 				{...rest}
 			/>
 			<span className="ds-atom-toggle-track" aria-hidden="true">
@@ -52,5 +80,15 @@ export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(function Toggle(
 			</span>
 			{label ? <span style={style}>{label}</span> : null}
 		</label>
+	);
+
+	// The visible label stays inside the control's own <label>, so Field supplies
+	// only the message row here — a second <label htmlFor> would nest labels.
+	if (!hint && !errorMessage) return control;
+
+	return (
+		<Field hint={hint} errorMessage={errorMessage} wiring={wiring}>
+			{control}
+		</Field>
 	);
 });

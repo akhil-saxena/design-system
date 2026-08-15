@@ -1,7 +1,16 @@
-import { type CSSProperties, forwardRef, useId, useMemo, useRef, useState } from "react";
+import {
+	type CSSProperties,
+	type ReactNode,
+	forwardRef,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { DSDropdown } from "../../_internals/DSDropdown";
 import { Check, ChevronDown, X } from "../../icons";
 import { Popover } from "../../overlays/Popover";
+import { Field, useField } from "../Field";
 export interface MultiSelectOption {
 	value: string;
 	label: string;
@@ -72,6 +81,25 @@ export interface MultiSelectProps {
 	className?: string;
 	/** Inline styles applied to the trigger button. */
 	style?: CSSProperties;
+	/** Visible label rendered above the control and wired to it. */
+	label?: ReactNode;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error-state ring. Implied by `errorMessage`. */
+	error?: boolean;
+	/**
+	 * Validation message under the control. Wired to `aria-describedby`, carries
+	 * `role="alert"` so it is announced when it appears, and sets `aria-invalid`.
+	 */
+	errorMessage?: ReactNode;
+	/**
+	 * Show a loading row in place of the options while the list is being fetched.
+	 * Async-populated dropdowns previously had only an empty list to fall back on,
+	 * which reads as "there is nothing" rather than "nothing has arrived yet".
+	 */
+	loading?: boolean;
+	/** Text shown while `loading`. @default "Loading…" */
+	loadingText?: string;
 }
 
 /**
@@ -95,6 +123,12 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 		disabled = false,
 		className,
 		style,
+		loading = false,
+		loadingText = "Loading…",
+		label,
+		hint,
+		error,
+		errorMessage,
 	},
 	ref,
 ) {
@@ -133,7 +167,11 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 		onChange(value.filter((x) => x !== v));
 	}
 
-	return (
+	// Shared label / hint / error scaffold — see inputs/Field. `errorMessage`
+	// implies the error state and sets aria-invalid on the trigger.
+	const wiring = useField({ error, errorMessage, hint });
+
+	const content = (
 		<>
 			<button
 				ref={combineRefs}
@@ -147,6 +185,10 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 				// configuration free of a critical violation.
 				aria-label={ariaLabelledBy ? undefined : (ariaLabel ?? placeholder)}
 				aria-labelledby={ariaLabelledBy}
+				id={wiring.controlId}
+				aria-invalid={wiring.invalid || undefined}
+				aria-describedby={wiring.describedBy}
+				data-error={wiring.invalid ? "true" : undefined}
 				aria-expanded={open}
 				aria-haspopup="listbox"
 				aria-controls={listId}
@@ -246,36 +288,55 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(funct
 					aria-multiselectable="true"
 					className="ds-atom-multiselect-list"
 				>
-					{options.map((opt, i) => {
-						const sel = selectedSet.has(opt.value);
-						return (
-							// biome-ignore lint/a11y/useSemanticElements: D-501 mandates role="option" per WAI-ARIA combobox; <li> is canonical container inside <ul role="listbox">
-							// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: option role on <li> is the WAI-ARIA combobox pattern; activation happens via Enter on the combobox (forwarded to onSelect) - onClick is a mouse-equivalent affordance
-							// biome-ignore lint/a11y/useFocusableInteractive: option is reached via aria-activedescendant from the focused combobox; per WAI-ARIA pattern individual options must NOT be in the tab order
-							// biome-ignore lint/a11y/useKeyWithClickEvents: keyboard activation lives on the combobox (Enter→onSelect via DSDropdown), not on each option - the option's onClick is a redundant mouse-only affordance
-							<li
-								key={opt.value}
-								id={optionId(i)}
-								// biome-ignore lint/a11y/useSemanticElements: D-501 mandates role="option" per WAI-ARIA combobox; <li> is canonical container inside <ul role="listbox">
-								// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: option role on <li> is the canonical combobox-popup pattern (react-aria, Radix MultiSelect)
-								role="option"
-								aria-selected={sel}
-								className={`ds-atom-multiselect-option${i === activeIndex ? " is-active" : ""}${sel ? " is-selected" : ""}`}
-								onMouseEnter={() => setActiveIndex(i)}
-								onClick={() => toggle(i)}
-							>
-								<span
-									className={`ds-atom-multiselect-checkbox${sel ? " is-checked" : ""}`}
-									aria-hidden="true"
-								>
-									{sel ? <Check size={11} /> : null}
-								</span>
-								<span className="ds-atom-multiselect-option-label">{opt.label}</span>
-							</li>
-						);
-					})}
+					{loading ? (
+						// aria-live alone rather than role="status" — see Select for why.
+						<li className="ds-atom-select-empty" aria-live="polite">
+							{loadingText}
+						</li>
+					) : null}
+					{loading
+						? null
+						: options.map((opt, i) => {
+								const sel = selectedSet.has(opt.value);
+								return (
+									// biome-ignore lint/a11y/useSemanticElements: D-501 mandates role="option" per WAI-ARIA combobox; <li> is canonical container inside <ul role="listbox">
+									// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: option role on <li> is the WAI-ARIA combobox pattern; activation happens via Enter on the combobox (forwarded to onSelect) - onClick is a mouse-equivalent affordance
+									// biome-ignore lint/a11y/useFocusableInteractive: option is reached via aria-activedescendant from the focused combobox; per WAI-ARIA pattern individual options must NOT be in the tab order
+									// biome-ignore lint/a11y/useKeyWithClickEvents: keyboard activation lives on the combobox (Enter→onSelect via DSDropdown), not on each option - the option's onClick is a redundant mouse-only affordance
+									<li
+										key={opt.value}
+										id={optionId(i)}
+										// biome-ignore lint/a11y/useSemanticElements: D-501 mandates role="option" per WAI-ARIA combobox; <li> is canonical container inside <ul role="listbox">
+										// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: option role on <li> is the canonical combobox-popup pattern (react-aria, Radix MultiSelect)
+										role="option"
+										aria-selected={sel}
+										className={`ds-atom-multiselect-option${i === activeIndex ? " is-active" : ""}${sel ? " is-selected" : ""}`}
+										onMouseEnter={() => setActiveIndex(i)}
+										onClick={() => toggle(i)}
+									>
+										<span
+											className={`ds-atom-multiselect-checkbox${sel ? " is-checked" : ""}`}
+											aria-hidden="true"
+										>
+											{sel ? <Check size={11} /> : null}
+										</span>
+										<span className="ds-atom-multiselect-option-label">{opt.label}</span>
+									</li>
+								);
+							})}
 				</ul>
 			</DSDropdown>
 		</>
+	);
+
+	// Same guard TextInput uses: with no label, hint or message there is nothing
+	// for the wrapper to render, and emitting one anyway would insert a div into
+	// every existing consumer's layout.
+	if (!label && !hint && !errorMessage) return content;
+
+	return (
+		<Field label={label} hint={hint} errorMessage={errorMessage} wiring={wiring}>
+			{content}
+		</Field>
 	);
 });

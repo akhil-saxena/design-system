@@ -1,6 +1,7 @@
 import {
 	type CSSProperties,
 	type MutableRefObject,
+	type ReactNode,
 	forwardRef,
 	useId,
 	useMemo,
@@ -10,6 +11,7 @@ import {
 import { DSDropdown } from "../../_internals/DSDropdown";
 import { Search } from "../../icons";
 import { Check, ChevronDown } from "../../icons";
+import { Field, useField } from "../Field";
 import { TextInput } from "../TextInput";
 export interface SelectOption {
 	value: string;
@@ -66,6 +68,26 @@ export interface SelectProps {
 	className?: string;
 	/** Inline styles applied to the trigger button. */
 	style?: CSSProperties;
+	/** Visible label rendered above the control and wired to it. */
+	label?: ReactNode;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error-state ring. Implied by `errorMessage`. */
+	error?: boolean;
+	/**
+	 * Validation message under the control. Wired to `aria-describedby`, carries
+	 * `role="alert"` so it is announced when it appears, and sets `aria-invalid`.
+	 */
+	errorMessage?: ReactNode;
+	/**
+	 * Show a loading row in place of the options while the list is being fetched.
+	 * Async-populated dropdowns previously had only the "No results" empty state
+	 * to fall back on, which tells the user their query matched nothing when in
+	 * fact nothing has arrived yet.
+	 */
+	loading?: boolean;
+	/** Text shown while `loading`. @default "Loading…" */
+	loadingText?: string;
 }
 
 /**
@@ -100,6 +122,12 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 		disabled = false,
 		className,
 		style,
+		loading = false,
+		loadingText = "Loading…",
+		label,
+		hint,
+		error,
+		errorMessage,
 	},
 	ref,
 ) {
@@ -138,7 +166,11 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 		if (!next) setQuery("");
 	}
 
-	return (
+	// Shared label / hint / error scaffold — see inputs/Field. `errorMessage`
+	// implies the error state and sets aria-invalid on the trigger.
+	const wiring = useField({ error, errorMessage, hint });
+
+	const content = (
 		<>
 			<button
 				ref={combineRefs}
@@ -152,6 +184,10 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 				// configuration free of a critical violation.
 				aria-label={ariaLabelledBy ? undefined : (ariaLabel ?? placeholder)}
 				aria-labelledby={ariaLabelledBy}
+				id={wiring.controlId}
+				aria-invalid={wiring.invalid || undefined}
+				aria-describedby={wiring.describedBy}
+				data-error={wiring.invalid ? "true" : undefined}
 				aria-expanded={open}
 				aria-haspopup="listbox"
 				aria-controls={listId}
@@ -215,7 +251,15 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 						/>
 					</div>
 				) : null}
-				{filtered.length === 0 ? (
+				{loading ? (
+					// aria-live alone rather than role="status": the listbox is not
+					// focused (activedescendant pattern) so nothing else would announce
+					// the change, and role="status" on a <div> is what the semantic-element
+					// lint objects to — the live region does the announcing either way.
+					<div className="ds-atom-select-empty" aria-live="polite">
+						{loadingText}
+					</div>
+				) : filtered.length === 0 ? (
 					<div className="ds-atom-select-empty">No results</div>
 				) : (
 					// biome-ignore lint/a11y/useSemanticElements: D-501 mandates <ul role="listbox"> for the combobox panel - keyboard navigation handled via aria-activedescendant on the trigger, so the list itself is not focusable (matches WAI-ARIA combobox pattern)
@@ -257,5 +301,16 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 				)}
 			</DSDropdown>
 		</>
+	);
+
+	// Same guard TextInput uses: with no label, hint or message there is nothing
+	// for the wrapper to render, and emitting one anyway would insert a div into
+	// every existing consumer's layout.
+	if (!label && !hint && !errorMessage) return content;
+
+	return (
+		<Field label={label} hint={hint} errorMessage={errorMessage} wiring={wiring}>
+			{content}
+		</Field>
 	);
 });

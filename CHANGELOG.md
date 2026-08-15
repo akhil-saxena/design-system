@@ -6,7 +6,44 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
-## 1.11.0 — Calendar keyboard navigation, form-control refs, controlled-value correctness
+## 1.11.0 — Validation across every form control, calendar keyboard navigation, drag responsiveness
+
+### Added — validation
+
+- **`Field` and `useField`, and an `error` state on every form control.** Only
+  TextInput and Textarea could show a validation message; the other twelve
+  controls had no `error` prop at all, so a validated form had to hand-roll the
+  affordance per control, differently each time. Select, MultiSelect, Checkbox,
+  Toggle, RangeSlider and RadioGroup now take `error` / `errorMessage` / `hint`
+  (and `label`, where they had none), and TextInput and Textarea were migrated
+  onto the same primitive rather than keeping their hand-rolled copies.
+
+  The message is wired to `aria-describedby`, carries `role="alert"` so it is
+  announced when it appears rather than sitting silently in the DOM, and sets
+  `aria-invalid` on the control — styling alone conveys nothing to a screen
+  reader. An `aria-describedby` the consumer already passed is preserved rather
+  than replaced. A control with no label, hint or message emits no wrapper, so
+  nothing is inserted into existing layouts.
+
+  A radio group gets a `<fieldset>`/`<legend>` instead of `<label for>`, since
+  `for` may only point at a labelable element and a group has no single control
+  to point at. `src/field-contract.test.tsx` checks all of this identically
+  across every control, because the failure mode here is drift.
+- **`loading` on Select and MultiSelect.** An async list that had not arrived
+  rendered "No results" — telling the user their query matched nothing when in
+  fact nothing had been fetched. The loading row is an `aria-live` region, since
+  the listbox is never focused (activedescendant pattern) and nothing else would
+  announce the change.
+
+### Fixed — accessibility
+
+- **Popover rendered `role="dialog"` with no way to name it.** A dialog without
+  an accessible name is a *serious* `aria-dialog-name` violation, and Popover
+  exposed no `ariaLabel`, so every consumer produced one — it surfaced on the
+  three Coachmark stories. Popover now takes `ariaLabel`/`ariaLabelledBy` and
+  Coachmark passes its title. Storybook's a11y addon now reports zero warnings,
+  where it had reported this on every run.
+
 
 ### Added
 

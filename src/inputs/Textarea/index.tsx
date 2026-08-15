@@ -3,9 +3,9 @@ import {
 	type ReactNode,
 	type TextareaHTMLAttributes,
 	forwardRef,
-	useId,
 	useState,
 } from "react";
+import { Field, useField } from "../Field";
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 	/** When true, applies error-state border color to the textarea. */
@@ -59,13 +59,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
 	const length = typeof value === "string" ? value.length : internalLength;
 	const showCount = typeof maxLength === "number";
 
-	const generatedId = useId();
-	const fieldId = rest.id ?? generatedId;
-	const hintId = hint ? `${generatedId}-hint` : undefined;
-	const errorId = errorMessage ? `${generatedId}-error` : undefined;
-	const invalid = error || Boolean(errorMessage);
-	const describedBy =
-		[rest["aria-describedby"], hintId, errorId].filter(Boolean).join(" ") || undefined;
+	const wiring = useField({
+		error,
+		errorMessage,
+		hint,
+		id: rest.id,
+		describedBy: rest["aria-describedby"],
+	});
+	const { controlId: fieldId, describedBy, invalid } = wiring;
 
 	const control = (
 		<div style={{ position: "relative", width: "100%" }}>
@@ -107,23 +108,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
 	if (!label && !hint && !errorMessage) return control;
 
 	return (
-		<div className="ds-atom-field">
-			{label ? (
-				<label className="ds-atom-field-label" htmlFor={fieldId}>
-					{label}
-				</label>
-			) : null}
+		<Field label={label} hint={hint} errorMessage={errorMessage} wiring={wiring}>
 			{control}
-			{hint ? (
-				<span className="ds-atom-field-hint" id={hintId}>
-					{hint}
-				</span>
-			) : null}
-			{errorMessage ? (
-				<span className="ds-atom-field-error" id={errorId} role="alert">
-					{errorMessage}
-				</span>
-			) : null}
-		</div>
+		</Field>
 	);
 });

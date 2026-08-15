@@ -119,6 +119,22 @@
 	flex-direction: column;
 	gap: var(--space-1);
 }
+/* A grouped field (radio group, segmented control, star rating) uses
+   <fieldset>/<legend> instead of <label for>, because `for` may only point at a
+   labelable element — a group has no single control to point at. The element
+   brings its own border, padding, margin and min-width, all of which have to go
+   for it to lay out identically to the <div> form. `min-width: 0` is the
+   non-obvious one: fieldset defaults to `min-inline-size: min-content`, which
+   stops it shrinking inside a flex or grid parent. */
+fieldset.ds-atom-field {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	min-width: 0;
+}
+.ds-atom-field > legend.ds-atom-field-label {
+	padding: 0;
+}
 .ds-atom-field-label {
 	font-family: var(--font-body);
 	font-size: var(--text-sm);

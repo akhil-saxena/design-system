@@ -1,10 +1,5 @@
-import {
-	type CSSProperties,
-	type InputHTMLAttributes,
-	type ReactNode,
-	forwardRef,
-	useId,
-} from "react";
+import { type CSSProperties, type InputHTMLAttributes, type ReactNode, forwardRef } from "react";
+import { Field, useField } from "../Field";
 import { Kbd } from "../Kbd";
 
 export interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "prefix"> {
@@ -53,18 +48,17 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
 	{ error, icon, prefix, suffix, kbd, label, hint, errorMessage, className, style, ...rest },
 	ref,
 ) {
-	const generatedId = useId();
-	const inputId = rest.id ?? generatedId;
-	const hintId = hint ? `${generatedId}-hint` : undefined;
-	const errorId = errorMessage ? `${generatedId}-error` : undefined;
-	// An explicit errorMessage implies the error state — a message with no visual
-	// error styling would be contradictory.
-	const invalid = error || Boolean(errorMessage);
-
-	// Existing `aria-describedby` is preserved and ours appended, so a consumer
-	// pointing at their own description does not lose it.
-	const describedBy =
-		[rest["aria-describedby"], hintId, errorId].filter(Boolean).join(" ") || undefined;
+	// Shared with every other labelled control — see inputs/Field. An explicit
+	// errorMessage implies the error state, and an existing `aria-describedby` is
+	// preserved rather than replaced.
+	const wiring = useField({
+		error,
+		errorMessage,
+		hint,
+		id: rest.id,
+		describedBy: rest["aria-describedby"],
+	});
+	const { controlId: inputId, describedBy, invalid } = wiring;
 
 	const inputProps = {
 		...rest,
@@ -119,25 +113,8 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
 	if (!label && !hint && !errorMessage) return control;
 
 	return (
-		<div className="ds-atom-field">
-			{label ? (
-				<label className="ds-atom-field-label" htmlFor={inputId}>
-					{label}
-				</label>
-			) : null}
+		<Field label={label} hint={hint} errorMessage={errorMessage} wiring={wiring}>
 			{control}
-			{hint ? (
-				<span className="ds-atom-field-hint" id={hintId}>
-					{hint}
-				</span>
-			) : null}
-			{errorMessage ? (
-				// role="alert" so a validation message that appears after submit is
-				// announced rather than sitting silently in the DOM.
-				<span className="ds-atom-field-error" id={errorId} role="alert">
-					{errorMessage}
-				</span>
-			) : null}
-		</div>
+		</Field>
 	);
 });
