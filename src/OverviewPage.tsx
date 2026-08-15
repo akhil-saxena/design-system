@@ -491,7 +491,7 @@ export function OverviewPage() {
 					<span className="crumb">Overview</span>
 				</div>
 				<div className="mast-right">
-					<span className="edition">v1.11.0</span>
+					<span className="edition">v1.11.1</span>
 					<div className="toggle" role="radiogroup" aria-label="Color theme">
 						<button type="button" aria-pressed={!isDark} onClick={() => setTheme(false)}>
 							<SunIcon />
@@ -637,7 +637,7 @@ export function OverviewPage() {
 						Set in <b>Archivo</b>, <b>Inter</b> and <b>JetBrains&nbsp;Mono</b>. Calm by default,
 						editorial type, considered motion. Tuned for AAA contrast in light and dark.
 					</div>
-					<div className="mono">@akhil-saxena/design-system · v1.11.0 · 2026</div>
+					<div className="mono">@akhil-saxena/design-system · v1.11.1 · 2026</div>
 				</footer>
 			</main>
 		</div>

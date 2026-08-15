@@ -6,6 +6,34 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## 1.11.1 — Completing the validation work 1.11.0 overclaimed
+
+### Fixed
+
+- **1.11.0 said validation was added to "every form control". It was not.** Six
+  controls got it; seven did not — Autocomplete, ColorInput, NumberStepper,
+  FileInput, DatePicker, SegmentedControl and StarRating still had no `error`
+  prop when that release shipped. All seven now have it, and
+  `field-contract.test.tsx` exercises all **fifteen** controls rather than the
+  eight it covered before, so the claim is now enforced instead of asserted.
+- **Autocomplete's `aria-invalid` never reached the DOM.** It was passed to the
+  inner TextInput as an attribute, but TextInput builds its own `aria-invalid`
+  *after* spreading `...rest`, so the value was silently overridden. It now
+  passes `error`, which TextInput folds into that computation.
+
+### Testing
+
+- Panel refs on HoverCard, ActionSheet, CommandPalette, InlineConfirm and
+  SearchAndFilters were shipped in 1.11.0 but never asserted — a broken compose
+  in any of them would not have been caught. Now covered. Writing the test
+  surfaced that HoverCard has no `open` prop at all (it opens on hover), so the
+  original assertion would have been vacuous.
+- The drag-responsiveness fixes live entirely in CSS, and jsdom applies no
+  stylesheet — so the `data-dragging` test proved the hook fired, not that the
+  transition was suppressed, and the visual suite captures static screenshots
+  which cannot catch a timing property either. `drag-transition.test.ts` now
+  asserts the rules themselves.
+
 ## 1.11.0 — Validation across every form control, calendar keyboard navigation, drag responsiveness
 
 ### Added — validation

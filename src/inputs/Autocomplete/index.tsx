@@ -2,6 +2,7 @@ import { type CSSProperties, type ReactNode, type Ref, useId, useRef, useState }
 import { DSDropdown } from "../../_internals/DSDropdown";
 import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { Clock } from "../../icons";
+import { Field, useField } from "../Field";
 import { TextInput } from "../TextInput";
 export interface AutocompleteProps<T> {
 	/** Controlled text value of the input field. */
@@ -40,6 +41,12 @@ export interface AutocompleteProps<T> {
 	 * ordinary prop, which keeps inference intact.
 	 */
 	ref?: Ref<HTMLInputElement>;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error state. Implied by `errorMessage`. */
+	error?: boolean;
+	/** Validation message under the control; sets `aria-invalid` and is announced. */
+	errorMessage?: ReactNode;
 }
 
 /**
@@ -77,6 +84,9 @@ export function Autocomplete<T>({
 	className,
 	style,
 	ref,
+	hint,
+	error,
+	errorMessage,
 }: AutocompleteProps<T>) {
 	// Internal ref drives focus-return and the dropdown anchor; the composed ref
 	// also hands the node to the consumer.
@@ -153,7 +163,9 @@ export function Autocomplete<T>({
 		</ul>
 	);
 
-	return (
+	const wiring = useField({ error, errorMessage, hint });
+
+	const content = (
 		<>
 			<TextInput
 				ref={composedRef}
@@ -161,6 +173,10 @@ export function Autocomplete<T>({
 				className={`ds-atom-autocomplete${className ? ` ${className}` : ""}`}
 				role="combobox"
 				aria-autocomplete="list"
+				// `error`, not `aria-invalid`: TextInput builds its own aria-invalid
+				// after spreading rest, so the attribute passed through here loses.
+				error={wiring.invalid}
+				aria-describedby={wiring.describedBy}
 				aria-expanded={open}
 				aria-controls={listId}
 				aria-activedescendant={open && itemCount > 0 ? optionId(activeIndex) : undefined}
@@ -196,5 +212,13 @@ export function Autocomplete<T>({
 				)}
 			</DSDropdown>
 		</>
+	);
+
+	if (!hint && !errorMessage) return content;
+
+	return (
+		<Field hint={hint} errorMessage={errorMessage} wiring={wiring}>
+			{content}
+		</Field>
 	);
 }

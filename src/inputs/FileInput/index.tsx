@@ -1,6 +1,7 @@
 import { type CSSProperties, type ReactNode, type Ref, useRef, useState } from "react";
 import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { Button } from "../Button";
+import { Field, type FieldWiring, useField } from "../Field";
 
 export interface FileInputProps {
 	/** Called when the user selects or drops file(s). */
@@ -52,12 +53,19 @@ export interface FileInputProps {
 	 * upload of the same file fired no `change` event.
 	 */
 	ref?: Ref<HTMLInputElement>;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error state. Implied by `errorMessage`. */
+	error?: boolean;
+	/** Validation message under the control; sets `aria-invalid` and is announced. */
+	errorMessage?: ReactNode;
 }
 
 // FileInput — file-picker primitive. variant="dropzone" wraps drag-and-drop
 // + click-to-select inside a paper-warm dashed-border surface; variant="button"
 // is a click-only Button trigger. Both variants share the validation pipeline.
-export function FileInput({
+function FileInputControl({
+	wiring,
 	onSelect,
 	accept,
 	multiple = false,
@@ -70,7 +78,7 @@ export function FileInput({
 	className,
 	style,
 	ref,
-}: FileInputProps) {
+}: FileInputProps & { wiring: FieldWiring }) {
 	// Internal ref opens the picker on trigger click; the composed ref also
 	// exposes the node to the consumer.
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -130,6 +138,9 @@ export function FileInput({
 			ref={composedRef}
 			type="file"
 			accept={accept}
+			id={wiring.controlId}
+			aria-invalid={wiring.invalid || undefined}
+			aria-describedby={wiring.describedBy}
 			multiple={multiple}
 			style={{ display: "none" }}
 			onChange={(e) => {
@@ -216,6 +227,25 @@ export function FileInput({
 			</button>
 			{hiddenInput}
 		</>
+	);
+}
+
+/**
+ * File picker with drag-and-drop or button variants.
+ *
+ * The wrapper exists because the control renders two different trees depending
+ * on `variant`; wrapping once here is simpler and safer than threading the field
+ * scaffold through both return paths.
+ */
+export function FileInput(props: FileInputProps) {
+	const { hint, error, errorMessage } = props;
+	const wiring = useField({ error, errorMessage, hint });
+	const control = <FileInputControl {...props} wiring={wiring} />;
+	if (!hint && !errorMessage) return control;
+	return (
+		<Field hint={hint} errorMessage={errorMessage} wiring={wiring}>
+			{control}
+		</Field>
 	);
 }
 

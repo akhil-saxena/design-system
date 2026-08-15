@@ -1,5 +1,6 @@
 import { type CSSProperties, type ReactNode, forwardRef, useEffect, useState } from "react";
 import { Minus, Plus } from "../../icons";
+import { Field, useField } from "../Field";
 import { IconButton } from "../IconButton";
 export interface NumberStepperProps {
 	/** Controlled numeric value. */
@@ -39,6 +40,12 @@ export interface NumberStepperProps {
 	className?: string;
 	/** Inline styles applied to the root wrapper element. */
 	style?: CSSProperties;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error state. Implied by `errorMessage`. */
+	error?: boolean;
+	/** Validation message under the control; sets `aria-invalid` and is announced. */
+	errorMessage?: ReactNode;
 }
 
 function clamp(v: number, min?: number, max?: number) {
@@ -63,9 +70,13 @@ export const NumberStepper = forwardRef<HTMLInputElement, NumberStepperProps>(
 			ariaLabel = "Value",
 			className,
 			style,
+			hint,
+			error,
+			errorMessage,
 		},
 		ref,
 	) {
+		const wiring = useField({ error, errorMessage, hint });
 		const [focused, setFocused] = useState(false);
 		const [buffer, setBuffer] = useState(String(value));
 
@@ -95,7 +106,7 @@ export const NumberStepper = forwardRef<HTMLInputElement, NumberStepperProps>(
 		const decDisabled = disabled || (typeof min === "number" && value <= min);
 		const incDisabled = disabled || (typeof max === "number" && value >= max);
 
-		return (
+		const control = (
 			// `aria-label` used to sit here, on a role-less <div> — a generic role,
 			// which prohibits naming, so it was discarded. The numeric <input> below
 			// was therefore completely unnamed. The name now goes on the input, which
@@ -117,6 +128,9 @@ export const NumberStepper = forwardRef<HTMLInputElement, NumberStepperProps>(
 						type="text"
 						inputMode="decimal"
 						aria-label={ariaLabel}
+						id={wiring.controlId}
+						aria-invalid={wiring.invalid || undefined}
+						aria-describedby={wiring.describedBy}
 						value={display}
 						disabled={disabled}
 						onFocus={() => {
@@ -150,6 +164,14 @@ export const NumberStepper = forwardRef<HTMLInputElement, NumberStepperProps>(
 					icon={<Plus size={14} strokeWidth={2.5} />}
 				/>
 			</div>
+		);
+
+		if (!hint && !errorMessage) return control;
+
+		return (
+			<Field hint={hint} errorMessage={errorMessage} wiring={wiring}>
+				{control}
+			</Field>
 		);
 	},
 );

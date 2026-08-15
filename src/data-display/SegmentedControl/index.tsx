@@ -22,7 +22,8 @@
  *   segment (e.g. outcome toggles: green / neutral / red). Tone-less
  *   options keep the default amber styling (backward compatible).
  */
-import { forwardRef, useCallback, useRef } from "react";
+import { type ReactNode, forwardRef, useCallback, useRef } from "react";
+import { Field, useField } from "../../inputs/Field";
 
 /**
  * Optional per-option active colors. When set, the option uses these
@@ -65,6 +66,12 @@ export interface SegmentedControlProps<T extends string = string> {
 	 * @default false
 	 */
 	deselectable?: boolean;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error state. Implied by `errorMessage`. */
+	error?: boolean;
+	/** Validation message under the control; sets `aria-invalid` and is announced. */
+	errorMessage?: ReactNode;
 }
 
 function SegmentedControlInner<T extends string>(
@@ -78,6 +85,9 @@ function SegmentedControlInner<T extends string>(
 		className,
 		style,
 		deselectable = false,
+		hint,
+		error,
+		errorMessage,
 	}: SegmentedControlProps<T>,
 	ref: React.Ref<HTMLDivElement>,
 ) {
@@ -136,11 +146,15 @@ function SegmentedControlInner<T extends string>(
 	// to the first non-disabled option so the group remains keyboard-reachable.
 	const fallbackTabIndex = enabledIndices[0] ?? -1;
 
-	return (
+	const wiring = useField({ error, errorMessage, hint });
+
+	const control = (
 		<div
 			ref={setRef}
 			role="radiogroup"
 			aria-label={ariaLabel}
+			aria-invalid={wiring.invalid || undefined}
+			aria-describedby={wiring.describedBy}
 			className={`ds-atom-segmented${className ? ` ${className}` : ""}`}
 			style={style}
 			data-size={size}
@@ -181,6 +195,16 @@ function SegmentedControlInner<T extends string>(
 				);
 			})}
 		</div>
+	);
+
+	// A segmented control is a radiogroup — a group, so Field uses fieldset/legend
+	// rather than <label for>, which cannot name a group.
+	if (!hint && !errorMessage) return control;
+
+	return (
+		<Field hint={hint} errorMessage={errorMessage} wiring={wiring} group>
+			{control}
+		</Field>
 	);
 }
 

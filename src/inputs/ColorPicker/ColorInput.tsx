@@ -23,6 +23,11 @@ export interface ColorInputProps {
 	style?: CSSProperties;
 	/** Test hook on the root element. */
 	"data-testid"?: string;
+	/** Applies the error state. Implied by `errorMessage`. Also set automatically
+	 *  when the typed text cannot become a colour. */
+	error?: boolean;
+	/** Validation message under the field; sets `aria-invalid` and is announced. */
+	errorMessage?: ReactNode;
 }
 
 /**
@@ -44,6 +49,8 @@ export function ColorInput({
 	className,
 	style,
 	"data-testid": testId,
+	error,
+	errorMessage,
 }: ColorInputProps) {
 	const initial = normalizeHex(value ?? defaultValue) ?? "#f59e0b";
 	// `color` is the resolved swatch colour; `text` is exactly what the user typed,
@@ -70,7 +77,12 @@ export function ColorInput({
 
 	// Only flag an error once the value can no longer become a colour — otherwise
 	// every intermediate keystroke ("#f") would render as invalid.
-	const invalid = text.trim() !== "" && !normalizeHex(text) && !isPartialHex(text);
+	// A consumer-supplied error (or message) counts as invalid too — the field can
+	// be well-formed hex and still be rejected by the form it lives in.
+	const invalid =
+		(text.trim() !== "" && !normalizeHex(text) && !isPartialHex(text)) ||
+		Boolean(error) ||
+		Boolean(errorMessage);
 
 	return (
 		<div
@@ -81,6 +93,9 @@ export function ColorInput({
 			<TextInput
 				label={label}
 				hint={hint}
+				// TextInput owns the whole label/hint/error scaffold, so the message is
+				// handed straight to it rather than re-rendered here.
+				errorMessage={errorMessage}
 				value={text}
 				onChange={handleChange}
 				error={invalid}

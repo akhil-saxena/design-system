@@ -1,4 +1,12 @@
-import { type HTMLAttributes, forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import {
+	type HTMLAttributes,
+	type ReactNode,
+	forwardRef,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { buildMonthGrid } from "../../_internals/calendarGrid";
 import { addMonths, isSameDay, isToday, startOfMonth } from "../../_internals/dateUtils"; // DS-53 - DatePicker primitive (Phase 16 Wave 1 / plan 16-05).
 // 7×6 calendar grid with controlled value, optional time picker, event dots.
@@ -14,6 +22,7 @@ import { useDateGrid } from "../../hooks/useDateGrid";
 import { ChevronLeft, ChevronRight } from "../../icons";
 import { Popover } from "../../overlays/Popover";
 import { Button } from "../Button";
+import { Field, useField } from "../Field";
 import { IconButton } from "../IconButton";
 import { TextInput } from "../TextInput";
 export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
@@ -58,6 +67,12 @@ export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "o
 	placeholder?: string;
 	/** Override the date formatter for the trigger pill label. Only used when `variant="popover"`. */
 	formatLabel?: (d: Date, showTime: boolean) => string;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error state. Implied by `errorMessage`. */
+	error?: boolean;
+	/** Validation message under the control; sets `aria-invalid` and is announced. */
+	errorMessage?: ReactNode;
 }
 
 // Pill label format mirrors the design handoff (§02 State B): "Sat 17 May" for
@@ -118,10 +133,24 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 		formatLabel,
 		className,
 		style,
+		hint,
+		error,
+		errorMessage,
 		...rest
 	},
 	ref,
 ) {
+	const wiring = useField({ error, errorMessage, hint });
+	// DatePicker returns two different trees (inline vs popover trigger), so the
+	// field scaffold is applied through a helper rather than duplicated in both.
+	const withField = (node: ReactNode) =>
+		!hint && !errorMessage ? (
+			node
+		) : (
+			<Field hint={hint} errorMessage={errorMessage} wiring={wiring}>
+				{node}
+			</Field>
+		);
 	// Popover state lives at the top of the component so hooks fire in stable
 	// order regardless of variant (variant can't change between renders but
 	// React still calls every hook each render).
@@ -397,10 +426,13 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 	if (variant === "popover") {
 		const fmt = formatLabel ?? defaultFormatLabel;
 		const triggerLabel = value ? fmt(value, showTime) : placeholder;
-		return (
+		return withField(
 			<>
 				<button
 					ref={triggerRef}
+					id={wiring.controlId}
+					aria-invalid={wiring.invalid || undefined}
+					aria-describedby={wiring.describedBy}
 					type="button"
 					className={`ds-atom-datepicker-trigger${popoverOpen ? " is-open" : ""}${className ? ` ${className}` : ""}`}
 					aria-haspopup="dialog"
@@ -453,19 +485,21 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 						</div>
 					</div>
 				</Popover>
-			</>
+			</>,
 		);
 	}
 
-	return (
+	return withField(
 		<div
 			ref={ref}
 			className={`ds-atom-datepicker${className ? ` ${className}` : ""}`}
+			aria-invalid={wiring.invalid || undefined}
+			aria-describedby={wiring.describedBy}
 			style={style}
 			{...rest}
 		>
 			{body}
-		</div>
+		</div>,
 	);
 });
 

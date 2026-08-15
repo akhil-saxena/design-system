@@ -29,6 +29,40 @@ const controls: Array<[string, () => ReactElement]> = [
 		() => <DS.RangeSlider value={5} onChange={() => {}} ariaLabel="V" errorMessage={MSG} />,
 	],
 	[
+		"Autocomplete",
+		() => (
+			<DS.Autocomplete
+				value=""
+				onValueChange={() => {}}
+				items={[]}
+				getItemLabel={(i: string) => i}
+				getItemKey={(i: string) => i}
+				onSelect={() => {}}
+				errorMessage={MSG}
+			/>
+		),
+	],
+	["ColorInput", () => <DS.ColorInput label="Brand" errorMessage={MSG} />],
+	["NumberStepper", () => <DS.NumberStepper value={1} onChange={() => {}} errorMessage={MSG} />],
+	["FileInput", () => <DS.FileInput onSelect={() => {}} errorMessage={MSG} />],
+	["DatePicker", () => <DS.DatePicker value={null} onChange={() => {}} errorMessage={MSG} />],
+	[
+		"StarRating",
+		() => <DS.StarRating value={3} onChange={() => {}} label="Rate" errorMessage={MSG} />,
+	],
+	[
+		"SegmentedControl",
+		() => (
+			<DS.SegmentedControl
+				options={[{ value: "a", label: "A" }]}
+				value="a"
+				onChange={() => {}}
+				ariaLabel="Pick"
+				errorMessage={MSG}
+			/>
+		),
+	],
+	[
 		"RadioGroup",
 		() => (
 			<DS.RadioGroup name="g" label="Pick one" errorMessage={MSG}>

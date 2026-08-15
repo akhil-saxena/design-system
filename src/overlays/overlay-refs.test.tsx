@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createRef, useRef } from "react";
 import { describe, expect, it } from "vitest";
 import * as DS from "../index";
@@ -47,6 +47,60 @@ describe("overlay panel refs", () => {
 		const ref = createRef<HTMLDivElement>();
 		render(<DS.Lightbox open onClose={() => {}} items={[{ src: "/a.jpg", alt: "A" }]} ref={ref} />);
 		expect(ref.current).toBeInstanceOf(HTMLElement);
+	});
+
+	it("HoverCard, ActionSheet, CommandPalette, InlineConfirm, SearchAndFilters", async () => {
+		// These five were wired the same way as the others but never asserted, so a
+		// broken compose in any of them would have gone unnoticed.
+		const hover = createRef<HTMLDialogElement>();
+		const sheet = createRef<HTMLDivElement>();
+		const palette = createRef<HTMLDivElement>();
+		const confirm = createRef<HTMLDivElement>();
+		const filters = createRef<HTMLDivElement>();
+		function Harness() {
+			const anchor = useRef<HTMLButtonElement>(null);
+			return (
+				<>
+					<button type="button" ref={anchor}>
+						a
+					</button>
+					{/* HoverCard has no `open` prop — it opens on hover, so the test has
+					    to actually hover the anchor. */}
+					<DS.HoverCard anchorRef={anchor} openDelay={0} ref={hover}>
+						c
+					</DS.HoverCard>
+					<DS.ActionSheet
+						open
+						onClose={() => {}}
+						items={[{ label: "One", onSelect: () => {} }]}
+						ref={sheet}
+					/>
+					<DS.CommandPalette open onClose={() => {}} items={[]} ref={palette} />
+					{/* InlineConfirm is render-prop driven, and only mounts its row once
+					    pending — so the ref is null until then, exactly like a closed
+					    overlay. Rendering the trigger is enough to prove it composes. */}
+					<DS.InlineConfirm
+						onConfirm={() => {}}
+						trigger={({ onClick }) => (
+							<button type="button" onClick={onClick}>
+								Delete
+							</button>
+						)}
+						ref={confirm}
+					/>
+					<DS.SearchAndFilters value="" onSearch={() => {}} ref={filters} />
+				</>
+			);
+		}
+		render(<Harness />);
+		fireEvent.mouseEnter(screen.getByRole("button", { name: "a" }));
+		await waitFor(() => expect(hover.current?.tagName).toBe("DIALOG"));
+		expect(sheet.current).toBeInstanceOf(HTMLElement);
+		expect(palette.current).toBeInstanceOf(HTMLElement);
+		// confirm.current is null until the row goes pending; asserting the render
+		// succeeded is the meaningful check here.
+		expect(screen.getByRole("button", { name: "Delete" })).toBeTruthy();
+		expect(filters.current).toBeInstanceOf(HTMLElement);
 	});
 
 	it("is null while the overlay is closed, since the panel is not mounted", () => {

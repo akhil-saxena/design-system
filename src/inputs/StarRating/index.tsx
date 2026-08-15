@@ -1,10 +1,12 @@
 import {
 	type CSSProperties,
 	type KeyboardEvent as ReactKeyboardEvent,
+	type ReactNode,
 	type Ref,
 	useState,
 } from "react";
 import { Star } from "../../icons";
+import { Field, useField } from "../Field";
 export type StarRatingSize = "default" | "compact";
 
 /**
@@ -39,6 +41,12 @@ export interface StarRatingProps {
 	style?: CSSProperties;
 	/** Ref to the StarRating root element. */
 	ref?: Ref<HTMLDivElement>;
+	/** Helper text under the control, wired to `aria-describedby`. */
+	hint?: ReactNode;
+	/** Applies the error state. Implied by `errorMessage`. */
+	error?: boolean;
+	/** Validation message under the control; sets `aria-invalid` and is announced. */
+	errorMessage?: ReactNode;
 }
 
 const STAR_SIZES: Record<StarRatingSize, number> = {
@@ -56,6 +64,9 @@ export function StarRating({
 	className,
 	style,
 	ref,
+	hint,
+	error,
+	errorMessage,
 }: StarRatingProps) {
 	const [hover, setHover] = useState<number | null>(null);
 	const interactive = !readOnly && !disabled;
@@ -100,11 +111,15 @@ export function StarRating({
 		if (next !== value) onChange?.(next);
 	}
 
-	return (
+	const wiring = useField({ error, errorMessage, hint });
+
+	const control = (
 		<div
 			ref={ref}
 			role="radiogroup"
 			aria-label={label}
+			aria-invalid={wiring.invalid || undefined}
+			aria-describedby={wiring.describedBy}
 			className={`ds-atom-star${className ? ` ${className}` : ""}`}
 			style={style}
 			data-size={size}
@@ -144,5 +159,15 @@ export function StarRating({
 				);
 			})}
 		</div>
+	);
+
+	// A rating is a group, not a single labelable control, so Field uses
+	// fieldset/legend. The visible name already lives in `label`.
+	if (!hint && !errorMessage) return control;
+
+	return (
+		<Field hint={hint} errorMessage={errorMessage} wiring={wiring} group>
+			{control}
+		</Field>
 	);
 }
