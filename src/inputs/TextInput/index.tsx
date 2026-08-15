@@ -5,6 +5,7 @@ import {
 	forwardRef,
 	useId,
 } from "react";
+import { Kbd } from "../Kbd";
 
 export interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "prefix"> {
 	/** When true, applies error-state border color to the input or wrapper. */
@@ -40,64 +41,10 @@ export interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElemen
 // Locked at 36px so the input sits at the same baseline as MultiSelect /
 // Select / Button at their default size — keeps any filter row visually
 // homogeneous instead of one element looking taller than the others.
-const baseInputStyle: CSSProperties = {
-	fontSize: 13,
-	height: 36,
-	padding: "0 10px",
-	borderRadius: 8,
-	border: "1px solid var(--rule)",
-	background: "var(--cream)",
-	color: "var(--ink)",
-	fontFamily: "var(--font)",
-	outline: "none",
-	transition: "border-color .15s, box-shadow .15s",
-	width: "100%",
-	boxSizing: "border-box",
-};
-
-const wrapStyle: CSSProperties = {
-	display: "flex",
-	alignItems: "center",
-	gap: 8,
-	height: 36,
-	padding: "0 10px",
-	borderRadius: 8,
-	border: "1px solid var(--rule)",
-	background: "var(--cream)",
-	transition: "border-color .15s, box-shadow .15s",
-	boxSizing: "border-box",
-};
-
-const innerInputStyle: CSSProperties = {
-	border: "none",
-	background: "none",
-	padding: "8px 0",
-	boxShadow: "none",
-	fontSize: 13,
-	color: "var(--ink)",
-	fontFamily: "var(--font)",
-	outline: "none",
-	flex: 1,
-	width: "100%",
-};
-
 const affixStyle: CSSProperties = {
 	color: "var(--ink-3)",
 	fontFamily: "var(--mono)",
 	fontSize: 12,
-	whiteSpace: "nowrap",
-	flexShrink: 0,
-};
-
-const kbdStyle: CSSProperties = {
-	fontFamily: "var(--mono)",
-	fontSize: 10,
-	fontWeight: 600,
-	color: "var(--ink-3)",
-	background: "var(--cream-2)",
-	border: "1px solid var(--rule)",
-	borderRadius: 4,
-	padding: "1px 6px",
 	whiteSpace: "nowrap",
 	flexShrink: 0,
 };
@@ -137,7 +84,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
 				ref={ref}
 				className={`ds-atom-input${className ? ` ${className}` : ""}`}
 				data-error={invalid ? "true" : undefined}
-				style={{ ...baseInputStyle, ...style }}
+				style={style}
 				{...inputProps}
 			/>
 		) : (
@@ -146,15 +93,25 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
 			<div
 				className={`ds-atom-input-wrap${className ? ` ${className}` : ""}`}
 				data-error={invalid ? "true" : undefined}
-				style={{ ...wrapStyle, ...style }}
+				style={style}
 			>
 				{icon ? (
 					<span style={{ display: "inline-flex", color: "var(--ink-3)" }}>{icon}</span>
 				) : null}
 				{prefix ? <span style={affixStyle}>{prefix}</span> : null}
-				<input ref={ref} style={innerInputStyle} {...inputProps} />
+				<input ref={ref} className="ds-atom-input-inner" {...inputProps} />
 				{suffix ? <span style={affixStyle}>{suffix}</span> : null}
-				{kbd ? <kbd style={kbdStyle}>{kbd}</kbd> : null}
+				{/* A plain string is wrapped in the Kbd primitive; an element is rendered
+				    as-is so a caller can pass their own <Kbd size="md"> without nesting
+				    one <kbd> inside another. Previously this re-implemented Kbd's
+				    styling inline. */}
+				{kbd ? (
+					typeof kbd === "string" || typeof kbd === "number" ? (
+						<Kbd size="sm">{kbd}</Kbd>
+					) : (
+						kbd
+					)
+				) : null}
 			</div>
 		);
 

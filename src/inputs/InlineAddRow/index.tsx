@@ -1,4 +1,5 @@
 import { type CSSProperties, type KeyboardEvent, forwardRef, useRef, useState } from "react";
+import { TextInput } from "../TextInput";
 
 export interface InlineAddRowProps {
 	/** Placeholder shown in both the dashed trigger and the active input. */
@@ -41,18 +42,6 @@ const activeStyle: CSSProperties = {
 	boxShadow: "var(--focus-ring)",
 	boxSizing: "border-box",
 	overflow: "hidden",
-};
-
-const inputStyle: CSSProperties = {
-	flex: 1,
-	border: "none",
-	background: "transparent",
-	outline: "none",
-	fontFamily: "var(--font)",
-	fontSize: 12,
-	padding: "0 10px",
-	height: "100%",
-	color: "var(--ink)",
 };
 
 const hintStyle: CSSProperties = {
@@ -116,7 +105,7 @@ export const InlineAddRow = forwardRef<HTMLDivElement, InlineAddRowProps>(functi
 		>
 			{active ? (
 				<div style={activeStyle}>
-					<input
+					<TextInput
 						ref={inputRef}
 						type="text"
 						value={value}
@@ -125,7 +114,8 @@ export const InlineAddRow = forwardRef<HTMLDivElement, InlineAddRowProps>(functi
 						onBlur={discard}
 						placeholder={placeholder}
 						aria-label={placeholder}
-						style={inputStyle}
+						className="ds-atom-inline-add-input"
+						data-testid="inlineaddrow-input"
 					/>
 					<span aria-hidden="true" style={hintStyle}>
 						{kbdHint}

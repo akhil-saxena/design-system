@@ -1,6 +1,9 @@
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ColorPicker } from "./index";
+
+/** The hex field, addressed by its test hook rather than a CSS class. */
+const hexField = () => screen.getByTestId("colorpicker-hex") as HTMLInputElement;
 
 describe("ColorPicker", () => {
 	it("renders with default amber color", () => {
@@ -35,36 +38,42 @@ describe("ColorPicker", () => {
 	});
 
 	it("hex input shows current color", () => {
-		const { container } = render(<ColorPicker value="#3b82f6" />);
-		const hex = container.querySelector<HTMLInputElement>("input.ds-input");
-		expect((hex as HTMLInputElement).value).toBe("#3b82f6");
+		render(<ColorPicker value="#3b82f6" />);
+		expect(hexField().value).toBe("#3b82f6");
 	});
 
-	it("partial hex input does not corrupt color state", () => {
+	it("does not emit while the hex is still incomplete", () => {
 		const onChange = vi.fn();
-		const { container } = render(<ColorPicker onChange={onChange} value="#ff0000" />);
-		const hexInput = container.querySelector<HTMLInputElement>(
-			"input.ds-input",
-		) as HTMLInputElement;
-		fireEvent.change(hexInput, { target: { value: "#abc" } }); // partial
+		render(<ColorPicker onChange={onChange} value="#ff0000" />);
+		fireEvent.change(hexField(), { target: { value: "#ff" } });
 		expect(onChange).not.toHaveBeenCalled();
 	});
 
 	it("valid hex input updates color via onChange", () => {
 		const onChange = vi.fn();
-		const { container } = render(<ColorPicker onChange={onChange} />);
-		const hexInput = container.querySelector<HTMLInputElement>(
-			"input.ds-input",
-		) as HTMLInputElement;
-		fireEvent.change(hexInput, { target: { value: "#abcdef" } });
+		render(<ColorPicker onChange={onChange} />);
+		fireEvent.change(hexField(), { target: { value: "#abcdef" } });
 		expect(onChange).toHaveBeenCalledWith("#abcdef");
 	});
 
+	// Previously "#abc" was treated as partial and silently dropped. It is valid
+	// CSS shorthand and now expands, which is the reported bug.
+	it("expands shorthand and hash-less hex instead of ignoring it", () => {
+		for (const [typed, expected] of [
+			["#abc", "#aabbcc"],
+			["abcdef", "#abcdef"],
+		] as const) {
+			const onChange = vi.fn();
+			const { unmount } = render(<ColorPicker onChange={onChange} />);
+			fireEvent.change(hexField(), { target: { value: typed } });
+			expect(onChange, `${typed} should emit ${expected}`).toHaveBeenCalledWith(expected);
+			unmount();
+		}
+	});
+
 	it("alpha input shows 100% by default and is readonly", () => {
-		const { container } = render(<ColorPicker />);
-		const alpha = container.querySelectorAll<HTMLInputElement>(
-			"input.ds-input",
-		)[1] as HTMLInputElement;
+		render(<ColorPicker />);
+		const alpha = screen.getByTestId("colorpicker-alpha") as HTMLInputElement;
 		expect(alpha.value).toBe("100%");
 		expect(alpha.readOnly).toBe(true);
 	});

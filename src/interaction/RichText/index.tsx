@@ -120,6 +120,7 @@ import {
 import { Button } from "../../inputs/Button";
 import { Kbd } from "../../inputs/Kbd";
 import { Select } from "../../inputs/Select";
+import { TextInput } from "../../inputs/TextInput";
 // ─── Public types ──────────────────────────────────────────────────────────
 
 export interface RichTextProps {
@@ -603,13 +604,15 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 						margin: 0,
 					}}
 				>
-					<input
+					<TextInput
 						type="url"
 						value={linkUrl}
 						onChange={(e) => setLinkUrl(e.target.value)}
 						placeholder="https://example.com"
 						className="ds-atom-richtext-linkinput"
-						// biome-ignore lint/a11y/noAutofocus: popover input should be focused when opened
+						aria-label="Link URL"
+						data-testid="richtext-link-url"
+						// autoFocus is deliberate: the link popover exists to be typed into.
 						autoFocus
 						onKeyDown={(e) => {
 							if (e.key === "Escape") {

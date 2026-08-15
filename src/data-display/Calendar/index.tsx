@@ -24,6 +24,7 @@ import { type CSSProperties, forwardRef, useEffect, useMemo, useRef, useState } 
 import { buildMonthGrid, getWeekDayLabels } from "../../_internals/calendarGrid";
 import { useMatchMedia } from "../../hooks/useMatchMedia";
 import { ChevronLeft, ChevronRight } from "../../icons";
+import { IconButton } from "../../inputs/IconButton";
 import { BottomSheet } from "../../overlays/BottomSheet";
 import { HoverCard } from "../../overlays/HoverCard";
 import { Popover } from "../../overlays/Popover";
@@ -366,23 +367,19 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 			{/* ── Header ── */}
 			<div className="ds-atom-calendar-header">
 				<div className="ds-atom-calendar-nav">
-					<button
-						type="button"
-						aria-label="Previous month"
+					<IconButton
+						label="Previous month"
+						icon={<ChevronLeft size={16} />}
 						onClick={() => navigate(-1)}
 						className="ds-atom-calendar-navbtn"
-					>
-						<ChevronLeft size={16} />
-					</button>
+					/>
 					<div className="ds-atom-calendar-label">{headerLabel}</div>
-					<button
-						type="button"
-						aria-label="Next month"
+					<IconButton
+						label="Next month"
+						icon={<ChevronRight size={16} />}
 						onClick={() => navigate(1)}
 						className="ds-atom-calendar-navbtn"
-					>
-						<ChevronRight size={16} />
-					</button>
+					/>
 				</div>
 				<SegmentedControl
 					options={[

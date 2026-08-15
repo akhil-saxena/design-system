@@ -7,6 +7,12 @@ export {
 	type OAuthProvider,
 } from "./inputs/OAuthButton";
 export { TextInput, type TextInputProps } from "./inputs/TextInput";
+export {
+	IconButton,
+	type IconButtonProps,
+	type IconButtonSize,
+	type IconButtonVariant,
+} from "./inputs/IconButton";
 export { InlineEditField, type InlineEditFieldProps } from "./inputs/InlineEditField";
 export { InlineAddRow, type InlineAddRowProps } from "./inputs/InlineAddRow";
 export {

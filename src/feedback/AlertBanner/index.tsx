@@ -1,5 +1,6 @@
 import { type CSSProperties, type HTMLAttributes, type ReactNode, forwardRef } from "react";
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "../../icons";
+import { IconButton } from "../../inputs/IconButton";
 export type AlertBannerTone = "info" | "success" | "warning" | "error";
 
 export interface AlertBannerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
@@ -98,14 +99,13 @@ export const AlertBanner = forwardRef<HTMLDivElement, AlertBannerProps>(function
 				{body ? <div className="ds-atom-banner-desc">{body}</div> : null}
 			</div>
 			{showDismiss ? (
-				<button
-					type="button"
+				<IconButton
+					size="sm"
 					className="ds-atom-banner-close"
-					aria-label="Dismiss"
+					label="Dismiss"
+					icon={<X size={14} />}
 					onClick={onDismiss}
-				>
-					<X size={14} aria-hidden="true" />
-				</button>
+				/>
 			) : null}
 		</div>
 	);

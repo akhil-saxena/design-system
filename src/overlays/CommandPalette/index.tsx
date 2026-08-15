@@ -13,7 +13,9 @@ import { DSPortal } from "../../_internals/DSPortal";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
+import { Search } from "../../icons";
 import { Kbd } from "../../inputs/Kbd";
+import { TextInput } from "../../inputs/TextInput";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -188,39 +190,30 @@ export function CommandPalette({
 					style={style}
 					tabIndex={-1}
 				>
-					<div className="ds-atom-cmd-search">
-						<svg
-							aria-hidden="true"
-							viewBox="0 0 24 24"
-							width="16"
-							height="16"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-						>
-							<circle cx="11" cy="11" r="8" />
-							<line x1="21" y1="21" x2="16.65" y2="16.65" />
-						</svg>
-						<input
-							// biome-ignore lint/a11y/noAutofocus: command palette is a search-first overlay; focus must land on input when opened
-							autoFocus
-							className="ds-atom-cmd-input"
-							placeholder={placeholder}
-							value={query}
-							onChange={(e) => setQuery(e.target.value)}
-							aria-label="Search commands"
-							role="combobox"
-							aria-expanded={filtered.length > 0}
-							aria-controls={listId}
-							aria-autocomplete="list"
-							aria-activedescendant={
-								activeIndex >= 0 && activeIndex < filtered.length
-									? optionId(activeIndex)
-									: undefined
-							}
-						/>
-						<Kbd size="sm">ESC</Kbd>
-					</div>
+					{/* Composes TextInput rather than a bare <input> plus a hand-rolled
+					    search SVG and a sibling Kbd: the icon and kbd affixes, the focus
+					    ring and the placeholder colour all come from the primitive. The
+					    class flattens the field chrome into a flush header row. */}
+					<TextInput
+						// autoFocus is deliberate: a command palette is a search-first overlay,
+						// so focus must land on the field when it opens.
+						autoFocus
+						className="ds-atom-cmd-search"
+						icon={<Search size={16} />}
+						kbd={<Kbd size="sm">ESC</Kbd>}
+						placeholder={placeholder}
+						value={query}
+						onChange={(e) => setQuery(e.target.value)}
+						aria-label="Search commands"
+						role="combobox"
+						aria-expanded={filtered.length > 0}
+						aria-controls={listId}
+						aria-autocomplete="list"
+						aria-activedescendant={
+							activeIndex >= 0 && activeIndex < filtered.length ? optionId(activeIndex) : undefined
+						}
+						data-testid="commandpalette-input"
+					/>
 					{/* biome-ignore lint/a11y/useFocusableInteractive: in the combobox+listbox pattern focus stays on the input via aria-activedescendant; the listbox itself must NOT be focusable */}
 					{/* biome-ignore lint/a11y/useSemanticElements: role="listbox" is the ARIA combobox pattern; no native HTML element pairs aria-activedescendant-driven option selection with the existing styled container */}
 					<div ref={listRef} id={listId} role="listbox" className="ds-atom-cmd-list">

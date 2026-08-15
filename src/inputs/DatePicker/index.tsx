@@ -13,6 +13,8 @@ import { addMonths, isSameDay, isToday, startOfMonth } from "../../_internals/da
 import { ChevronLeft, ChevronRight } from "../../icons";
 import { Popover } from "../../overlays/Popover";
 import { Button } from "../Button";
+import { IconButton } from "../IconButton";
+import { TextInput } from "../TextInput";
 export interface DatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
 	/** Controlled selected date; pass `null` for no selection. */
 	value: Date | null;
@@ -249,25 +251,23 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 	const body = (
 		<>
 			<div className="ds-atom-datepicker-header">
-				<button
-					type="button"
-					aria-label="Previous month"
+				<IconButton
+					size="sm"
+					label="Previous month"
+					icon={<ChevronLeft size={14} />}
 					onClick={() => step(-1)}
 					className="ds-atom-datepicker-nav"
-				>
-					<ChevronLeft size={14} />
-				</button>
+				/>
 				<div className="ds-atom-datepicker-label">
 					{MONTH_NAMES[viewMonth.getMonth()]} {viewMonth.getFullYear()}
 				</div>
-				<button
-					type="button"
-					aria-label="Next month"
+				<IconButton
+					size="sm"
+					label="Next month"
+					icon={<ChevronRight size={14} />}
 					onClick={() => step(1)}
 					className="ds-atom-datepicker-nav"
-				>
-					<ChevronRight size={14} />
-				</button>
+				/>
 			</div>
 
 			<div className="ds-atom-datepicker-weekdays">
@@ -336,22 +336,24 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 
 			{showTime ? (
 				<div className="ds-atom-datepicker-time">
-					<input
+					<TextInput
 						type="number"
 						aria-label="Hours"
 						min={1}
 						max={12}
 						value={displayHour12}
 						onChange={(e) => updateHour12(Number(e.target.value))}
+						data-testid="datepicker-hours"
 					/>
 					<span className="ds-atom-datepicker-time-sep">:</span>
-					<input
+					<TextInput
 						type="number"
 						aria-label="Minutes"
 						min={0}
 						max={59}
 						value={value?.getMinutes() ?? 0}
 						onChange={(e) => updateMinute(Number(e.target.value))}
+						data-testid="datepicker-minutes"
 					/>
 					<Button
 						size="sm"

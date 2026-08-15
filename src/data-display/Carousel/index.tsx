@@ -26,6 +26,7 @@
 import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { ChevronLeft, ChevronRight } from "../../icons";
+import { IconButton } from "../../inputs/IconButton";
 // ─── Public types ─────────────────────────────────────────────────────────────
 
 export interface CarouselSlide {
@@ -212,24 +213,22 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 			{/* Arrow navigation */}
 			{showArrows && (
 				<>
-					<button
-						type="button"
-						aria-label="Previous slide"
+					<IconButton
+						label="Previous slide"
+						icon={<ChevronLeft size={20} />}
+						size="md"
 						onClick={prev}
 						disabled={index === 0}
 						className="ds-atom-carousel-arrow ds-atom-carousel-arrow-prev"
-					>
-						<ChevronLeft size={20} aria-hidden="true" />
-					</button>
-					<button
-						type="button"
-						aria-label="Next slide"
+					/>
+					<IconButton
+						label="Next slide"
+						icon={<ChevronRight size={20} />}
+						size="md"
 						onClick={next}
 						disabled={index === slides.length - 1}
 						className="ds-atom-carousel-arrow ds-atom-carousel-arrow-next"
-					>
-						<ChevronRight size={20} aria-hidden="true" />
-					</button>
+					/>
 				</>
 			)}
 

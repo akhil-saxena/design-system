@@ -13,6 +13,7 @@
  */
 import { type CSSProperties, forwardRef, useRef, useState } from "react";
 import { DSDropdown } from "../../_internals/DSDropdown";
+import { Link } from "../../foundation/Link";
 import { ChevronRight, MoreHorizontal } from "../../icons";
 export interface BreadcrumbItem {
 	label: string;
@@ -132,7 +133,7 @@ export const Breadcrumbs = forwardRef<HTMLElement, BreadcrumbsProps>(function Br
 										{hidden.map((h) => (
 											<li key={h.label} className="ds-atom-breadcrumbs-menuitem">
 												{h.href ? (
-													<a
+													<Link
 														href={h.href}
 														onClick={(e) => {
 															h.onClick?.(e);
@@ -140,7 +141,7 @@ export const Breadcrumbs = forwardRef<HTMLElement, BreadcrumbsProps>(function Br
 														}}
 													>
 														{h.label}
-													</a>
+													</Link>
 												) : (
 													<button
 														type="button"
@@ -167,14 +168,14 @@ export const Breadcrumbs = forwardRef<HTMLElement, BreadcrumbsProps>(function Br
 					return (
 						<li key={entry.index} className="ds-atom-breadcrumbs-li">
 							{item.href ? (
-								<a
+								<Link
 									href={item.href}
 									onClick={item.onClick}
 									aria-current={isCurrent ? "page" : undefined}
 									className={isCurrent ? "ds-atom-breadcrumbs-current" : "ds-atom-breadcrumbs-link"}
 								>
 									{item.label}
-								</a>
+								</Link>
 							) : (
 								<span
 									aria-current={isCurrent ? "page" : undefined}

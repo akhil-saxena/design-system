@@ -1,5 +1,6 @@
 import { type CSSProperties, type ReactNode, forwardRef, useEffect, useState } from "react";
 import { Minus, Plus } from "../../icons";
+import { IconButton } from "../IconButton";
 export interface NumberStepperProps {
 	/** Controlled numeric value. */
 	value: number;
@@ -100,15 +101,14 @@ export const NumberStepper = forwardRef<HTMLInputElement, NumberStepperProps>(
 			// was therefore completely unnamed. The name now goes on the input, which
 			// is the control the user actually lands on.
 			<div className={`ds-atom-stepper${className ? ` ${className}` : ""}`} style={style}>
-				<button
-					type="button"
+				<IconButton
+					size="sm"
 					className="ds-atom-stepper-btn"
 					onClick={dec}
 					disabled={decDisabled}
-					aria-label="Decrement"
-				>
-					<Minus size={14} strokeWidth={2.5} />
-				</button>
+					label="Decrement"
+					icon={<Minus size={14} strokeWidth={2.5} />}
+				/>
 				<div className="ds-atom-stepper-display">
 					{prefix != null && <span className="ds-atom-stepper-affix">{prefix}</span>}
 					<input
@@ -141,15 +141,14 @@ export const NumberStepper = forwardRef<HTMLInputElement, NumberStepperProps>(
 					/>
 					{suffix != null && <span className="ds-atom-stepper-affix">{suffix}</span>}
 				</div>
-				<button
-					type="button"
+				<IconButton
+					size="sm"
 					className="ds-atom-stepper-btn"
 					onClick={inc}
 					disabled={incDisabled}
-					aria-label="Increment"
-				>
-					<Plus size={14} strokeWidth={2.5} />
-				</button>
+					label="Increment"
+					icon={<Plus size={14} strokeWidth={2.5} />}
+				/>
 			</div>
 		);
 	},

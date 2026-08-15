@@ -140,9 +140,140 @@
 	color: var(--red-ink);
 }
 
+/* ─── DS atom: IconButton ────────────────────────────────────────────────
+   Square icon-only action button. Every rule lives here rather than inline so a
+   composing component can override it through the cascade with its own class —
+   which is what lets Lightbox, Pagination, Calendar and the rest keep their
+   bespoke look while sharing the primitive's semantics and required
+   accessible name. */
+.ds-atom-iconbtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	border: 1px solid transparent;
+	border-radius: var(--radius-md);
+	background: transparent;
+	color: var(--ink-2);
+	cursor: pointer;
+	padding: 0;
+	font-family: var(--font-body);
+	transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow
+		120ms ease;
+}
+.ds-atom-iconbtn[data-size="sm"] {
+	width: 24px;
+	height: 24px;
+}
+.ds-atom-iconbtn[data-size="md"] {
+	width: 32px;
+	height: 32px;
+}
+.ds-atom-iconbtn[data-size="lg"] {
+	width: 40px;
+	height: 40px;
+}
+.ds-atom-iconbtn-glyph {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+.ds-atom-iconbtn:hover:not(:disabled) {
+	background: rgba(0, 0, 0, 0.05);
+	color: var(--ink);
+}
+.dark .ds-atom-iconbtn:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--ink);
+}
+.ds-atom-iconbtn:focus-visible {
+	outline: 2px solid var(--focus);
+	outline-offset: 2px;
+}
+.ds-atom-iconbtn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+.ds-atom-iconbtn[data-loading="true"] {
+	pointer-events: none;
+}
+.ds-atom-iconbtn[data-variant="secondary"] {
+	background: var(--panel);
+	border-color: var(--wire);
+}
+.ds-atom-iconbtn[data-variant="primary"] {
+	background: var(--amber);
+	border-color: var(--amber-d);
+	color: var(--ink-inverse);
+}
+.ds-atom-iconbtn[data-variant="primary"]:hover:not(:disabled) {
+	background: var(--amber-d);
+	color: #fff;
+}
+/* Fixed crimson in both themes, for the same reason Button's danger fill is:
+   --red is tuned as a text colour and flips to a pale pink in dark mode, which
+   would leave the white glyph at 2:1 on the fill. */
+.ds-atom-iconbtn[data-variant="danger"] {
+	background: #dc2626;
+	border-color: #b91c1c;
+	color: #fff;
+}
+.ds-atom-iconbtn[data-variant="danger"]:hover:not(:disabled) {
+	filter: brightness(0.88);
+}
+
 /* ─── DS atom: TextInput ─────────────────────────────────────────────────
    Background is var(--cream) inline - auto-flips in dark mode via tokens.
    Only dark-specific overrides needed here (border, focus ring strength). */
+/* Base styles for the text-field primitives.
+   These lived in inline style objects in TextInput.tsx, which meant they beat
+   every class rule — so a consumer or a composing component could not restyle a
+   field without `!important`, and `.ds-atom-cmd-input`-style component classes
+   were silently overridden. Moving them here puts them back in the cascade,
+   which is what makes it safe for CommandPalette, Select, ColorPicker and the
+   rest to compose <TextInput> instead of a raw <input>. */
+.ds-atom-input {
+	font-size: 13px;
+	height: 36px;
+	padding: 0 10px;
+	border-radius: var(--radius-md);
+	border: 1px solid var(--rule);
+	background: var(--cream);
+	color: var(--ink);
+	font-family: var(--font-body);
+	outline: none;
+	transition: border-color 0.15s, box-shadow 0.15s;
+	width: 100%;
+	box-sizing: border-box;
+}
+.ds-atom-input-wrap {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	height: 36px;
+	padding: 0 10px;
+	border-radius: var(--radius-md);
+	border: 1px solid var(--rule);
+	background: var(--cream);
+	transition: border-color 0.15s, box-shadow 0.15s;
+	box-sizing: border-box;
+}
+/* The inner control inside a decorated wrapper is chrome-less: the wrapper draws
+   the border and focus ring, the input just holds the text. */
+.ds-atom-input-wrap .ds-atom-input-inner {
+	border: none;
+	background: none;
+	padding: var(--space-1) 0;
+	box-shadow: none;
+	font-size: 13px;
+	color: var(--ink);
+	font-family: var(--font-body);
+	outline: none;
+	flex: 1;
+	width: 100%;
+	height: auto;
+}
+
 .ds-atom-input:focus {
 	border-color: var(--focus);
 	box-shadow: var(--focus-ring-soft);
@@ -2193,7 +2324,7 @@
 	padding-top: 12px;
 	border-top: 1px solid var(--rule);
 }
-.ds-atom-datepicker-time input {
+.ds-atom-datepicker-time .ds-atom-input {
 	flex: 1;
 	min-width: 0;
 	width: 0; /* flex overrides; width:0 + flex:1 forces equal share */
@@ -2208,7 +2339,7 @@
 	color: var(--ink);
 	outline: none;
 }
-.ds-atom-datepicker-time input:focus {
+.ds-atom-datepicker-time .ds-atom-input:focus {
 	border-color: var(--focus);
 	box-shadow: var(--focus-ring-soft);
 }
@@ -2290,7 +2421,7 @@
 .dark .ds-atom-datepicker-nav:hover {
 	background: rgba(255, 255, 255, 0.08);
 }
-.dark .ds-atom-datepicker-time input {
+.dark .ds-atom-datepicker-time .ds-atom-input {
 	background: rgba(255, 255, 255, 0.06);
 	border-color: rgba(255, 255, 255, 0.12);
 	color: var(--ink);
@@ -5445,25 +5576,38 @@
 }
 
 /* search input row */
+/* The search row is a composed TextInput whose field chrome is flattened into a
+   flush header: no box border or radius, just the bottom rule. Overriding works
+   because .ds-atom-input-wrap's base styles now live in the cascade rather than
+   as inline styles on the component. */
 .ds-atom-cmd-search {
-	display: flex;
-	align-items: center;
 	gap: 10px;
 	padding: 12px 14px;
+	height: auto;
+	border: none;
 	border-bottom: 1px solid var(--rule);
+	border-radius: 0;
+	background: transparent;
 	flex-shrink: 0;
 }
-.ds-atom-cmd-input {
+/* The header row draws no focus ring of its own — focus is obvious from the
+   caret and the filtered list below. */
+.ds-atom-cmd-search:focus-within {
+	box-shadow: none;
+	border-color: transparent;
+	border-bottom-color: var(--rule);
+}
+.ds-atom-cmd-search .ds-atom-input-inner {
 	flex: 1;
 	border: none;
 	outline: none;
 	background: transparent;
-	font-family: var(--font);
+	font-family: var(--font-body);
 	font-size: 15px;
 	color: var(--ink);
 	min-width: 0;
 }
-.ds-atom-cmd-input::placeholder {
+.ds-atom-cmd-search .ds-atom-input-inner::placeholder {
 	color: var(--ink-4);
 }
 
@@ -5547,6 +5691,47 @@
 		opacity: 1;
 		transform: none;
 	}
+}
+
+/* The inline-add field is chrome-less: the row itself carries the affordance, so
+   the composed TextInput drops its border/background and keeps only the text. */
+.ds-atom-inline-add-input {
+	border: none;
+	background: transparent;
+	height: auto;
+	padding: 0;
+	font-size: 13px;
+}
+.ds-atom-inline-add-input:focus {
+	box-shadow: none;
+	border-color: transparent;
+}
+
+/* ─── DS atom: ColorInput ────────────────────────────────────────────────
+   Swatch rendered as the field's leading affix, so it sits inside the TextInput
+   chrome and shares its focus ring instead of floating beside it. */
+.ds-atom-colorinput-swatch {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border-radius: var(--radius-sm);
+	border: 1px solid var(--rule);
+	flex-shrink: 0;
+}
+.ds-atom-colorinput .ds-atom-input-inner {
+	font-family: var(--font-mono);
+	font-size: 12px;
+}
+/* ColorPicker's HEX / ALPHA fields. Mono so the digits align, and a shorter
+   height than the default field since they sit in a dense control panel. */
+.ds-atom-colorpicker-hex,
+.ds-atom-colorpicker-alpha {
+	font-family: var(--font-mono);
+	font-size: 12px;
+	height: 30px;
+}
+.ds-atom-colorpicker-alpha {
+	text-align: center;
 }
 
 /* ─── DS atom: ColorPicker ──────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CommandPalette, type CommandPaletteItem } from "./index";
 
@@ -30,7 +30,7 @@ describe("CommandPalette", () => {
 
 	it("filters items by substring match (case-insensitive)", () => {
 		render(<CommandPalette open onClose={vi.fn()} items={ITEMS} />);
-		const input = document.querySelector<HTMLInputElement>(".ds-atom-cmd-input");
+		const input = screen.getByRole("combobox") as HTMLInputElement;
 		if (!input) throw new Error("input not found");
 		fireEvent.change(input, { target: { value: "go to" } });
 		expect(document.querySelectorAll(".ds-atom-cmd-item").length).toBe(1);
@@ -39,7 +39,7 @@ describe("CommandPalette", () => {
 
 	it("shows empty state when no results", () => {
 		render(<CommandPalette open onClose={vi.fn()} items={ITEMS} />);
-		const input = document.querySelector<HTMLInputElement>(".ds-atom-cmd-input");
+		const input = screen.getByRole("combobox") as HTMLInputElement;
 		if (!input) throw new Error("input not found");
 		fireEvent.change(input, { target: { value: "xyzzy" } });
 		expect(document.querySelector(".ds-atom-cmd-empty")?.textContent).toContain("xyzzy");
@@ -117,9 +117,9 @@ describe("CommandPalette", () => {
 
 	it("input has role=combobox with aria-controls pointing at the listbox", () => {
 		render(<CommandPalette open onClose={vi.fn()} items={ITEMS} />);
-		const input = document.querySelector<HTMLInputElement>(".ds-atom-cmd-input");
-		expect(input?.getAttribute("role")).toBe("combobox");
-		const listId = input?.getAttribute("aria-controls");
+		const input = screen.getByRole("combobox") as HTMLInputElement;
+		expect(input.getAttribute("role")).toBe("combobox");
+		const listId = input.getAttribute("aria-controls");
 		expect(listId).toBeTruthy();
 		const list = document.getElementById(listId ?? "");
 		expect(list?.getAttribute("role")).toBe("listbox");
@@ -134,11 +134,11 @@ describe("CommandPalette", () => {
 
 	it("aria-activedescendant tracks the active option id on ArrowDown", () => {
 		render(<CommandPalette open onClose={vi.fn()} items={ITEMS} />);
-		const input = document.querySelector<HTMLInputElement>(".ds-atom-cmd-input");
+		const input = screen.getByRole("combobox") as HTMLInputElement;
 		// No active descendant before any navigation
-		expect(input?.getAttribute("aria-activedescendant")).toBeNull();
+		expect(input.getAttribute("aria-activedescendant")).toBeNull();
 		fireEvent.keyDown(document, { key: "ArrowDown" });
-		const activeId = input?.getAttribute("aria-activedescendant");
+		const activeId = input.getAttribute("aria-activedescendant");
 		expect(activeId).toBeTruthy();
 		const activeOption = document.getElementById(activeId ?? "");
 		expect(activeOption?.getAttribute("role")).toBe("option");

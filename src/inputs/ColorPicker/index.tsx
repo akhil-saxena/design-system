@@ -8,7 +8,9 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { TextInput } from "../TextInput";
 import { hexToHsv, hsvToHex } from "./colorUtils";
+import { isPartialHex, normalizeHex } from "./normalizeHex";
 
 const PRESETS_DEFAULT = [
 	"#f59e0b",
@@ -64,8 +66,6 @@ const TONAL_STRIPS: { label: string; colors: string[] }[] = [
 		],
 	},
 ];
-
-const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 
 /** Clamp a number into the inclusive [min, max] range. */
 function clamp(n: number, min: number, max: number): number {
@@ -209,11 +209,14 @@ export function ColorPicker({
 	function handleHexChange(e: ChangeEvent<HTMLInputElement>) {
 		const next = e.target.value;
 		setHex(next);
-		if (HEX_RE.test(next)) {
-			setColor(next);
-			setHue(hexToHsv(next)[0]);
-			onChange?.(withAlpha(next, opacity));
-		}
+		// Normalised, not validated: the old check demanded `#rrggbb` exactly, so
+		// pasting `ff0000` or typing the shorthand `#f00` silently did nothing —
+		// no swatch move, no onChange, no error. See ./normalizeHex.ts.
+		const parsed = normalizeHex(next);
+		if (!parsed) return;
+		setColor(parsed);
+		setHue(hexToHsv(parsed)[0]);
+		onChange?.(withAlpha(parsed, opacity));
 	}
 
 	/**
@@ -459,12 +462,15 @@ export function ColorPicker({
 					>
 						HEX
 					</label>
-					<input
+					<TextInput
 						id={hexInputId}
-						className="ds-input"
+						className="ds-atom-colorpicker-hex"
 						value={hex}
 						onChange={handleHexChange}
-						style={{ fontFamily: "var(--mono)", fontSize: 12, width: "100%" }}
+						error={hex.trim() !== "" && !normalizeHex(hex) && !isPartialHex(hex)}
+						spellCheck={false}
+						autoComplete="off"
+						data-testid="colorpicker-hex"
 					/>
 				</div>
 				<div style={{ width: 56 }}>
@@ -481,17 +487,12 @@ export function ColorPicker({
 					>
 						ALPHA
 					</label>
-					<input
+					<TextInput
 						id={alphaInputId}
-						className="ds-input"
+						className="ds-atom-colorpicker-alpha"
 						value={`${opacity}%`}
 						readOnly
-						style={{
-							fontFamily: "var(--mono)",
-							fontSize: 12,
-							textAlign: "center",
-							width: "100%",
-						}}
+						data-testid="colorpicker-alpha"
 					/>
 				</div>
 			</div>

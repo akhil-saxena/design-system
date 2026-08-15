@@ -1,92 +1,106 @@
-import { type CSSProperties, type ChangeEvent, useEffect, useId, useState } from "react";
-
-const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+import { type CSSProperties, type ChangeEvent, type ReactNode, useEffect, useState } from "react";
+import { TextInput } from "../TextInput";
+import { isPartialHex, normalizeHex } from "./normalizeHex";
 
 export interface ColorInputProps {
 	/** Controlled hex value, e.g. '#f59e0b'. Optional — uncontrolled if absent. */
 	value?: string;
-	/** Called with new hex string when a valid 6-digit hex is typed. */
+	/**
+	 * Called with the canonical 6-digit hex whenever the typed text resolves to a
+	 * colour. Shorthand and hash-less input are normalised first, so a consumer
+	 * always receives `#rrggbb`.
+	 */
 	onChange?: (hex: string) => void;
 	/** Initial hex when uncontrolled. @default '#f59e0b' */
 	defaultValue?: string;
-	/** Optional label rendered above the input row. */
-	label?: string;
+	/** Visible label, wired to the field via `htmlFor`/`id`. */
+	label?: ReactNode;
+	/** Supporting text under the field. */
+	hint?: ReactNode;
 	/** Additional className applied to the root wrapper. */
 	className?: string;
 	/** Inline styles applied to the root wrapper. */
 	style?: CSSProperties;
+	/** Test hook on the root element. */
+	"data-testid"?: string;
 }
 
 /**
- * Compact inline color field — swatch + hex text input.
- * No popover, no full picker — designed to drop into form rows alongside
- * other inline form fields.
+ * Compact inline colour field — swatch plus a hex text field. No popover and no
+ * full picker; designed to sit in a form row beside other inline fields.
+ *
+ * Composes the design system's own TextInput rather than a bare `<input>`, so it
+ * inherits the field chrome, focus ring, error state and label wiring instead of
+ * reimplementing them. (It previously rendered a raw input carrying
+ * `className="ds-input"` — a class that does not exist in the stylesheet, the
+ * real one being `.ds-atom-input` — so the field was completely unstyled.)
  */
 export function ColorInput({
 	value,
 	onChange,
 	defaultValue = "#f59e0b",
 	label,
+	hint,
 	className,
 	style,
+	"data-testid": testId,
 }: ColorInputProps) {
-	// The visible label was rendered as a bare <label> with no `htmlFor`, so it
-	// was not associated with the field: clicking it did not focus the input, and
-	// the accessible name came from a duplicate aria-label instead. Wiring
-	// htmlFor/id makes the visible text the name, which is the preferred source.
-	const inputId = useId();
-	const initial = value ?? defaultValue;
+	const initial = normalizeHex(value ?? defaultValue) ?? "#f59e0b";
+	// `color` is the resolved swatch colour; `text` is exactly what the user typed,
+	// so the field never fights the cursor while a partial value is in flight.
 	const [color, setColor] = useState<string>(initial);
-	const [hex, setHex] = useState<string>(initial);
+	const [text, setText] = useState<string>(initial);
 
-	// Comparing against `color` read a value the dependency list did not declare,
-	// so the guard could act on a stale colour. Dropping the comparison removes
-	// the stale read entirely: React bails out of a re-render when setState is
-	// called with the value it already holds, so the guard was never load-bearing.
 	useEffect(() => {
 		if (value === undefined) return;
-		setColor(value);
-		setHex(value);
+		const next = normalizeHex(value);
+		if (!next) return;
+		setColor(next);
+		setText(next);
 	}, [value]);
 
 	function handleChange(e: ChangeEvent<HTMLInputElement>) {
 		const next = e.target.value;
-		setHex(next);
-		if (HEX_RE.test(next)) {
-			setColor(next);
-			onChange?.(next);
-		}
+		setText(next);
+		const parsed = normalizeHex(next);
+		if (!parsed) return;
+		setColor(parsed);
+		onChange?.(parsed);
 	}
 
+	// Only flag an error once the value can no longer become a colour — otherwise
+	// every intermediate keystroke ("#f") would render as invalid.
+	const invalid = text.trim() !== "" && !normalizeHex(text) && !isPartialHex(text);
+
 	return (
-		<div className={["ds-atom-colorinput", className].filter(Boolean).join(" ")} style={style}>
-			{label && (
-				<label htmlFor={inputId} className="ds-label" style={{ display: "block", marginBottom: 4 }}>
-					{label}
-				</label>
-			)}
-			<div className="ds-input-wrap" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-				<div
-					aria-hidden="true"
-					style={{
-						width: 28,
-						height: 28,
-						borderRadius: 6,
-						background: color,
-						border: "1px solid var(--rule)",
-						flexShrink: 0,
-					}}
-				/>
-				<input
-					id={inputId}
-					className="ds-input"
-					value={hex}
-					onChange={handleChange}
-					// Only needed when there is no visible label to name the field.
-					aria-label={label ? undefined : "Color hex"}
-					style={{ fontFamily: "var(--mono)", fontSize: 12, flex: 1 }}
-				/>
-			</div>
+		<div
+			className={["ds-atom-colorinput", className].filter(Boolean).join(" ")}
+			style={style}
+			data-testid={testId}
+		>
+			<TextInput
+				label={label}
+				hint={hint}
+				value={text}
+				onChange={handleChange}
+				error={invalid}
+				spellCheck={false}
+				autoComplete="off"
+				// Swatch as a leading affix, so it sits inside the field chrome and
+				// inherits the focus ring rather than floating beside it.
+				icon={
+					<span
+						className="ds-atom-colorinput-swatch"
+						style={{ background: color }}
+						// The hex text beside it already conveys the value; announcing the
+						// swatch too would just repeat it.
+						aria-hidden="true"
+						data-testid={testId ? `${testId}-swatch` : undefined}
+					/>
+				}
+				aria-label={label ? undefined : "Colour hex"}
+				data-testid={testId ? `${testId}-input` : undefined}
+			/>
 		</div>
 	);
 }

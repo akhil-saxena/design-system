@@ -4,6 +4,7 @@ import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
 import { ChevronLeft, ChevronRight, X } from "../../icons";
+import { IconButton } from "../../inputs/IconButton";
 export interface LightboxItem {
 	src: string;
 	alt: string;
@@ -145,38 +146,32 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange }: L
 				aria-modal="true"
 				tabIndex={-1}
 			>
-				<button
-					type="button"
+				<IconButton
 					className="ds-atom-lightbox-close"
 					onClick={onClose}
-					aria-label="Close lightbox"
-				>
-					<X size={20} aria-hidden="true" />
-				</button>
+					label="Close lightbox"
+					icon={<X size={20} />}
+				/>
 
 				{showNav ? (
-					<button
-						type="button"
+					<IconButton
 						className="ds-atom-lightbox-prev"
 						onClick={goPrev}
-						aria-label="Previous image"
-					>
-						<ChevronLeft size={20} aria-hidden="true" />
-					</button>
+						label="Previous image"
+						icon={<ChevronLeft size={20} />}
+					/>
 				) : null}
 
 				<img className="ds-atom-lightbox-image" src={current.src} alt={current.alt} />
 				{current.caption ? <div className="ds-atom-lightbox-caption">{current.caption}</div> : null}
 
 				{showNav ? (
-					<button
-						type="button"
+					<IconButton
 						className="ds-atom-lightbox-next"
 						onClick={goNext}
-						aria-label="Next image"
-					>
-						<ChevronRight size={20} aria-hidden="true" />
-					</button>
+						label="Next image"
+						icon={<ChevronRight size={20} />}
+					/>
 				) : null}
 			</div>
 		</DSPortal>

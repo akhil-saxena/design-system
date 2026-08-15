@@ -6,6 +6,65 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- **ColorInput: typing a colour did not move the swatch.** The field validated
+  against `/^#[0-9a-fA-F]{6}$/`, so the two most natural ways to enter a colour —
+  pasting `ff0000` without the hash, and CSS shorthand `#f00` — were silently
+  ignored: no swatch change, no `onChange`, no error, no explanation. Input is now
+  normalised rather than rejected (`normalizeHex`), covering hash-less, 3-digit,
+  4/8-digit-with-alpha, uppercase and padded input. ColorPicker's hex field had
+  the same validator and the same bug.
+- **ColorInput and ColorPicker rendered unstyled fields.** Both applied
+  `className="ds-input"` / `"ds-input-wrap"` — classes that exist nowhere in the
+  stylesheet; the real ones are `.ds-atom-input` / `.ds-atom-input-wrap`. The
+  fields had no border, height, background or focus ring at all.
+- A test now asserts that every `ds-*` class a component references actually
+  exists, so a typo like that cannot ship silently again.
+
+### Changed — composition
+
+Complex components are now built from the design system's own primitives instead
+of raw HTML. A hand-rolled control silently opts out of everything the primitive
+guarantees, and the failure is invisible until someone looks closely.
+
+- **`TextInput` now backs every text field in the library** — CommandPalette's
+  search, Select's option filter, Autocomplete's combobox, DatePicker's time
+  fields, RichText's link popover, InlineAddRow, ColorInput and ColorPicker.
+- Prerequisite for that: **TextInput's base styles moved from inline objects into
+  `primitives.css`**. Inline styles outrank every class rule, so while they lived
+  on the component no composing component could restyle a field — which is why
+  `.ds-atom-cmd-input` had been silently doing nothing.
+- **`Link` replaces bare `<a href>`** in Breadcrumbs and Footer.
+- **`Kbd` now backs TextInput's `kbd` affix**, which previously re-implemented
+  Kbd's styling inline.
+
+### Added
+
+- **`IconButton`** — square icon-only action button, for close/dismiss/prev/next.
+  Seventeen hand-rolled versions existed across ten components, each re-deriving
+  the accessible name, focus ring and disabled state. `label` is a **required**
+  prop rather than an optional `aria-label`: an icon-only control with no
+  accessible name is the most common defect of its kind, and a required prop
+  makes it unconstructable. Adopted across Lightbox, Toast, Snackbar,
+  AlertBanner, Carousel, Pagination, Calendar, DatePicker and NumberStepper,
+  each keeping its own class so the visual treatment is unchanged.
+- `ColorInput` gains `hint` and forwards `data-testid` (including a
+  `-swatch` hook, since the swatch is `aria-hidden` and has no queryable name).
+
+### Tests
+
+- `primitive-composition.test.ts` enforces the composition rules above, with a
+  documented allowlist of the primitives that legitimately own a native control
+  (TextInput, Textarea, Checkbox, Radio, Toggle, RangeSlider, NumberStepper and
+  FileInput — a visually-hidden `<input type=file>` is the only way to open the
+  OS file picker).
+- `test-hooks.test.tsx` pins `data-*` passthrough as a contract — the kind of
+  thing a refactor breaks silently, since the component still renders correctly
+  and only the consumer's suite fails.
+
 ## 1.10.0 — Production-hardening pass
 
 A systematic audit and remediation pass. No component was removed and no

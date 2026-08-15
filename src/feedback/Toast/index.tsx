@@ -10,6 +10,7 @@ import {
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
 import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "../../icons";
+import { IconButton } from "../../inputs/IconButton";
 export type ToastTone = "success" | "error" | "info" | "warning";
 
 export interface ToastOptions {
@@ -219,14 +220,13 @@ function ToastNode({ entry, onDismiss }: ToastNodeProps) {
 				{TONE_ICON[entry.tone]}
 			</span>
 			<span className="ds-atom-toast-msg">{entry.message}</span>
-			<button
-				type="button"
+			<IconButton
+				size="sm"
 				className="ds-atom-toast-close"
-				aria-label="Dismiss notification"
+				label="Dismiss notification"
+				icon={<X size={14} />}
 				onClick={onDismiss}
-			>
-				<X size={14} aria-hidden="true" />
-			</button>
+			/>
 		</div>
 	);
 }

@@ -2,7 +2,7 @@
 
 Accessible React primitives with semantic tokens. Full dark mode, neutral paper + ink + amber editorial design language.
 
-**79 components across 10 categories.** (The badge above tracks the published version.)
+**80 components across 10 categories.** (The badge above tracks the published version.)
 
 [![npm](https://img.shields.io/npm/v/@akhil-saxena/design-system)](https://www.npmjs.com/package/@akhil-saxena/design-system)
 [![Storybook](https://img.shields.io/badge/Storybook-live-ff4785?logo=storybook&logoColor=white)](https://design-system-ed1.pages.dev)
@@ -60,9 +60,9 @@ import { ChevronDown, Search } from "@akhil-saxena/design-system/icons";
 
 ## Components
 
-### Inputs (23)
+### Inputs (24)
 
-Button, OAuthButton, TextInput, Textarea, Badge, Chip, Kbd, Checkbox, Radio, Toggle, NumberStepper, RangeSlider, StarRating, StatusPill, Autocomplete, ColorPicker, DatePicker, DateRangePicker, FileInput, InlineAddRow, InlineEditField, MultiSelect, Select
+Button, IconButton, OAuthButton, TextInput, Textarea, Badge, Chip, Kbd, Checkbox, Radio, Toggle, NumberStepper, RangeSlider, StarRating, StatusPill, Autocomplete, ColorPicker, DatePicker, DateRangePicker, FileInput, InlineAddRow, InlineEditField, MultiSelect, Select
 
 ### Overlays (10)
 
@@ -153,6 +153,21 @@ byte-for-byte, so the two paths can never disagree.
 - `--focus` is keyed to `--amber-d` rather than the brand `--amber`, which measures only 2.09:1 on `--cream` and would fail WCAG 1.4.11.
 - All non-essential motion is disabled under `prefers-reduced-motion: reduce`. Loading indicators (button spinner, progress, skeleton) are deliberately exempt so in-progress states stay perceivable.
 - `.ds-visually-hidden` is available for screen-reader-only text.
+- `IconButton` takes a **required** `label`, so an icon-only control cannot be built without an accessible name.
+
+### Composition
+
+Complex components are built from the primitives, not raw HTML — a hand-rolled
+`<input>` silently opts out of the focus ring, error state, `aria-invalid`, label
+wiring and dark mode. Tests in `src/primitive-composition.test.ts` enforce this:
+no raw `<input>`/`<textarea>` outside the primitives that own one, no bare
+`<a href>` in place of `Link`, no hand-rolled icon-only button in place of
+`IconButton`, and no reference to a CSS class that does not exist.
+
+Every component spreads its remaining props onto the root element, so
+`data-testid` (or `data-cy`, `data-qa`) passes straight through — the library
+does not hardcode a convention. Prefer role + accessible name where you can;
+`src/test-hooks.test.tsx` pins the passthrough as a contract.
 
 These invariants are enforced by tests in `src/tokens.test.ts`, so a regression fails CI rather than shipping.
 

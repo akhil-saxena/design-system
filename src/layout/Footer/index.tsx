@@ -1,4 +1,5 @@
 import { type CSSProperties, forwardRef } from "react";
+import { Link } from "../../foundation/Link";
 
 export type FooterVariant = "compact" | "expanded";
 
@@ -45,9 +46,9 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
 		) => {
 			if (item.href) {
 				return (
-					<a key={key} href={item.href} className="ds-atom-footer-link">
+					<Link key={key} href={item.href} variant="footer" className="ds-atom-footer-link">
 						{item.label}
-					</a>
+					</Link>
 				);
 			}
 			return (

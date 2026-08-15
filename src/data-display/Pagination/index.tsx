@@ -1,5 +1,6 @@
 import { type CSSProperties, forwardRef, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "../../icons";
+import { IconButton } from "../../inputs/IconButton";
 
 export interface PaginationProps {
 	/** Total number of pages. */
@@ -76,27 +77,25 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
 				style={style}
 			>
 				<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-					<button
-						type="button"
+					<IconButton
+						size="sm"
 						className="ds-atom-pagination-icbtn"
-						aria-label="Previous page"
+						label="Previous page"
+						icon={<ChevronLeft size={11} />}
 						disabled={currentPage <= 1}
 						onClick={() => onPageChange(currentPage - 1)}
-					>
-						<ChevronLeft size={11} aria-hidden />
-					</button>
+					/>
 					<span className="ds-atom-pagination-count">
 						{currentPage} / {totalPages}
 					</span>
-					<button
-						type="button"
+					<IconButton
+						size="sm"
 						className="ds-atom-pagination-icbtn"
-						aria-label="Next page"
+						label="Next page"
+						icon={<ChevronRight size={11} />}
 						disabled={currentPage >= totalPages}
 						onClick={() => onPageChange(currentPage + 1)}
-					>
-						<ChevronRight size={11} aria-hidden />
-					</button>
+					/>
 				</div>
 			</nav>
 		);
@@ -121,15 +120,14 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
 		>
 			<ol ref={listRef} className="ds-atom-pagination-list" onKeyDown={handleListKeyDown}>
 				<li>
-					<button
-						type="button"
+					<IconButton
+						size="sm"
 						className="ds-atom-pagination-icbtn"
-						aria-label="Previous page"
+						label="Previous page"
+						icon={<ChevronLeft size={12} />}
 						disabled={currentPage <= 1}
 						onClick={() => onPageChange(currentPage - 1)}
-					>
-						<ChevronLeft size={12} aria-hidden />
-					</button>
+					/>
 				</li>
 				{pageItems.map((item) =>
 					item.kind === "ellipsis" ? (
@@ -153,15 +151,14 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagi
 					),
 				)}
 				<li>
-					<button
-						type="button"
+					<IconButton
+						size="sm"
 						className="ds-atom-pagination-icbtn"
-						aria-label="Next page"
+						label="Next page"
+						icon={<ChevronRight size={12} />}
 						disabled={currentPage >= totalPages}
 						onClick={() => onPageChange(currentPage + 1)}
-					>
-						<ChevronRight size={12} aria-hidden />
-					</button>
+					/>
 				</li>
 			</ol>
 			<span className="ds-atom-pagination-label">

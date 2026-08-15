@@ -11,6 +11,7 @@ import {
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
 import { X } from "../../icons";
+import { IconButton } from "../../inputs/IconButton";
 
 /**
  * Snackbar — bottom-center, solid-fill action surface. Companion to Toast
@@ -303,14 +304,13 @@ function SnackbarNode({ entry, onAction, onDismiss }: SnackbarNodeProps) {
 				</button>
 			) : null}
 			{entry.dismissible ? (
-				<button
-					type="button"
+				<IconButton
+					size="sm"
 					className="ds-atom-snackbar-close"
-					aria-label="Dismiss"
+					label="Dismiss"
+					icon={<X size={14} />}
 					onClick={onDismiss}
-				>
-					<X size={14} aria-hidden="true" />
-				</button>
+				/>
 			) : null}
 			{showProgress ? (
 				<>

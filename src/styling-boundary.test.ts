@@ -52,6 +52,10 @@ describe("styling boundary: inline styles must not fight primitives.css", () => 
 	 * it now beats inline styles. They remain latent
 	 * inline-overrides-stylesheet conflicts and should migrate into
 	 * `primitives.css` component by component.
+	 *
+	 * TextInput came off this list when its base styles moved into the stylesheet
+	 * — which is what made it safe for CommandPalette, Select, ColorPicker and the
+	 * rest to compose it and still restyle the field through their own class.
 	 */
 	const KNOWN_INLINE_TRANSITIONS = [
 		"display/MiniBar/index.tsx",
@@ -61,7 +65,6 @@ describe("styling boundary: inline styles must not fight primitives.css", () => 
 		"inputs/Checkbox/index.tsx",
 		"inputs/FileInput/index.tsx",
 		"inputs/Radio/index.tsx",
-		"inputs/TextInput/index.tsx",
 		"inputs/Textarea/index.tsx",
 		"interaction/RichText/index.tsx",
 		"layout/AppBar/index.tsx",

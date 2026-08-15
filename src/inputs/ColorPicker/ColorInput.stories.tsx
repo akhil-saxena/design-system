@@ -70,16 +70,10 @@ function ColorInputFormRowDemo() {
 	const [accent, setAccent] = useState<string>("#3b82f6");
 	return (
 		<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-			<div>
-				<label
-					htmlFor="colorinput-story-brand"
-					className="ds-label"
-					style={{ display: "block", marginBottom: 4, fontSize: 12, fontWeight: 600 }}
-				>
-					Brand name
-				</label>
-				<TextInput id="colorinput-story-brand" placeholder="Acme Corp" defaultValue="Acme Corp" />
-			</div>
+			{/* TextInput owns the label/id wiring now, so this row no longer needs a
+			    hand-rolled <label htmlFor> — and it matches the ColorInputs below,
+			    which render the same field chrome. */}
+			<TextInput label="Brand name" placeholder="Acme Corp" defaultValue="Acme Corp" />
 			<ColorInput label="Primary" value={primary} onChange={setPrimary} />
 			<ColorInput label="Accent" value={accent} onChange={setAccent} />
 			<div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-3)" }}>

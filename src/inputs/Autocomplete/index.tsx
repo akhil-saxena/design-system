@@ -1,6 +1,7 @@
 import { type CSSProperties, type ReactNode, useId, useRef, useState } from "react";
 import { DSDropdown } from "../../_internals/DSDropdown";
 import { Clock } from "../../icons";
+import { TextInput } from "../TextInput";
 export interface AutocompleteProps<T> {
 	/** Controlled text value of the input field. */
 	value: string;
@@ -139,7 +140,7 @@ export function Autocomplete<T>({
 
 	return (
 		<>
-			<input
+			<TextInput
 				ref={inputRef}
 				type="text"
 				className={`ds-atom-autocomplete${className ? ` ${className}` : ""}`}

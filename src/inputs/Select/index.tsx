@@ -8,7 +8,9 @@ import {
 	useState,
 } from "react";
 import { DSDropdown } from "../../_internals/DSDropdown";
+import { Search } from "../../icons";
 import { Check, ChevronDown } from "../../icons";
+import { TextInput } from "../TextInput";
 export interface SelectOption {
 	value: string;
 	label: string;
@@ -195,7 +197,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 			>
 				{searchable ? (
 					<div className="ds-atom-select-search">
-						<input
+						<TextInput
 							type="text"
 							value={query}
 							placeholder="Search…"
@@ -203,9 +205,13 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
 								setQuery(e.target.value);
 								setActiveIndex(0);
 							}}
-							// biome-ignore lint/a11y/noAutofocus: focus moves to the search input on dropdown open per WAI-ARIA combobox pattern; without it, keyboard users would have to tab into the dropdown after opening
+							// autoFocus is deliberate: the WAI-ARIA combobox pattern moves focus to
+							// the search field when the dropdown opens. (The lint rule no longer
+							// fires here because the prop now goes through TextInput.)
 							autoFocus
 							aria-label="Search options"
+							icon={<Search size={14} />}
+							data-testid="select-search"
 						/>
 					</div>
 				) : null}
