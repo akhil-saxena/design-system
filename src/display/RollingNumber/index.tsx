@@ -47,11 +47,13 @@ export function RollingNumber({
 		firstRender.current = false;
 	}, []);
 
-	const stripTransitionStyle: CSSProperties = firstRender.current ? { transition: "none" } : {};
-
 	return (
 		<span
 			className={["ds-atom-rolling", className].filter(Boolean).join(" ")}
+			// Suppresses the roll animation on the very first paint, so the digits do
+			// not animate in from zero on mount. In CSS rather than an inline style so
+			// it does not outrank the stylesheet.
+			data-first-render={firstRender.current ? "true" : undefined}
 			data-variant={variant === "default" ? undefined : variant}
 			style={style}
 			// role="status" makes this a live region that *can* carry a name. As a
@@ -81,7 +83,6 @@ export function RollingNumber({
 								className="ds-atom-rolling-strip"
 								style={{
 									transform: `translateY(${-digit * 22}px)`,
-									...stripTransitionStyle,
 								}}
 							>
 								{DIGITS.map((n) => (

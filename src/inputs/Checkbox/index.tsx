@@ -35,7 +35,6 @@ const boxStyle: CSSProperties = {
 	display: "inline-flex",
 	alignItems: "center",
 	justifyContent: "center",
-	transition: "all .15s",
 	flexShrink: 0,
 	background: "transparent",
 };

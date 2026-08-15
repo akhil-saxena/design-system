@@ -1,5 +1,3 @@
-import { useReducedMotion } from "../../hooks/useReducedMotion";
-
 export interface MiniDonutProps {
 	value: number;
 	max?: number;
@@ -18,13 +16,9 @@ export function MiniDonut({
 	color = "var(--amber)",
 	ariaLabel,
 }: MiniDonutProps) {
-	const reducedMotion = useReducedMotion();
-
 	const r = (size - strokeWidth) / 2;
 	const circ = 2 * Math.PI * r;
 	const pct = Math.min(value / max, 1);
-
-	const arcStyle = reducedMotion ? undefined : { transition: "stroke-dashoffset 0.6s ease-out" };
 
 	return (
 		<svg
@@ -53,7 +47,7 @@ export function MiniDonut({
 				strokeDasharray={circ}
 				strokeDashoffset={circ * (1 - pct)}
 				strokeLinecap="round"
-				style={arcStyle}
+				className="ds-atom-minidonut-arc"
 			/>
 		</svg>
 	);

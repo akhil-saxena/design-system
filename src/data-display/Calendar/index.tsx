@@ -22,6 +22,7 @@
  */
 import { type CSSProperties, forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { buildMonthGrid, getWeekDayLabels } from "../../_internals/calendarGrid";
+import { useDateGrid } from "../../hooks/useDateGrid";
 import { useMatchMedia } from "../../hooks/useMatchMedia";
 import { ChevronLeft, ChevronRight } from "../../icons";
 import { IconButton } from "../../inputs/IconButton";
@@ -277,6 +278,7 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 	});
 	const overflowAnchorRef = useRef<HTMLButtonElement | null>(null);
 	const dayGridRef = useRef<HTMLElement | null>(null);
+	const monthGridRef = useRef<HTMLDivElement | null>(null);
 
 	// Live current time - updates every minute so the "now" line stays accurate.
 	//
@@ -329,6 +331,17 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 		() => buildMonthGrid(viewMonth.getFullYear(), viewMonth.getMonth(), weekStart),
 		[viewMonth, weekStart],
 	);
+
+	// Roving tabindex + arrow keys for the month grid — one tab stop instead of
+	// up to 42. Only the month view renders a grid, so the hook is inert in the
+	// week and day views.
+	const dateGrid = useDateGrid({
+		gridRef: monthGridRef,
+		viewMonth,
+		onViewMonthChange: setViewMonth,
+		selectedDate,
+		enabled: view === "month",
+	});
 	const weekdayLabels = useMemo(() => getWeekDayLabels(weekStart, "narrow"), [weekStart]);
 	const weekdayShortLabels = useMemo(() => getWeekDayLabels(weekStart, "short"), [weekStart]);
 
@@ -398,8 +411,13 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 			<div className="ds-atom-calendar-body">
 				{/* ── Month view ── */}
 				{view === "month" && (
-					// biome-ignore lint/a11y/useSemanticElements: ARIA grid role on <div> is the standard interactive-calendar pattern (APG, react-aria, Radix) - <table> implies static tabular data, not keyboard-navigable grid
-					<div role="grid" className="ds-atom-calendar-month">
+					<div
+						ref={monthGridRef}
+						// biome-ignore lint/a11y/useSemanticElements: ARIA grid role on <div> is the standard interactive-calendar pattern (APG, react-aria, Radix) - <table> implies static tabular data, not keyboard-navigable grid
+						role="grid"
+						className="ds-atom-calendar-month"
+						onKeyDown={dateGrid.onKeyDown}
+					>
 						{/* biome-ignore lint/a11y/useSemanticElements: role="row" on <div> groups the column-header cells into a logical grid row per APG */}
 						{/* biome-ignore lint/a11y/useFocusableInteractive: header row is a grouping element - individual <th>-equivalent cells are not keyboard targets */}
 						<div role="row" className="ds-atom-calendar-weekdays">
@@ -429,6 +447,8 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 											type="button"
 											// biome-ignore lint/a11y/useSemanticElements: <td> is for tabular data; gridcell role on <button> makes each calendar day keyboard-focusable (matches DatePicker + react-aria + Radix)
 											role="gridcell"
+											data-date={dateGrid.cellDateAttr(cell.date)}
+											tabIndex={dateGrid.cellTabIndex(cell.date)}
 											className="ds-atom-calendar-cell"
 											data-today={isToday || undefined}
 											data-selected={isSelected || undefined}

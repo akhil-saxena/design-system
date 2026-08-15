@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Autocomplete } from ".";
 type Item = { id: string; name: string };
@@ -106,5 +107,28 @@ describe("Autocomplete", () => {
 		fireEvent.focus(input);
 		fireEvent.change(input, { target: { value: "zzzz" } });
 		expect(screen.getByText("No results")).toBeInTheDocument();
+	});
+});
+
+describe("Autocomplete ref", () => {
+	it("exposes the underlying input, keeping generic inference intact", () => {
+		// `ref` is a plain prop rather than forwardRef precisely so that T is still
+		// inferred here — no explicit type argument on the element below.
+		const ref = createRef<HTMLInputElement>();
+		render(
+			<Autocomplete
+				value=""
+				onValueChange={() => {}}
+				items={[{ id: "1", name: "Alpha" }]}
+				getItemLabel={(i) => i.name}
+				getItemKey={(i) => i.id}
+				onSelect={() => {}}
+				ref={ref}
+			/>,
+		);
+		expect(ref.current).toBeInstanceOf(HTMLInputElement);
+		// The internal ref must still work: it drives focus return.
+		ref.current?.focus();
+		expect(document.activeElement).toBe(ref.current);
 	});
 });

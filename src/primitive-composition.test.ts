@@ -107,20 +107,21 @@ describe("primitive composition", () => {
 	 * more likely to be a typo than a deliberate hook.
 	 */
 	const UNSTYLED_HOOKS = new Set([
+		// Down from 17: .ds-atom-fileinput and .ds-atom-richtext-hints came off the
+		// list when their inline transitions moved into the stylesheet.
+		//
 		// Root containers whose layout is set inline by the component; the class is
 		// only a targeting hook.
 		"ds-atom-colorpicker",
 		"ds-atom-icon",
 		"ds-atom-calendar-body",
 		"ds-atom-confirm-panel",
-		"ds-atom-fileinput",
 		"ds-atom-fileinput--disabled",
 		"ds-atom-fileinput--dragover",
 		"ds-atom-fileinput-button",
 		"ds-atom-inlineeditfield",
 		"ds-atom-inlineeditfield-input",
 		"ds-atom-inlineeditfield-wrap",
-		"ds-atom-richtext-hints",
 		"ds-atom-snackbar-progress",
 		"ds-atom-table-body",
 		"ds-atom-tabs-label",

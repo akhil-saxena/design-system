@@ -3,6 +3,7 @@
 //   import { useFocusTrap } from "@akhil-saxena/design-system/hooks";
 
 export { useClickOutside } from "./useClickOutside";
+export { useDateGrid, type UseDateGrid, type UseDateGridOptions } from "./useDateGrid";
 export { useDismiss, type UseDismissOptions } from "./useDismiss";
 export { useComposedRefs } from "./useComposedRefs";
 export { useFocusTrap } from "./useFocusTrap";

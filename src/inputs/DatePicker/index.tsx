@@ -10,6 +10,7 @@ import { addMonths, isSameDay, isToday, startOfMonth } from "../../_internals/da
 // v0.5.3 - added isRangeStart/isRangeEnd modifier props for range-edge bg polish.
 // v0.6.0 - `variant="popover"` renders a trigger pill that opens the calendar in
 // a DS Popover. Backwards-compatible: default variant stays "inline".
+import { useDateGrid } from "../../hooks/useDateGrid";
 import { ChevronLeft, ChevronRight } from "../../icons";
 import { Popover } from "../../overlays/Popover";
 import { Button } from "../Button";
@@ -125,6 +126,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 	// order regardless of variant (variant can't change between renders but
 	// React still calls every hook each render).
 	const triggerRef = useRef<HTMLButtonElement | null>(null);
+	const gridRef = useRef<HTMLDivElement | null>(null);
 	const [popoverOpen, setPopoverOpen] = useState(false);
 	// Snapshot the value at open so Cancel can revert. The committed value
 	// only updates the parent on Apply; live edits inside the popover still
@@ -173,6 +175,15 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 		const { cells } = buildMonthGrid(viewMonth.getFullYear(), viewMonth.getMonth(), 0);
 		return Array.from({ length: 6 }, (_, w) => cells.slice(w * 7, (w + 1) * 7));
 	}, [viewMonth]);
+
+	// Roving tabindex + arrow keys, so the 42-cell grid is one tab stop rather
+	// than forty-two. See useDateGrid.
+	const dateGrid = useDateGrid({
+		gridRef,
+		viewMonth,
+		onViewMonthChange: (next) => setViewMonth(startOfMonth(next)),
+		selectedDate: value,
+	});
 
 	function step(n: number) {
 		const next = addMonths(viewMonth, n);
@@ -278,8 +289,13 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 				))}
 			</div>
 
-			{/* biome-ignore lint/a11y/useSemanticElements: <table> is form-tabular semantic; ARIA grid role on a div is the standard pattern for interactive calendars where each cell is a focusable button (matches react-aria + Radix Calendar) */}
-			<div className="ds-atom-datepicker-grid" role="grid">
+			<div
+				ref={gridRef}
+				className="ds-atom-datepicker-grid"
+				// biome-ignore lint/a11y/useSemanticElements: <table> is form-tabular semantic; ARIA grid role on a div is the standard pattern for interactive calendars where each cell is a focusable button (matches react-aria + Radix Calendar)
+				role="grid"
+				onKeyDown={dateGrid.onKeyDown}
+			>
 				{rows.map((week) => (
 					// An ARIA `grid` must contain `row`s, and a `gridcell` must have a
 					// `row` parent. The cells were emitted as a flat list directly under
@@ -316,6 +332,8 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(function D
 									type="button"
 									// biome-ignore lint/a11y/useSemanticElements: <td> is for tabular form data; gridcell role on a <button> is required so each calendar day is keyboard-focusable + clickable via Enter/Space (matches react-aria + Radix Calendar pattern)
 									role="gridcell"
+									data-date={dateGrid.cellDateAttr(date)}
+									tabIndex={dateGrid.cellTabIndex(date)}
 									aria-selected={selected ? true : undefined}
 									aria-current={todayCell ? "date" : undefined}
 									aria-disabled={isDisabled || undefined}

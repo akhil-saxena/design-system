@@ -693,7 +693,6 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 					opacity: focused ? 1 : 0,
 					maxHeight: focused ? 200 : 0,
 					overflow: "hidden",
-					transition: "opacity 0.15s ease, max-height 0.15s ease",
 				}}
 			>
 				{HINT_ITEMS.map((h) => (

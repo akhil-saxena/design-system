@@ -23,7 +23,6 @@ export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 const baseStyle: CSSProperties = {
 	fontFamily: "var(--font)",
 	cursor: "pointer",
-	transition: "color .15s, text-decoration-color .15s",
 };
 
 // Inline styles only for variants that already shipped this way. New variants

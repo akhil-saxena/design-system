@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { ColorPicker } from "./index";
 
@@ -188,5 +189,50 @@ describe("ColorPicker", () => {
 		const swatches = container.querySelectorAll<HTMLButtonElement>(".ds-atom-colorpicker-swatch");
 		fireEvent.click(swatches[2] as HTMLButtonElement); // '#3b82f6'
 		expect(onChange).toHaveBeenLastCalledWith("#3b82f600");
+	});
+});
+
+describe("ColorPicker — controlled contract", () => {
+	/** The swatch is the element that paints the committed colour unblended. */
+	function swatchColor(): string {
+		return screen.getByTestId("colorpicker-swatch").style.background;
+	}
+
+	it("keeps displaying the parent's value when the parent rejects a change", () => {
+		// A controlled parent may clamp or veto: it receives onChange, declines, and
+		// re-renders with the same `value`. The picker used to copy every change into
+		// local state and re-sync only when `value` itself changed — so a veto
+		// produced no state change, no sync, and the canvas was left painting a
+		// colour the parent had explicitly refused.
+		function Vetoing() {
+			return <ColorPicker value="#ff0000" onChange={() => {}} />;
+		}
+		render(<Vetoing />);
+		fireEvent.change(screen.getByLabelText(/hex/i), { target: { value: "#00ff00" } });
+
+		expect(swatchColor()).toContain("255, 0, 0");
+	});
+
+	it("follows the parent when the parent accepts", () => {
+		function Accepting() {
+			const [color, setColor] = useState("#ff0000");
+			return <ColorPicker value={color} onChange={setColor} />;
+		}
+		render(<Accepting />);
+		fireEvent.change(screen.getByLabelText(/hex/i), { target: { value: "#00ff00" } });
+
+		expect(swatchColor()).toContain("0, 255, 0");
+	});
+
+	it("lets a shorthand hex be typed without the field rewriting itself", () => {
+		// `#00f` is already a valid colour, so it commits — but the field must keep
+		// showing what was typed, or the caret jumps and `#00ff00` can never be
+		// finished. This is why `hex` is local state synced from `value`, not derived
+		// from the committed colour.
+		render(<ColorPicker defaultValue="#ff0000" />);
+		const hexField = screen.getByLabelText(/hex/i) as HTMLInputElement;
+
+		fireEvent.change(hexField, { target: { value: "#00f" } });
+		expect(hexField.value).toBe("#00f");
 	});
 });

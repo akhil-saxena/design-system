@@ -35,15 +35,12 @@ export function MiniBar({ data, labels, height = 100, barColor = "var(--amber)" 
 						{v}
 					</span>
 					<div
+						className="ds-atom-minibar-bar"
 						style={{
-							width: "100%",
-							maxWidth: 32,
-							borderRadius: "4px 4px 0 0",
+							// Only the data-derived values stay inline; the rest is in CSS so
+							// the reduced-motion guard and any consumer override apply.
 							height: `${(v / max) * 70}%`,
-							minHeight: 4,
 							background: barColor,
-							opacity: 0.8,
-							transition: "height 0.4s ease-out",
 						}}
 					/>
 					{labels && (

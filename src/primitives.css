@@ -384,6 +384,7 @@
    Native input visually hidden + sibling-selector CSS for :checked /
    :disabled (D-130 / D-131). Source: handoff .ds-checkbox rule. */
 .ds-atom-checkbox-input:checked + .ds-atom-checkbox-box {
+	transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
 	background: var(--amber);
 	border-color: var(--amber);
 }
@@ -419,6 +420,7 @@
 	display: none;
 }
 .ds-atom-radio-input:checked + .ds-atom-radio-box {
+	transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
 	border-color: var(--amber);
 }
 .ds-atom-radio-input:checked + .ds-atom-radio-box .ds-atom-radio-dot {
@@ -4946,6 +4948,7 @@
 
 /* ─── DS atom: AppBar (DS-72) ──────────────────────────────────────── */
 .ds-atom-appbar {
+	transition: background-color 0.2s ease, box-shadow 0.2s ease, backdrop-filter 0.2s ease;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -5871,6 +5874,7 @@
    "full-opacity underline on hover" convention. No :active transform —
    links aren't buttons; the underline change is the press affordance. */
 .ds-atom-link {
+	transition: color 0.15s, text-decoration-color 0.15s;
 	text-decoration: underline;
 	text-underline-offset: 2px;
 	cursor: pointer;
@@ -6293,4 +6297,43 @@
 		animation-duration: revert !important;
 		transition-duration: revert !important;
 	}
+}
+
+/* Moved out of an inline style object so the reduced-motion guard and any
+   consumer override can reach it. */
+.ds-atom-textarea {
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* Moved out of an inline style object so the reduced-motion guard and any
+   consumer override can reach it. */
+.ds-atom-fileinput {
+	transition: background-color 0.15s, border-color 0.15s;
+}
+
+/* Keyboard-hint strip: reveals while the editor has focus. Declared here rather
+   than inline so the reduced-motion guard applies. `.ds-atom-richtext-hints`
+   previously had no rule at all — it was a class with nothing behind it. */
+.ds-atom-richtext-hints {
+	transition: opacity 0.15s ease, max-height 0.15s ease;
+}
+
+/* MiniBar / MiniDonut: the value-driven geometry stays inline; the motion and
+   the static box live here. */
+.ds-atom-minibar-bar {
+	width: 100%;
+	max-width: 32px;
+	min-height: 4px;
+	border-radius: 4px 4px 0 0;
+	opacity: 0.8;
+	transition: height 0.4s ease-out;
+}
+.ds-atom-minidonut-arc {
+	transition: stroke-dashoffset 0.6s ease-out;
+}
+
+/* RollingNumber suppresses its roll on the very first paint so the digits do not
+   animate in from zero on mount. */
+.ds-atom-rolling[data-first-render="true"] .ds-atom-rolling-strip {
+	transition: none;
 }

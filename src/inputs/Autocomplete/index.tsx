@@ -1,5 +1,6 @@
-import { type CSSProperties, type ReactNode, useId, useRef, useState } from "react";
+import { type CSSProperties, type ReactNode, type Ref, useId, useRef, useState } from "react";
 import { DSDropdown } from "../../_internals/DSDropdown";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { Clock } from "../../icons";
 import { TextInput } from "../TextInput";
 export interface AutocompleteProps<T> {
@@ -29,6 +30,16 @@ export interface AutocompleteProps<T> {
 	className?: string;
 	/** Inline styles applied to the underlying `<input>` element. */
 	style?: CSSProperties;
+	/**
+	 * Ref to the underlying `<input>`, for focus management and form libraries
+	 * that register controls by ref (react-hook-form et al).
+	 *
+	 * Declared as a prop rather than via `forwardRef` because this component is
+	 * generic in `T`: `forwardRef` erases type parameters, so wrapping it would
+	 * force every consumer to annotate `T` by hand. React 19 treats `ref` as an
+	 * ordinary prop, which keeps inference intact.
+	 */
+	ref?: Ref<HTMLInputElement>;
 }
 
 /**
@@ -65,8 +76,12 @@ export function Autocomplete<T>({
 	placeholder = "Search…",
 	className,
 	style,
+	ref,
 }: AutocompleteProps<T>) {
+	// Internal ref drives focus-return and the dropdown anchor; the composed ref
+	// also hands the node to the consumer.
 	const inputRef = useRef<HTMLInputElement | null>(null);
+	const composedRef = useComposedRefs<HTMLInputElement>(inputRef, ref);
 	const [open, setOpen] = useState(false);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const listId = useId();
@@ -141,7 +156,7 @@ export function Autocomplete<T>({
 	return (
 		<>
 			<TextInput
-				ref={inputRef}
+				ref={composedRef}
 				type="text"
 				className={`ds-atom-autocomplete${className ? ` ${className}` : ""}`}
 				role="combobox"

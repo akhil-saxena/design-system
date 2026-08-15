@@ -10,8 +10,9 @@ describe("MiniBar", () => {
 
 	it("tallest bar gets height 70%", () => {
 		const { container } = render(<MiniBar data={[5, 10, 3]} />);
-		const allStyled = container.querySelectorAll<HTMLElement>("[style]");
-		const barDivs = Array.from(allStyled).filter((el) => el.style.borderRadius === "4px 4px 0 0");
+		// Selected by class, not by an inline borderRadius: the static box moved
+		// into primitives.css so only the value-derived height stays inline.
+		const barDivs = Array.from(container.querySelectorAll<HTMLElement>(".ds-atom-minibar-bar"));
 		// data[1] = 10 = max, so its bar should be 70%
 		const maxBar = barDivs[1]!;
 		expect(maxBar.style.height).toBe("70%");

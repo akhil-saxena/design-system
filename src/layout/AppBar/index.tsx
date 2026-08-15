@@ -103,7 +103,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 					className={`ds-atom-appbar${className ? ` ${className}` : ""}`}
 					data-variant="minimal"
 					data-scrolled={String(scrolled)}
-					style={{ ...scrolledStyles, transition: "all 0.2s ease", ...style }}
+					style={{ ...scrolledStyles, ...style }}
 				>
 					{logoNode}
 					{actions ?? <Button size="sm">Sign in</Button>}
@@ -120,7 +120,6 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 					data-scrolled={String(scrolled)}
 					style={{
 						...scrolledStyles,
-						transition: "all 0.2s ease",
 						justifyContent: "center",
 						position: "relative",
 						...style,
@@ -144,7 +143,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 					className={`ds-atom-appbar${className ? ` ${className}` : ""}`}
 					data-variant="withSearch"
 					data-scrolled={String(scrolled)}
-					style={{ ...scrolledStyles, transition: "all 0.2s ease", ...style }}
+					style={{ ...scrolledStyles, ...style }}
 				>
 					<div style={{ display: "flex", alignItems: "center", gap: 24 }}>
 						{logoNode}
@@ -169,7 +168,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 				className={`ds-atom-appbar${className ? ` ${className}` : ""}`}
 				data-variant="default"
 				data-scrolled={String(scrolled)}
-				style={{ ...scrolledStyles, transition: "all 0.2s ease", ...style }}
+				style={{ ...scrolledStyles, ...style }}
 			>
 				<div style={{ display: "flex", alignItems: "center", gap: 28 }}>
 					{logoNode}

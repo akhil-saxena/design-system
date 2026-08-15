@@ -32,7 +32,6 @@ const baseTextareaStyle: CSSProperties = {
 	fontFamily: "var(--font)",
 	outline: "none",
 	resize: "both",
-	transition: "border-color .15s, box-shadow .15s",
 	width: "100%",
 	boxSizing: "border-box",
 	lineHeight: 1.5,

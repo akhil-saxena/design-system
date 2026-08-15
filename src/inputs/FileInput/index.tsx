@@ -1,4 +1,5 @@
-import { type CSSProperties, type ReactNode, useRef, useState } from "react";
+import { type CSSProperties, type ReactNode, type Ref, useRef, useState } from "react";
+import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { Button } from "../Button";
 
 export interface FileInputProps {
@@ -44,6 +45,13 @@ export interface FileInputProps {
 	children?: ReactNode;
 	className?: string;
 	style?: CSSProperties;
+	/**
+	 * Ref to the hidden `<input type="file">`. The only way for a consumer to
+	 * reset the control after an upload — assigning `value = ""` — or to register
+	 * it with a form library. Previously the node was unreachable, so a second
+	 * upload of the same file fired no `change` event.
+	 */
+	ref?: Ref<HTMLInputElement>;
 }
 
 // FileInput — file-picker primitive. variant="dropzone" wraps drag-and-drop
@@ -61,8 +69,12 @@ export function FileInput({
 	children,
 	className,
 	style,
+	ref,
 }: FileInputProps) {
+	// Internal ref opens the picker on trigger click; the composed ref also
+	// exposes the node to the consumer.
 	const inputRef = useRef<HTMLInputElement>(null);
+	const composedRef = useComposedRefs<HTMLInputElement>(inputRef, ref);
 	const [dragOver, setDragOver] = useState(false);
 
 	// WHY shared: the same logic must run on both code paths (click-select via
@@ -115,12 +127,20 @@ export function FileInput({
 	// is redundant and triggers a11y lint (noAriaHiddenOnFocusable).
 	const hiddenInput = (
 		<input
-			ref={inputRef}
+			ref={composedRef}
 			type="file"
 			accept={accept}
 			multiple={multiple}
 			style={{ display: "none" }}
-			onChange={(e) => handlePickedFiles(e.target.files)}
+			onChange={(e) => {
+				handlePickedFiles(e.target.files);
+				// Clear the control after reading. A file input only fires `change`
+				// when its value *differs*, so without this, picking the same file
+				// twice in a row is silently ignored — which is exactly what happens
+				// when the user removes an upload and re-adds it, or when the first
+				// attempt was rejected by validation and they retry the same file.
+				e.target.value = "";
+			}}
 		/>
 	);
 
@@ -157,7 +177,6 @@ export function FileInput({
 		textAlign: "left",
 		opacity: disabled ? 0.5 : 1,
 		pointerEvents: disabled ? "none" : "auto",
-		transition: "background-color .15s, border-color .15s",
 		...style,
 	};
 

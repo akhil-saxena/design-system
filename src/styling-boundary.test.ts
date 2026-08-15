@@ -57,18 +57,17 @@ describe("styling boundary: inline styles must not fight primitives.css", () => 
 	 * — which is what made it safe for CommandPalette, Select, ColorPicker and the
 	 * rest to compose it and still restyle the field through their own class.
 	 */
-	const KNOWN_INLINE_TRANSITIONS = [
-		"display/MiniBar/index.tsx",
-		"display/MiniDonut/index.tsx",
-		"display/RollingNumber/index.tsx",
-		"foundation/Link/index.tsx",
-		"inputs/Checkbox/index.tsx",
-		"inputs/FileInput/index.tsx",
-		"inputs/Radio/index.tsx",
-		"inputs/Textarea/index.tsx",
-		"interaction/RichText/index.tsx",
-		"layout/AppBar/index.tsx",
-	];
+	/**
+	 * Every component that once declared `transition` inline has been migrated
+	 * into `primitives.css`, so this list is empty — and the assertions below now
+	 * simply forbid the pattern outright.
+	 *
+	 * It began at eleven. The migration was not cosmetic: an inline transition
+	 * outranks every class rule, which is what made Button's
+	 * `prefers-reduced-motion` guard inert while reading as correct, and what kept
+	 * `.ds-atom-cmd-input` from ever applying.
+	 */
+	const KNOWN_INLINE_TRANSITIONS: string[] = [];
 
 	it("does not add new inline `transition` declarations", () => {
 		const offenders: string[] = [];

@@ -116,7 +116,19 @@ export function ColorPicker({
 	const fieldIdBase = useId();
 	const hexInputId = `${fieldIdBase}-hex`;
 	const alphaInputId = `${fieldIdBase}-alpha`;
-	const [color, setColor] = useState<string>(initial);
+	// Controlled mode derives the colour straight from `value` rather than copying
+	// it into local state. The copy meant a parent that *rejected* or clamped a
+	// change — handing back the same `value` it already had — produced no state
+	// change, so no sync ran, and the canvas kept displaying the rejected colour
+	// indefinitely. Deriving makes divergence unrepresentable.
+	const isControlled = value !== undefined;
+	const [uncontrolledColor, setUncontrolledColor] = useState<string>(initial);
+	const color = isControlled ? value : uncontrolledColor;
+	const setColor = (next: string) => {
+		if (!isControlled) setUncontrolledColor(next);
+	};
+	// The hex field must stay local: it holds exactly what the user has typed, so
+	// a half-finished "#ff" is not clobbered mid-keystroke.
 	const [hex, setHex] = useState<string>(initial);
 	const [hue, setHue] = useState<number>(() => hexToHsv(initial)[0]);
 	const [opacity, setOpacity] = useState<number>(100);
@@ -131,14 +143,16 @@ export function ColorPicker({
 		};
 	}, []);
 
-	// Sync controlled value — do NOT reset hue, preserve user's drag position.
-	// Comparing against `color` read a value the dependency list did not declare,
-	// so the guard could act on a stale colour. Dropping the comparison removes
-	// the stale read entirely: React bails out of a re-render when setState is
-	// called with the value it already holds, so the guard was never load-bearing.
+	// Mirror an *externally* supplied colour into the hex field. Deliberately keyed
+	// on `value` and not on the derived `color`: keying it on `color` makes the
+	// field rewrite itself mid-keystroke, because typing the valid shorthand `#00f`
+	// commits `#0000ff` and the sync would immediately replace what is being typed,
+	// moving the caret and making `#00ff00` impossible to finish.
+	//
+	// Hue is deliberately not reset here: it would snap the canvas cursor away from
+	// where the user is dragging.
 	useEffect(() => {
 		if (value === undefined) return;
-		setColor(value);
 		setHex(value);
 	}, [value]);
 
@@ -438,6 +452,10 @@ export function ColorPicker({
 				}}
 			>
 				<div
+					// The swatch is the only element that paints the committed colour on
+					// its own; everything else blends it with hue or alpha gradients.
+					// Named consistently with the -hex and -alpha hooks below.
+					data-testid="colorpicker-swatch"
 					style={{
 						width: 36,
 						height: 36,

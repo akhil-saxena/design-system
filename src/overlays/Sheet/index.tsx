@@ -6,6 +6,7 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { isDarkContext } from "../../_internals/darkContext";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -98,11 +99,9 @@ export function Sheet({
 
 	if (!open) return null;
 
-	// SSR-guarded: document is read in the render body, so guard it for server
-	// rendering (the component otherwise returns null before reaching here, but
-	// the guard makes the read explicitly safe).
-	const isDark =
-		typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+	// Portaled content escapes any ancestor `.dark`, so the theme is re-detected.
+	// See _internals/darkContext for why all four overlays now share this.
+	const isDark = isDarkContext();
 
 	function handleBackdropClick(e: ReactMouseEvent<HTMLDivElement>) {
 		if (e.target === e.currentTarget && closeOnBackdropClick) {

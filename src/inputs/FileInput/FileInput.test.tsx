@@ -1,4 +1,5 @@
 import { fireEvent, render } from "@testing-library/react";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { FileInput } from ".";
 
@@ -101,5 +102,66 @@ describe("FileInput", () => {
 		// No drop zone class on the button variant's outer wrapper:
 		expect(container.querySelector(".ds-atom-fileinput")).toBeNull();
 		expect(container.querySelector(".ds-atom-fileinput-button")).toBeInTheDocument();
+	});
+});
+
+describe("FileInput — re-selecting the same file", () => {
+	/**
+	 * Seed a file input with a value that the component is expected to clear.
+	 *
+	 * jsdom does not implement the browser rule this behaviour exists for — that
+	 * a file input fires `change` only when its value actually differs — and it
+	 * reports `value` as `""` regardless. So the browser bug (pick a file, remove
+	 * it, pick the same file again → nothing happens) cannot be reproduced here
+	 * directly. What we *can* pin is the mechanism that prevents it: the change
+	 * handler must write `""` back to the element. We install a real accessor to
+	 * observe that write, since without one the assertion passes vacuously.
+	 */
+	function pick(input: HTMLInputElement, file: File) {
+		let value = "C:\\fakepath\\report.pdf";
+		Object.defineProperty(input, "value", {
+			configurable: true,
+			get: () => value,
+			set: (v: string) => {
+				value = v;
+			},
+		});
+		Object.defineProperty(input, "files", { value: [file], configurable: true });
+		fireEvent.change(input);
+		return () => value;
+	}
+
+	it("clears its value after a pick, so the same file can be chosen twice", () => {
+		const onSelect = vi.fn();
+		const { container } = render(<FileInput onSelect={onSelect} />);
+		const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+		const readValue = pick(input, makeFile("report.pdf", "application/pdf"));
+
+		expect(onSelect).toHaveBeenCalledTimes(1);
+		expect(readValue()).toBe("");
+	});
+
+	it("clears its value after a rejected file so the retry is not swallowed", () => {
+		// The rejection path is the one most likely to be missed: validation
+		// returns early, and if the value survives, the user's obvious next move —
+		// retrying the same file — does nothing at all.
+		const onError = vi.fn();
+		const onSelect = vi.fn();
+		const { container } = render(
+			<FileInput onSelect={onSelect} onError={onError} maxSizeBytes={1} />,
+		);
+		const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+		const readValue = pick(input, makeFile("big.pdf", "application/pdf", 4096));
+
+		expect(onError).toHaveBeenCalled();
+		expect(onSelect).not.toHaveBeenCalled();
+		expect(readValue()).toBe("");
+	});
+
+	it("exposes the underlying input via ref", () => {
+		const ref = createRef<HTMLInputElement>();
+		render(<FileInput onSelect={() => {}} ref={ref} />);
+		expect(ref.current).toBeInstanceOf(HTMLInputElement);
+		expect(ref.current?.type).toBe("file");
 	});
 });

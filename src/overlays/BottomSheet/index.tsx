@@ -9,6 +9,7 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { isDarkContext } from "../../_internals/darkContext";
 import { useDismiss } from "../../hooks/useDismiss";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -195,8 +196,9 @@ export function BottomSheet({
 
 	if (!open) return null;
 
-	// dark prop wins; fall back to <html class="dark"> for Canvas dark mode.
-	const isDark = dark ?? document.documentElement.classList.contains("dark");
+	// The `dark` prop wins; otherwise detect the surrounding theme. Previously an
+	// unguarded document read that also missed scoped `.dark` containers.
+	const isDark = dark ?? isDarkContext();
 
 	function handleBackdropClick(e: ReactMouseEvent<HTMLDivElement>) {
 		if (e.target === e.currentTarget && closeOnBackdropClick) {

@@ -6,7 +6,47 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
-## Unreleased
+## 1.11.0 — Calendar keyboard navigation, form-control refs, controlled-value correctness
+
+### Added
+
+- **Arrow-key navigation for calendar grids** (`useDateGrid`, exported from
+  `@akhil-saxena/design-system/hooks`). Calendar and DatePicker render every day
+  as a focusable `<button role="gridcell">`, which made each month grid *42 tab
+  stops*: reaching the end of a month took forty keystrokes, and so did tabbing
+  past the calendar to the next control. Both now follow the WAI-ARIA APG
+  date-grid pattern — one tab stop, with `ArrowLeft/Right` moving a day,
+  `ArrowUp/Down` a week, `Home`/`End` to the week's edges, and `PageUp`/`PageDown`
+  a month (a year with `Shift`). Movement is computed on dates rather than DOM
+  nodes, so crossing a month boundary pages the view instead of dead-ending.
+- **`ref` on `FileInput` and `Autocomplete`.** Both wrap a real `<input>` that was
+  previously unreachable, so neither could be registered with a form library or
+  reset programmatically. `Autocomplete` takes `ref` as an ordinary prop rather
+  than via `forwardRef`, which would erase its generic parameter.
+- `data-testid="colorpicker-swatch"`, matching the existing `-hex` and `-alpha`
+  hooks. The swatch is the only element painting the committed colour unblended,
+  and it had no way to be queried.
+
+### Fixed
+
+- **FileInput ignored the same file chosen twice.** A file input only fires
+  `change` when its value differs, and the control never cleared itself — so
+  removing an upload and re-adding the same file did nothing at all, as did
+  retrying a file that had just been rejected by validation. The value is now
+  reset after every pick.
+- **ColorPicker diverged from a controlled parent that rejected a change.** The
+  committed colour was copied into local state and re-synced only when `value`
+  itself changed, so a parent that clamped or vetoed a change — handing back the
+  value it already held — produced no sync, and the swatch went on displaying a
+  colour the parent had refused. The colour is now derived from `value` when
+  controlled, which makes the divergence unrepresentable.
+- **Portaled overlays rendered light inside a scoped dark container.** `DSPortal`
+  moves content to `document.body`, escaping any ancestor `.dark`, so each overlay
+  re-detects the theme — and all four had drifted apart: Sheet and BottomSheet
+  checked `<html>` only and so missed a scoped `.dark` wrapper (the pattern
+  Storybook docs pages use), Popover checked only the anchor's ancestors, and
+  HoverCard alone checked both. Two of the four also read `document` without an
+  SSR guard. Consolidated into one `isDarkContext()` helper.
 
 ### Fixed
 

@@ -10,6 +10,7 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { isDarkContext } from "../../_internals/darkContext";
 import { smartAnchorPos } from "../../_internals/floatingPos";
 import { useClickOutside } from "../../hooks/useClickOutside";
 import { useDismiss } from "../../hooks/useDismiss";
@@ -273,9 +274,7 @@ export function HoverCard({
 		}, closeDelay);
 	}
 
-	const isDark =
-		anchorRef.current?.closest(".dark") != null ||
-		document.documentElement.classList.contains("dark");
+	const isDark = isDarkContext(anchorRef.current);
 
 	const cardEl = (
 		<dialog

@@ -9,6 +9,7 @@ import {
 	useState,
 } from "react";
 import { DSPortal } from "../../_internals/DSPortal";
+import { isDarkContext } from "../../_internals/darkContext";
 import { smartAnchorPos } from "../../_internals/floatingPos";
 import { useClickOutside } from "../../hooks/useClickOutside";
 import { useDismiss } from "../../hooks/useDismiss";
@@ -130,7 +131,7 @@ export function Popover({
 
 	if (!open) return null;
 
-	const isDarkCtx = anchorRef.current?.closest(".dark") != null;
+	const isDarkCtx = isDarkContext(anchorRef.current);
 
 	const popoverEl = (
 		<div
