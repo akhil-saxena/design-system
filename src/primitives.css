@@ -5183,6 +5183,56 @@ fieldset.ds-atom-field {
 	color: var(--ink);
 }
 
+/* ─── DS atom: AppBar · touch targets (D-16-1) ─────────────────────── */
+/* An audit of a site built on this bar found three anchors at 20px against the
+   44px coarse-pointer floor. None of them are AppBar's: logo, nav and actions
+   are ReactNode slots, so those targets were consumer children living inside
+   .ds-atom-appbar. A component cannot restyle children it does not render --
+   its stylesheet can, and a descendant rule is the only place this fix can go.
+
+   KEYED ON THE POINTER, NOT ON WIDTH. A 1440px touch laptop needs the floor and
+   a 390px desktop window emulating a phone does not; width is a proxy for the
+   thing that matters and it is wrong at both ends. The desktop bar's density is
+   deliberate, and growing every nav link to 44px at every viewport would
+   visibly redesign it.
+
+   min-height/min-width, NOT padding, and this is the one non-obvious choice
+   here. Padding is the usual way to grow a hit area and it is unusable on this
+   markup: the audited consumer sets padding-bottom: 2px as an INLINE style on
+   every nav link, and an inline declaration beats a class rule without
+   !important. A padding-based floor would therefore be dead on exactly the
+   markup that produced the finding while still reading correctly in the source
+   -- findings E3, E5 and F-12-2 are three earlier instances of that same trap.
+   Nothing sets min-height inline, so this wins. box-sizing so the value means
+   the whole box whatever padding or border the consumer added; inline-flex plus
+   align-items so the label stays optically where it was instead of sticking to
+   the top of a taller box. No justify-content: the default flex-start keeps
+   each link's left edge exactly where it was, so nothing shifts sideways. */
+@media (pointer: coarse) {
+	.ds-atom-appbar a {
+		box-sizing: border-box;
+		min-height: 44px;
+		min-width: 44px;
+		display: inline-flex;
+		align-items: center;
+	}
+
+	/* The floor makes the tallest row item 44px, so the bar becomes
+	   44 + 2x12 padding + 1px border = 69px, and --ds-appbar-h has to say so: a
+	   property claiming 47px while the bar paints 69px on a phone is worse than
+	   no property at all. THIS re-declaration is the whole reason the property is
+	   declared on the class rather than inline on the element -- an inline custom
+	   property is fixed at construction and no media query can reach it.
+
+	   :has(a) rather than the bare class, so the taller value applies only to
+	   bars that actually contain anchors. A bar whose slots hold only Buttons is
+	   not grown by the rule above, and telling it 69px would be the same lie in
+	   the other direction. */
+	.ds-atom-appbar:has(a) {
+		--ds-appbar-h: 69px;
+	}
+}
+
 /* ─── DS atom: Footer (DS-73) ──────────────────────────────────────── */
 .ds-atom-footer {
 	background: var(--cream);
@@ -5241,6 +5291,41 @@ fieldset.ds-atom-field {
 }
 .dark .ds-atom-footer {
 	border-top-color: var(--rule);
+}
+
+/* ─── DS atom: Footer · touch targets (D-16-1) ─────────────────────── */
+/* The same 44px coarse-pointer floor, and a harder cascade problem than it
+   looks.
+
+   WHY NOT .ds-atom-footer-link, WHICH IS THE CLASS THESE ELEMENTS CARRY.
+   Footer's renderLink has two branches: with an href it returns a Link with
+   variant=footer and className=ds-atom-footer-link, which is an <a> carrying
+   .ds-atom-link TOO; without one it returns a bare <button> with the same
+   className. .ds-atom-link and .ds-atom-footer-link are both single-class
+   selectors -- (0,1,0) each -- so they tie on specificity and source order
+   decides, and .ds-atom-link is declared ~900 lines below. Its padding: 0
+   consequently beats .ds-atom-footer-link's padding: 5px 0, which is why the
+   two branches of one function measured 16px and 22.5px rather than the same
+   number.
+
+   A floor written on .ds-atom-footer-link would join that tie and lose it the
+   same way, silently, with every unit test still green -- jsdom implements no
+   specificity, so nothing in the vitest suite can see a lost cascade contest.
+   Scoping under .ds-atom-footer makes it (0,2,0): it beats .ds-atom-link on
+   specificity, so it does not depend on where in this file it happens to sit,
+   and it still matches BOTH branches, which a compound like
+   .ds-atom-link.ds-atom-footer-link would not -- that one misses the <button>.
+
+   The links are always inside .ds-atom-footer: both variants render a footer
+   element carrying that class as their root. */
+@media (pointer: coarse) {
+	.ds-atom-footer .ds-atom-footer-link {
+		box-sizing: border-box;
+		min-height: 44px;
+		min-width: 44px;
+		display: inline-flex;
+		align-items: center;
+	}
 }
 
 /* ─── DS atom: Illustrations (DS-81) ───────────────────────────────── */
