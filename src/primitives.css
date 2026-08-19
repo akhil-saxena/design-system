@@ -1272,6 +1272,47 @@ fieldset.ds-atom-field {
 	}
 }
 
+/* ─── DS atom: ConfirmDialog ─────────────────────────────────────────
+   The panel had NO rule anywhere under dist/css/ (F-15-3). It was one inline
+   style object with a hardcoded rgba(255,255,255,.97) background, so nothing in
+   any theme's cascade reached it — and inline styles beat class rules without
+   !important, which is why the declarations had to MOVE here rather than be
+   duplicated. Reuses .ds-atom-modal-backdrop from the Modal section above, and
+   split-css.mjs derives sibling sheets from the component IMPORT graph — which
+   cannot see a reused CLASS — so confirmdialog.css does NOT declare modal.css.
+   Import css/modal alongside it, or the backdrop is unstyled.
+
+   Supersedes the sibling repo's PROJECT.md decision "ConfirmDialog is always-
+   light glass surface (rgba(255,255,255,.97)) — not token-driven internally".
+   That was a single-brand decision; a second brand invalidates it.
+
+   The 97% is kept as a color-mix against --panel rather than dropped, because
+   the near-opacity plus blur(14px) is the deliberate glass job and --panel is
+   already both mode-aware and brand-aware: #ffffff / #1c1c1c in the default
+   brand, #FBF9F4 / #1E1E1D under charcoal. --g-bg was NOT used: charcoal does
+   not redefine it, so it would paint a white 55% glass on a cream page.
+
+   Geometry (width, radius, padding, blur) stays literal on purpose. It carries
+   no theme meaning, and the control-geometry family is Phase 06.1's. */
+.ds-atom-confirm-panel {
+	width: 360px;
+	background: color-mix(in srgb, var(--panel) 97%, transparent);
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+	border-radius: 14px;
+	border: 1px solid var(--rule);
+	padding: 22px;
+	/* var(--shadow-3), not a hardcoded black alpha: charcoal's Rule C-5 makes the
+	   dark elevation a hairline (0 0 0 1px var(--rule-strong)) where an alpha
+	   shadow is invisible against #161616. Same token .ds-atom-modal uses. */
+	box-shadow: var(--shadow-3);
+}
+/* Mirrors .dark .ds-atom-modal so two stacked dialog surfaces cannot diverge:
+   the default brand's dark --panel (#1c1c1c) and --cream-2 (#1f1f1f) differ. */
+.dark .ds-atom-confirm-panel {
+	background: color-mix(in srgb, var(--cream-2) 97%, transparent);
+}
+
 /* ─── DS atom: Sheet ─────────────────────────────────────────────────
    DSPortal-mounted backdrop + side-anchored panel (right/left).
    Focus-trapped via useFocusTrap. Mobile (<640px) full-width.

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ConfirmDialog, TypeToConfirm } from ".";
@@ -180,7 +182,25 @@ describe("ConfirmDialog", () => {
 		expect(confirmBtn?.getAttribute("data-variant")).toBe("secondary");
 	});
 
-	it("panel background is rgba(255,255,255,.97) regardless of outer context", () => {
+	/**
+	 * F-15-3, and the inversion of what this case used to assert.
+	 *
+	 * It previously read "panel background is rgba(255,255,255,.97) regardless of
+	 * outer context", with the guard comment "panel must use an explicit rgba value
+	 * — NOT a theme token". That was the codified form of the sibling repo's
+	 * PROJECT.md decision "ConfirmDialog is always-light glass surface — not
+	 * token-driven internally" (CONSTRAINT-010), and a second brand invalidates it:
+	 * nothing in the charcoal cascade could reach a hardcoded value, so the panel
+	 * was a near-white card floating on a charcoal page.
+	 *
+	 * The assertion is now that the panel carries NO inline background, because
+	 * inline styles beat class rules without !important — leaving the object in
+	 * place and adding a rule beside it would have changed nothing painted. What
+	 * the rule RESOLVES to is asserted in a real browser by
+	 * tests/visual/confirm-panel.spec.ts; jsdom implements no CSS specificity and
+	 * never loads primitives.css, so a computed-style read here would prove nothing.
+	 */
+	it("panel carries no inline background, so the cascade can reach it", () => {
 		render(
 			<ConfirmDialog
 				open={true}
@@ -192,9 +212,67 @@ describe("ConfirmDialog", () => {
 		);
 		const panel = document.body.querySelector(".ds-atom-confirm-panel") as HTMLElement;
 		expect(panel).not.toBeNull();
-		// jsdom normalizes rgba(255,255,255,.97) → rgba(255, 255, 255, 0.97)
-		// Guard: panel must use an explicit rgba value — NOT a theme token like var(--cream)
-		expect(panel.style.background).toMatch(/^rgba\(255,\s*255,\s*255,\s*0\.97\)$/);
+		expect(panel.style.background).toBe("");
+		expect(panel.style.backgroundColor).toBe("");
+		// The whole inline object is gone, not just its background: a leftover
+		// box-shadow or border-radius would beat the sheet just as thoroughly.
+		expect(panel.getAttribute("style")).toBeNull();
+	});
+
+	it("the panel rule exists in the authored sheet, under a ConfirmDialog banner", () => {
+		// The finding was not "the class is missing" — the class was already on the
+		// element. It was that no RULE for it existed anywhere under dist/css/,
+		// because split-css.mjs derives sheets from primitives.css banners and
+		// ConfirmDialog had no banner section at all.
+		const css = readFileSync(join(__dirname, "../../primitives.css"), "utf8");
+		const at = css.indexOf("/* ─── DS atom: ConfirmDialog ───");
+		expect(
+			at,
+			"no ConfirmDialog banner — split-css.mjs emits no confirmdialog.css",
+		).toBeGreaterThan(0);
+		const next = css.indexOf("/* ─── DS", at + 10);
+		const section = css.slice(at, next === -1 ? css.length : next);
+		expect(section).toContain(".ds-atom-confirm-panel {");
+		// Comments stripped before the ABSENCE assertion, per protocol section 7: the
+		// banner has to quote rgba(255,255,255,.97) in order to record what it
+		// superseded, so an unfiltered not.toContain would fail on the documentation
+		// of the fix. This is the same self-invalidating shape 01-14 and 01-15 found
+		// in shell gates, here inside a test.
+		const rules = section.replace(/\/\*[\s\S]*?\*\//g, "");
+		expect(rules).toContain(".ds-atom-confirm-panel {");
+		// Token-driven, not a hardcoded colour. Both halves matter: the presence of
+		// the token and the absence of the literal it replaced.
+		expect(rules).toMatch(/background:\s*color-mix\(in srgb, var\(--panel\)/);
+		expect(rules).not.toContain("255,255,255,.97");
+		expect(rules).not.toMatch(/rgba\(255,\s*255,\s*255/);
+	});
+
+	it("every tone wash resolves through a token, not a hardcoded rgba", () => {
+		// The danger tone's `var(--red)` ink was already token-driven; the WASH
+		// behind it was the hardcoded half, and so were the other three tones'.
+		const src = readFileSync(join(__dirname, "index.tsx"), "utf8");
+		const table = src.slice(src.indexOf("const tones:"), src.indexOf("// ─── Tone → button"));
+		const washes = [...table.matchAll(/^\t\tbg:\s*(.+),$/gm)].map((m) => m[1]);
+		expect(washes).toHaveLength(4);
+		for (const w of washes) {
+			expect(w, `tone wash ${w} is not token-driven`).toMatch(/var\(--/);
+			expect(w, `tone wash ${w} is a hardcoded colour`).not.toMatch(/^"rgba?\(\d/);
+		}
+	});
+
+	it("records the superseded always-light-glass decision in the source", () => {
+		// PROJECT.md in the sibling repo still says the panel is always-light and not
+		// token-driven. That file belongs to that repository's own workflow and is not
+		// edited from here, so the counter-record has to live in the code the next
+		// reader will actually open.
+		const src = readFileSync(join(__dirname, "index.tsx"), "utf8");
+		const note = src.slice(
+			src.indexOf("// ─── Shared panel style"),
+			src.indexOf("// ─── ConfirmDialog"),
+		);
+		expect(note).toMatch(/supersede/i);
+		expect(note).toMatch(/PROJECT\.md/);
+		expect(note).toMatch(/always-light/i);
 	});
 });
 

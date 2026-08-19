@@ -66,6 +66,52 @@ describe("Tabs - ARIA structure", () => {
 		expect(hiddenPanels).toHaveLength(2);
 	});
 
+	/**
+	 * F-15-6: the inactive panels were rendered with their CHILDREN OMITTED — the
+	 * element present, the content not. Every panel's children now render and the
+	 * inactive ones are hidden presentationally instead.
+	 *
+	 * These two cases are the client-side half. The server-rendered half, which is
+	 * the whole point of the finding, is asserted on react-dom/server output in
+	 * src/smoke.test.tsx — a client-side test proves nothing about server output.
+	 */
+	it("renders EVERY panel's children, not only the active panel's", () => {
+		render(<ControlledTabs />);
+		// getAllByText, not getByRole: the content of a `hidden` panel is correctly
+		// absent from the accessibility tree, so a role query cannot see it. It is
+		// in the DOM, which is what a crawler and a no-JS reader read.
+		expect(screen.getByText("Alpha content")).toBeInTheDocument();
+		expect(screen.getByText("Beta content")).toBeInTheDocument();
+		expect(screen.getByText("Gamma content")).toBeInTheDocument();
+	});
+
+	it("exposes exactly one panel to the accessibility tree and the tab order", () => {
+		// Rendering everything must not become exposing everything. `hidden` removes
+		// the inactive panels from both, which is what the WAI-ARIA tabs pattern
+		// requires; visibility/opacity would leave them in the tab order.
+		render(<ControlledTabs />);
+		const exposed = screen.getAllByRole("tabpanel");
+		expect(exposed).toHaveLength(1);
+		expect(exposed[0]).toHaveAttribute("aria-labelledby");
+		// Nothing sets aria-hidden — `hidden` is the mechanism, and an explicit
+		// aria-hidden="false" beside it would be redundant surface axe flags.
+		for (const p of screen.getAllByRole("tabpanel", { hidden: true })) {
+			expect(p).not.toHaveAttribute("aria-hidden");
+		}
+	});
+
+	it("switching tabs moves which panel is exposed without unmounting the others", () => {
+		render(<ControlledTabs />);
+		fireEvent.click(screen.getByRole("tab", { name: "Beta" }));
+		const exposed = screen.getAllByRole("tabpanel");
+		expect(exposed).toHaveLength(1);
+		expect(exposed[0]).toContainElement(screen.getByText("Beta content"));
+		// All three subtrees are still in the DOM: the panels are hidden, not torn
+		// down and rebuilt, which is the cost this change accepts deliberately.
+		expect(screen.getByText("Alpha content")).toBeInTheDocument();
+		expect(screen.getByText("Gamma content")).toBeInTheDocument();
+	});
+
 	it("active tab has aria-selected=true, others false", () => {
 		render(<ControlledTabs />);
 		const [alpha, beta, gamma] = screen.getAllByRole("tab");

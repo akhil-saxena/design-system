@@ -43,7 +43,10 @@ const normalizeTone = (tone: ConfirmDialogTone): CanonicalTone =>
 const tones: Record<CanonicalTone, { color: string; bg: string; icon: ReactNode }> = {
 	danger: {
 		color: "var(--red)",
-		bg: "rgba(239,68,68,.1)",
+		// --red is inherited by charcoal deliberately ("Destructive is inherited,
+		// not redefined"), so the ink was already token-driven; the WASH was the
+		// hardcoded half. --red-bg is a real tint in both modes (#f4e0dd / #2e1a18).
+		bg: "var(--red-bg)",
 		icon: (
 			<svg
 				aria-hidden="true"
@@ -62,7 +65,18 @@ const tones: Record<CanonicalTone, { color: string; bg: string; icon: ReactNode 
 	},
 	warning: {
 		color: "var(--amber-d)",
-		bg: "rgba(245,158,11,.12)",
+		// No amber TINT token survives charcoal: --amber-l, --amber-soft and
+		// --amber-warm all collapse to the solid --ochre accent there, which would
+		// paint a solid ochre block behind ochre text. (Token names are written bare
+		// here on purpose. src/tokens.test.ts scans src for the var-reference syntax
+		// and requires every name it finds to be declared in the base token layer —
+		// comments included — and --ochre is declared only in charcoal.css. Writing
+		// the reference syntax in this comment fails that gate, twice: once for
+		// --ochre and once for whatever placeholder the explanation used.) So this
+		// uses primitives.css's own
+		// existing idiom for the same problem (five color-mix washes on --amber in
+		// the Calendar and RichText sections) rather than inventing a token.
+		bg: "color-mix(in srgb, var(--amber) 12%, transparent)",
 		icon: (
 			<svg
 				aria-hidden="true"
@@ -81,7 +95,7 @@ const tones: Record<CanonicalTone, { color: string; bg: string; icon: ReactNode 
 	},
 	success: {
 		color: "var(--green)",
-		bg: "rgba(34,197,94,.1)",
+		bg: "var(--green-bg)",
 		icon: (
 			<svg
 				aria-hidden="true"
@@ -99,7 +113,9 @@ const tones: Record<CanonicalTone, { color: string; bg: string; icon: ReactNode 
 	},
 	neutral: {
 		color: "var(--ink)",
-		bg: "rgba(0,0,0,.05)",
+		// A black alpha is invisible on charcoal dark (#161616); --panel2 is the
+		// neutral chip surface in both modes and both brands.
+		bg: "var(--panel2)",
 		icon: (
 			<svg
 				aria-hidden="true"
@@ -134,17 +150,25 @@ const toneButtonStyle: Record<CanonicalTone, { variant: ButtonVariant; style?: C
 };
 
 // ─── Shared panel style ───────────────────────────────────────────────────────
-
-const panelStyle: CSSProperties = {
-	width: 360,
-	background: "rgba(255,255,255,.97)", // intentionally NOT the cream token — always-light (CONSTRAINT-010)
-	backdropFilter: "blur(14px)",
-	WebkitBackdropFilter: "blur(14px)",
-	borderRadius: 14,
-	border: "1px solid var(--rule)",
-	padding: 22,
-	boxShadow: "0 16px 48px rgba(0,0,0,.18)",
-};
+//
+// There is no longer an inline style object here, and that is the fix (F-15-3).
+// `.ds-atom-confirm-panel` was on both panels already, but NO rule for it existed
+// anywhere under dist/css/ — the splitter derives sheets from primitives.css
+// banners and ConfirmDialog had no banner — so the whole surface was painted by
+// this object instead. Inline styles beat class rules without !important, so the
+// declarations had to move rather than be duplicated; the rule now lives under
+// the `DS atom: ConfirmDialog` banner in src/primitives.css and ships as
+// dist/css/confirmdialog.css.
+//
+// SUPERSEDES a recorded decision. The sibling repo's own .planning/PROJECT.md
+// says, under Technical Constraints Summary: "ConfirmDialog is always-light glass
+// surface (rgba(255,255,255,.97)) — not token-driven internally" (CONSTRAINT-010).
+// That was a correct single-brand decision and a second brand invalidates it: a
+// near-white card floating on a charcoal page is not a glass surface, it is a
+// hole. The panel is now token-driven, and the 97%-plus-blur glass job is kept as
+// a color-mix against --panel so the effect is preserved rather than
+// reconstructed. That PROJECT.md line is not edited from here (it belongs to that
+// repository's own workflow); this comment is the counter-record.
 
 // ─── ConfirmDialog ────────────────────────────────────────────────────────────
 
@@ -251,7 +275,6 @@ export function ConfirmDialog({
 					aria-labelledby={titleId}
 					aria-describedby={descId}
 					tabIndex={-1}
-					style={panelStyle}
 				>
 					{/* Header row: icon area + text block */}
 					<div style={{ display: "flex", gap: 14, marginBottom: 12 }}>
@@ -401,7 +424,6 @@ export function TypeToConfirm({
 					aria-modal="true"
 					aria-labelledby={titleId}
 					tabIndex={-1}
-					style={panelStyle}
 				>
 					{/* Title */}
 					<div

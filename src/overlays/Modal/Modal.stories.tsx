@@ -4,6 +4,23 @@ import { Modal } from ".";
 import { Button } from "../../inputs/Button";
 import { ConfirmDialog } from "../ConfirmDialog";
 const SRC = {
+	NotClosable: `<Modal
+  inline
+  closable={false}
+  open={open}
+  onClose={() => {}}
+  role="alertdialog"
+  title="Your session expired"
+  description="Sign in again to keep editing. Nothing has been lost."
+  footer={
+    <>
+      <Button variant="ghost">Sign out</Button>
+      <Button variant="primary">Sign in again</Button>
+    </>
+  }
+>
+  <p>The two actions in the footer are the only ways out, and that is deliberate.</p>
+</Modal>`,
 	Basic: `const [open, setOpen] = useState(false);
 return (
   <>
@@ -169,6 +186,16 @@ const meta: Meta<typeof Modal> = {
 			control: "boolean",
 			description: "Whether clicking the backdrop calls onClose.",
 		},
+		closable: {
+			control: "boolean",
+			description:
+				"Whether the user may dismiss the modal at all. false suppresses the Close button, Escape AND the backdrop path together, and overrides closeOnBackdropClick. The dialog becomes a keyboard trap by design, so it must contain its own way out.",
+		},
+		inline: {
+			control: "boolean",
+			description:
+				"Render in place instead of through a portal, so the dialog exists in server-rendered HTML. Opt-in; it reintroduces coupling to ancestor overflow/transform/z-index.",
+		},
 		role: {
 			control: "select",
 			options: ["dialog", "alertdialog"],
@@ -292,6 +319,51 @@ export const DarkMode: Story = {
 		),
 	],
 	render: () => <BasicDemo />,
+};
+
+/**
+ * The fail-closed dialog `closable` exists for (F-15-2).
+ *
+ * All three exits are suppressed together — there is no Close button in the
+ * header, Escape does nothing, and clicking the backdrop does nothing. That is
+ * the entire point of a re-auth prompt: a session has expired and there is no
+ * "later".
+ *
+ * Which is why the panel contains its own way out. An undismissable dialog with
+ * no action inside it is an accessibility failure, not a security feature — a
+ * keyboard user would be trapped with nothing to do. Read the footer as part of
+ * the contract, not as decoration.
+ *
+ * `inline` is set for two reasons beyond the SSR one: it keeps the dialog inside
+ * `#storybook-root`, which is the element `test:a11y` scopes axe to — so this is
+ * the only Modal story whose dialog is actually scanned — and it keeps the
+ * captured baseline containing the panel rather than the button that opens it.
+ */
+export const NotClosable: Story = {
+	name: "Not closable (fail-closed re-auth)",
+	parameters: { docs: { source: { code: SRC.NotClosable } } },
+	render: () => (
+		<Modal
+			inline
+			closable={false}
+			open={true}
+			onClose={() => {}}
+			role="alertdialog"
+			title="Your session expired"
+			description="Sign in again to keep editing. Nothing has been lost."
+			footer={
+				<>
+					<Button variant="ghost">Sign out</Button>
+					<Button variant="primary">Sign in again</Button>
+				</>
+			}
+		>
+			<p>
+				This dialog has no Close button, ignores Escape and ignores a backdrop click. The two
+				actions in the footer are the only ways out, and that is deliberate.
+			</p>
+		</Modal>
+	),
 };
 
 // ─── ConfirmDialog stories ──────────────────────────────────────────

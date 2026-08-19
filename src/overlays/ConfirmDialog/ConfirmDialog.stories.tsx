@@ -109,7 +109,7 @@ const meta: Meta<typeof ConfirmDialog> = {
 		docs: {
 			description: {
 				component:
-					"Tone-differentiated confirmation dialog. Always-light glass surface (rgba(255,255,255,.97)) regardless of dark mode. Four tones: danger, warn, success, neutral.",
+					"Tone-differentiated confirmation dialog. Four tones: danger, warn, success, neutral. The panel is a token-driven glass surface — 97% of --panel plus a 14px blur — so it follows the brand and the colour mode. It was previously always-light with a hardcoded rgba(255,255,255,.97), which had no rule in any stylesheet and which no theme could reach (F-15-3).",
 			},
 		},
 	},
@@ -242,7 +242,12 @@ export const Neutral: Story = {
 };
 
 export const DarkMode: Story = {
-	name: "Dark Mode (panel stays light)",
+	// Renamed: the panel is no longer hardcoded light. It still renders light HERE,
+	// for a different reason — it portals to document.body and so escapes this
+	// decorator's scoped `.dark`, exactly as Modal does. Under a dark THEME global
+	// (`.dark` on <html>) it is now a dark surface. DarkModeInline below is the
+	// version that renders inside the dark scope and shows the fix.
+	name: "Dark Mode (portaled — escapes the scoped dark)",
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [
 		(Story) => (
@@ -261,6 +266,52 @@ export const DarkMode: Story = {
 		),
 	],
 	render: () => <DangerDemo />,
+};
+
+/**
+ * The panel itself, rendered — and the only ConfirmDialog story in which it is.
+ *
+ * Three things this story exists for:
+ *
+ * 1. `open` is fixed true rather than driven by a button, so the captured
+ *    baseline contains the PANEL. Every other ConfirmDialog story starts closed,
+ *    which means no visual baseline in this repository has ever contained this
+ *    surface — the finding that it was a hardcoded near-white card could not have
+ *    been caught by a screenshot.
+ * 2. `inline` keeps the dialog in place instead of portaling it to
+ *    `document.body`, which is the only reason axe sees it: `test:a11y` scopes
+ *    `checkA11y` to `#storybook-root`, and a portaled panel is outside that
+ *    element. Every other dialog story in this library is scanned without its
+ *    dialog in it.
+ * 3. It is the story the charcoal computed-style probe reads
+ *    (`tests/visual/confirm-panel.spec.ts`), in all four brand x mode cells.
+ *
+ * There is deliberately NO `className="dark"` decorator here. Under charcoal a
+ * scoped `.dark` wrapper re-declares the design system's own neutral dark tokens
+ * below the brand layer — `:root.dark, .dark` in tokens.css matches any element,
+ * charcoal.css only declares `:root[data-brand="charcoal"].dark` — so the panel
+ * would resolve `--cream-2` to #1f1f1f instead of charcoal's #1e1e1d. That is the
+ * hazard `.storybook/preview.tsx` documents on its own wrapper, and it was
+ * measured here: the first draft of this story carried the class and the probe
+ * read 31,31,31 where charcoal declares 30,30,29. Use the theme toolbar instead.
+ */
+export const InlinePanel: Story = {
+	name: "Inline (the panel, in the cascade)",
+	parameters: { docs: { source: { code: SRC.Danger } } },
+	render: () => (
+		<div style={{ padding: 32, background: "var(--cream)", borderRadius: 8 }}>
+			<ConfirmDialog
+				inline
+				open={true}
+				onClose={() => {}}
+				onConfirm={() => {}}
+				tone="danger"
+				title="Delete item?"
+				body="This will permanently remove the item and cannot be undone."
+				confirmLabel="Yes, delete"
+			/>
+		</div>
+	),
 };
 
 export const TypeToConfirmStory: Story = {

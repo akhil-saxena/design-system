@@ -339,7 +339,27 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 				</DSDropdown>
 			)}
 
-			{/* Tab panels - all kept mounted; hidden attribute controls visibility */}
+			{/* Tab panels.
+
+			    Every panel renders its CHILDREN, not only the active one (F-15-6).
+			    Before this, the inactive `<div role="tabpanel" hidden>` elements were
+			    present and EMPTY — the element without the content — so in
+			    server-rendered HTML no tab panel but the first existed at all, and a
+			    crawler or a reader without JavaScript saw an empty box behind every
+			    tab after the first. The comment here used to claim they were "all kept
+			    mounted", which is what the conditional below made untrue.
+
+			    Rendering and EXPOSING are different things, and only the second is
+			    conditional. `hidden` removes the inactive panels from the accessibility
+			    tree AND from the tab order, which is what the WAI-ARIA tabs pattern
+			    requires; visibility/opacity would do neither. Exactly one panel is
+			    exposed at a time.
+
+			    The cost, accepted deliberately: every panel's subtree now mounts on
+			    load, so a heavy component behind tab 3 pays its mount cost immediately.
+			    That is the price of a crawlable panel and it is what the finding asks
+			    for. No lazy/eager prop was added — that would be a new API decision no
+			    finding asked for. */}
 			{tabs.map((t) => {
 				const isActive = t.id === value;
 				return (
@@ -353,7 +373,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 						hidden={!isActive}
 						className="ds-atom-tabs-panel"
 					>
-						{isActive ? t.content : null}
+						{t.content}
 					</div>
 				);
 			})}
