@@ -1,4 +1,13 @@
-import { type ReactNode, type Ref, useCallback, useEffect, useState } from "react";
+import {
+	type MouseEvent as ReactMouseEvent,
+	type ReactNode,
+	type PointerEvent as ReactPointerEvent,
+	type Ref,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { DSPortal } from "../../_internals/DSPortal";
 import { useComposedRefs } from "../../hooks/useComposedRefs";
 import { useDismiss } from "../../hooks/useDismiss";
@@ -7,9 +16,19 @@ import { useScrollLock } from "../../hooks/useScrollLock";
 import { ChevronLeft, ChevronRight, X } from "../../icons";
 import { IconButton } from "../../inputs/IconButton";
 export interface LightboxItem {
+	/** Full-size image URL. Required even alongside `srcSet`: it is the fallback
+	 *  for a browser that ignores `srcset`, and it is what `alt` pairs with. */
 	src: string;
 	alt: string;
 	caption?: ReactNode;
+	/** Candidate set for the `srcset` attribute, e.g.
+	 *  `"/a-600.jpg 600w, /a-1200.jpg 1200w"`. Omit it and no `srcset` attribute
+	 *  is emitted at all — an empty `srcset=""` is not the same thing. */
+	srcSet?: string;
+	/** Companion `sizes` attribute. Optional: with `srcset` but no `sizes` the
+	 *  browser assumes `100vw`, which is already correct for a full-bleed
+	 *  lightbox, so most callers never need it. */
+	sizes?: string;
 }
 
 export interface LightboxProps {
@@ -33,6 +52,18 @@ export interface LightboxProps {
 }
 
 /**
+ * Maximum pointer travel, in CSS pixels, for a press-and-release to still count
+ * as a *click* on the backdrop rather than a drag.
+ *
+ * Rejects: a drag that both starts and ends on the backdrop. Measured in
+ * Chromium, that gesture emits a `click` whose target IS the backdrop and whose
+ * originating `pointerdown` target is ALSO the backdrop — so both of the other
+ * two guards pass, and without this check a horizontal swipe across empty space
+ * would navigate and close the overlay in one gesture.
+ */
+const BACKDROP_TAP_SLOP_PX = 10;
+
+/**
  * Lightbox - full-bleed media-display overlay where the image IS the surface.
  * D-350: heavier backdrop rgba(0,0,0,.92), arrow-key navigation with wrap-
  * around, always-dark invariant (NO :root.dark overrides). Modal-adjacent
@@ -50,6 +81,11 @@ export interface LightboxProps {
  *     onClose={() => setOpen(false)}
  *     items={[{ src: "/a.jpg", alt: "Resume" }]}
  *   />
+ *
+ * Clicking the backdrop closes the overlay, and that is deliberately not
+ * suppressible: no finding asks for it, the Lightbox has no fail-closed use, and
+ * the analogous "make dismissal opt-out-able" request on Modal is a separate
+ * finding (F-15-2) whose API decision belongs to that component, not this one.
  *
  * a11y: role="dialog" + aria-modal + aria-label includes active item.alt;
  * useFocusTrap cycles Tab inside the dialog, lands initial focus on the close
@@ -79,6 +115,12 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 	const index = length > 0 ? Math.min(Math.max(rawIndex, 0), length - 1) : 0;
 	const current = items[index];
 	const showNav = length > 1;
+
+	// Pointer gesture bookkeeping, shared by backdrop-close and swipe. A ref, not
+	// state: nothing here should trigger a render, and a click must read the value
+	// the immediately preceding pointerup wrote.
+	const gestureRef = useRef<{ x: number; y: number; startedOnBackdrop: boolean } | null>(null);
+	const backdropTapRef = useRef(false);
 
 	// Focus trap (Tab cycling + focus restore on close). The close button is the
 	// first focusable child, so it receives initial focus.
@@ -118,6 +160,54 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 		navigateTo(index + 1);
 	}
 
+	// ── pointer gestures ──────────────────────────────────────────────────────
+	// The backdrop and the panel are the SAME element, so `onClick={onClose}`
+	// would close on every click inside the overlay, the image included. Three
+	// conditions gate the close, each of which was measured in Chromium rather
+	// than assumed:
+	//   1. the click's target is the backdrop itself (not a descendant)
+	//   2. the pointerdown that began the gesture also landed on the backdrop —
+	//      a drag from the image released over the backdrop emits a click whose
+	//      target IS the backdrop, so condition 1 alone lets it through
+	//   3. the pointer barely travelled (BACKDROP_TAP_SLOP_PX) — see that
+	//      constant for the gesture conditions 1 and 2 both fail to reject
+	//
+	// setPointerCapture is deliberately NOT used. Measured in Chromium: capturing
+	// on pointerdown retargets the subsequent compatibility mouse events to the
+	// capturing element, so the close button's own onClick never fires and every
+	// click reports the backdrop as its target — which defeats conditions 1 and 2
+	// outright. The backdrop is `position: fixed; inset: 0`, so every pointer
+	// event inside the window already bubbles to it and capture buys nothing.
+	function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
+		gestureRef.current = {
+			x: e.clientX,
+			y: e.clientY,
+			startedOnBackdrop: e.target === e.currentTarget,
+		};
+		backdropTapRef.current = false;
+	}
+
+	function onPointerUp(e: ReactPointerEvent<HTMLDivElement>) {
+		const start = gestureRef.current;
+		gestureRef.current = null;
+		if (!start) return;
+		const dx = e.clientX - start.x;
+		const dy = e.clientY - start.y;
+		backdropTapRef.current = start.startedOnBackdrop && Math.hypot(dx, dy) <= BACKDROP_TAP_SLOP_PX;
+	}
+
+	function onPointerCancel() {
+		gestureRef.current = null;
+		backdropTapRef.current = false;
+	}
+
+	function onBackdropClick(e: ReactMouseEvent<HTMLDivElement>) {
+		if (e.target !== e.currentTarget) return;
+		if (!backdropTapRef.current) return;
+		backdropTapRef.current = false;
+		onClose();
+	}
+
 	useEffect(() => {
 		if (!open) return;
 
@@ -147,9 +237,14 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 
 	return (
 		<DSPortal>
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: the keyboard equivalent of a backdrop click is Escape, which useDismiss already owns as a stack so nested layers unwind one at a time. A local onKeyDown here would be exactly the second Escape path that hook exists to prevent. */}
 			<div
 				ref={composedPanelRef}
 				className="ds-atom-lightbox-backdrop"
+				onPointerDown={onPointerDown}
+				onPointerUp={onPointerUp}
+				onPointerCancel={onPointerCancel}
+				onClick={onBackdropClick}
 				// biome-ignore lint/a11y/useSemanticElements: role="dialog" + aria-modal is the standard ARIA pattern; native <dialog> behavior conflicts with custom DSPortal mounting + arrow-key navigation
 				role="dialog"
 				aria-label={dialogLabel}
@@ -172,7 +267,13 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 					/>
 				) : null}
 
-				<img className="ds-atom-lightbox-image" src={current.src} alt={current.alt} />
+				<img
+					className="ds-atom-lightbox-image"
+					src={current.src}
+					srcSet={current.srcSet}
+					sizes={current.sizes}
+					alt={current.alt}
+				/>
 				{current.caption ? <div className="ds-atom-lightbox-caption">{current.caption}</div> : null}
 
 				{showNav ? (

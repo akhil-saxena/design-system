@@ -1,6 +1,25 @@
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { Lightbox } from ".";
+
+// jsdom 25 implements neither `PointerEvent` nor `setPointerCapture` (probed:
+// window.PointerEvent === undefined). testing-library falls back to the plain
+// `Event` constructor when the named constructor is missing, and plain `Event`
+// drops clientX/clientY — so every swipe assertion below would silently read
+// `undefined` coordinates and pass for the wrong reason. Extending MouseEvent,
+// which jsdom does implement, restores the coordinates the component reads.
+class PointerEventPolyfill extends MouseEvent {
+	readonly pointerId: number;
+	readonly pointerType: string;
+	constructor(type: string, init: PointerEventInit = {}) {
+		super(type, init);
+		this.pointerId = init.pointerId ?? 1;
+		this.pointerType = init.pointerType ?? "touch";
+	}
+}
+if (!("PointerEvent" in window)) {
+	(window as unknown as { PointerEvent: unknown }).PointerEvent = PointerEventPolyfill;
+}
 const oneItem = [{ src: "/a.jpg", alt: "A" }];
 const twoItems = [
 	{ src: "/a.jpg", alt: "A" },
@@ -204,5 +223,169 @@ describe("Lightbox", () => {
 		rerender(<Lightbox open={false} onClose={() => {}} items={oneItem} />);
 		expect(document.body.style.overflow).toBe("scroll");
 		document.body.style.overflow = "";
+	});
+
+	// ── backdrop-click close (G-14) ───────────────────────────────────────────
+	//
+	// The backdrop and the panel are the SAME element, so a bare onClick={onClose}
+	// on that div closes on every click inside it — including the image. Two
+	// conditions gate the close, and each was measured in Chromium rather than
+	// reasoned about (see the component's own comment):
+	//   1. the click landed on the backdrop itself, not on a descendant
+	//   2. the pointerdown that began the gesture also landed on the backdrop
+	// Condition 2 exists because a drag from the image that releases over the
+	// backdrop emits a click whose target IS the backdrop.
+
+	function backdropOf(baseElement: Element) {
+		const el = baseElement.querySelector(".ds-atom-lightbox-backdrop");
+		expect(el).not.toBeNull();
+		return el as Element;
+	}
+
+	/** Press and release on one element, as a browser sequences it. */
+	function tap(el: Element, x = 0, y = 0) {
+		fireEvent.pointerDown(el, { clientX: x, clientY: y, pointerId: 1 });
+		fireEvent.pointerUp(el, { clientX: x, clientY: y, pointerId: 1 });
+		fireEvent.click(el, { clientX: x, clientY: y });
+	}
+
+	it("backdrop click invokes onClose exactly once", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(<Lightbox open onClose={onClose} items={oneItem} />);
+		tap(backdropOf(baseElement), 10, 10);
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("click on the image does NOT invoke onClose", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(<Lightbox open onClose={onClose} items={oneItem} />);
+		const img = baseElement.querySelector(".ds-atom-lightbox-image") as Element;
+		expect(img).not.toBeNull();
+		tap(img, 400, 300);
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("click on the caption does NOT invoke onClose", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(
+			<Lightbox open onClose={onClose} items={[{ src: "/a.jpg", alt: "A", caption: "Cap" }]} />,
+		);
+		const caption = baseElement.querySelector(".ds-atom-lightbox-caption") as Element;
+		expect(caption).not.toBeNull();
+		tap(caption, 400, 500);
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("close button click invokes onClose ONCE, not twice via the backdrop", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(<Lightbox open onClose={onClose} items={oneItem} />);
+		tap(baseElement.querySelector(".ds-atom-lightbox-close") as Element, 780, 28);
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("prev/next button clicks navigate and do NOT invoke onClose", () => {
+		const onClose = vi.fn();
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={onClose}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		tap(baseElement.querySelector(".ds-atom-lightbox-next") as Element, 770, 300);
+		expect(onIndexChange).toHaveBeenCalledWith(1);
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("a drag that starts on the image and releases over the backdrop does NOT close", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(<Lightbox open onClose={onClose} items={oneItem} />);
+		const backdrop = backdropOf(baseElement);
+		const img = baseElement.querySelector(".ds-atom-lightbox-image") as Element;
+		// Measured in Chromium: pointerdown target=img, pointerup AND click
+		// target=backdrop. A `target === currentTarget` check alone passes here.
+		fireEvent.pointerDown(img, { clientX: 400, clientY: 300, pointerId: 1 });
+		fireEvent.pointerUp(backdrop, { clientX: 120, clientY: 300, pointerId: 1 });
+		fireEvent.click(backdrop, { clientX: 120, clientY: 300 });
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("a gesture that begins on the backdrop but whose click lands on a child does NOT close", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(<Lightbox open onClose={onClose} items={oneItem} />);
+		const backdrop = backdropOf(baseElement);
+		const img = baseElement.querySelector(".ds-atom-lightbox-image") as Element;
+		// Isolates the click-time target guard: the pointer bookkeeping says
+		// "a tap that began on the backdrop", so only `target === currentTarget`
+		// can reject this one.
+		fireEvent.pointerDown(backdrop, { clientX: 10, clientY: 10, pointerId: 1 });
+		fireEvent.pointerUp(backdrop, { clientX: 10, clientY: 10, pointerId: 1 });
+		fireEvent.click(img, { clientX: 10, clientY: 10 });
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("a drag that both starts AND ends on the backdrop does NOT close", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(<Lightbox open onClose={onClose} items={oneItem} />);
+		const backdrop = backdropOf(baseElement);
+		// Measured in Chromium: pointerdown target=backdrop, click target=backdrop.
+		// Both the target guard and the pointerdown-origin guard pass here, so the
+		// travel check is the only thing standing between a swipe over empty space
+		// and an accidental close.
+		fireEvent.pointerDown(backdrop, { clientX: 700, clientY: 550, pointerId: 1 });
+		fireEvent.pointerUp(backdrop, { clientX: 300, clientY: 550, pointerId: 1 });
+		fireEvent.click(backdrop, { clientX: 300, clientY: 550 });
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("a near-stationary press that begins on the image and slips onto the backdrop does NOT close", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(<Lightbox open onClose={onClose} items={oneItem} />);
+		const backdrop = backdropOf(baseElement);
+		const img = baseElement.querySelector(".ds-atom-lightbox-image") as Element;
+		// Isolates the pointerdown-origin guard. A tap at the very edge of the
+		// image that slips 2px past it releases on the backdrop, so the click's
+		// target is the backdrop and the travel is well under the slop — the
+		// origin check is the only one of the three that rejects it. Without this
+		// case the guard is untested: the long drag above is already caught by
+		// the travel check, which is what a mutation run showed.
+		fireEvent.pointerDown(img, { clientX: 400, clientY: 300, pointerId: 1 });
+		fireEvent.pointerUp(backdrop, { clientX: 402, clientY: 301, pointerId: 1 });
+		fireEvent.click(backdrop, { clientX: 402, clientY: 301 });
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	// ── srcset / sizes passthrough (G-14) ─────────────────────────────────────
+
+	it("srcSet and sizes reach the rendered img", () => {
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={[
+					{
+						src: "/a-1200.jpg",
+						alt: "A",
+						srcSet: "/a-600.jpg 600w, /a-1200.jpg 1200w",
+						sizes: "(max-width: 700px) 100vw, 1200px",
+					},
+				]}
+			/>,
+		);
+		const img = baseElement.querySelector(".ds-atom-lightbox-image") as HTMLImageElement;
+		expect(img.getAttribute("srcset")).toBe("/a-600.jpg 600w, /a-1200.jpg 1200w");
+		expect(img.getAttribute("sizes")).toBe("(max-width: 700px) 100vw, 1200px");
+		// src stays required: it is the fallback for a browser that ignores srcset.
+		expect(img.getAttribute("src")).toBe("/a-1200.jpg");
+	});
+
+	it("an item without srcSet emits NO srcset attribute, not an empty one", () => {
+		const { baseElement } = render(<Lightbox open onClose={() => {}} items={oneItem} />);
+		const img = baseElement.querySelector(".ds-atom-lightbox-image") as HTMLImageElement;
+		expect(img.hasAttribute("srcset")).toBe(false);
+		expect(img.hasAttribute("sizes")).toBe(false);
 	});
 });
