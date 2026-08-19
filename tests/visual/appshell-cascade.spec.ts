@@ -291,3 +291,260 @@ test.describe("E2 — the hardcoded 767px breakpoint is gone", () => {
 		);
 	});
 });
+
+/**
+ * G-8 — the banner slot, measured as geometry rather than as markup.
+ *
+ * `AppShell.test.tsx` covers which ELEMENTS render in each of the four
+ * banner x footer combinations, and it covers the landmark. It cannot cover the
+ * grid, because jsdom lays nothing out: the specific failure it would miss is an
+ * always-declared banner row leaving a visible gap above `main` in the three
+ * combinations where the slot is empty. The plan names that failure mode
+ * explicitly ("a naive fixed template leaves a gap"), so it is asserted here as
+ * `topbar bottom == main top`.
+ *
+ * All four combinations use real stories rather than DOM injected by the probe,
+ * so what is measured is what a consumer ships.
+ */
+
+interface Layout {
+	topbarBottom: number;
+	bannerTop: number | null;
+	bannerBottom: number | null;
+	bannerWidth: number | null;
+	bannerInsideMain: boolean;
+	bannerInsideTopbar: boolean;
+	sidebarTop: number;
+	mainTop: number;
+	mainBottom: number;
+	footerTop: number | null;
+	shellWidth: number;
+	shellBottom: number;
+}
+
+async function readLayout(page: Page): Promise<Layout> {
+	return page.evaluate(() => {
+		const px = (n: number) => Math.round(n * 100) / 100;
+		const q = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel);
+		const root = q(".ds-atom-appshell");
+		if (!root) throw new Error("no .ds-atom-appshell in this story — nothing was measured");
+		const topbar = q(".ds-atom-appshell-topbar");
+		const sidebar = q(".ds-atom-appshell-sidebar");
+		const main = q(".ds-atom-appshell-main");
+		if (!topbar || !sidebar || !main) throw new Error("the shell is missing a required slot");
+		const banner = q(".ds-atom-appshell-banner");
+		const footer = q(".ds-atom-appshell-footer");
+		const rb = root.getBoundingClientRect();
+		const mb = main.getBoundingClientRect();
+		const bb = banner?.getBoundingClientRect();
+		return {
+			topbarBottom: px(topbar.getBoundingClientRect().bottom),
+			bannerTop: bb ? px(bb.top) : null,
+			bannerBottom: bb ? px(bb.bottom) : null,
+			bannerWidth: bb ? px(bb.width) : null,
+			bannerInsideMain: banner ? main.contains(banner) : false,
+			bannerInsideTopbar: banner ? topbar.contains(banner) : false,
+			sidebarTop: px(sidebar.getBoundingClientRect().top),
+			mainTop: px(mb.top),
+			mainBottom: px(mb.bottom),
+			footerTop: footer ? px(footer.getBoundingClientRect().top) : null,
+			shellWidth: px(rb.width),
+			shellBottom: px(rb.bottom),
+		};
+	});
+}
+
+test.describe("G-8 — the banner slot", () => {
+	test.use({ viewport: { width: 1440, height: 900 } });
+
+	test("no banner, no footer: no ghost row above main and none below it", async ({ page }) => {
+		await open(page, "layout-appshell--default");
+		const l = await readLayout(page);
+		expect(l.bannerTop, "Default must render no banner element at all").toBeNull();
+		expect(l.mainTop, "an empty banner row would push main down by its height").toBe(
+			l.topbarBottom,
+		);
+		expect(l.mainBottom, "an empty footer row would leave a gap at the bottom").toBe(l.shellBottom);
+	});
+
+	test("an empty banner row would cost a consumer's row-gap twice", async ({ page }) => {
+		// This is why the banner row is SWITCHED on :has(> .ds-atom-appshell-banner)
+		// rather than always declared — and the reason is not the one the plan gave.
+		//
+		// The plan said "grid rows do not disappear because a slot is empty, so a
+		// naive fixed template leaves a gap". Measured, that is false: an empty
+		// `auto` row is 0px tall, and an always-declared banner row passes every
+		// geometry case above. What it does NOT survive is a consumer who adds
+		// `row-gap` to the shell — the 0px row still consumes a gap on each side, so
+		// the space above main doubles. Numbers from Chromium at row-gap: 16px:
+		//
+		//   switched (shipped)   rows 49px 819px 0px        gap above main 16px
+		//   always declared      rows 49px 0px 803px 0px    gap above main 32px
+		//
+		// Reachable now that --ds-sidebar-w put `.ds-atom-appshell` in a consumer's
+		// hands, so it is a live hazard rather than a theoretical one.
+		await open(page, "layout-appshell--default");
+		await page.addStyleTag({ content: ".ds-atom-appshell { row-gap: 16px; }" });
+		const measured = await page.evaluate(() => {
+			const root = document.querySelector<HTMLElement>(".ds-atom-appshell");
+			const topbar = document.querySelector<HTMLElement>(".ds-atom-appshell-topbar");
+			const main = document.querySelector<HTMLElement>(".ds-atom-appshell-main");
+			if (!root || !topbar || !main) throw new Error("shell not found");
+			return {
+				gapAboveMain:
+					Math.round(
+						(main.getBoundingClientRect().top - topbar.getBoundingClientRect().bottom) * 100,
+					) / 100,
+				rowCount: getComputedStyle(root).gridTemplateRows.split(/\s+/).length,
+			};
+		});
+		expect(measured.rowCount, "the no-banner template must declare exactly three rows").toBe(3);
+		expect(
+			measured.gapAboveMain,
+			"32px means an empty banner row is being declared and is eating a second row-gap",
+		).toBe(16);
+	});
+
+	test("no banner, footer: the footer sits directly under main", async ({ page }) => {
+		await open(page, "layout-appshell--with-footer");
+		const l = await readLayout(page);
+		expect(l.bannerTop).toBeNull();
+		expect(l.mainTop).toBe(l.topbarBottom);
+		expect(l.footerTop, "the footer must abut main, not float below a gap").toBe(l.mainBottom);
+	});
+
+	test("banner, no footer: the strip is its own full-width row between topbar and main", async ({
+		page,
+	}) => {
+		await open(page, "layout-appshell--with-banner");
+		const l = await readLayout(page);
+		expect(l.bannerTop, "the banner must abut the topbar").toBe(l.topbarBottom);
+		expect(l.mainTop, "main must start where the banner ends").toBe(l.bannerBottom);
+		expect(l.sidebarTop, "the sidebar shares main's row, so it starts there too").toBe(
+			l.bannerBottom,
+		);
+		expect(l.bannerWidth, "the strip spans both columns, so DOM order matches visual order").toBe(
+			l.shellWidth,
+		);
+		expect(l.mainBottom, "no footer, so no trailing gap").toBe(l.shellBottom);
+		expect(l.bannerInsideMain, "inside main it would scroll away — the thing G-8 rules out").toBe(
+			false,
+		);
+		expect(l.bannerInsideTopbar, "inside the topbar IS the finding").toBe(false);
+	});
+
+	test("banner and footer: all four edges line up", async ({ page }) => {
+		await open(page, "layout-appshell--with-banner-and-footer");
+		const l = await readLayout(page);
+		expect(l.bannerTop).toBe(l.topbarBottom);
+		expect(l.mainTop).toBe(l.bannerBottom);
+		expect(l.sidebarTop).toBe(l.bannerBottom);
+		expect(l.bannerWidth).toBe(l.shellWidth);
+		expect(l.footerTop).toBe(l.mainBottom);
+	});
+
+	test("main is NOT a scroll container by default — the plan's premise, falsified", async ({
+		page,
+	}) => {
+		// The plan asserted "Only .ds-atom-appshell-main is the scroll container,
+		// which the existing layout already establishes". It does not. The shell has
+		// `min-height: 100vh`, not `height`, so the 1fr row has no definite size and
+		// grows to fit main's content: `overflow: auto` never engages and the DOCUMENT
+		// scrolls. That is why the topbar carries `position: sticky`.
+		//
+		// Pinned as an assertion rather than left as a note, so that a later plan
+		// which changes the scroll model has to change this case deliberately.
+		await open(page, "layout-appshell--with-banner");
+		const state = await page.evaluate(() => {
+			const root = document.querySelector<HTMLElement>(".ds-atom-appshell");
+			const main = document.querySelector<HTMLElement>(".ds-atom-appshell-main");
+			if (!root || !main) throw new Error("shell not found");
+			main.scrollTop = 400;
+			return {
+				shellMinHeight: getComputedStyle(root).minHeight,
+				shellHeight: getComputedStyle(root).height,
+				mainOverflow: getComputedStyle(main).overflowY,
+				scrollTop: main.scrollTop,
+				viewport: window.innerHeight,
+			};
+		});
+		expect(state.mainOverflow, "main still declares overflow: auto").toBe("auto");
+		expect(
+			state.scrollTop,
+			"main scrolled, so the shell's scroll model changed — update the banner's comment in primitives.css and the case below",
+		).toBe(0);
+		expect(
+			Number.parseFloat(state.shellHeight),
+			"the shell grew past the viewport, which is what leaves the 1fr row indefinite",
+		).toBeGreaterThan(state.viewport);
+	});
+
+	test("the banner persists once the shell is viewport-height — one declaration", async ({
+		page,
+	}) => {
+		// The persistence the plan wanted, delivered in the shape the component
+		// actually supports: the banner is OUTSIDE main, so the moment a consumer
+		// makes the shell viewport-height, main becomes the real scroll container and
+		// topbar, banner and footer all stay put. Reachable because it is a class
+		// rule, which is the same property that made --ds-sidebar-w fixable.
+		await open(page, "layout-appshell--with-banner");
+		await page.addStyleTag({ content: ".ds-atom-appshell { height: 100dvh; }" });
+
+		const before = await readLayout(page);
+		const scrolled = await page.evaluate(() => {
+			const main = document.querySelector<HTMLElement>(".ds-atom-appshell-main");
+			if (!main) throw new Error("no main");
+			main.scrollTop = 400;
+			return { scrollTop: main.scrollTop };
+		});
+		expect(
+			scrolled.scrollTop,
+			"main did not scroll even at viewport height, so 'the banner persists' would be vacuous",
+		).toBeGreaterThan(0);
+
+		const after = await readLayout(page);
+		expect(after.bannerTop, "the banner moved with main's scroll").toBe(before.bannerTop);
+		expect(after.bannerBottom).toBe(before.bannerBottom);
+		expect(after.topbarBottom).toBe(before.topbarBottom);
+	});
+
+	test("the banner is structurally outside main, so it never scrolls with it", async ({ page }) => {
+		// The claim that does not depend on the scroll model at all, and the one G-8
+		// actually needs: the strip is not welded into any slot that scrolls.
+		await open(page, "layout-appshell--with-banner-and-footer");
+		const l = await readLayout(page);
+		expect(l.bannerInsideMain).toBe(false);
+		expect(l.bannerInsideTopbar).toBe(false);
+	});
+
+	test("the banner is reachable as its own landmark", async ({ page }) => {
+		await open(page, "layout-appshell--with-banner");
+		// Playwright's own ARIA implementation, not a class-name proxy.
+		const region = page.getByRole("region", { name: "Photo pipeline" });
+		await expect(region).toHaveCount(1);
+		await expect(region).toBeVisible();
+		// And exactly one page-header landmark, which is the topbar.
+		await expect(page.getByRole("banner")).toHaveCount(1);
+	});
+
+	test("the removed breakpoint stays removed with a banner present", async ({ page }) => {
+		// The banner row is switched by :has(), and the migration snippet collapses
+		// the column instead of rewriting grid-template-areas — so it must hold in
+		// the banner case too. That is the whole reason the snippet is written that way.
+		await open(page, "layout-appshell--with-banner");
+		await page.setViewportSize({ width: 390, height: 844 });
+		const live = await readShell(page);
+		expect(live.painted, "the 767px rule is back, or the banner row broke the column").toBe(240);
+
+		await page.addStyleTag({
+			content: `@media (max-width: 672px) {
+				.ds-atom-appshell { --ds-sidebar-w: 0px; }
+				.ds-atom-appshell-sidebar { display: none; }
+			}`,
+		});
+		const l = await readLayout(page);
+		expect(l.bannerTop, "the banner row must survive the consumer's override").toBe(l.topbarBottom);
+		expect(l.mainTop).toBe(l.bannerBottom);
+		expect(l.bannerWidth).toBe(l.shellWidth);
+	});
+});

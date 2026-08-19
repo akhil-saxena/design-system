@@ -5120,8 +5120,24 @@ fieldset.ds-atom-field {
 /* Layout only, exactly like .ds-atom-appshell-footer below: the strip's own
    surface is the consumer's, and the slot takes a ReactNode. It spans both
    columns so DOM order (topbar, banner, sidebar, main) matches visual order,
-   which is what keeps landmark navigation and tab order agreeing. It sits outside
-   .ds-atom-appshell-main, the only scroll container, so it persists. */
+   which is what keeps landmark navigation and tab order agreeing.
+
+   ON PERSISTENCE, measured rather than assumed. The banner is OUTSIDE
+   .ds-atom-appshell-main, so it does not scroll with main's content — but main is
+   not actually a scroll container in the shell's default configuration. This
+   element has `min-height: 100vh`, not `height`, so the 1fr row has no definite
+   size and grows to fit main's content: main's `overflow: auto` never engages and
+   the DOCUMENT scrolls. That is why the topbar is `position: sticky`. Measured in
+   Chromium: main.scrollTop stays 0 and main's box runs 2064px past a 900px
+   viewport.
+
+   So a consumer who wants the strip pinned makes the shell viewport-height —
+   `.ds-atom-appshell { height: 100dvh; }`, one class-level declaration — and main
+   becomes the real scroll container while topbar, banner and footer all stay put.
+   Both states are asserted in tests/visual/appshell-cascade.spec.ts. Changing the
+   default from document-scroll to inner-scroll would alter the scroll model of
+   every existing consumer, and the sticky topbar is evidence that document scroll
+   was the intent, so it is left alone here and recorded as a finding. */
 .ds-atom-appshell-banner {
 	grid-area: banner;
 }
@@ -5144,9 +5160,15 @@ fieldset.ds-atom-field {
 	grid-area: main;
 	overflow: auto;
 }
+/* `grid-area: footer`, not `grid-column: 2; grid-row: 3`. The line-based form
+   worked only by coincidence: with a two-row template row 3 was implicit, and in
+   the three-row template above it happens to be the footer's row. Add the banner
+   row and row 3 becomes the sidebar/main row, so the footer painted ON TOP of
+   main — caught by the grid geometry probe, invisible to every unit test because
+   jsdom lays nothing out. Naming the area makes the placement independent of how
+   many rows precede it. */
 .ds-atom-appshell-footer {
-	grid-column: 2;
-	grid-row: 3;
+	grid-area: footer;
 }
 /* BREAKING (v2.0.0): the `@media (max-width: 767px)` block that set a
    single-column grid and `display: none` on the sidebar is REMOVED. 767 is not a

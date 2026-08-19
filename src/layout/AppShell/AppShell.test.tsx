@@ -631,3 +631,130 @@ describe("AppShell — server-rendered markup", () => {
 		expect(localStorageMock.setItem).not.toHaveBeenCalled();
 	});
 });
+
+// ─── G-8: the banner slot ─────────────────────────────────────────────────────
+//
+// The finding's complaint is not layout, it is that D-15's persistent pipeline
+// strip "has no landmark of its own", so a screen-reader user could only reach it
+// by walking the topbar. The slot only closes G-8 if the region is independently
+// reachable — hence the role assertions rather than a class-name assertion.
+//
+// Grid GEOMETRY for all four banner x footer combinations is in
+// tests/visual/appshell-cascade.spec.ts: jsdom lays nothing out, so an empty
+// explicit grid row that leaves a visible gap is invisible here.
+
+describe("AppShell — the banner slot (G-8)", () => {
+	const shellWith = (props: Record<string, unknown>) => (
+		<AppShell
+			sidebar={<MockSidebar />}
+			topbar={<div data-testid="topbar-content">Topbar</div>}
+			main={<div data-testid="main-content">Main</div>}
+			storageKey={null}
+			{...props}
+		/>
+	);
+
+	it("renders the banner between the topbar and main, in its own element", () => {
+		const { container } = render(
+			shellWith({ banner: <div data-testid="banner-content">Processing</div> }),
+		);
+		expect(screen.getByTestId("banner-content")).toBeInTheDocument();
+
+		const root = container.querySelector(".ds-atom-appshell") as HTMLElement;
+		const order = [...root.children].map((el) => el.tagName.toLowerCase());
+		expect(order).toEqual(["header", "section", "aside", "main"]);
+	});
+
+	it("is a labelled landmark, reachable without walking the topbar", () => {
+		render(shellWith({ banner: <div>Processing</div>, bannerLabel: "Photo pipeline" }));
+		const region = screen.getByRole("region", { name: "Photo pipeline" });
+		expect(region.tagName.toLowerCase()).toBe("section");
+		expect(region).toHaveClass("ds-atom-appshell-banner");
+		// Not nested inside the topbar — that IS the finding.
+		expect(region.closest(".ds-atom-appshell-topbar")).toBeNull();
+		expect(region.closest(".ds-atom-appshell-main")).toBeNull();
+	});
+
+	it("has a default accessible name, so an unlabelled slot is still a landmark", () => {
+		// An unnamed <section> is not exposed as a landmark by most screen readers,
+		// which would reproduce G-8 with a <section> in place of a <div>.
+		render(shellWith({ banner: <div>Processing</div> }));
+		expect(screen.getByRole("region", { name: "Status" })).toBeInTheDocument();
+	});
+
+	it("never uses role=banner — the topbar is the page header and it must be unique", () => {
+		const { container } = render(shellWith({ banner: <div>Processing</div> }));
+		expect(container.querySelector('[role="banner"]')).toBeNull();
+		// <header> as a direct child of the shell already maps to the banner role;
+		// a second one would be a duplicate landmark.
+		expect(container.querySelectorAll("header").length).toBe(1);
+	});
+
+	it("renders NO element at all when banner is absent", () => {
+		// An always-present empty region would add a landmark to every existing
+		// consumer's accessibility tree.
+		const { container } = render(shellWith({}));
+		expect(container.querySelector(".ds-atom-appshell-banner")).toBeNull();
+		expect(container.querySelector("section")).toBeNull();
+		expect(screen.queryByRole("region")).not.toBeInTheDocument();
+		const root = container.querySelector(".ds-atom-appshell") as HTMLElement;
+		expect([...root.children].map((el) => el.tagName.toLowerCase())).toEqual([
+			"header",
+			"aside",
+			"main",
+		]);
+	});
+
+	it("all four banner x footer combinations render the right elements", () => {
+		const cases: [boolean, boolean, string[]][] = [
+			[false, false, ["header", "aside", "main"]],
+			[false, true, ["header", "aside", "main", "footer"]],
+			[true, false, ["header", "section", "aside", "main"]],
+			[true, true, ["header", "section", "aside", "main", "footer"]],
+		];
+		for (const [withBanner, withFooter, expected] of cases) {
+			const { container, unmount } = render(
+				shellWith({
+					banner: withBanner ? <div>Processing</div> : undefined,
+					footer: withFooter ? <div>Footer</div> : undefined,
+				}),
+			);
+			const root = container.querySelector(".ds-atom-appshell") as HTMLElement;
+			expect(
+				[...root.children].map((el) => el.tagName.toLowerCase()),
+				`banner=${withBanner} footer=${withFooter}`,
+			).toEqual(expected);
+			unmount();
+		}
+	});
+
+	it("the banner survives a collapse toggle and a re-render", () => {
+		// It is a *persistent* strip: the point of the slot is that it is not
+		// re-mounted by whatever the shell does around it.
+		render(shellWith({ banner: <div data-testid="banner-content">Processing</div> }));
+		const before = screen.getByTestId("banner-content");
+		act(() => {
+			screen.getByTestId("toggle-btn").click();
+		});
+		expect(screen.getByTestId("banner-content")).toBe(before);
+	});
+
+	it("server-renders the banner in the same place as the client does", () => {
+		const withBanner = (
+			<AppShell
+				sidebar={<MockSidebar />}
+				topbar={<div>Topbar</div>}
+				main={<div>Main</div>}
+				storageKey={null}
+				banner={<div>Processing</div>}
+				bannerLabel="Photo pipeline"
+			/>
+		);
+		const server = renderToStaticMarkup(withBanner);
+		const { container } = render(withBanner);
+		expect(container.innerHTML).toBe(server);
+		expect(server).toContain(
+			'<section class="ds-atom-appshell-banner" aria-label="Photo pipeline">',
+		);
+	});
+});
