@@ -21,8 +21,30 @@ function declaredIn(css: string): Set<string> {
 	return out;
 }
 
+/**
+ * Raw declaration count for a block — deliberately NOT deduplicated.
+ * `declaredIn` returns a Set, so a name declared twice in one block collapses
+ * to one entry and every name-set comparison stays green. "Same count" is only
+ * a checkable claim against the raw tally.
+ */
+function declarationCount(css: string): number {
+	return [...css.matchAll(/^\s*--[a-z0-9-]+\s*:/gim)].length;
+}
+
 const lightTokens = declaredIn(block(tokensCss, ":root {"));
 const darkTokens = declaredIn(block(tokensCss, ":root.dark,"));
+
+/**
+ * The charcoal brand layer, parsed with the *same* block()/declaredIn() the
+ * default theme uses. One parser and one WCAG formula serve both themes, so a
+ * disagreement between them is a real disagreement rather than an artefact of
+ * a second implementation.
+ */
+const charcoalCss = readFileSync(join(SRC, "themes/charcoal.css"), "utf8");
+const CHARCOAL_LIGHT = ':root[data-brand="charcoal"] {';
+const CHARCOAL_DARK = ':root[data-brand="charcoal"].dark {';
+const charcoalLight = declaredIn(block(charcoalCss, CHARCOAL_LIGHT));
+const charcoalDark = declaredIn(block(charcoalCss, CHARCOAL_DARK));
 
 /** Every source file that can reference a token. */
 function walk(dir: string, acc: string[] = []): string[] {
@@ -100,6 +122,78 @@ describe("token layer", () => {
 			(d) => !/z-index:\s*[012]\b/.test(d),
 		);
 		expect(bare).toEqual([]);
+	});
+
+	it("restates every charcoal light token in the charcoal dark block", () => {
+		// The mechanism, not just the rule. A charcoal token declared only in the
+		// light block still resolves at (0,2,0) in dark mode, which *ties*
+		// ":root.dark" at (0,2,0). The tie is then decided by whichever stylesheet
+		// the bundler emitted last, and the two possible orders produce two
+		// DIFFERENT wrong answers: charcoal's light value painted in dark mode, or
+		// charcoal dropped in dark mode entirely. Light mode never breaks, because
+		// (0,2,0) beats ":root" at (0,1,0) unconditionally — which is exactly why
+		// this class of bug ships unnoticed.
+		const lightOnly = [...charcoalLight].filter((t) => !charcoalDark.has(t));
+		expect(lightOnly).toEqual([]);
+	});
+
+	it("declares a charcoal light value for every token charcoal dark overrides", () => {
+		// The same shape as the tokens.css assertion at the top of this group, and
+		// it catches the same real regression (--rule-strong shipped dark-only).
+		// Not redundant with the mirror above: one-directional exhaustiveness would
+		// satisfy charcoal's own invariant while violating the design system's,
+		// because charcoal's dark block redefines --shadow-1/2/3 and its light
+		// block must therefore restate them.
+		const darkOnly = [...charcoalDark].filter((t) => !charcoalLight.has(t));
+		expect(darkOnly).toEqual([]);
+	});
+
+	it("parses a whole charcoal block rather than a truncated one", () => {
+		// block() closes on the first `\n}` — a brace at column 0. Indent the
+		// charcoal closing brace by one space, or nest a rule inside the block, and
+		// the slice truncates, declaredIn() returns nearly nothing, both set
+		// differences above are trivially empty and the mirror passes for the WRONG
+		// REASON. A floor rather than the exact count, so the additive growth this
+		// phase and 06.1 will keep doing does not need a test edit.
+		const truncated = [
+			"is not a small theme, it is a TRUNCATED PARSE:",
+			"check src/themes/charcoal.css for an indented closing brace or a nested",
+			"rule inside the charcoal block. block() closes on the first",
+			"newline-plus-brace at column 0, so a stray one truncates the slice.",
+		].join(" ");
+		expect(charcoalLight.size, `charcoal light ${truncated}`).toBeGreaterThanOrEqual(25);
+		expect(charcoalDark.size, `charcoal dark ${truncated}`).toBeGreaterThanOrEqual(25);
+
+		// The floor above catches an UNDER-parse, and on its own that is only half
+		// the job — measured, not assumed. Indenting the LIGHT block's closing
+		// brace does not truncate this file, it OVER-parses: the next brace at
+		// column 0 is the dark block's, so the light slice swallows the dark block
+		// whole and returns the same 49 names. The floor sails through at 49 >= 25
+		// and both mirrors pass, because a set unioned with itself equals itself.
+		// So assert the structural precondition block() actually depends on. This
+		// is charcoal.css's own stated contract — its header requires exactly two
+		// lines beginning with a closing brace — and it is what makes an indented
+		// brace, a nested rule and a stray at-rule all fail loudly instead of
+		// quietly changing which declarations get measured.
+		const closers = (charcoalCss.match(/^}/gm) ?? []).length;
+		expect(closers, "charcoal.css must have exactly one closing brace at column 0 per block").toBe(
+			2,
+		);
+		expect(
+			block(charcoalCss, CHARCOAL_LIGHT).includes(CHARCOAL_DARK),
+			"the charcoal light slice ran on into the dark block — its closing brace is indented",
+		).toBe(false);
+	});
+
+	it("declares the same number of charcoal tokens in both blocks", () => {
+		expect(charcoalLight.size).toBe(charcoalDark.size);
+		// The line above compares Set sizes, and the two mirrors already imply it
+		// for name sets — so on its own it can never be the thing that goes red.
+		// The failure it is *supposed* to catch, a name declared twice in one
+		// block, is absorbed by the Set before it is ever compared. Count the raw
+		// declarations too, or "same count, same names" is half unchecked.
+		expect(declarationCount(block(charcoalCss, CHARCOAL_LIGHT))).toBe(charcoalLight.size);
+		expect(declarationCount(block(charcoalCss, CHARCOAL_DARK))).toBe(charcoalDark.size);
 	});
 });
 
