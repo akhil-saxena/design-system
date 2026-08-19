@@ -1,5 +1,5 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, join, resolve as resolvePath } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const SRC = join(__dirname);
@@ -484,5 +484,251 @@ describe("inset surface visibility", () => {
 			const fill = resolve(css, selector, "--fill-disabled");
 			expect(contrast(fill, track)).toBeGreaterThanOrEqual(1.4);
 		});
+	}
+});
+
+// ── Font delivery (D-29 / D-36) ─────────────────────────────────────────────
+//
+// Everything below counts faces by parsing the INSTALLED packages under
+// node_modules. That is Phase 0's second independent counting method and the
+// one that needs no build — and it is the only one that measures anything at
+// all, for a reason worth stating plainly:
+//
+//   dist/tokens.css is a byte-identical copyFileSync of src/tokens.css
+//   (scripts/postbuild.mjs). It has therefore ALWAYS contained zero @font-face
+//   rules, including on the release that shipped all 73. The 73 only come into
+//   existence after a bundler resolves the bare @fontsource specifiers, so
+//   grepping the built token layer for face rules proves nothing whatsoever.
+//
+// What actually holds D-36 in place is the transitive count below: follow every
+// @import out of a stylesheet, into node_modules, and add up the faces the
+// consumer's bundler will inline. Measured against a real Vite build of
+// dist/tokens.css, this agrees exactly — 73 before the split, 0 after.
+
+const ROOT = join(SRC, "..");
+
+/** CSS block comments, removed. A header that mentions a token name in prose
+ *  must not read as a declaration — fonts/default.css says "(--serif)" in the
+ *  Newsreader comment it inherited from tokens.css. */
+function stripCssComments(css: string): string {
+	return css.replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
+function importSpecifiers(css: string): string[] {
+	return [...stripCssComments(css).matchAll(/@import\s+(?:url\()?["']([^"']+)["']\)?\s*;/g)].map(
+		(m) => m[1]!,
+	);
+}
+
+/** Bare specifier -> node_modules; relative specifier -> alongside its importer. */
+function resolveCssSpecifier(spec: string, fromFile: string): string {
+	if (spec.startsWith(".") || spec.startsWith("/")) return resolvePath(dirname(fromFile), spec);
+	return join(ROOT, "node_modules", spec);
+}
+
+type FaceCensus = { total: number; families: string[]; perImport: Record<string, number> };
+
+/**
+ * Every @font-face a stylesheet contributes once its @imports are inlined.
+ *
+ * An unresolvable specifier throws with the path, because the failure a
+ * consumer would otherwise meet is a postcss ENOENT quoting the bare specifier
+ * as though it were a filesystem path, with no mention of why (G-12).
+ */
+function faceCensus(file: string, seen = new Set<string>()): FaceCensus {
+	if (seen.has(file)) return { total: 0, families: [], perImport: {} };
+	seen.add(file);
+	if (!existsSync(file)) throw new Error(`@import does not resolve to a file on disk: ${file}`);
+	const css = readFileSync(file, "utf8");
+	const bodies = [...css.matchAll(/@font-face\s*{([^}]*)}/g)].map((m) => m[1]!);
+	const families = bodies.map(
+		(b) =>
+			b
+				.match(/font-family:\s*([^;]+);/)?.[1]
+				?.trim()
+				.replace(/^['"]|['"]$/g, "") ?? "(unnamed)",
+	);
+	let total = bodies.length;
+	const perImport: Record<string, number> = {};
+	for (const spec of importSpecifiers(css)) {
+		const child = faceCensus(resolveCssSpecifier(spec, file), seen);
+		perImport[spec] = child.total;
+		total += child.total;
+		families.push(...child.families);
+	}
+	return { total, families, perImport };
+}
+
+const CHARCOAL_FACE_LAYER = join(SRC, "fonts/charcoal.css");
+const DEFAULT_FACE_LAYER = join(SRC, "fonts/default.css");
+
+/**
+ * The four charcoal entry points and the faces each is expected to contribute.
+ * Written out per entry point rather than as a bare total so that a Fontsource
+ * minor bump changing one subset count fails with a diff naming it, instead of
+ * a total that is off by one with nothing to point at.
+ */
+const CHARCOAL_ENTRY_POINTS: Record<string, number> = {
+	"@fontsource-variable/playfair-display/wght.css": 4, // cyrillic, vietnamese, latin-ext, latin
+	"@fontsource-variable/dm-sans/wght.css": 2, // latin-ext, latin
+	"@fontsource/ibm-plex-mono/latin-400.css": 1,
+	"@fontsource/ibm-plex-mono/latin-500.css": 1,
+};
+
+/** Registered by Fontsource's variable packages WITH the suffix. A token naming
+ *  the plain "Playfair Display" matches nothing and renders Georgia. */
+const CHARCOAL_FAMILIES = ["DM Sans Variable", "IBM Plex Mono", "Playfair Display Variable"];
+
+/** The four families the design system shipped before v2.0.0. Criterion 4 is
+ *  that a page consuming only charcoal never downloads any of them. */
+const PRE_2_0_FAMILIES = ["Inter", "Archivo", "JetBrains Mono", "Newsreader"];
+
+describe("font delivery", () => {
+	// ── (a) DS-04, literally rather than aspirationally ──────────────────────
+	it("declares no faces and pulls in no font packages from the token layer", () => {
+		// Occurrence counts, not line counts: two matches on one line count twice.
+		expect((tokensCss.match(/@font-face/g) ?? []).length).toBe(0);
+		expect((tokensCss.match(/@fontsource/g) ?? []).length).toBe(0);
+	});
+
+	it("pulls in zero faces transitively through the token layer", () => {
+		// The assertion the zero-@fontsource check above cannot make. Adding
+		// `@import "./fonts/default.css";` to tokens.css keeps the @fontsource
+		// count at 0 while putting all 73 faces straight back into every
+		// consumer's bundle — which is precisely the state D-36 exists to end.
+		const census = faceCensus(join(SRC, "tokens.css"));
+		expect(census.perImport).toEqual({});
+		expect(census.total).toBe(0);
+	});
+
+	for (const [label, file] of [
+		["charcoal", CHARCOAL_FACE_LAYER],
+		["default", DEFAULT_FACE_LAYER],
+	] as const) {
+		it(`fonts/${label}.css carries faces only, never tokens`, () => {
+			// Comments stripped first: a header is free to discuss a token by name
+			// without that reading as a declaration.
+			expect([...declaredIn(stripCssComments(readFileSync(file, "utf8")))]).toEqual([]);
+		});
+	}
+
+	// ── (b) The face census — criterion 4 ────────────────────────────────────
+	const charcoalCensus = faceCensus(CHARCOAL_FACE_LAYER);
+
+	it("resolves the charcoal face layer to exactly its four entry points", () => {
+		// Keyed comparison, so adding a fifth entry point or renaming one fails
+		// here with a diff rather than silently shifting the total below.
+		expect(charcoalCensus.perImport).toEqual(CHARCOAL_ENTRY_POINTS);
+	});
+
+	it("resolves the charcoal face layer to exactly 8 @font-face rules", () => {
+		expect(charcoalCensus.total).toBe(8);
+	});
+
+	it("names exactly the three charcoal families, with the Variable suffix", () => {
+		expect([...new Set(charcoalCensus.families)].sort()).toEqual(CHARCOAL_FAMILIES);
+	});
+
+	it("downloads none of the four pre-2.0 families under charcoal", () => {
+		// The criterion's actual content, asserted separately from the positive
+		// half above: "these three are present" and "those four are absent" are
+		// different claims, and only the second one is what D-30 bought.
+		const banned = charcoalCensus.families.filter((f) =>
+			PRE_2_0_FAMILIES.some((p) => f.toLowerCase().includes(p.toLowerCase())),
+		);
+		expect(banned).toEqual([]);
+	});
+
+	it("relocates all 73 pre-2.0 faces without losing one", () => {
+		// tokens.css contributed 73 before the split; fonts/default.css must
+		// contribute the same 73, or the "nothing was deleted, only moved"
+		// promise in the BREAKING CHANGE footer is not true.
+		const census = faceCensus(DEFAULT_FACE_LAYER);
+		expect(Object.keys(census.perImport)).toHaveLength(15);
+		expect(census.total).toBe(73);
+		expect([...new Set(census.families)].sort()).toEqual([
+			"Archivo",
+			"Inter",
+			"JetBrains Mono",
+			"Newsreader Variable",
+		]);
+	});
+
+	// ── (c) The Variable-suffix guard — DS-05 ────────────────────────────────
+	//
+	// Only the HEAD of each stack is checked. Everything after the first comma
+	// is a deliberate fallback — Georgia, system-ui, ui-monospace, -apple-system
+	// and friends — which has no @font-face by design, so asserting on the tail
+	// would be wrong. Checking the head is the whole point: the head is the name
+	// that has to agree with what Fontsource actually registered.
+	const FONT_TOKEN = /^--(font|mono|display|serif)(-[a-z0-9-]+)?$/;
+
+	function fontTokensOf(css: string, selector: string): string[] {
+		return [
+			...new Set(
+				[...block(css, selector).matchAll(/^\s*(--[a-z0-9-]+)\s*:/gim)]
+					.map((m) => m[1]!)
+					.filter((n) => FONT_TOKEN.test(n)),
+			),
+		];
+	}
+
+	const stackHead = (stack: string) =>
+		stack
+			.split(",")[0]!
+			.trim()
+			.replace(/^['"]|['"]$/g, "");
+
+	// Charcoal declares all eight font tokens in BOTH of its blocks, so both are
+	// checked. Reading only the light block would leave a wrong family name in the
+	// dark block undetected — the same light-only blind spot that let --rule-strong
+	// ship dark-only, pointing the other way.
+	for (const [theme, css, selector, layer, faceLayer] of [
+		["default", tokensCss, ":root {", "default", DEFAULT_FACE_LAYER],
+		["charcoal light", charcoalCss, CHARCOAL_LIGHT, "charcoal", CHARCOAL_FACE_LAYER],
+		["charcoal dark", charcoalCss, CHARCOAL_DARK, "charcoal", CHARCOAL_FACE_LAYER],
+	] as const) {
+		const registered = new Set(faceCensus(faceLayer).families.map((f) => f.toLowerCase()));
+		const tokens = fontTokensOf(css, selector);
+
+		it(`collects all 8 ${theme} font tokens`, () => {
+			// Asserted so a renamed token shrinks the set loudly instead of
+			// producing a smaller green run — the failure mode that let two gates
+			// in this phase ship unable to fail.
+			expect([...tokens].sort()).toEqual(
+				[
+					"--display",
+					"--font",
+					"--font-body",
+					"--font-display",
+					"--font-mono",
+					"--font-serif",
+					"--mono",
+					"--serif",
+				].sort(),
+			);
+		});
+
+		for (const name of tokens) {
+			it(`${theme} ${name} names a family that fonts/${layer}.css actually declares`, () => {
+				// resolve() follows var(), so breaking one token surfaces every token
+				// that resolves through it. Charcoal's --font-display, --display and
+				// --serif all resolve through --font-serif; a per-token check that
+				// did not follow aliases would report one failure and leave three
+				// tokens silently rendering Georgia.
+				let head: string;
+				try {
+					head = stackHead(resolve(css, selector, name));
+				} catch (e) {
+					// A missing declaration must fail THIS case by name, never crash
+					// collection and take the rest of the file down with it.
+					throw new Error(`${theme} ${name}: ${(e as Error).message}`);
+				}
+				expect(
+					registered.has(head.toLowerCase()),
+					`${theme} ${name} heads its stack with "${head}", which has no @font-face in fonts/${layer}.css. Registered there: ${[...registered].sort().join(", ")}`,
+				).toBe(true);
+			});
+		}
 	}
 });
