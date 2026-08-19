@@ -16,7 +16,15 @@
  * even if a bundler reaches a chunk by another route, and costs ~14 bytes each.
  */
 import { execFileSync } from "node:child_process";
-import { copyFileSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import {
+	copyFileSync,
+	existsSync,
+	mkdirSync,
+	readFileSync,
+	readdirSync,
+	statSync,
+	writeFileSync,
+} from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -30,6 +38,37 @@ const DIRECTIVE = '"use client";';
 // package whose documented stylesheet entrypoints 404. Throwing is the point.
 for (const css of ["tokens.css", "primitives.css", "utilities.css"]) {
 	copyFileSync(join(root, "src", css), join(dist, css));
+}
+
+// The same contract, one level down: package.json `exports` maps ./themes/*.css
+// and ./fonts/*.css at these paths — the specifiers the charcoal theme and both
+// face layers are documented under. `files` is ["dist", ...], so a file this
+// loop misses is not published at all, and the 404 surfaces at a consumer's
+// build rather than ours. Throwing is the point here too.
+//
+// The zero-copy guard is deliberately per-directory rather than a total: a
+// build that copied one of two theme files would still satisfy
+// src/packaging.test.ts, which asserts the directory holds *at least one*
+// match, and would publish a half-empty directory.
+let copiedStylesheets = 3;
+for (const dir of ["themes", "fonts"]) {
+	const from = join(root, "src", dir);
+	if (!existsSync(from)) continue;
+	mkdirSync(join(dist, dir), { recursive: true });
+	let n = 0;
+	for (const entry of readdirSync(from)) {
+		if (!entry.endsWith(".css")) continue;
+		copyFileSync(join(from, entry), join(dist, dir, entry));
+		n += 1;
+	}
+	if (n === 0) {
+		throw new Error(
+			`postbuild: copied 0 stylesheets from src/${dir}/ although that directory exists — ` +
+				`package.json exports ./${dir}/*.css, so this build would publish a package whose ` +
+				`documented ${dir} entrypoints 404.`,
+		);
+	}
+	copiedStylesheets += n;
 }
 
 // ── 2. Per-component stylesheets ────────────────────────────────────────────
@@ -65,4 +104,6 @@ if (stamped === 0) {
 	);
 }
 
-console.log(`postbuild: copied 3 stylesheets, stamped ${stamped} JS files with "use client"`);
+console.log(
+	`postbuild: copied ${copiedStylesheets} stylesheets, stamped ${stamped} JS files with "use client"`,
+);

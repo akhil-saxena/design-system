@@ -58,6 +58,34 @@ import { useFocusTrap, useReducedMotion } from "@akhil-saxena/design-system/hook
 import { ChevronDown, Search } from "@akhil-saxena/design-system/icons";
 ```
 
+Stylesheets are reached the same way. Themes and font layers are imported for their
+side effects:
+
+```ts
+import "@akhil-saxena/design-system/tokens.css";
+import "@akhil-saxena/design-system/themes/charcoal.css";
+import "@akhil-saxena/design-system/fonts/charcoal.css"; // or /fonts/default.css
+```
+
+### Why the `exports` patterns carry `.css` inside the wildcard
+
+`package.json` spells these entries `"./themes/*.css"` and `"./fonts/*.css"`, **not**
+`"./themes/*"`. This is deliberate and it is load-bearing — do not tidy it.
+
+Node substitutes whatever the `*` captured into the target. With `"./themes/*.css"`,
+importing `@akhil-saxena/design-system/themes/charcoal.css` captures `charcoal` and
+resolves to `dist/themes/charcoal.css`. Respell the entry `"./themes/*"` and the `*`
+captures `charcoal.css` instead, the target becomes `dist/themes/charcoal.css.css`,
+and a consumer's build fails on that exact specifier with
+`[vite]: Rolldown failed to resolve import`.
+
+`./css/*` predates this and keeps the other convention, so per-component sheets are
+written **extensionless** (`css/base`). Because the first spelling a developer reaches
+for is `css/base.css`, an additional `"./css/*.css"` entry exists so both forms
+resolve. Note that `import.meta.resolve()` will not catch a mistake here: it
+substitutes the wildcard and reports a path without checking the file exists, so the
+only real verification is a build.
+
 ## Components
 
 ### Inputs (24)

@@ -34,6 +34,18 @@
 		"./tokens.css": "./dist/tokens.css",
 		"./primitives.css": "./dist/primitives.css",
 		"./utilities.css": "./dist/utilities.css",
+		"./themes/*.css": {
+			"style": "./dist/themes/*.css",
+			"default": "./dist/themes/*.css"
+		},
+		"./fonts/*.css": {
+			"style": "./dist/fonts/*.css",
+			"default": "./dist/fonts/*.css"
+		},
+		"./css/*.css": {
+			"style": "./dist/css/*.css",
+			"default": "./dist/css/*.css"
+		},
 		"./css/*": {
 			"style": "./dist/css/*.css",
 			"default": "./dist/css/*.css"
