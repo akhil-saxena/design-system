@@ -86,3 +86,110 @@ describe("FormErrorSummary", () => {
 		expect(container.firstChild).toBeNull();
 	});
 });
+
+/**
+ * G-6 — a summary entry could not carry a link. Both surfaces that needed one
+ * (the D-18 publish modal and the inline publish block) had to render their
+ * "Go to Résumé" / "Go to Photos" / "Go to Home" actions as separate elements
+ * beside the summary, in a second ordered list whose only binding to the first
+ * was that the two arrays happened to be in the same order. Reordering or
+ * renumbering either one desynchronised them with nothing to catch it.
+ *
+ * So the assertion that matters is not "an href is accepted" — it is that the
+ * anchor is ON the item that names the failure, and that nothing renders outside
+ * the <ul>.
+ */
+describe("FormErrorSummary anchored entries (G-6)", () => {
+	it("still accepts a plain string array, rendering exactly as before", () => {
+		const { container } = render(<FormErrorSummary errors={["Name is required"]} />);
+		const li = container.querySelector("li");
+		expect(li?.textContent).toBe("Name is required");
+		expect(li?.querySelector("a"), "a string entry must not become a link").toBeNull();
+	});
+
+	it("renders an anchor whose accessible text is the message", () => {
+		// The link text IS the failure. "Go to Résumé" beside "Résumé is missing a
+		// role" is a navigation aside; this is a deep link, which is the finding.
+		render(
+			<FormErrorSummary errors={[{ message: "Résumé is missing a role", href: "/resume" }]} />,
+		);
+		const link = screen.getByRole("link", { name: "Résumé is missing a role" });
+		expect(link).toHaveAttribute("href", "/resume");
+	});
+
+	it("puts the anchor inside the <li>, with no second list anywhere", () => {
+		const { container } = render(
+			<FormErrorSummary
+				errors={[
+					{ message: "a", href: "/a" },
+					{ message: "b", href: "/b" },
+				]}
+			/>,
+		);
+		const lists = container.querySelectorAll("ul, ol");
+		expect(lists, "a second list is the workaround this finding exists to remove").toHaveLength(1);
+		for (const link of container.querySelectorAll("a")) {
+			expect(link.closest("li"), "anchor rendered beside the list, not on the item").not.toBeNull();
+		}
+		// Nothing outside the <ul> but the title.
+		const root = container.firstElementChild as HTMLElement;
+		expect(Array.from(root.children).map((c) => c.tagName)).toEqual(["STRONG", "UL"]);
+	});
+
+	it("renders plain text, not a dead link, when an entry has no href", () => {
+		const { container } = render(<FormErrorSummary errors={[{ message: "No target" }]} />);
+		expect(container.querySelector("li")?.textContent).toBe("No target");
+		expect(container.querySelector("a")).toBeNull();
+	});
+
+	it("renders a mixed array of strings and objects", () => {
+		const { container } = render(
+			<FormErrorSummary
+				errors={["plain", { message: "linked", href: "/x" }, { message: "bare" }]}
+			/>,
+		);
+		const items = Array.from(container.querySelectorAll("li"));
+		expect(items.map((li) => li.textContent)).toEqual(["plain", "linked", "bare"]);
+		expect(container.querySelectorAll("a")).toHaveLength(1);
+	});
+
+	it("keeps role=alert on the container", () => {
+		// Deliberately NOT symmetric with FieldError's warning tone: a summary that
+		// appears after a failed submit should preempt.
+		render(<FormErrorSummary errors={[{ message: "a", href: "/a" }]} />);
+		expect(screen.getByRole("alert")).toBeTruthy();
+	});
+
+	describe("T-11-01: only in-app hrefs become anchors", () => {
+		// React does not block `javascript:` in href the way it does some
+		// attributes, so an entry's href is a real XSS vector. Anything that is not
+		// shaped like an in-app link renders as plain text — the failure is still
+		// named, it just is not clickable.
+		const rejected = [
+			"javascript:alert(1)",
+			// biome-ignore lint/suspicious/noExplicitAny: exercising a hostile value
+			"JaVaScRiPt:alert(1)" as any,
+			"data:text/html,<script>alert(1)</script>",
+			"//evil.example.com",
+			"https://evil.example.com",
+			"vbscript:msgbox(1)",
+			" /leading-space",
+		];
+
+		for (const href of rejected) {
+			it(`refuses ${JSON.stringify(href)}`, () => {
+				const { container } = render(<FormErrorSummary errors={[{ message: "hostile", href }]} />);
+				expect(container.querySelector("a"), `${href} was rendered as an anchor`).toBeNull();
+				expect(container.querySelector("li")?.textContent).toBe("hostile");
+			});
+		}
+
+		for (const href of ["/resume", "#alt-text", "./photos", "../home"]) {
+			it(`accepts ${JSON.stringify(href)}`, () => {
+				const { container } = render(<FormErrorSummary errors={[{ message: "ok", href }]} />);
+				expect(container.querySelector("a"), `${href} should have been a link`).not.toBeNull();
+				expect(container.querySelector("a")).toHaveAttribute("href", href);
+			});
+		}
+	});
+});

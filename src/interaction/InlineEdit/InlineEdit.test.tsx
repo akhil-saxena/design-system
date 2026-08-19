@@ -136,3 +136,66 @@ describe("InlineEdit", () => {
 		expect(screen.queryByRole("textbox")).toBeNull();
 	});
 });
+
+/**
+ * F-15-8 — the accessible name was the hardcoded string "Click to edit", with no
+ * prop, so all seven rows on /admin/site announced the same three words. "Click
+ * to edit" describes the *interaction*, which role="button" already conveys; a
+ * name should describe the *target*. That distinction is the finding.
+ *
+ * The prop is named `ariaLabel` to match the sibling `InlineEditField`, which
+ * already requires one — so the family agrees rather than inventing a second
+ * spelling.
+ */
+describe("InlineEdit accessible name (F-15-8)", () => {
+	it("names the idle trigger with ariaLabel", () => {
+		render(<InlineEdit value="akhilsaxena.com" onSave={vi.fn()} ariaLabel="Site title" />);
+		expect(screen.getByRole("button", { name: "Site title" })).toBeInTheDocument();
+		expect(screen.queryByRole("button", { name: /click to edit/i })).toBeNull();
+	});
+
+	it("falls back to the old string when ariaLabel is omitted", () => {
+		// Seven existing tests in this file select by /click to edit/i, and every
+		// existing consumer relies on it. The default is what makes this additive.
+		render(<InlineEdit value="akhilsaxena.com" onSave={vi.fn()} />);
+		expect(screen.getByRole("button", { name: "Click to edit" })).toBeInTheDocument();
+	});
+
+	it("gives distinct names to distinct rows", () => {
+		// The measured defect: seven rows, one name. This is the assertion that would
+		// have caught it.
+		render(
+			<>
+				<InlineEdit value="a" onSave={vi.fn()} ariaLabel="Site title" />
+				<InlineEdit value="b" onSave={vi.fn()} ariaLabel="Tagline" />
+			</>,
+		);
+		const names = screen.getAllByRole("button").map((el) => el.getAttribute("aria-label"));
+		expect(new Set(names).size, "two rows announced the same name").toBe(2);
+	});
+
+	it("carries the name onto the input in edit mode", () => {
+		// The editing input had NO accessible name at all — sharedProps never set one.
+		// Adopting the prop fixes both states, which is what InlineEditField does.
+		render(<InlineEdit value="a" onSave={vi.fn()} ariaLabel="Site title" />);
+		fireEvent.click(screen.getByRole("button", { name: "Site title" }));
+		expect(screen.getByRole("textbox", { name: "Site title" })).toBeInTheDocument();
+	});
+
+	it("leaves the edit-mode input exactly as it was when ariaLabel is omitted", () => {
+		// Deliberately NOT defaulted onto the input: "Click to edit" is a nonsense name
+		// for a field you are already editing. Omitting the prop must change nothing.
+		render(<InlineEdit value="a" onSave={vi.fn()} />);
+		fireEvent.click(screen.getByRole("button", { name: /click to edit/i }));
+		expect(screen.getByRole("textbox").hasAttribute("aria-label")).toBe(false);
+	});
+
+	it("does not touch the control's geometry (F-15-7 / G-2 is Phase 06.1)", () => {
+		// T-11-06 scope guard: the 25px height against the 44px touch floor belongs to
+		// another phase. If this plan ever grows a height, this fails.
+		const { container } = render(<InlineEdit value="a" onSave={vi.fn()} ariaLabel="Site title" />);
+		const span = container.querySelector(".ds-atom-inlineedit") as HTMLElement;
+		expect(span.style.height).toBe("");
+		expect(span.style.minHeight).toBe("");
+	});
+});

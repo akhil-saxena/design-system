@@ -23,6 +23,22 @@ export interface InlineEditProps {
 	 * @default false
 	 */
 	disabled?: boolean;
+	/**
+	 * Accessible name for the idle trigger, and for the input once editing (F-15-8).
+	 *
+	 * Say **what is being edited**, not what the interaction is. The default
+	 * "Click to edit" describes the interaction, which `role="button"` already
+	 * conveys — so seven rows on one screen announced the same three words and a
+	 * screen-reader user could not tell which field they were on. "Site title"
+	 * tells them.
+	 *
+	 * Named to match the sibling `InlineEditField`, which already requires one.
+	 * Optional here, defaulting to the previous string, so every existing call site
+	 * is unchanged.
+	 *
+	 * @default "Click to edit"
+	 */
+	ariaLabel?: string;
 	className?: string;
 	style?: CSSProperties;
 }
@@ -48,6 +64,7 @@ export function InlineEdit({
 	multiline = false,
 	placeholder,
 	disabled = false,
+	ariaLabel,
 	className,
 	style,
 }: InlineEditProps) {
@@ -126,6 +143,11 @@ export function InlineEdit({
 			onBlur: handleBlur,
 			"data-state": state,
 			error: state === "error",
+			// The raw prop, deliberately NOT the "Click to edit" default: that is a
+			// nonsense name for a field you are already editing, and this input
+			// previously had no name at all. Omitting ariaLabel leaves it exactly as
+			// it was; supplying one fixes both states, as InlineEditField does.
+			"aria-label": ariaLabel,
 		};
 
 		return (
@@ -160,7 +182,7 @@ export function InlineEdit({
 			}}
 			// biome-ignore lint/a11y/useSemanticElements: span role=button is required here to keep inline flow; a native <button> causes layout shift between idle/editing states
 			role="button"
-			aria-label="Click to edit"
+			aria-label={ariaLabel ?? "Click to edit"}
 			aria-disabled={disabled}
 			style={style}
 		>

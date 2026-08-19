@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { Link } from "../../foundation/Link";
 
 // ─── DS-75: FormValidation helpers ────────────────────────────────────────────
 
@@ -104,8 +105,49 @@ export function FieldError({ message, tone = "error", id, className }: FieldErro
 	);
 }
 
+/**
+ * One entry in a `FormErrorSummary`.
+ *
+ * The bare string is the original shape and still works. The object form adds
+ * `href` (G-6): without it, the two surfaces that needed a link — the D-18
+ * publish modal and the inline publish block — had to render their actions as
+ * separate elements *beside* the summary, in a second ordered list whose only
+ * binding to the first was that the two arrays happened to be in the same order.
+ * Reordering or renumbering either one desynchronised them with nothing to catch
+ * it. So the link belongs ON the item that names the failure.
+ */
+export type FormErrorSummaryEntry = string | { message: string; href?: string };
+
+/**
+ * The subset of href shapes that become anchors (T-11-01).
+ *
+ * A consumer-supplied href is a real elevation-of-privilege vector here: React
+ * does NOT block `javascript:` in `href` the way it blocks some attributes, so
+ * an unfiltered value would execute on click. Only in-app link shapes are
+ * rendered as anchors — a leading `/`, `#` or `.` — which is all D-18 needs,
+ * since every real entry deep-links to a route on this site.
+ *
+ * `//host` is excluded explicitly: it passes a naive leading-slash test but is
+ * protocol-relative and leaves the application. The test is on the FIRST
+ * character, so a leading-whitespace smuggle (`" javascript:…"`) fails too.
+ *
+ * Anything rejected renders as plain text. The failure is still named — it just
+ * is not clickable, which is a strictly better outcome than a live hostile URL.
+ */
+function inAppHref(href: string | undefined): string | undefined {
+	if (!href || href.startsWith("//")) return undefined;
+	return /^[/#.]/.test(href) ? href : undefined;
+}
+
 export interface FormErrorSummaryProps {
-	errors: string[];
+	/**
+	 * Widened from `string[]` rather than replaced by the object form (G-6). The
+	 * finding proposed `Array<{ message, href? }>`, but accepting the string
+	 * alongside it costs one normaliser and keeps every existing call site
+	 * compiling — and the finding records that the component "was not forked to add
+	 * an href", so an additive widening is truest to how it was measured.
+	 */
+	errors: FormErrorSummaryEntry[];
 	/** @default "Please fix the following errors:" */
 	title?: string;
 	className?: string;
@@ -119,15 +161,43 @@ export function FormErrorSummary({
 	if (errors.length === 0) return null;
 	return (
 		<div
+			// role="alert" is kept, and is deliberately NOT symmetric with FieldError's
+			// warning tone above: a summary only appears after a failed submit, so
+			// preempting is correct here and wrong there. Do not "make these
+			// consistent" — the asymmetry is the point.
 			role="alert"
 			className={["ds-atom-form-error-summary", className].filter(Boolean).join(" ")}
 		>
 			<strong>{title}</strong>
 			<ul>
-				{errors.map((err, i) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: static error list - order is stable and no unique IDs available
-					<li key={i}>{err}</li>
-				))}
+				{errors.map((entry, i) => {
+					const message = typeof entry === "string" ? entry : entry.message;
+					const href = inAppHref(typeof entry === "string" ? undefined : entry.href);
+					return (
+						// The index key survives the widening on purpose. `href ?? message` looks
+						// stable but collides whenever two fields fail with the same message, and
+						// a wrong key is worse than an acknowledged one.
+						// biome-ignore lint/suspicious/noArrayIndexKey: static error list - order is stable and no unique IDs available
+						<li key={i}>
+							{/* The anchor's accessible text IS the message. Not "Go to Résumé"
+							    beside "Résumé is missing a role" — that is a navigation aside;
+							    this is a deep link, and nothing renders outside the <ul>. */}
+							{href ? (
+								// Link, not a bare <a>: primitive-composition.test.ts enforces it, and
+								// the primitive owns the focus ring. `variant="default"` specifically —
+								// the `inline` default sets `color` as an INLINE style, which would beat
+								// any stylesheet rule without !important, so the link would render amber
+								// inside a red summary box. `default` lives entirely in primitives.css,
+								// where the summary's own rule can compose with it.
+								<Link href={href} variant="default">
+									{message}
+								</Link>
+							) : (
+								message
+							)}
+						</li>
+					);
+				})}
 			</ul>
 		</div>
 	);

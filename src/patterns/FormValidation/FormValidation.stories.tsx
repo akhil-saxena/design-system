@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { FieldError, FormErrorSummary, PasswordStrength } from ".";
+import { SegmentedControl } from "../../data-display/SegmentedControl";
+import { Field, useField } from "../../inputs/Field";
 import { TextInput } from "../../inputs/TextInput";
 const meta: Meta = {
 	title: "Patterns/FormValidation",
@@ -84,6 +86,50 @@ function PasswordDemo() {
 	);
 }
 
+function RequiredDemo() {
+	const single = useField({});
+	const grouped = useField({});
+	const warned = useField({ errorMessage: "Alt text is shorter than 15 characters." });
+	return (
+		<div
+			style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 300, width: "100%" }}
+		>
+			<Field
+				label="Alt text"
+				wiring={single}
+				required
+				hint="Describes the photo for screen readers."
+			>
+				<TextInput id={single.controlId} aria-describedby={single.describedBy} required />
+			</Field>
+			<Field label="Visibility" wiring={grouped} required group>
+				<SegmentedControl
+					options={[
+						{ value: "public", label: "Public" },
+						{ value: "draft", label: "Draft" },
+					]}
+					value="public"
+					onChange={() => {}}
+					ariaLabel="Visibility"
+				/>
+			</Field>
+			<Field
+				label="Caption"
+				wiring={warned}
+				required
+				errorMessage="Alt text is shorter than 15 characters."
+				errorTone="warning"
+			>
+				<TextInput
+					id={warned.controlId}
+					aria-describedby={warned.describedBy}
+					defaultValue="A gull"
+				/>
+			</Field>
+		</div>
+	);
+}
+
 export const PasswordStrengthLive: Story = {
 	name: "PasswordStrength - live input",
 	render: () => <PasswordDemo />,
@@ -108,6 +154,62 @@ export const FormErrorSummaryStory: Story = {
 					"Name is required.",
 					"Email address is invalid.",
 					"Password must be at least 8 characters.",
+				]}
+			/>
+		</div>
+	),
+};
+
+export const FieldErrorSeverity: Story = {
+	name: "FieldError - error vs warning (E11)",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The two severities used to render identically and both interrupted. `error` keeps `role="alert"`, which preempts the screen reader; `warning` uses `role="status"`, which waits. The visible difference is deliberately not colour alone \u2014 a monochrome or colour-blind reader gets the icon.',
+			},
+		},
+	},
+	render: () => (
+		<div
+			style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 300, width: "100%" }}
+		>
+			<FieldError message="Alt text is required before publishing." />
+			<FieldError message="Alt text is shorter than 15 characters." tone="warning" />
+		</div>
+	),
+};
+
+export const FieldRequiredMarker: Story = {
+	name: "Field - required marker (E15)",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Requiredness used to live in the label string, so every screen invented its own marker. The marker is `aria-hidden` because the control's own native `required` attribute is what announces it; under `group` it moves into the `<legend>`. The glyph comes from `primitives.css`, not from the JSX.",
+			},
+		},
+	},
+	render: () => <RequiredDemo />,
+};
+
+export const AnchoredErrorSummary: Story = {
+	name: "FormErrorSummary - anchored entries (G-6)",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"An entry can carry an `href`, and the anchor renders ON the list item that names the failure \u2014 the link text IS the failure. The workaround this replaces was a second ordered list beside the summary, bound to the first only by both arrays happening to be in the same order. A mixed array of strings and objects is shown; the last entry has no `href` and stays plain text.",
+			},
+		},
+	},
+	render: () => (
+		<div style={{ maxWidth: 340, width: "100%" }}>
+			<FormErrorSummary
+				errors={[
+					{ message: "R\u00e9sum\u00e9 is missing a role.", href: "#resume" },
+					{ message: "Two photos have no alt text.", href: "#photos" },
+					"Home intro is empty.",
 				]}
 			/>
 		</div>

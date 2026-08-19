@@ -5379,9 +5379,16 @@ fieldset.ds-atom-field {
 	margin-inline-end: 0.4ch;
 }
 /* A summary entry's link (G-6). The anchor IS the failure text, so it inherits
-   the list colour instead of going UA blue inside a red box; the underline is
-   the non-colour affordance that it is a link at all. */
-.ds-atom-form-error-summary a {
+   the list colour instead of reading as a grey secondary link inside a red box;
+   the underline is the non-colour affordance that it is a link at all.
+
+   SPECIFICITY, stated deliberately: (0,2,1) via `a.ds-atom-link`, not (0,1,1) via
+   `a`. Link's own `[data-variant="default"]` rule is (0,2,0) and is declared ~1070
+   lines BELOW this one, so it would win on both axes and paint the link
+   var(--ink-2). MEASURED in Chromium, not inferred: see the G-6 case in
+   tests/visual/control-boundary.spec.ts. A consumer targeting the same nested
+   selector ties and wins on source order. */
+.ds-atom-form-error-summary a.ds-atom-link {
 	color: inherit;
 	text-decoration: underline;
 }
