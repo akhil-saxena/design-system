@@ -67,6 +67,45 @@ import "@akhil-saxena/design-system/themes/charcoal.css";
 import "@akhil-saxena/design-system/fonts/charcoal.css"; // or /fonts/default.css
 ```
 
+### Per-component imports, and when you need them
+
+Every component also has its own JS entry point:
+
+```ts
+import { Chip } from "@akhil-saxena/design-system/components/Chip";
+import { Lightbox } from "@akhil-saxena/design-system/components/Lightbox";
+```
+
+**The barrel remains the default.** It is the right import for server-rendered pages,
+for admin screens, and for anything that is not hydrated — it is more ergonomic and it
+ships the same code.
+
+**For a hydrated island, import by `components/<Name>`.** That is the form this package
+guarantees, and the form its CI gate defends (`tests/treeshake/subpath.test.ts` fails the
+build if a component subpath ever regains ProseMirror, TipTap, lowlight, highlight.js or
+dnd-kit). The barrel is deliberately **not** covered by that gate.
+
+The reason the distinction exists: `src/index.ts` re-exports every component, and some of
+those components pull in the editor stack (`@tiptap/*`, `lowlight`, `highlight.js`) and
+the drag-and-drop stack (`@dnd-kit/*`). When the whole library was emitted as a single
+`dist/index.js`, those imports sat at the top level of that one module and a consumer's
+bundler could not shake them out — one `import { Chip }` on a hydrated island measured
+**570,555 B raw / 176,922 B gzip / 99 modules**, carrying ProseMirror x10, TipTap x23,
+lowlight x4, highlight.js x4 and dnd-kit x3. Three configuration fixes were tried
+(`sideEffects: false`, removing the `"use client"` directive, marking the module-scope
+`createLowlight()` `/* @__PURE__ */`) and every one produced byte-identical output. Astro
+7 ships Vite 8, which is Rolldown-based, and Rollup-era tree-shaking advice does not
+transfer.
+
+Emitting one entry per component fixed that, and it improved the barrel as a side effect:
+splitting the build across ~84 entries turned `dist/index.js` from a 328 KB monolith into
+a ~6.7 KB file of re-export lines over per-component chunks, which Rolldown *can* shake.
+Measured through a real Astro 7 build, the same `import { Chip }` island now emits
+**1,620 B raw / 785 B gzip / 2 modules** with none of those families present, and the
+subpath import emits the same thing. So the barrel is no longer a trap — but that outcome
+depends on chunking decisions a future build change could quietly reverse, and only the
+subpath form is gated. On a hydrated island, use the subpath.
+
 ### Why the `exports` patterns carry `.css` inside the wildcard
 
 `package.json` spells these entries `"./themes/*.css"` and `"./fonts/*.css"`, **not**
@@ -85,6 +124,13 @@ for is `css/base.css`, an additional `"./css/*.css"` entry exists so both forms
 resolve. Note that `import.meta.resolve()` will not catch a mistake here: it
 substitutes the wildcard and reports a path without checking the file exists, so the
 only real verification is a build.
+
+Note the asymmetry with `./components/*`, which is spelled with the extension **outside**
+the wildcard (`"./components/*": { "import": "./dist/components/*.js" }`). Both are
+correct for their own consumer syntax: a JS consumer writes `components/Chip` with no
+extension, so the `*` must capture `Chip`, whereas a CSS consumer writes
+`themes/charcoal.css` with one. They look inconsistent and are not — do not "fix" either
+to match the other.
 
 ## Components
 
