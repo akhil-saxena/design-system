@@ -1,26 +1,19 @@
 /* @akhil-saxena/design-system v1.5.0 - token layer.
    Imported via:
      import "@akhil-saxena/design-system/tokens.css";
-   Use BEFORE primitives.css and utilities.css (cascade order matters). */
+   Use BEFORE primitives.css and utilities.css (cascade order matters).
 
-/* @fontsource - replaces Google Fonts CDN @import. Versioned with the package. */
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/inter/700.css";
-@import "@fontsource/archivo/500.css";
-@import "@fontsource/archivo/600.css";
-@import "@fontsource/archivo/700.css";
-@import "@fontsource/archivo/800.css";
-@import "@fontsource/archivo/900.css";
-@import "@fontsource/jetbrains-mono/400.css";
-@import "@fontsource/jetbrains-mono/500.css";
-@import "@fontsource/jetbrains-mono/600.css";
-@import "@fontsource/jetbrains-mono/700.css";
-/* Newsreader (variable, optical-size) — editorial serif for display headings
-   (roman) + quiet italic captions. Consolidated from Cairn (--serif). */
-@import "@fontsource-variable/newsreader/opsz.css";
-@import "@fontsource-variable/newsreader/opsz-italic.css";
+   AS OF v2.0.0 THIS SHEET CARRIES TOKENS ONLY, WITH ZERO FACE RULES. The
+   fifteen font inclusions that used to sit right here were moved out to their
+   own face layer (D-29, and D-36 for why removing them is a breaking change).
+   A consumer must therefore additionally import exactly ONE face layer:
+
+     import "@akhil-saxena/design-system/fonts/default.css";   pre-2.0 families
+     import "@akhil-saxena/design-system/fonts/charcoal.css";  charcoal brand
+
+   Omit the face layer and EVERY family falls back at once, so the page is
+   unmistakably wrong on first load rather than subtly wrong in one heading
+   three weeks later. That totality is the design, not a rough edge. */
 
 /* ─── Light mode tokens ─────────────────────────────────────────────── */
 :root {

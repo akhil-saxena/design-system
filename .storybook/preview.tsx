@@ -1,5 +1,15 @@
 import type { Preview } from "@storybook/react-vite";
 import { create } from "@storybook/theming/create";
+// The FACE layers. As of v2.0.0 tokens.css carries no face rules (D-29/D-36),
+// so without these every story renders in a fallback family and all 488 visual
+// baselines move. Both brands are loaded because Storybook is a two-brand
+// development environment by construction; criterion 4 ("a page consuming only
+// charcoal downloads only charcoal's three families") is a property of a real
+// consumer, not of this preview, and is measured in tests/visual/font-download
+// against an isolated page. Face rules do not participate in the cascade with
+// selector rules, so their position relative to the token layers is arbitrary.
+import "../src/fonts/default.css";
+import "../src/fonts/charcoal.css";
 import "../src/tokens.css";
 // Charcoal is imported unconditionally, in the position its own header
 // documents (after the token layer, before primitives). It costs nothing when
