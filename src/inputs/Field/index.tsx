@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
+import { FieldError } from "../../patterns/FormValidation";
 
 export interface FieldWiring {
 	/** `id` for the control, and the `htmlFor` target of the label. */
@@ -73,6 +74,27 @@ export interface FieldProps {
 	 * `<legend>`, which is the correct grouping label.
 	 */
 	group?: boolean;
+	/**
+	 * Renders the required marker (E15). Requiredness used to live in the label
+	 * string — `"Alt text (required)"` — and got repeated in the hint, so every
+	 * screen invented its own marker and they did not match. There is now exactly
+	 * one.
+	 *
+	 * **This is the marker, not the semantics.** It does NOT set the native
+	 * `required` attribute on the child: `Field` wraps an arbitrary subtree and
+	 * does not own the control, so it cannot. Pass `required` to the control too —
+	 * that attribute is what assistive technology actually announces, and it
+	 * already passes through TextInput. A `Field` that appeared to enforce
+	 * validation it cannot see would be worse than one that does not try.
+	 */
+	required?: boolean;
+	/**
+	 * Severity of `errorMessage` (E11). Forwarded to `FieldError`; `"warning"`
+	 * announces through `role="status"` instead of `role="alert"`, so it does not
+	 * interrupt.
+	 * @default "error"
+	 */
+	errorTone?: "error" | "warning";
 	children: ReactNode;
 	className?: string;
 }
@@ -86,8 +108,9 @@ export interface FieldProps {
  * the error affordance yourself, differently each time. Extracting it means the
  * message renders, reads and announces identically everywhere.
  *
- * The error carries `role="alert"` so a message that appears on submit is
- * announced rather than sitting silently in the DOM.
+ * The error is rendered by `FieldError`, which carries `role="alert"` so a
+ * message that appears on submit is announced rather than sitting silently in the
+ * DOM — or `role="status"` at `errorTone="warning"`, which does not interrupt.
  */
 export function Field({
 	label,
@@ -95,6 +118,8 @@ export function Field({
 	errorMessage,
 	wiring,
 	group,
+	required,
+	errorTone,
 	children,
 	className,
 }: FieldProps) {
@@ -106,20 +131,34 @@ export function Field({
 					{hint}
 				</span>
 			) : null}
-			{errorMessage ? (
-				<span className="ds-atom-field-error" id={wiring.errorId} role="alert">
-					{errorMessage}
-				</span>
-			) : null}
+			{/* Delegated rather than hand-rolled. This span used to be declared here
+			    AND in FormValidation, two copies of the same markup that agreed by
+			    coincidence — so the severity axis would have had to be added twice and
+			    would have drifted. field-contract.test.tsx pins the delegation. */}
+			<FieldError message={errorMessage} tone={errorTone} id={wiring.errorId} />
 		</>
 	);
+
+	// The glyph itself lives in primitives.css keyed off this class, not as a
+	// literal here, so a consumer can restyle it and a locale can change it.
+	// aria-hidden because the control's own native `required` attribute is what
+	// announces requiredness — a marker inside the accessible name says it twice.
+	const marker = required ? <span aria-hidden="true" className="ds-atom-field-required" /> : null;
 
 	const cls = ["ds-atom-field", className].filter(Boolean).join(" ");
 
 	if (group) {
 		return (
 			<fieldset className={cls}>
-				{label ? <legend className="ds-atom-field-label">{label}</legend> : null}
+				{label ? (
+					// The marker goes INSIDE the legend for the same reason `group` exists
+					// at all: a <label for> cannot name a group, so the grouping label is
+					// the legend, and a marker outside it marks nothing.
+					<legend className="ds-atom-field-label">
+						{label}
+						{marker}
+					</legend>
+				) : null}
 				{body}
 			</fieldset>
 		);
@@ -130,6 +169,7 @@ export function Field({
 			{label ? (
 				<label className="ds-atom-field-label" htmlFor={wiring.controlId}>
 					{label}
+					{marker}
 				</label>
 			) : null}
 			{body}

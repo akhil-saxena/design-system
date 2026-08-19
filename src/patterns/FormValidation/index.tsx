@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 // ─── DS-75: FormValidation helpers ────────────────────────────────────────────
 
@@ -52,14 +52,53 @@ export function PasswordStrength({ score, className, style }: PasswordStrengthPr
 }
 
 export interface FieldErrorProps {
-	message?: string | null;
+	/**
+	 * Widened from `string | null` to `ReactNode` so `Field` can route its own
+	 * `errorMessage` (already a ReactNode) through this component instead of
+	 * hand-rolling a second span. Every existing string call site still compiles.
+	 */
+	message?: ReactNode;
+	/**
+	 * Severity (E11). Both severities used to render identically and *both
+	 * interrupted*; the interruption was half the defect, so this changes the role
+	 * and not only the colour.
+	 *
+	 * - `"error"`   — `role="alert"`, which preempts the screen reader. D-18's
+	 *   STRICT publish block needs this.
+	 * - `"warning"` — `role="status"`, which waits for a pause. D-18's LENIENT
+	 *   warning must not interrupt a user mid-sentence to tell them their alt text
+	 *   is short.
+	 *
+	 * @default "error"
+	 */
+	tone?: "error" | "warning";
+	/** Set when something points `aria-describedby` at the message. */
+	id?: string;
 	className?: string;
 }
 
-export function FieldError({ message, className }: FieldErrorProps) {
+export function FieldError({ message, tone = "error", id, className }: FieldErrorProps) {
 	if (!message) return null;
+	const warning = tone === "warning";
 	return (
-		<span role="alert" className={["ds-atom-field-error", className].filter(Boolean).join(" ")}>
+		<span
+			// See `tone`: role="alert" preempts, role="status" waits. This is the
+			// announced half of the severity distinction.
+			role={warning ? "status" : "alert"}
+			id={id}
+			// Emitted only for a warning, so the default markup is byte-identical to
+			// what every existing call site rendered before `tone` existed.
+			data-tone={warning ? "warning" : undefined}
+			className={["ds-atom-field-error", className].filter(Boolean).join(" ")}
+		>
+			{warning ? (
+				// The seen half, and deliberately not colour alone — a monochrome or
+				// colour-blind reader perceives nothing from a hue change. A real
+				// element rather than a ::before on the message, because generated
+				// content cannot be aria-hidden and would be spoken on top of a
+				// message that already says "warning".
+				<span aria-hidden="true" className="ds-atom-field-error-icon" />
+			) : null}
 			{message}
 		</span>
 	);

@@ -168,8 +168,30 @@ fieldset.ds-atom-field {
 	font-size: var(--text-xs);
 	line-height: var(--lh-relaxed);
 	/* --red-ink rather than --red: the message sits on the page surface, and the
-	   ink variant clears AA on the lighter surfaces in the ramp. */
+	   ink variant clears AA on the lighter surfaces in the ramp.
+	   MEASURED 2026-08-19: this whole block is DEAD. `.ds-atom-field-error` is
+	   declared a second time in the FormValidation section below at equal
+	   specificity (0,1,0), so source order gives that copy every property here —
+	   the rendered colour is var(--red), not var(--red-ink). Left as-is rather
+	   than "tidied": var(--red) measures 4.67:1 on charcoal-light --cream, so it
+	   clears AA and changing which copy wins is a visual change this plan does not
+	   own. Recorded as a finding instead. Do not add a tone rule at (0,1,0). */
 	color: var(--red-ink);
+}
+/* E15 — the required marker. Requiredness used to live in the label string, so
+   every screen invented its own marker; this is the one. The glyph is here and
+   not in Field's JSX so a consumer can restyle it and a locale can change it —
+   Field renders only an empty aria-hidden span for this rule to fill, and
+   aria-hidden because the control's own native `required` attribute is what
+   announces requiredness. Selector is (0,1,1) deliberately: a consumer's own
+   `.ds-atom-field-required::after` ties and wins on source order, which is the
+   intent. The asterisk carries the meaning, so the colour is not doing the work
+   (1.4.1); --red-ink is the text-safe red at 6.06:1 on charcoal-light --cream. */
+.ds-atom-field-required::after {
+	content: "*";
+	color: var(--red-ink);
+	font-weight: var(--weight-semibold);
+	margin-inline-start: 0.25ch;
 }
 
 /* ─── DS atom: IconButton ────────────────────────────────────────────────
@@ -5328,6 +5350,40 @@ fieldset.ds-atom-field {
 	font-family: var(--font);
 	display: block;
 	margin-top: 4px;
+}
+/* E11 — severity. Both severities used to render identically and both
+   interrupted; role="alert" vs role="status" in FieldError is the announced half
+   of the fix and these two rules are the seen half.
+
+   SPECIFICITY, stated deliberately: (0,2,0), not (0,1,0). `.ds-atom-field-error`
+   is declared TWICE in this file — once in the Field section far above and once
+   directly above here — so an equal-specificity tone rule would win or lose on
+   which of the two it happened to follow. (0,2,0) beats both from any position.
+   A consumer overriding a tone targets the same data attribute and so ties, then
+   wins on source order. */
+.ds-atom-field-error[data-tone="warning"] {
+	/* An EXISTING token, not a new one: --amber-d is already the text-tuned
+	   warning colour in this file (PasswordStrength's label uses it for scores
+	   2-3). Under charcoal it aliases --ochre-d and measures 5.22:1 on
+	   charcoal-light --cream and 5.60:1 on --panel, the worst-case cell.
+	   Inventing an unmeasured warning value would bypass the contrast register. */
+	color: var(--amber-d);
+}
+/* The non-colour half. A colour and a colour alone is not a distinction — a
+   monochrome or colour-blind reader perceives nothing from a hue change. \FE0E is
+   VARIATION SELECTOR-15, which forces text presentation: without it the glyph
+   renders as a colour emoji on Apple platforms and the colour above stops
+   applying to it. Escaped rather than literal so this file stays ASCII. */
+.ds-atom-field-error-icon::before {
+	content: "\26A0\FE0E";
+	margin-inline-end: 0.4ch;
+}
+/* A summary entry's link (G-6). The anchor IS the failure text, so it inherits
+   the list colour instead of going UA blue inside a red box; the underline is
+   the non-colour affordance that it is a link at all. */
+.ds-atom-form-error-summary a {
+	color: inherit;
+	text-decoration: underline;
 }
 .ds-atom-form-error-summary {
 	background: rgba(239, 68, 68, 0.08);
