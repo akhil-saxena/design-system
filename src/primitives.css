@@ -926,9 +926,14 @@ fieldset.ds-atom-field {
    Surface primitive with 4 variants keyed off [data-variant] (D-300).
    Freely-composed children - no compound API (D-301).
    Source: design-handoff/design-system/ds-surfaces.jsx CardsSection. */
+/* These three were also declared inline on the component, which meant they
+   outranked every rule here and every rule a consumer could write. They are
+   unconditional and prop-independent, so the inline copies were removed and
+   this is now the only place they are declared (E3). */
 .ds-atom-card {
 	box-sizing: border-box;
 	display: block;
+	font-family: var(--font);
 }
 .ds-atom-card[data-variant="glass"] {
 	background: var(--surf-1);

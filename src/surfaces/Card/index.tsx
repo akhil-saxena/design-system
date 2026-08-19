@@ -1,10 +1,4 @@
-import {
-	type CSSProperties,
-	type ElementType,
-	type HTMLAttributes,
-	type ReactNode,
-	forwardRef,
-} from "react";
+import { type ElementType, type HTMLAttributes, type ReactNode, forwardRef } from "react";
 
 export type CardVariant = "glass" | "amber" | "dark" | "kanban";
 export type CardPadding = "none" | "sm" | "md" | "lg" | "xl";
@@ -70,11 +64,19 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 	children: ReactNode;
 }
 
-const baseStyle: CSSProperties = {
-	display: "block",
-	boxSizing: "border-box",
-	fontFamily: "var(--font)",
-};
+/**
+ * Card declares no inline base style at all (E3).
+ *
+ * Its three unconditional base properties — the box type, the box-sizing model
+ * and the font family — now live in `.ds-atom-card` in primitives.css. They have no
+ * dynamic input, so nothing was gained by inlining them, and an inline
+ * declaration outranks every class rule without `!important`: a consumer
+ * writing `.wk-card { display: flex }` got `flex-direction` and not the box
+ * type, so a child's `margin-top: auto` silently did nothing. Measured on a
+ * real page, not inferred.
+ *
+ * The `style` prop is still spread last and still wins.
+ */
 
 /**
  * Card — surface primitive. Visual is driven by a top-level `variant` plus
@@ -118,7 +120,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
 			data-radius={radius}
 			data-surface={resolvedSurface}
 			data-hover={hover ? "elevate" : undefined}
-			style={{ ...baseStyle, ...style }}
+			style={style}
 			{...rest}
 		>
 			{children}
