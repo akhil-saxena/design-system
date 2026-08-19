@@ -52,6 +52,30 @@ describe.skipIf(!built)("published package surface", () => {
 			const source = readFileSync(join(dist, entry), "utf8");
 			expect(source.startsWith('"use client";'), `${entry} is missing the directive`).toBe(true);
 		}
+
+		// The per-component subpath entries (DS-09) inherit the stamping from the
+		// same postbuild pass, but they are the entries a hydrated island actually
+		// imports, so they are asserted here too. Sampled rather than exhaustive —
+		// and the sample is read off disk rather than hardcoded, so a renamed
+		// component cannot silently drop out of the assertion.
+		const componentsDir = join(dist, "components");
+		expect(existsSync(componentsDir), "dist/components/ is missing").toBe(true);
+		const components = readdirSync(componentsDir)
+			.filter((f) => f.endsWith(".js"))
+			.sort();
+		expect(components.length, "dist/components/ holds no JS entries").toBeGreaterThanOrEqual(70);
+		const sample = [
+			components[0],
+			components[Math.floor(components.length / 2)],
+			components[components.length - 1],
+		];
+		for (const entry of sample) {
+			const source = readFileSync(join(componentsDir, String(entry)), "utf8");
+			expect(
+				source.startsWith('"use client";'),
+				`components/${entry} is missing the directive`,
+			).toBe(true);
+		}
 	});
 
 	it("ships the three stylesheets the exports map promises", () => {

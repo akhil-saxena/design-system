@@ -10,10 +10,14 @@
  *   bundled, \"use client\" ... was ignored". So the directive has to be applied
  *   after the whole pipeline finishes — here.
  *
- * Every emitted chunk is stamped, not just the three entrypoints. Entrypoints
- * alone would be enough for a well-behaved consumer (the boundary is
- * established where they import), but stamping chunks keeps the graph correct
- * even if a bundler reaches a chunk by another route, and costs ~14 bytes each.
+ * Every emitted chunk is stamped, not just the entrypoints. Entrypoints alone
+ * would be enough for a well-behaved consumer (the boundary is established
+ * where they import), but stamping chunks keeps the graph correct even if a
+ * bundler reaches a chunk by another route, and costs ~14 bytes each.
+ *
+ * The stamped count is computed, never hardcoded: DS-09 added a per-component
+ * entry for every src/<category>/<Component>/index.tsx, so it jumped from 11
+ * to ~90 and will move again whenever a component is added.
  */
 import { execFileSync } from "node:child_process";
 import {
@@ -100,7 +104,8 @@ for (const file of jsFiles(dist)) {
 // applied — the exact regression this script exists to prevent.
 if (stamped === 0) {
 	throw new Error(
-		'postbuild: stamped 0 files with "use client" — expected at least the 3 entrypoints',
+		'postbuild: stamped 0 files with "use client" — expected at least the 3 barrel entrypoints ' +
+			"plus one per component subpath (DS-09).",
 	);
 }
 
