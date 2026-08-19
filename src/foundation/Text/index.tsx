@@ -23,8 +23,11 @@ export interface TextProps extends HTMLAttributes<HTMLElement> {
 	variant?: TextVariant;
 	/** Semantic element to render. @default "p" */
 	as?: TextElement;
-	/** Override color (legacy — defaults to tone for variant). Use `tone` for
-	 * the declarative path. */
+	/**
+	 * Override colour, inline — the highest-precedence source, above `tone` and
+	 * above anything a consumer stylesheet can say. Deprecated: prefer `tone`
+	 * for the declarative path, or a class rule to hand the colour to the page.
+	 */
 	color?: string;
 	/** Override max-width — caps line length for readability. */
 	maxWidth?: number | string;
@@ -45,13 +48,19 @@ const baseStyle: CSSProperties = {
 	margin: 0,
 };
 
+/**
+ * Size and line-height only. The variant colours moved into primitives.css as
+ * zero-specificity `:where()` rules keyed on `data-variant`, so a page can
+ * recolour a Text from its own stylesheet (E5). Font size stays here: the
+ * size-versus-variant interaction is a separate axis and moving it would shift
+ * type metrics across every visual baseline.
+ */
 const variantStyles: Record<TextVariant, CSSProperties> = {
-	body: { fontSize: "var(--text-base)", color: "var(--ink-2)" },
-	small: { fontSize: "var(--text-sm)", color: "var(--ink-3)" },
-	caption: { fontSize: "var(--text-sm)", color: "var(--ink-3)" },
+	body: { fontSize: "var(--text-base)" },
+	small: { fontSize: "var(--text-sm)" },
+	caption: { fontSize: "var(--text-sm)" },
 	legal: {
 		fontSize: "var(--text-xs)",
-		color: "var(--ink-4)",
 		lineHeight: "var(--lh-normal)",
 	},
 };
@@ -64,6 +73,19 @@ const variantStyles: Record<TextVariant, CSSProperties> = {
  *
  * The two are NOT exclusive — pass `variant` for the base + a `size`/`tone`
  * override to tweak one axis.
+ *
+ * **Colour precedence**, lowest to highest:
+ *
+ *   1. the variant default — a `:where()` rule in primitives.css, specificity
+ *      (0,0,0), so it yields to anything;
+ *   2. a consumer stylesheet — any class rule a page writes;
+ *   3. the `tone` prop — `.ds-atom-text[data-tone=…]`, specificity (0,2,0);
+ *   4. the `color` prop — inline, and deprecated.
+ *
+ * The contract that follows from 2 and 3: **passing `tone` means the component
+ * owns the colour; omitting it hands the colour to the cascade.** That ordering
+ * is decided by specificity, not by which stylesheet loaded last, so it holds
+ * whatever order a consumer imports things in.
  *
  * @example
  * <Text>Mark every step of your job search.</Text>
@@ -89,13 +111,13 @@ export const Text = forwardRef<HTMLElement, TextProps>(function Text(
 	ref,
 ) {
 	const Tag = as as unknown as React.ElementType;
-	// When token-size or tone is set, let CSS own those properties (don't emit
-	// inline overrides that would beat the data-attr rule). Variant's inline
-	// style only contributes where data-attrs are absent.
+	// When a token size is set, let CSS own that property rather than emitting an
+	// inline override that would beat the data-attr rule. Colour is no longer
+	// picked here at all — the stylesheet owns every path to it except the
+	// deprecated `color` prop below.
 	const variantBase = variantStyles[variant];
 	const variantPick: CSSProperties = {
 		...(size ? null : { fontSize: variantBase.fontSize }),
-		...(tone ? null : { color: variantBase.color }),
 		...(variantBase.lineHeight !== undefined ? { lineHeight: variantBase.lineHeight } : null),
 	};
 	const composed: CSSProperties = {

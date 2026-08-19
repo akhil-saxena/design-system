@@ -246,3 +246,223 @@ test.describe("charcoal brand cascade", () => {
 		expect(probeMeta.directDom + probeMeta.urlGlobals, "probes performed").toBeGreaterThan(0);
 	});
 });
+
+/**
+ * E3, E4, E5 — the consumer styling boundary, read in a real browser.
+ *
+ * All three findings are one bug in three places: an inline style beating a
+ * class rule without `!important`. Every claim below is a getComputedStyle
+ * read, because that is the only kind of evidence that can tell the difference
+ * between a declaration being present and a declaration applying — which is the
+ * entire content of the three findings.
+ *
+ * Both brands, both modes. Charcoal is where the consequences land (`--ink-2`
+ * is #44403a light and #c9c5bc dark under charcoal), so a default-brand-only
+ * check would miss a token that resolves in one brand and not the other.
+ */
+const BOUNDARY_CELLS = [
+	{ brand: "default", mode: "light" },
+	{ brand: "default", mode: "dark" },
+	{ brand: "charcoal", mode: "light" },
+	{ brand: "charcoal", mode: "dark" },
+] as const;
+
+/**
+ * Apply a consumer stylesheet — and the class that selects it — to an element
+ * already rendered in a settled cell, then read it again.
+ *
+ * `probeComputed` leaves the page on the story in the requested brand x mode,
+ * so this re-reads the same element in the same cell without duplicating any of
+ * the axis-settling logic that lives in computed.ts.
+ *
+ * `classList.add` is a faithful stand-in for `<Card className="wk-card">` for
+ * E3 and E5, because what those two turn on is a CASCADE fact rather than a
+ * rendering one: after the fix React emits exactly `ds-atom-card wk-card`, and
+ * before the fix the inline declaration is still on the element and still wins.
+ * So this probe discriminates fixed from unfixed, which is the only property
+ * that matters.
+ *
+ * E4 is deliberately NOT probed that way. Its defect is that React DROPPED the
+ * atom class, so adding the class back by hand would be testing this helper
+ * rather than the component. No story passes a className, so E4's concatenation
+ * is proven at DOM level in src/inputs/Chip/Chip.test.tsx, and what is proven
+ * here is its consequence: that the `[data-interactive]` rules reach a chip
+ * which also carries a consumer class.
+ */
+async function withConsumerRule(
+	page: import("@playwright/test").Page,
+	opts: {
+		selector: string;
+		className: string;
+		css: string;
+		props: string[];
+		attrs?: Record<string, string>;
+	},
+): Promise<Record<string, string>> {
+	await page.addStyleTag({ content: opts.css });
+	return await page.evaluate(
+		(arg: {
+			selector: string;
+			className: string;
+			props: string[];
+			attrs: Record<string, string>;
+		}) => {
+			const el = document.querySelector(arg.selector);
+			if (!el) throw new Error(`withConsumerRule found no element for ${arg.selector}`);
+			el.classList.add(arg.className);
+			for (const [k, v] of Object.entries(arg.attrs)) el.setAttribute(k, v);
+			const cs = getComputedStyle(el);
+			const out: Record<string, string> = { class: el.getAttribute("class") ?? "" };
+			for (const p of arg.props) out[p] = cs.getPropertyValue(p).trim();
+			return out;
+		},
+		{
+			selector: opts.selector,
+			className: opts.className,
+			props: opts.props,
+			attrs: opts.attrs ?? {},
+		},
+	);
+}
+
+test.describe("consumer styling boundary", () => {
+	test("E3 — a consumer stylesheet can set display on a Card", async ({ page }) => {
+		const readings: string[] = [];
+		for (const cell of BOUNDARY_CELLS) {
+			const bare = await probeComputed(page, {
+				story: "surfaces-card--default",
+				brand: cell.brand,
+				mode: cell.mode,
+				selector: ".ds-atom-card",
+				props: ["display", "box-sizing", "font-family"],
+			});
+			expect
+				.soft(bare.display, `${cell.brand}/${cell.mode}: the default must not move`)
+				.toBe("block");
+			expect.soft(bare["box-sizing"]).toBe("border-box");
+
+			const after = await withConsumerRule(page, {
+				selector: ".ds-atom-card",
+				className: "wk-card",
+				css: ".wk-card { display: flex; flex-direction: column; }",
+				props: ["display", "flex-direction"],
+			});
+			expect
+				.soft(after.display, `${cell.brand}/${cell.mode}: consumer display must apply`)
+				.toBe("flex");
+			// flex-direction applied even BEFORE the fix — it was never inlined.
+			// Reading it proves the consumer rule matched, so a failure on display
+			// cannot be explained away as a selector that missed.
+			expect.soft(after["flex-direction"]).toBe("column");
+			readings.push(
+				`E3 ${cell.brand}/${cell.mode}: bare display=${bare.display} box-sizing=${bare["box-sizing"]} font-family=${bare["font-family"]} | consumer display=${after.display} flex-direction=${after["flex-direction"]} class="${after.class}"`,
+			);
+		}
+		console.log(readings.join("\n"));
+	});
+
+	test("E4 — an interactive Chip keeps the atom hook alongside a consumer class", async ({
+		page,
+	}) => {
+		const readings: string[] = [];
+		for (const cell of BOUNDARY_CELLS) {
+			const bare = await probeComputed(page, {
+				story: "inputs-chip--default",
+				brand: cell.brand,
+				mode: cell.mode,
+				selector: ".ds-atom-chip",
+				props: ["cursor", "color", "background-color"],
+			});
+			const bareClass = await page.evaluate(
+				() => document.querySelector(".ds-atom-chip")?.getAttribute("class") ?? "",
+			);
+			expect
+				.soft(bareClass, `${cell.brand}/${cell.mode}: a bare chip renders only the atom class`)
+				.toBe("ds-atom-chip");
+
+			const after = await withConsumerRule(page, {
+				selector: ".ds-atom-chip",
+				className: "wk-chip",
+				css: ".wk-chip { border-radius: 4px; }",
+				props: ["cursor"],
+				attrs: { "data-interactive": "true" },
+			});
+			expect
+				.soft(
+					after.cursor,
+					`${cell.brand}/${cell.mode}: [data-interactive] must still reach a chip that carries a consumer class`,
+				)
+				.toBe("pointer");
+			readings.push(
+				`E4 ${cell.brand}/${cell.mode}: bare class="${bareClass}" cursor=${bare.cursor} color=${bare.color} bg=${bare["background-color"]} | +consumer class="${after.class}" cursor=${after.cursor}`,
+			);
+		}
+		console.log(readings.join("\n"));
+	});
+
+	test("E5 — a consumer stylesheet can recolour a Text that was given no tone", async ({
+		page,
+	}) => {
+		const readings: string[] = [];
+		for (const cell of BOUNDARY_CELLS) {
+			const bare = await probeComputed(page, {
+				story: "foundation-text--default",
+				brand: cell.brand,
+				mode: cell.mode,
+				selector: ".ds-atom-text",
+				props: ["color"],
+			});
+			const after = await withConsumerRule(page, {
+				selector: ".ds-atom-text",
+				className: "wk-red",
+				css: ".wk-red { color: rgb(255, 0, 0); }",
+				props: ["color"],
+			});
+			expect
+				.soft(after.color, `${cell.brand}/${cell.mode}: consumer colour must apply`)
+				.toBe("rgb(255, 0, 0)");
+			expect
+				.soft(bare.color, `${cell.brand}/${cell.mode}: the variant default must not already be red`)
+				.not.toBe("rgb(255, 0, 0)");
+			readings.push(
+				`E5 ${cell.brand}/${cell.mode}: body default color=${bare.color} | with consumer class=${after.color}`,
+			);
+		}
+		console.log(readings.join("\n"));
+	});
+
+	test("E5 — `tone` outranks a consumer class by specificity, not by load order", async ({
+		page,
+	}) => {
+		// The contract the docstring states: passing `tone` means the component
+		// owns the colour. `.ds-atom-text[data-tone=…]` is (0,2,0) against a
+		// consumer's (0,1,0), so it holds however the sheets are ordered — and the
+		// consumer sheet here is injected LAST, which is the ordering that would
+		// win if this were decided by source order. jsdom cannot check this at all
+		// (it implements no specificity), which is why it lives in a browser.
+		const readings: string[] = [];
+		for (const cell of BOUNDARY_CELLS) {
+			const bare = await probeComputed(page, {
+				story: "foundation-text--tones",
+				brand: cell.brand,
+				mode: cell.mode,
+				selector: '.ds-atom-text[data-tone="muted"]',
+				props: ["color"],
+			});
+			const after = await withConsumerRule(page, {
+				selector: '.ds-atom-text[data-tone="muted"]',
+				className: "wk-red",
+				css: ".wk-red { color: rgb(255, 0, 0); }",
+				props: ["color"],
+			});
+			expect
+				.soft(after.color, `${cell.brand}/${cell.mode}: the tone rule must still win`)
+				.toBe(bare.color);
+			expect.soft(after.color).not.toBe("rgb(255, 0, 0)");
+			readings.push(
+				`E5-tone ${cell.brand}/${cell.mode}: tone=muted color=${bare.color} | after a later consumer rule=${after.color}`,
+			);
+		}
+		console.log(readings.join("\n"));
+	});
+});

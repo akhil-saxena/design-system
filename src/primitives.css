@@ -6185,6 +6185,31 @@ fieldset.ds-atom-field {
    Variants ('body'|'small'|'caption'|'legal') still work via the TS
    inline-style path; size/weight/tone/mono/leading are the new data-
    attr-driven path. Bundle: §03. */
+/* The variant default colour, at ZERO specificity.
+
+   The :where() wrapper is load-bearing. Declared bare,
+   .ds-atom-text[data-variant="body"] weighs (0,2,0) and would outrank any
+   consumer selector — that would move finding E5 from the inline layer to the
+   class layer rather than closing it. Wrapped, it weighs (0,0,0): it loses to
+   a consumer class, and it loses by SPECIFICITY rather than by whichever
+   stylesheet happened to load last.
+
+   The [data-tone] rules below are deliberately NOT wrapped and keep their
+   (0,2,0). So: passing `tone` means the component owns the colour; omitting it
+   hands the colour to the cascade. The deprecated `color` prop stays inline and
+   still beats all of it.
+
+   All four values were inlined by the component until finding E5. */
+:where(.ds-atom-text[data-variant="body"]) {
+	color: var(--ink-2);
+}
+:where(.ds-atom-text[data-variant="small"]),
+:where(.ds-atom-text[data-variant="caption"]) {
+	color: var(--ink-3);
+}
+:where(.ds-atom-text[data-variant="legal"]) {
+	color: var(--ink-4);
+}
 .ds-atom-text[data-size="2xs"] {
 	font-size: var(--text-2xs);
 }
