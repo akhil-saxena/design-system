@@ -52,13 +52,13 @@ const toneStyles: Record<ChipTone, CSSProperties> = {
 };
 
 export const Chip = forwardRef<HTMLSpanElement, ChipProps>(function Chip(
-	{ tone = "default", onRemove, icon, children, style, ...rest },
+	{ tone = "default", onRemove, icon, children, className, style, ...rest },
 	ref,
 ) {
 	return (
 		<span
 			ref={ref}
-			className="ds-atom-chip"
+			className={`ds-atom-chip${className ? ` ${className}` : ""}`}
 			style={{ ...baseStyle, ...toneStyles[tone], ...style }}
 			{...rest}
 		>
