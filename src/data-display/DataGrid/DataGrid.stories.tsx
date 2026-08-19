@@ -1,16 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { DataGrid, type DataGridColumn, type DataGridRow } from "./index";
+import { Badge } from "../../inputs/Badge";
+import { DataGrid, type DataGridColumn, type DataGridRow, dataGridPresets } from "./index";
 
 // ── Sample data ───────────────────────────────────────────────────────────────
 
 const COLS: DataGridColumn[] = [
 	{ key: "company", label: "Company", width: 160, sortable: true },
 	{ key: "role", label: "Role", width: 200, sortable: true },
-	{ key: "status", label: "Status", width: 120 },
+	{ key: "status", label: "Status", width: 120, render: dataGridPresets.statusBadge },
 	{ key: "salary", label: "Salary", width: 110, sortable: true, align: "right" },
 	{ key: "applied", label: "Applied", width: 110, sortable: true },
-	{ key: "priority", label: "Priority", width: 110 },
+	{ key: "priority", label: "Priority", width: 110, render: dataGridPresets.priorityDot },
 ];
 
 const ROWS: DataGridRow[] = [
@@ -206,4 +207,52 @@ export const DarkMode: Story = {
 		},
 	},
 	render: () => <DataGridDemo />,
+};
+
+// ── 01-14: the four new props, plus a ReactNode cell ─────────────────────────
+
+/**
+ * Columns for the compact story. Two things are being shown that were
+ * impossible before: a Badge in a column NOT keyed `status`, and a cell whose
+ * VALUE is a React element rather than a string.
+ */
+const COMPACT_COLS: DataGridColumn[] = [
+	{ key: "company", label: "Company", width: 160, sortable: true },
+	{ key: "role", label: "Role", width: 200, sortable: true },
+	{
+		key: "stage",
+		label: "Stage",
+		width: 130,
+		render: (v) => <Badge tone="info">{String(v)}</Badge>,
+	},
+	{ key: "salary", label: "Salary", width: 110, sortable: true, align: "right" },
+];
+
+const COMPACT_ROWS: DataGridRow[] = ROWS.slice(0, 5).map((r) => ({
+	...r,
+	stage: "shortlist",
+	// A raw ReactNode value, which used to render as "[object Object]".
+	role: <em style={{ fontStyle: "italic" }}>{String(r.role)}</em>,
+}));
+
+export const CompactUnselectable: Story = {
+	name: "Compact, no selection, no pager",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The four props E7 and F-13-1/2/3 added, together: `density="cozy"` for a 32px row target, `selectable={false}` so the 22px checkbox label stops setting the row content floor, a real `ariaLabel`, and `pagination={false}` for a single-page grid. The Stage column proves a Badge no longer needs a column keyed `status`, and the Role cells hold React elements rather than strings.',
+			},
+		},
+	},
+	render: () => (
+		<DataGrid
+			columns={COMPACT_COLS}
+			rows={COMPACT_ROWS}
+			density="cozy"
+			selectable={false}
+			pagination={false}
+			ariaLabel="Shortlisted candidates"
+		/>
+	),
 };

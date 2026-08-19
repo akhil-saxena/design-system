@@ -23,6 +23,15 @@ const COLS: DataGridColumn[] = [
 	{ key: "priority", label: "Priority", width: 90 },
 ];
 
+/** COLS, with the two job-domain presets opted into explicitly. */
+const COLS_PRESET: DataGridColumn[] = COLS.map((c) =>
+	c.key === "status"
+		? { ...c, render: dataGridPresets.statusBadge }
+		: c.key === "priority"
+			? { ...c, render: dataGridPresets.priorityDot }
+			: c,
+);
+
 const ROWS: DataGridRow[] = [
 	{
 		id: 1,
@@ -173,8 +182,13 @@ describe("DataGrid", () => {
 	});
 
 	describe("StatusBadges", () => {
+		// 01-14: these three cases used to need no `render`, because a column keyed
+		// exactly `status` or `priority` was routed through a private job-domain
+		// lookup automatically. The mappings survive as opt-in presets; the columns
+		// below are what opting in looks like, and "no longer routes a column keyed
+		// status through the job-domain badge map" covers the half that was removed.
 		it("renders one Badge (status) per data row", () => {
-			const { container } = render(<DataGrid columns={COLS} rows={ROWS} />);
+			const { container } = render(<DataGrid columns={COLS_PRESET} rows={ROWS} />);
 			// Badge component renders a <span> with mono font; we assert by counting
 			// status-cell badges via labels.
 			expect(screen.getByText("Interview")).toBeInTheDocument();
@@ -190,13 +204,13 @@ describe("DataGrid", () => {
 
 	describe("PriorityDots", () => {
 		it("renders priority dots with data-part attribute", () => {
-			const { container } = render(<DataGrid columns={COLS} rows={ROWS} />);
+			const { container } = render(<DataGrid columns={COLS_PRESET} rows={ROWS} />);
 			const dots = container.querySelectorAll('[data-part="priority-dot"]');
 			expect(dots.length).toBe(ROWS.length);
 		});
 
 		it("priority dot uses red-vivid for high priority", () => {
-			const { container } = render(<DataGrid columns={COLS} rows={ROWS.slice(0, 1)} />);
+			const { container } = render(<DataGrid columns={COLS_PRESET} rows={ROWS.slice(0, 1)} />);
 			const dot = container.querySelector<HTMLElement>('[data-part="priority-dot"]');
 			expect(dot).not.toBeNull();
 			expect(dot?.style.background).toContain("--red-vivid");
@@ -343,7 +357,8 @@ describe("DataGrid", () => {
 			const on = render(<DataGrid columns={COLS} rows={ROWS} />);
 			const off = render(<DataGrid columns={COLS} rows={ROWS} selectable={false} />);
 			const heads = (c: HTMLElement) => c.querySelectorAll("thead tr th").length;
-			const firstRow = (c: HTMLElement) => c.querySelectorAll("tbody tr")[0].children.length;
+			const firstRow = (c: HTMLElement) =>
+				(c.querySelectorAll("tbody tr")[0] as HTMLElement).children.length;
 			expect(heads(on.container)).toBe(COLS.length + 1);
 			expect(heads(off.container)).toBe(COLS.length);
 			expect(firstRow(on.container)).toBe(COLS.length + 1);
@@ -378,7 +393,8 @@ describe("DataGrid", () => {
 				/>,
 			);
 			const wrapper = container.querySelector<HTMLDivElement>(".ds-atom-datagrid");
-			const cell = container.querySelectorAll("tbody tr")[0].children[0] as HTMLElement;
+			const cell = (container.querySelectorAll("tbody tr")[0] as HTMLElement)
+				.children[0] as HTMLElement;
 			cell.focus();
 			fireEvent.keyDown(cell, { key: " " });
 			fireEvent.keyDown(wrapper as HTMLDivElement, { key: " " });
@@ -472,7 +488,10 @@ describe("DataGrid", () => {
 					ariaLabel="Data grid"
 				/>,
 			);
-			expect(explicit.container.innerHTML).toBe(none.container.innerHTML);
+			// React's useId counter advances between the two renders, so the
+			// checkbox ids differ by construction. Everything else must match.
+			const norm = (h: string) => h.replace(/_r_[0-9a-z]+_/g, "_id_");
+			expect(norm(explicit.container.innerHTML)).toBe(norm(none.container.innerHTML));
 		});
 	});
 

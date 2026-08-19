@@ -191,8 +191,10 @@ export { Pagination, type PaginationProps } from "./data-display/Pagination";
 export {
 	DataGrid,
 	type DataGridColumn,
+	type DataGridDensity,
 	type DataGridProps,
 	type DataGridRow,
+	dataGridPresets,
 } from "./data-display/DataGrid";
 export { RichText, type RichTextProps } from "./interaction/RichText";
 export { AppShell, type AppShellProps } from "./layout/AppShell";
