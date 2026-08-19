@@ -48,6 +48,30 @@ function useTheme(): [boolean, (dark: boolean) => void] {
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
+// THIS ARRAY IS THE AUTHORITATIVE COMPONENT COUNT. It sums to 79, README.md states
+// 79, and src/overview-links.test.ts asserts the two agree — so the figure cannot
+// drift in one place again. It had: README claimed 80, this catalog summed to 79,
+// and src/ held 81 component directories, so the README matched neither.
+//
+// src/ holds 81 directories and this catalog lists 79. The two absentees are named
+// and reasoned in EXCLUDED_FROM_CATALOG in src/overview-links.test.ts, and the test
+// fails by name if a new component appears in src/ without being catalogued or
+// consciously added to that list. Recording the reasons matters more than the
+// arithmetic: a count that agrees because two components were quietly left out is
+// the same defect again with a tidier face on it.
+//
+//   Field       - not a catalogue entry because it is not a rendered component: it
+//                 is useField() plus a wrapper that puts a label, hint and error
+//                 around a control the CALLER supplies. It also has no story file,
+//                 so inputs-field--docs does not exist and listing it here would
+//                 create exactly the broken tile the link test below prevents.
+//   IconButton  - the icon-only form of Button, catalogued under Button. This one is
+//                 an editorial call and not a technical constraint: IconButton DOES
+//                 have a story tagged autodocs, so inputs-iconbutton--docs resolves
+//                 and adding it here would work. If that taxonomy is ever revisited,
+//                 add it to a category, drop it from the exclusion list, and the
+//                 asserted total becomes 80.
+
 const categories = [
 	{
 		name: "Inputs",
