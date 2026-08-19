@@ -380,9 +380,11 @@ describe("AppShell — uncontrolled collapse (E2)", () => {
 		expect(root).toHaveAttribute("data-sidebar-collapsed", "true");
 	});
 
-	it("a stored value beats defaultCollapsed", () => {
-		// defaultCollapsed is an initial seed, and persistence is a stronger seed:
-		// the user's last explicit choice outranks the author's opening position.
+	it("defaultCollapsed beats a stored value — and therefore defeats persistence", () => {
+		// The precedence the plan fixed at planning time, with its cost written down
+		// as a test rather than left to be discovered: `defaultCollapsed` outranks the
+		// persisted value on EVERY mount, so passing it alongside a live `storageKey`
+		// discards the user's last choice on every reload. Pass one or the other.
 		store["ds-sidebar-collapsed"] = "true";
 		render(
 			<AppShell
@@ -391,6 +393,17 @@ describe("AppShell — uncontrolled collapse (E2)", () => {
 				main={<div>Main</div>}
 				defaultCollapsed={false}
 			/>,
+		);
+		expect(document.querySelector(".ds-atom-appshell")).toHaveAttribute(
+			"data-sidebar-collapsed",
+			"false",
+		);
+	});
+
+	it("the stored value seeds the shell when defaultCollapsed is omitted", () => {
+		store["ds-sidebar-collapsed"] = "true";
+		render(
+			<AppShell sidebar={<MockSidebar />} topbar={<div>Topbar</div>} main={<div>Main</div>} />,
 		);
 		expect(document.querySelector(".ds-atom-appshell")).toHaveAttribute(
 			"data-sidebar-collapsed",

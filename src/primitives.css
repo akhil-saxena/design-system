@@ -5058,13 +5058,72 @@ fieldset.ds-atom-field {
 
 /* ─── DS atom: AppShell (DS-71) ──────────────────────────────────────────── */
 .ds-atom-appshell {
+	/* --ds-sidebar-w — the sidebar column's width.
+
+	   DECLARED HERE, AT CLASS LEVEL, AND DELIBERATELY NOT INLINE ON THE ELEMENT.
+	   AppShell used to write `style="--ds-sidebar-w:240px"` on its own root. A
+	   custom property set from a component's `style` object is fixed at
+	   construction: there is no selector for a media query, a container query or a
+	   future density axis to re-declare it from. That is finding E2, and it is why
+	   UI-SPEC's 208px compact sidebar was measured as needing "zero declarations
+	   because it is unreachable at all". At class level a consumer writes
+
+	     @media (min-width: 673px) and (max-width: 1023px) {
+	       .ds-atom-appshell { --ds-sidebar-w: 208px; }
+	     }
+
+	   and the column moves. Verified by computed style in Chromium, not by this
+	   declaration's presence — tests/visual/appshell-cascade.spec.ts.
+
+	   The specificity ladder, so a later reader does not re-derive it: an inline
+	   `--ds-sidebar-w` (which `sidebarWidth` still writes, as an explicit
+	   author-level override) beats everything; the collapsed rail below is (0,2,0)
+	   and beats this (0,1,0) default on specificity rather than on position; a
+	   consumer rule on `.ds-atom-appshell` TIES with this one and needs to come
+	   later in source order, or to carry one more class. */
+	--ds-sidebar-w: 240px;
 	display: grid;
+	/* Named areas for every row, including the footer's. The footer used to be
+	   placed with `grid-column: 2; grid-row: 3` against a two-row template, so row
+	   3 was implicit; adding the banner row would have made row 3 explicit and put
+	   the footer on top of the sidebar/main row. The `.` keeps column 1 of the
+	   footer row empty, which is exactly what the implicit placement painted. */
 	grid-template:
 		"topbar topbar" auto
 		"sidebar main" 1fr
+		". footer" auto
 		/ var(--ds-sidebar-w, 240px) 1fr;
 	min-height: 100vh;
 	background: var(--cream);
+}
+/* The 48px icon rail, as a CSS state rather than an inline write. The attribute
+   was already emitted, so the state was already expressible in CSS; only the
+   value was not. (0,2,0), so it wins on specificity and not on file position. */
+.ds-atom-appshell[data-sidebar-collapsed="true"] {
+	--ds-sidebar-w: 48px;
+}
+/* G-8's banner row, switched on the presence of the element rather than on an
+   extra data attribute — the DOM already says whether the slot is filled, and an
+   attribute emitted on every shell would change the server-rendered markup of
+   every existing consumer. (0,2,0): `:has()` takes its argument's specificity.
+   An always-declared banner row would be 0px tall when empty, but it would also
+   pick up any row-gap a consumer adds; switching the template keeps the
+   no-banner case byte-identical in effect to the pre-plan one. */
+.ds-atom-appshell:has(> .ds-atom-appshell-banner) {
+	grid-template:
+		"topbar topbar" auto
+		"banner banner" auto
+		"sidebar main" 1fr
+		". footer" auto
+		/ var(--ds-sidebar-w, 240px) 1fr;
+}
+/* Layout only, exactly like .ds-atom-appshell-footer below: the strip's own
+   surface is the consumer's, and the slot takes a ReactNode. It spans both
+   columns so DOM order (topbar, banner, sidebar, main) matches visual order,
+   which is what keeps landmark navigation and tab order agreeing. It sits outside
+   .ds-atom-appshell-main, the only scroll container, so it persists. */
+.ds-atom-appshell-banner {
+	grid-area: banner;
 }
 .ds-atom-appshell-topbar {
 	grid-area: topbar;
@@ -5089,18 +5148,30 @@ fieldset.ds-atom-field {
 	grid-column: 2;
 	grid-row: 3;
 }
-/* Below 768px: hide sidebar entirely (mobile - bottom tab bar deferred per CONTEXT.md) */
-@media (max-width: 767px) {
-	.ds-atom-appshell {
-		grid-template:
-			"topbar" auto
-			"main" 1fr
-			/ 1fr;
-	}
-	.ds-atom-appshell-sidebar {
-		display: none;
-	}
-}
+/* BREAKING (v2.0.0): the `@media (max-width: 767px)` block that set a
+   single-column grid and `display: none` on the sidebar is REMOVED. 767 is not a
+   boundary in any device matrix, and it bisected this project's device class 3
+   (673-884px), so one class of device rendered two different layouts — measured at
+   673/766/767px (sidebar 0px) versus 768/884px (240px). A shared library does not
+   know its consumer's device classes, and hardcoding one consumer's responsive
+   policy into the library is the same mistake as 767 with a tidier number on it.
+
+   A media query cannot read a custom property, so "make the breakpoint
+   configurable" is not implementable in CSS at all: it would mean a matchMedia
+   listener in JS, in the admin's frame, with an SSR/first-paint disagreement. So
+   the decision is removal, and the posture is now the consumer's to write. With
+   --ds-sidebar-w reachable, the old behaviour is two declarations that hold with
+   or without the banner row, because they collapse the column rather than
+   rewriting grid-template-areas:
+
+     @media (max-width: 672px) {
+       .ds-atom-appshell { --ds-sidebar-w: 0px; }
+       .ds-atom-appshell-sidebar { display: none; }
+     }
+
+   For a collapsed rail instead of no sidebar, one declaration:
+   `.ds-atom-appshell { --ds-sidebar-w: 48px; }` inside the band. Both verified in
+   Chromium in tests/visual/appshell-cascade.spec.ts. */
 /* Dark mode */
 .dark .ds-atom-appshell {
 	background: var(--cream);

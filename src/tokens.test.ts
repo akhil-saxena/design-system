@@ -59,12 +59,18 @@ const sourceFiles = walk(SRC);
 
 /**
  * Tokens that are legitimately not declared in tokens.css:
- *  - set inline by a component on its own subtree, as a documented knob
  *  - declared by a component on its OWN CLASS in primitives.css, as a knob a
- *    consumer or a media query can read and re-declare (--ds-appbar-h). This is
- *    the preferred shape of the two: the inline form is fixed at construction,
- *    so no media query can drive it — which is exactly why --ds-sidebar-w's
- *    208px is unreachable. New component-scoped knobs belong in this category.
+ *    consumer or a media query can read and re-declare. --ds-appbar-h and
+ *    --ds-sidebar-w are both this shape, and it is the shape new
+ *    component-scoped knobs must use.
+ *  - set inline by a component on its own subtree, as a documented knob
+ *    (--ds-snackbar-offset). Kept working, but NOT the pattern to copy: an
+ *    inline custom property is fixed at construction, so no media query,
+ *    container query or density axis can drive it. --ds-sidebar-w used to be
+ *    this shape, which is why UI-SPEC's 208px compact sidebar was measured as
+ *    unreachable (finding E2); plan 01-13 moved it to the class, so the only
+ *    remaining inline write is the explicit `sidebarWidth` prop, documented on
+ *    the prop as an author-level override that trades reachability away.
  *  - scoped entirely to the standalone Overview landing page
  *
  * They are all absent from tokens.css for the same reason: they are component
