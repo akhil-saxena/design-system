@@ -64,6 +64,41 @@ const DefaultLogo = () => (
  * Standalone sticky topbar primitive. Pass as the `topbar` slot to AppShell (DS-71).
  * Provides 4 variants: minimal, withSearch, default, centered.
  * Consumer-driven `scrolled` prop applies frosted-glass background + shadow transition.
+ *
+ * ## Reading the bar's height: `--ds-appbar-h`
+ *
+ * A full-viewport section placed under the bar has to subtract the bar's height,
+ * and before this property existed there was no way to ask for that number. The
+ * consumer that produced the finding wrote `--hm-nav: 87px` — a devtools
+ * measurement pasted into a page stylesheet, correct on the day and silently
+ * wrong after any change to the bar's padding, type or logo.
+ *
+ * ```css
+ * .landing {
+ *   min-height: calc(100svh - var(--ds-appbar-h));
+ * }
+ * ```
+ *
+ * A bare `100svh` there is not "close enough": it pushes the section's bottom
+ * edge below the fold by exactly the height of the bar above it.
+ *
+ * The property is declared on `.ds-atom-appbar` in primitives.css — on the
+ * class, not inline on the element. That is deliberate and it is the whole point:
+ * an inline custom property is fixed at construction, so no media query can
+ * drive it. Because this one lives on the class, the coarse-pointer touch-target
+ * block re-declares it when the 44px floor grows the bar, and a consumer can
+ * override it for their own bar with `.my-bar { --ds-appbar-h: 64px }`.
+ *
+ * ### The one thing it does not promise
+ *
+ * `--ds-appbar-h` is the bar's **floor**, applied as `min-height`, and it is the
+ * bar's exact height whenever the `logo`, `nav` and `actions` slots fit on one
+ * row — which is what a topbar is. It cannot be an oracle: those three slots take
+ * arbitrary `ReactNode`s, so the rendered height is content-determined, and CSS
+ * custom properties are inputs to layout rather than readings of it. Overfill a
+ * slot until the row wraps and the bar will be taller than the property says.
+ * If you need the guarantee, constrain your slot content — or set
+ * `--ds-appbar-h` yourself and let the bar follow it.
  */
 export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 	(

@@ -5115,6 +5115,33 @@ fieldset.ds-atom-field {
 
 /* ─── DS atom: AppBar (DS-72) ──────────────────────────────────────── */
 .ds-atom-appbar {
+	/* --ds-appbar-h — the bar's height, exposed so a consumer does not have to
+	   measure it. A full-viewport section placed under the bar needs
+	   `min-height: calc(100svh - var(--ds-appbar-h))`; a bare `100svh` puts its
+	   bottom edge below the fold by exactly the bar's height. Before this
+	   property existed the only way to write that calc was to measure the bar in
+	   devtools and paste the number into a page stylesheet, where it rots.
+
+	   DECLARED HERE, AT CLASS LEVEL, AND DELIBERATELY NOT INLINE ON THE ELEMENT.
+	   A custom property set from the component's `style` object is fixed at
+	   construction: no media query, no container query and no future density
+	   axis can reach it, because there is no selector to re-declare it from.
+	   That is the mistake --ds-sidebar-w made, and it is why AppShell's sidebar
+	   width is unreachable. At class level the coarse-pointer block further down
+	   this file re-declares this property when the touch floor grows the bar, so
+	   the number keeps matching the paint instead of going stale.
+
+	   min-height, NOT height, and box-sizing: border-box so the value means the
+	   whole box. The bar's height is content-determined — its logo, nav and
+	   actions are consumer slots — so a fixed height would clip whatever a
+	   consumer puts in them. The value below is the bar's floor: a 22px logo
+	   mark + 2x12px padding + the 1px bottom border. It is exact for a bar whose
+	   slots fit one row, which is AppBar's design contract; a consumer who
+	   overfills a slot until it wraps gets a taller bar than the property
+	   reports. See the AppBar docstring for that limitation stated in full. */
+	--ds-appbar-h: 47px;
+	box-sizing: border-box;
+	min-height: var(--ds-appbar-h);
 	transition: background-color 0.2s ease, box-shadow 0.2s ease, backdrop-filter 0.2s ease;
 	display: flex;
 	align-items: center;

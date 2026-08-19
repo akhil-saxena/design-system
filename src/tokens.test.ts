@@ -60,9 +60,18 @@ const sourceFiles = walk(SRC);
 /**
  * Tokens that are legitimately not declared in tokens.css:
  *  - set inline by a component on its own subtree, as a documented knob
+ *  - declared by a component on its OWN CLASS in primitives.css, as a knob a
+ *    consumer or a media query can read and re-declare (--ds-appbar-h). This is
+ *    the preferred shape of the two: the inline form is fixed at construction,
+ *    so no media query can drive it — which is exactly why --ds-sidebar-w's
+ *    208px is unreachable. New component-scoped knobs belong in this category.
  *  - scoped entirely to the standalone Overview landing page
+ *
+ * They are all absent from tokens.css for the same reason: they are component
+ * geometry, not theme values, so a brand has no business overriding them
+ * wholesale.
  */
-const COMPONENT_SCOPED = /^--(ds-sidebar-w|ds-snackbar-offset|ov-[a-z0-9-]+)$/;
+const COMPONENT_SCOPED = /^--(ds-appbar-h|ds-sidebar-w|ds-snackbar-offset|ov-[a-z0-9-]+)$/;
 
 describe("token layer", () => {
 	it("declares a light value for every token the dark theme overrides", () => {
