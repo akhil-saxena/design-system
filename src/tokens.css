@@ -197,6 +197,19 @@
 	--text-2xl: 28px; /* form headlines */
 	--text-3xl: 40px;
 	--text-4xl: 44px; /* mobile hero / tablet-compact hero */
+	/* The half-step between 4xl and 5xl, added for the Work and Photos display
+	   headers, which call for 52px — the only size in a fifteen-size handoff that
+	   landed further than ±2px from an existing step, because 44 -> 60 is the
+	   scale's one 8px gap. This is the scale's ONLY interpolated step: every other
+	   value is an original rung, and this one exists because a consumer needed a
+	   rung that was not there.
+
+	   Additive by construction. No existing step was renamed or revalued —
+	   renumbering --text-5xl to make room would silently retype every other
+	   consumer on a version bump. Sizing is design-system-owned, so a brand
+	   needing a missing step files it here, available to every brand, rather than
+	   declaring a theme-local --text-* override. */
+	--text-4xl-plus: 52px; /* display headers between the 44px and 60px rungs */
 	--text-5xl: 60px; /* desktop hero w/ subline */
 	--text-6xl: 72px; /* desktop hero w/o subline */
 
