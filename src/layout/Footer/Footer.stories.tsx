@@ -70,6 +70,36 @@ export const Compact: Story = {
 	args: { variant: "compact", copyright: "© 2026 Acme Inc. All rights reserved.", links: LINKS },
 };
 
+/**
+ * The `href` form of a footer link, which no story covered until now — and which
+ * renders a DIFFERENT element from the one every other story here renders.
+ *
+ * `Footer.renderLink` branches on `href`: with one it returns
+ * `<Link variant="footer" className="ds-atom-footer-link">` (an `<a>` carrying
+ * BOTH `.ds-atom-link` and `.ds-atom-footer-link`); without one it returns a bare
+ * `<button className="ds-atom-footer-link">`. The LINKS fixture above uses
+ * `onClick`, so every pre-existing story exercised only the button branch.
+ *
+ * That gap hid a real divergence, measured in Chromium: `.ds-atom-link` and
+ * `.ds-atom-footer-link` are both single-class selectors, so they tie on
+ * specificity and source order decides — and `.ds-atom-link` is declared ~900
+ * lines later. Its `padding: 0` and `text-decoration: underline` therefore beat
+ * `.ds-atom-footer-link`'s `padding: 5px 0` and `text-decoration: none`, so the
+ * two branches of one function paint at different heights (16px vs 22.5px) with
+ * different underlines. This story is what makes that visible to a test.
+ */
+export const CompactWithLinks: Story = {
+	args: {
+		variant: "compact",
+		copyright: "© 2026 Acme Inc. All rights reserved.",
+		links: [
+			{ label: "Privacy", href: "#privacy" },
+			{ label: "Terms", href: "#terms" },
+			{ label: "Status", href: "#status" },
+		],
+	},
+};
+
 export const Expanded: Story = {
 	args: {
 		variant: "expanded",
