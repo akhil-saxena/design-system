@@ -17,9 +17,10 @@
    option for these two variable families - neither Playfair Display nor DM
    Sans ships per-subset CSS, only per-axis. What is actually guaranteed is a
    latin-only DOWNLOAD: the non-latin rules carry a unicode-range this site's
-   content never matches, so the browser fetches one file per family. The four
-   entry points below produce 8 face rules (4 + 2 + 1 + 1) against the design
-   system's measured 73, and 4 of those 8 are Playfair's four subsets.
+   content never matches, so the browser fetches one file per family. The five
+   entry points below produce 12 face rules (4 + 4 + 2 + 1 + 1) against the
+   design system's measured 73, and 8 of those 12 are Playfair's four subsets
+   across its two axes.
 
    D-30's premise "all three ship variable" is FALSE and this is the factual
    correction, not a supply-chain finding: no variable build of IBM Plex Mono
@@ -31,18 +32,27 @@
    whatever eventually claims it (T-00-12).
 
    EDITING THIS FILE: the acceptance checks are plain greps that read prose the
-   same as code. They require exactly four at-rule inclusions and zero lines
-   beginning with a custom-property name, so do not add a fifth mention in a
+   same as code. They require exactly five at-rule inclusions and zero lines
+   beginning with a custom-property name, so do not add a sixth mention in a
    comment and do not open a comment line with a token name.
 
-   KNOWN GAP, deliberately not patched here. Only the roman axis of Playfair is
-   loaded. UI-SPEC gives two real italic-serif roles (the 22px display subtitle
-   and the cross-link at the foot of Work and Photos), and both will render as
-   a synthesised oblique until the italic axis is added - which costs 4 more
-   face rules and takes the count from 8 to 12. That is a Phase 1 decision about
-   what "8 rules" is measuring, not a defect in this file. */
+   THE ITALIC AXIS IS DELIBERATE, AND THE DECISION IS CLOSED. Both Playfair
+   axes are loaded, roman and drawn italic. This resolves the open decision
+   THEME-API carried forward, and it was settled by measurement rather than
+   taste: with the roman axis alone a browser synthesises an oblique by
+   shearing the roman outlines, which leaves advance widths untouched - the
+   same 19 glyphs at 22px set 200.16px synthesised against 182.41px drawn, an
+   8.9% divergence that is plainly visible on an editorial serif. The italic
+   subsets cost 4 face rules and 95,056 bytes of availability, but only 38,804
+   bytes on the wire, and only on a page that actually renders an italic serif:
+   unicode-range keeps the cyrillic, vietnamese and latin-ext italics declared
+   and never fetched. Three roles depend on this - the 22px display subtitle,
+   the 22px serif cross-link at the foot of Work and Photos, and this design
+   system's own datepicker placeholder, which sets an italic style on the
+   charcoal serif token. */
 
 @import "@fontsource-variable/playfair-display/wght.css";
+@import "@fontsource-variable/playfair-display/wght-italic.css";
 @import "@fontsource-variable/dm-sans/wght.css";
 @import "@fontsource/ibm-plex-mono/latin-400.css";
 @import "@fontsource/ibm-plex-mono/latin-500.css";

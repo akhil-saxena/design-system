@@ -563,13 +563,14 @@ const CHARCOAL_FACE_LAYER = join(SRC, "fonts/charcoal.css");
 const DEFAULT_FACE_LAYER = join(SRC, "fonts/default.css");
 
 /**
- * The four charcoal entry points and the faces each is expected to contribute.
+ * The five charcoal entry points and the faces each is expected to contribute.
  * Written out per entry point rather than as a bare total so that a Fontsource
  * minor bump changing one subset count fails with a diff naming it, instead of
  * a total that is off by one with nothing to point at.
  */
 const CHARCOAL_ENTRY_POINTS: Record<string, number> = {
 	"@fontsource-variable/playfair-display/wght.css": 4, // cyrillic, vietnamese, latin-ext, latin
+	"@fontsource-variable/playfair-display/wght-italic.css": 4, // the same four, drawn italic
 	"@fontsource-variable/dm-sans/wght.css": 2, // latin-ext, latin
 	"@fontsource/ibm-plex-mono/latin-400.css": 1,
 	"@fontsource/ibm-plex-mono/latin-500.css": 1,
@@ -615,14 +616,14 @@ describe("font delivery", () => {
 	// ── (b) The face census — criterion 4 ────────────────────────────────────
 	const charcoalCensus = faceCensus(CHARCOAL_FACE_LAYER);
 
-	it("resolves the charcoal face layer to exactly its four entry points", () => {
-		// Keyed comparison, so adding a fifth entry point or renaming one fails
+	it("resolves the charcoal face layer to exactly its five entry points", () => {
+		// Keyed comparison, so adding a sixth entry point or renaming one fails
 		// here with a diff rather than silently shifting the total below.
 		expect(charcoalCensus.perImport).toEqual(CHARCOAL_ENTRY_POINTS);
 	});
 
-	it("resolves the charcoal face layer to exactly 8 @font-face rules", () => {
-		expect(charcoalCensus.total).toBe(8);
+	it("resolves the charcoal face layer to exactly 12 @font-face rules", () => {
+		expect(charcoalCensus.total).toBe(12);
 	});
 
 	it("names exactly the three charcoal families, with the Variable suffix", () => {
