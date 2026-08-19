@@ -476,7 +476,9 @@ export function ColorPicker({
 						boxSizing: "border-box",
 						borderRadius: 8,
 						background: color,
-						border: "1px solid var(--rule)",
+						// --wire: the swatch's fill is the *content*, so a pale colour
+						// leaves the rim as the only boundary. Rule C-3, load-bearing.
+						border: "1px solid var(--wire)",
 						flexShrink: 0,
 						boxShadow: "0 1px 4px rgba(0,0,0,.08)",
 					}}
@@ -556,7 +558,9 @@ export function ColorPicker({
 							height: 24,
 							borderRadius: 6,
 							background: c,
-							border: color === c ? "2.5px solid var(--ink)" : "1px solid var(--rule)",
+							// Unselected preset: same reasoning as the preview swatch above —
+							// a white or cream preset would otherwise vanish into the panel.
+							border: color === c ? "2.5px solid var(--ink)" : "1px solid var(--wire)",
 						}}
 					/>
 				))}

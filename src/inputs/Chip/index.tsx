@@ -20,7 +20,6 @@ const baseStyle: CSSProperties = {
 	fontSize: 11,
 	color: "var(--ink)",
 	background: "var(--cream-3)",
-	border: "1px solid var(--rule)",
 	borderRadius: 999,
 	padding: "4px 10px",
 	fontWeight: 500,
@@ -28,7 +27,12 @@ const baseStyle: CSSProperties = {
 };
 
 const toneStyles: Record<ChipTone, CSSProperties> = {
-	default: { borderColor: "var(--rule)", background: "var(--cream-3)", color: "var(--ink)" },
+	// No borderColor: the default tone's border lives in primitives.css, so
+	// `.ds-atom-chip[data-interactive]` can rebind it to --wire (Rule C-3: an
+	// interactive chip is a control and its border is its only boundary). The
+	// toned variants below keep theirs inline and still win — a tinted fill
+	// already says where the chip is, which is when --rule is the right token.
+	default: { background: "var(--cream-3)", color: "var(--ink)" },
 	match: {
 		background: "rgba(34,197,94,.12)",
 		color: "var(--green-ink)",

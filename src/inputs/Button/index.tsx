@@ -53,7 +53,6 @@ const baseStyle: CSSProperties = {
 	padding: "7px 14px",
 	borderRadius: "var(--radius-md)",
 	fontWeight: "var(--weight-medium)" as CSSProperties["fontWeight"],
-	border: "1px solid var(--rule)",
 	display: "inline-flex",
 	alignItems: "center",
 	justifyContent: "center",
@@ -82,10 +81,16 @@ const variantStyles: Record<ButtonVariant, CSSProperties> = {
 	// muted grey over cream and looked disabled/greyed-out. Plain white + wire
 	// border reads crisply on any background. Dark-mode override in primitives.css
 	// flips background to translucent-white over dark surfaces.
+	//
+	// The --wire border colour is NOT set here. It lives in primitives.css on
+	// `.ds-atom-btn[data-variant="secondary"]`, together with the 1px base border
+	// that used to sit in baseStyle. Inline, it outranked the whole Button section
+	// of the stylesheet — the secondary and dark-secondary hover rules declared a
+	// border-color that could never apply, and no consumer could restyle the edge
+	// without !important. It is the right token; it was in the wrong layer.
 	secondary: {
 		background: "var(--panel)",
 		color: "var(--ink-2)",
-		borderColor: "var(--wire)",
 		fontWeight: "var(--weight-semibold)" as CSSProperties["fontWeight"],
 	},
 	// Ghost = transparent, text-only. Use for tertiary / icon-only / cancel-in-modal.

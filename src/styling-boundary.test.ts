@@ -222,7 +222,6 @@ describe("styling boundary: inline styles must not fight primitives.css", () => 
 		"display/Avatar/index.tsx":
 			"initials-on-tint contrast pair, computed against the generated background",
 		"display/MiniBar/index.tsx": "internal label and value spans",
-		"display/StatCard/index.tsx": "internal label span",
 		"foundation/Divider/index.tsx": "the labelled variant's inline <span>",
 		"foundation/Eyebrow/index.tsx":
 			"identical shape to E5 — the variant colour is inlined whenever `tone` is absent, so a page cannot recolour an Eyebrow from a stylesheet either. Not fixed here: Eyebrow is outside this plan's file set. Raised as a finding by plan 01-09",

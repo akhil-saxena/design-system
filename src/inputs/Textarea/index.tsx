@@ -26,7 +26,12 @@ const baseTextareaStyle: CSSProperties = {
 	fontSize: 13,
 	padding: "10px 12px",
 	borderRadius: 8,
-	border: "1px solid var(--rule)",
+	// No border here. It lives on `.ds-atom-textarea` in primitives.css, bound to
+	// --wire: this fills with var(--cream), which on charcoal light IS the page
+	// background (#F4F1EA, a 1.000:1 fill delta), so the border is the only thing
+	// saying where the field is — Rule C-3's load-bearing case, and SC 1.4.11's
+	// 3:1 floor. While it was inline it also outranked every rule in the Textarea
+	// section of the stylesheet, including the focus and error border colours.
 	background: "var(--cream)",
 	color: "var(--ink)",
 	fontFamily: "var(--font)",

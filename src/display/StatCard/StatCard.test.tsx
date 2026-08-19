@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { StatCard } from ".";
 
 vi.mock("../Sparkline", () => ({
@@ -14,15 +16,66 @@ describe("StatCard", () => {
 		expect(screen.getByText("Applications")).toBeInTheDocument();
 	});
 
-	it("label element has correct inline styles", () => {
-		const { container } = render(<StatCard label="Applications" value="24" />);
-		const label = container.querySelector<HTMLElement>("[data-part='label']");
-		expect(label).not.toBeNull();
-		expect(label!.style.fontFamily).toBe("var(--mono)");
-		expect(label!.style.fontSize).toBe("9px");
-		expect(label!.style.letterSpacing).toBe(".08em");
-		expect(label!.style.textTransform).toBe("uppercase");
-		expect(label!.style.color).toBe("var(--ink-3)");
+	/**
+	 * The label's type used to be an inline style object, which is why this case
+	 * read `element.style`. It now lives on `.ds-atom-statcard [data-part="label"]`
+	 * in primitives.css, so the assertion reads the COMPUTED value with the real
+	 * sheet attached — an attribute assertion would pass just as happily against a
+	 * rule that never matched, which is the whole failure mode this phase keeps
+	 * finding. jsdom returns custom properties unsubstituted, so the expected
+	 * values are the literal token references.
+	 */
+	describe("label type comes from the stylesheet, not the element", () => {
+		let dsSheet: HTMLStyleElement;
+		beforeAll(() => {
+			dsSheet = document.createElement("style");
+			dsSheet.textContent = readFileSync(join(__dirname, "../../primitives.css"), "utf8");
+			document.head.appendChild(dsSheet);
+		});
+		afterAll(() => dsSheet.remove());
+
+		it("computes the label's mono/uppercase treatment from .ds-atom-statcard", () => {
+			const { container } = render(<StatCard label="Applications" value="24" />);
+			const label = container.querySelector<HTMLElement>("[data-part='label']");
+			expect(label).not.toBeNull();
+			// Nothing inline any more — that is the fix, not an incidental detail.
+			expect(label?.getAttribute("style")).toBeNull();
+			const cs = getComputedStyle(label as HTMLElement);
+			expect(cs.fontFamily).toBe("var(--mono)");
+			expect(cs.fontSize).toBe("9px");
+			expect(cs.letterSpacing).toBe("0.08em");
+			expect(cs.textTransform).toBe("uppercase");
+			expect(cs.color).toBe("var(--ink-3)");
+			expect(cs.fontWeight).toBe("700");
+		});
+
+		it("computes padding from the class and keeps the 12px radius inline", () => {
+			const { container } = render(<StatCard label="L" value="1" />);
+			const root = container.firstChild as HTMLElement;
+			expect(getComputedStyle(root).padding).toBe("16px");
+			// borderRadius stays inline on purpose: `.glass` in utilities.css sets
+			// var(--radius-xl) = 16px and loads after primitives.css, so a (0,1,0)
+			// rule would lose the tie on source order and change the corners.
+			expect(root.style.borderRadius).toBe("12px");
+		});
+	});
+
+	/**
+	 * The finding this closes: StatCard wore only `glass`, a SHARED class in the
+	 * ds-* namespace contract, so `.glass { … }` in a consumer stylesheet restyled
+	 * every glass surface on the page and there was no way to reach one stat card.
+	 */
+	it("carries its own atom class, the shared glass class, and a consumer class", () => {
+		const { container } = render(<StatCard label="L" value="1" className="wk-stat" />);
+		const root = container.firstChild as HTMLElement;
+		expect(root.getAttribute("class")).toBe("ds-atom-statcard glass wk-stat");
+	});
+
+	it("still emits both classes with no consumer class", () => {
+		const { container } = render(<StatCard label="L" value="1" />);
+		expect((container.firstChild as HTMLElement).getAttribute("class")).toBe(
+			"ds-atom-statcard glass",
+		);
 	});
 
 	it("renders the value text", () => {

@@ -262,6 +262,40 @@ describe("token contrast (WCAG)", () => {
 		expect(failures).toEqual([]);
 	});
 
+	/**
+	 * Rule C-3 gives --wire and --rule different jobs — a control's sole boundary
+	 * at the 3:1 SC 1.4.11 bar, versus a decorative hairline — but their VALUES are
+	 * what keeps those jobs apart. Two tokens whose difference is a rule rather
+	 * than a number erode into each other one component at a time, which is exactly
+	 * what Rule C-6 says of the two ochres. If they ever resolve to the same colour,
+	 * every rebinding this library did in plan 01-10 silently becomes a no-op and
+	 * the browser gate in tests/visual/control-boundary.spec.ts keeps passing,
+	 * because a --rule border would then measure the same 3.44:1 as a --wire one.
+	 *
+	 * All four cells, because the erosion only has to happen in one of them.
+	 */
+	it("keeps --wire and --rule distinct in both themes and both modes", () => {
+		const cells = [
+			["default light", tokensCss, LIGHT],
+			["default dark", tokensCss, DARK],
+			["charcoal light", charcoalCss, CHARCOAL_LIGHT],
+			["charcoal dark", charcoalCss, CHARCOAL_DARK],
+		] as const;
+		const same: string[] = [];
+		for (const [label, css, sel] of cells) {
+			const wire = resolve(css, sel, "--wire");
+			const rule = resolve(css, sel, "--rule");
+			// Both must actually resolve; a typo'd token name would otherwise throw
+			// inside resolve() and read as a different failure than the one meant.
+			expect(wire, `--wire did not resolve in ${label}`).toBeTruthy();
+			expect(rule, `--rule did not resolve in ${label}`).toBeTruthy();
+			if (wire === rule) same.push(`${label}: both are ${wire}`);
+		}
+		expect(same, "--wire and --rule have converged, so Rule C-3 no longer has two tokens").toEqual(
+			[],
+		);
+	});
+
 	it("the focus indicator clears the 3:1 non-text contrast floor (WCAG 1.4.11)", () => {
 		// The brand --amber reaches only 2.09:1 on --cream, so --focus is keyed to
 		// --amber-d instead.

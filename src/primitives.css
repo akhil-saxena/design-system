@@ -39,7 +39,16 @@
    the browser coalesces paints and the user never sees the press feedback.
    The asymmetric durations below give a quick snap-down + a longer spring-
    back so the click registers even on the fastest taps. */
+/* Base border. This lived in Button's inline `baseStyle` as
+   `border: 1px solid var(--rule)`, which meant it beat every rule below it —
+   including the secondary/ghost variant and hover rules written here, which had
+   simply never applied. Declaring it here is what makes
+   the secondary variant rule below reachable at all;
+   moving the token without moving this would have silently *regressed* secondary
+   from --wire to --rule while every source-level grep went green.
+   primary / ghost / danger still set border-color inline, so they are unchanged. */
 .ds-atom-btn {
+	border: 1px solid var(--rule);
 	transition:
 		transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1),
 		background-color 120ms ease,
@@ -74,9 +83,17 @@
 	background: var(--amber-d);
 	color: #fff;
 }
+/* Rule C-3: secondary is an outlined surface on a near-page fill, so its border
+   is the only thing saying where the control is — that is --wire's job, at the
+   3:1 SC 1.4.11 bar, not --rule's 1.38:1 hairline. Was inline on the component. */
+.ds-atom-btn[data-variant="secondary"] {
+	border-color: var(--wire);
+}
+/* No border-color on hover: the 1.09:1 rgba that used to be declared here never
+   actually applied (the inline --wire outranked it), and applying it now would
+   drop the boundary below the 3:1 floor on hover only. The border stays --wire. */
 .ds-atom-btn[data-variant="secondary"]:hover:not(:disabled) {
 	background: var(--cream-2);
-	border-color: rgba(0, 0, 0, 0.12);
 }
 .ds-atom-btn[data-variant="ghost"]:hover:not(:disabled) {
 	background: rgba(0, 0, 0, 0.04);
@@ -106,7 +123,6 @@
    which flips to a near-black in dark mode, causing text-on-bg contrast loss. */
 .dark .ds-atom-btn[data-variant="secondary"]:hover:not(:disabled) {
 	background: rgba(255, 255, 255, 0.08);
-	border-color: rgba(255, 255, 255, 0.18);
 	color: var(--ink);
 }
 
@@ -253,7 +269,7 @@ fieldset.ds-atom-field {
 	height: 36px;
 	padding: 0 10px;
 	border-radius: var(--radius-md);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	background: var(--cream);
 	color: var(--ink);
 	font-family: var(--font-body);
@@ -269,7 +285,7 @@ fieldset.ds-atom-field {
 	height: 36px;
 	padding: 0 10px;
 	border-radius: var(--radius-md);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	background: var(--cream);
 	transition: border-color 0.15s, box-shadow 0.15s;
 	box-sizing: border-box;
@@ -307,7 +323,7 @@ fieldset.ds-atom-field {
 }
 /* Dark mode - stronger border + focus/error rings for AAA visibility */
 .dark .ds-atom-input {
-	border-color: var(--rule);
+	border-color: var(--wire);
 }
 .dark .ds-atom-input:focus {
 	border-color: var(--focus);
@@ -370,6 +386,12 @@ fieldset.ds-atom-field {
    onMouseDown e.preventDefault() prevents mouse-click focus so the
    browser never shows the default black focus border on click.
    :focus-visible still shows the amber ring for keyboard navigation. */
+/* Base border, moved off Chip's inline `baseStyle`. Same reason as Button:
+   while it was inline it outranked every rule in this section, so
+   `[data-interactive]` could not have rebound the colour. */
+.ds-atom-chip {
+	border: 1px solid var(--rule);
+}
 .ds-atom-chip[data-interactive] {
 	cursor: pointer;
 }
@@ -382,8 +404,21 @@ fieldset.ds-atom-field {
 }
 .dark .ds-atom-chip {
 	background: rgba(255, 255, 255, 0.1);
-	border-color: rgba(255, 255, 255, 0.18);
+	border-color: var(--rule);
 	color: var(--ink);
+}
+/* Rule C-3, the interactive half: a plain chip is a label and its text carries
+   it, so it keeps --rule; a chip with data-interactive is a control and its
+   border is the only boundary it has. Declared after `.dark .ds-atom-chip`
+   because both weigh (0,2,0) — source order is what decides, so this must come
+   last to hold in dark mode too. A toned chip (success/danger/info/warning)
+   still sets border-color inline and still wins: its tinted fill already
+   delimits it, which is exactly when C-3 says --rule is correct.
+   The rgba above replaced a hardcoded rgba(255,255,255,.18) that had never
+   applied — Chip's inline border-color outranked it — so this preserves what
+   dark mode actually rendered rather than silently activating a dormant value. */
+.ds-atom-chip[data-interactive] {
+	border-color: var(--wire);
 }
 
 /* ─── Minimum hit area ───────────────────────────────────────────────────
@@ -538,7 +573,7 @@ fieldset.ds-atom-field {
 .ds-atom-stepper {
 	display: inline-flex;
 	align-items: center;
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 8px;
 	overflow: hidden;
 	background: rgba(255, 255, 255, 0.6);
@@ -2133,7 +2168,7 @@ fieldset.ds-atom-field {
 	align-items: center;
 	gap: 8px;
 	background: var(--cream);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 8px;
 	padding: 6px 10px;
 	cursor: pointer;
@@ -2219,7 +2254,7 @@ fieldset.ds-atom-field {
 }
 .ds-atom-datepicker-nav {
 	background: transparent;
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 6px;
 	width: 24px;
 	height: 24px;
@@ -2414,7 +2449,7 @@ fieldset.ds-atom-field {
 	flex: 1;
 	min-width: 0;
 	width: 0; /* flex overrides; width:0 + flex:1 forces equal share */
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 6px;
 	padding: 6px 8px;
 	font-family: var(--mono);
@@ -2525,7 +2560,7 @@ fieldset.ds-atom-field {
 	align-items: center;
 	gap: 6px;
 	padding: 7px 11px;
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 7px;
 	background: var(--panel, #ffffff);
 	color: var(--ink);
@@ -2617,7 +2652,7 @@ fieldset.ds-atom-field {
 	align-items: stretch;
 	border-radius: 8px;
 	overflow: hidden;
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	/* v0.5.5 - defend against parent flex containers with align-items: stretch
 	   forcing the inline-flex container to fill cross-axis. fit-content keeps
 	   the SplitButton at its natural button-row width regardless of parent. */
@@ -2691,7 +2726,7 @@ fieldset.ds-atom-field {
 	background: var(--cream);
 }
 .ds-atom-split[data-variant="ghost"] {
-	border-color: var(--rule);
+	border-color: var(--wire);
 }
 .ds-atom-split-primary[data-variant="danger"],
 .ds-atom-split-chevron[data-variant="danger"] {
@@ -2798,7 +2833,7 @@ fieldset.ds-atom-field {
 	height: 36px;
 	padding: 0 10px;
 	background: var(--surf-1);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 8px;
 	font-family: var(--font);
 	font-size: 13px;
@@ -2893,7 +2928,7 @@ fieldset.ds-atom-field {
 	height: 36px;
 	padding: 0 10px;
 	background: var(--surf-1);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 8px;
 	font-family: var(--font);
 	font-size: 13px;
@@ -2980,7 +3015,7 @@ fieldset.ds-atom-field {
 	display: block;
 	width: 100%;
 	box-sizing: border-box;
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 6px;
 	padding: 6px 8px;
 	font-family: var(--font);
@@ -3065,7 +3100,7 @@ fieldset.ds-atom-field {
 	max-height: 108px;
 	padding: 4px 10px;
 	background: var(--surf-1);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 8px;
 	cursor: pointer;
 	font-family: var(--font);
@@ -3162,7 +3197,7 @@ fieldset.ds-atom-field {
 }
 .ds-atom-multiselect-chip-more {
 	background: var(--cream-2);
-	border: 1px dashed var(--rule);
+	border: 1px dashed var(--wire);
 	cursor: pointer;
 	padding: 2px 8px;
 	font-family: var(--font);
@@ -3230,7 +3265,7 @@ fieldset.ds-atom-field {
 .ds-atom-multiselect-checkbox {
 	width: 16px;
 	height: 16px;
-	border: 1.5px solid var(--rule);
+	border: 1.5px solid var(--wire);
 	border-radius: 4px;
 	display: inline-flex;
 	align-items: center;
@@ -3301,7 +3336,7 @@ fieldset.ds-atom-field {
 	gap: 2px;
 	padding: 2px;
 	background: var(--cream-2);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 999px;
 }
 .ds-atom-segmented[data-disabled="true"] {
@@ -3354,7 +3389,7 @@ fieldset.ds-atom-field {
 /* Dark mode */
 .dark .ds-atom-segmented {
 	background: var(--cream-2);
-	border-color: var(--rule);
+	border-color: var(--wire);
 }
 .dark .ds-atom-segmented-btn {
 	color: var(--ink-2);
@@ -3782,7 +3817,7 @@ fieldset.ds-atom-field {
 	height: 40px;
 	border-radius: 50%;
 	background: var(--surf-1);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -3845,7 +3880,7 @@ fieldset.ds-atom-field {
 /* Dark mode */
 .dark .ds-atom-carousel-arrow {
 	background: var(--surf-1);
-	border-color: var(--rule);
+	border-color: var(--wire);
 	color: var(--ink);
 }
 .dark .ds-atom-carousel-arrow:hover:not(:disabled) {
@@ -4240,7 +4275,7 @@ fieldset.ds-atom-field {
 .ds-atom-calendar-navbtn {
 	appearance: none;
 	background: transparent;
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 4px;
 	cursor: pointer;
 	padding: 4px;
@@ -4604,7 +4639,7 @@ fieldset.ds-atom-field {
 	color: var(--ink-2);
 }
 .dark .ds-atom-calendar-navbtn {
-	border-color: var(--rule);
+	border-color: var(--wire);
 	color: var(--ink-2);
 }
 .dark .ds-atom-calendar-navbtn:hover {
@@ -4652,7 +4687,7 @@ fieldset.ds-atom-field {
 
 /* ── Wrapper ──────────────────────────────────────────────────────────────── */
 .ds-atom-richtext {
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 8px;
 	background: var(--surf-1);
 	overflow: hidden;
@@ -4940,7 +4975,7 @@ fieldset.ds-atom-field {
 	appearance: none;
 	width: 100%;
 	padding: 6px 8px;
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 4px;
 	background: var(--cream);
 	color: var(--ink);
@@ -4961,7 +4996,7 @@ fieldset.ds-atom-field {
 /* ── Dark mode ────────────────────────────────────────────────────────────── */
 .dark .ds-atom-richtext {
 	background: var(--surf-1);
-	border-color: var(--rule);
+	border-color: var(--wire);
 }
 .dark .ds-atom-richtext-toolbar {
 	background: var(--surf-2);
@@ -4996,7 +5031,7 @@ fieldset.ds-atom-field {
 .dark .ds-atom-richtext-linkinput {
 	background: var(--cream-3);
 	color: var(--ink);
-	border-color: var(--rule);
+	border-color: var(--wire);
 }
 
 /* ─── DS atom: AppShell (DS-71) ──────────────────────────────────────────── */
@@ -5077,7 +5112,7 @@ fieldset.ds-atom-field {
 }
 .ds-atom-appbar-search {
 	background: var(--cream-2);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 6px;
 	padding: 6px 10px;
 	font-size: 13px;
@@ -5095,7 +5130,7 @@ fieldset.ds-atom-field {
 }
 .dark .ds-atom-appbar-search {
 	background: var(--cream-2);
-	border-color: var(--rule);
+	border-color: var(--wire);
 	color: var(--ink);
 }
 
@@ -5437,7 +5472,7 @@ fieldset.ds-atom-field {
 .ds-atom-searchfilters-input {
 	flex: 1;
 	padding: 8px 12px;
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	border-radius: 8px;
 	background: var(--cream-2);
 	color: var(--ink);
@@ -5479,7 +5514,7 @@ fieldset.ds-atom-field {
 }
 .dark .ds-atom-searchfilters-input {
 	background: var(--cream-2);
-	border-color: var(--rule);
+	border-color: var(--wire);
 	color: var(--ink);
 }
 
@@ -5578,7 +5613,7 @@ fieldset.ds-atom-field {
 	width: 28px;
 	height: 28px;
 	border-radius: 7px;
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	background: var(--g-bg);
 	display: inline-flex;
 	align-items: center;
@@ -5839,7 +5874,7 @@ fieldset.ds-atom-field {
 	width: 20px;
 	height: 20px;
 	border-radius: var(--radius-sm);
-	border: 1px solid var(--rule);
+	border: 1px solid var(--wire);
 	flex-shrink: 0;
 }
 .ds-atom-colorinput .ds-atom-input-inner {
@@ -6081,10 +6116,15 @@ fieldset.ds-atom-field {
 	opacity: 0.65;
 	margin-left: 1px;
 }
+/* The one neutral stage: every other stage has a tinted fill that delimits it,
+   so their borders are decorative and stay on --rule. This one fills with
+   --cream-2, which is 1.06:1 against the page in charcoal light, so its border
+   is doing the whole job. The pill is a control — it is a <button> and changing
+   stage is what it is for; [data-interactive="false"] is the exception. */
 .ds-atom-statuspill[data-stage="wishlist"] {
 	background: var(--cream-2);
 	color: var(--ink-3);
-	border-color: var(--rule);
+	border-color: var(--wire);
 }
 .ds-atom-statuspill[data-stage="applied"] {
 	background: transparent;
@@ -6351,7 +6391,7 @@ fieldset.ds-atom-field {
 }
 .ds-atom-card[data-surface="outline"] {
 	background: transparent;
-	border: 1px dashed var(--rule);
+	border: 1px dashed var(--wire);
 }
 
 /* ─── DS atom: Link (quiet + default variants) ────────────────────────
@@ -6456,8 +6496,11 @@ fieldset.ds-atom-field {
 }
 
 /* Moved out of an inline style object so the reduced-motion guard and any
-   consumer override can reach it. */
+   consumer override can reach it. The border followed for the same reason plus
+   one more: inline, it beat the :focus and [data-error] border colours declared
+   in this component's own section, which had therefore never applied. */
 .ds-atom-textarea {
+	border: 1px solid var(--wire);
 	transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -6510,4 +6553,28 @@ fieldset.ds-atom-field {
 	color: var(--ink-3);
 	font-family: var(--font-body);
 	font-size: var(--text-sm);
+}
+
+/* ─── DS atom: StatCard ──────────────────────────────────────────────────
+   StatCard shipped with `class="glass"` and no component class of its own, so
+   a consumer could not select ONE stat card without selecting every glass
+   surface in the page. `ds-atom-statcard` is that missing hook; `glass` stays,
+   because it is a shared class in the ds-* namespace contract and carries the
+   surface treatment (utilities.css).
+
+   Only unconditional base styles moved here. `border-radius` did NOT: `.glass`
+   sets `border-radius: var(--radius-xl)` and utilities.css is imported after
+   this file, so a (0,1,0) rule here would tie with `.glass` and lose on source
+   order — turning StatCard's 12px corners into 16px. It stays inline until
+   `.glass` stops owning a radius. */
+.ds-atom-statcard {
+	padding: 16px;
+}
+.ds-atom-statcard [data-part="label"] {
+	font-family: var(--mono);
+	font-size: 9px;
+	color: var(--ink-3);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-weight: 700;
 }

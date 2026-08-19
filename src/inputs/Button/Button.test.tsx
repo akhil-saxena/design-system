@@ -1,6 +1,8 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { fireEvent, render } from "@testing-library/react";
 import { createRef } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { Button, type ButtonSize, type ButtonVariant } from ".";
 describe("Button", () => {
 	it("renders children", () => {
@@ -146,8 +148,69 @@ describe("Button — accessibility and token contract", () => {
 	it("resolves borders and fills through tokens rather than raw hex", () => {
 		const { getByRole } = render(<Button variant="secondary">Save</Button>);
 		const style = getByRole("button").getAttribute("style") ?? "";
-		expect(style).toContain("var(--wire)");
+		// --wire is deliberately NOT here any more; see the boundary case below.
 		expect(style).toContain("var(--panel)");
+		expect(style).not.toContain("border-color");
+		expect(style).not.toContain("1px solid");
+	});
+
+	/**
+	 * E6 — secondary's boundary token must survive the move out of inline style.
+	 *
+	 * The obvious version of this fix ("delete borderColor from variantStyles,
+	 * add a rule to primitives.css") silently REGRESSES secondary from --wire to
+	 * --rule, because baseStyle also carried `border: 1px solid var(--rule)`
+	 * inline and inline beats any class rule. Both halves of the plan's own grep
+	 * gate stay green through that regression, so the assertion has to read a
+	 * computed value with the real sheet attached, not an attribute.
+	 *
+	 * Two measured jsdom facts shape the assertion. It returns custom properties
+	 * unsubstituted, so the expected value is the literal token reference. And it
+	 * populates `borderColor` but NOT `borderTopColor` from a `border-color`
+	 * longhand — while a `border: 1px solid var(--rule)` SHORTHAND is dropped
+	 * outright, leaving `borderColor` empty. So this reads `borderColor`; a
+	 * `borderTopColor` assertion here would sit on the UA `buttonface` forever.
+	 * jsdom also resolves the cascade by source order rather than specificity —
+	 * here the two agree, and the specificity claim is proven separately in
+	 * tests/visual/control-boundary.spec.ts in a real browser.
+	 */
+	describe("secondary's boundary is --wire, from the stylesheet", () => {
+		let dsSheet: HTMLStyleElement;
+
+		beforeAll(() => {
+			dsSheet = document.createElement("style");
+			dsSheet.textContent = readFileSync(join(__dirname, "../../primitives.css"), "utf8");
+			document.head.appendChild(dsSheet);
+		});
+		afterAll(() => dsSheet.remove());
+
+		it("computes --wire for secondary, from the sheet rather than the element", () => {
+			const { getByRole, rerender } = render(<Button variant="secondary">Save</Button>);
+			const el = getByRole("button");
+			expect(el.style.borderColor, "must not be inline any more").toBe("");
+			expect(getComputedStyle(el).borderColor).toBe("var(--wire)");
+			// ghost still sets its border-color inline, so the [data-variant]
+			// rule is doing the work rather than every button having moved token.
+			rerender(<Button variant="ghost">Save</Button>);
+			expect(getComputedStyle(getByRole("button")).borderColor).toBe("transparent");
+		});
+
+		it("keeps --wire on hover, where a 1.09:1 rgba used to be declared", () => {
+			// The hover rule's border-color was removed rather than left to
+			// activate: it had never applied (inline --wire outranked it) and it
+			// sits far below the 3:1 non-text floor E6 exists to reach.
+			const sheet = readFileSync(join(__dirname, "../../primitives.css"), "utf8");
+			const hover = sheet.slice(
+				sheet.indexOf('.ds-atom-btn[data-variant="secondary"]:hover'),
+				sheet.indexOf('.ds-atom-btn[data-variant="ghost"]:hover'),
+			);
+			expect(hover).not.toContain("border-color");
+		});
+
+		it("leaves padding inline — control geometry is Phase 06.1, not this change", () => {
+			const { getByRole } = render(<Button variant="secondary">Save</Button>);
+			expect(getByRole("button").style.padding).toBe("7px 14px");
+		});
 	});
 });
 

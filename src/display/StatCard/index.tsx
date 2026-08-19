@@ -40,24 +40,26 @@ export function StatCard({
 	return (
 		<div
 			ref={ref}
-			className={["glass", className].filter(Boolean).join(" ")}
-			style={{ padding: 16, borderRadius: 12, ...style }}
+			// `ds-atom-statcard` FIRST, `glass` kept. `glass` is a shared
+			// cross-component class in the ds-* namespace contract — it is declared in
+			// utilities.css and other surfaces wear it too — so it was never a hook for
+			// *this* component: a consumer selecting `.glass` selected every glass
+			// surface on the page. The defect was the absence of a component-specific
+			// class, not the presence of the shared one, so the fix is additive.
+			className={["ds-atom-statcard", "glass", className].filter(Boolean).join(" ")}
+			// `padding` moved to .ds-atom-statcard so a consumer can override it.
+			// `borderRadius` deliberately did NOT: `.glass` declares
+			// `border-radius: var(--radius-xl)` (16px) in utilities.css, which is
+			// imported AFTER primitives.css — so a (0,1,0) rule there would tie with
+			// `.glass` and lose on source order, silently changing these corners from
+			// 12px to 16px. Same trap as plan 01-09's Text variant colours, one layer
+			// over. Moving it needs `.glass` to stop setting a radius, which is a
+			// utilities.css change and not this plan's.
+			style={{ borderRadius: 12, ...style }}
 			{...rest}
 		>
 			{/* Label */}
-			<div
-				data-part="label"
-				style={{
-					fontFamily: "var(--mono)",
-					fontSize: 9,
-					color: "var(--ink-3)",
-					letterSpacing: ".08em",
-					textTransform: "uppercase",
-					fontWeight: 700,
-				}}
-			>
-				{label}
-			</div>
+			<div data-part="label">{label}</div>
 
 			{/* Value + badge row */}
 			<div
