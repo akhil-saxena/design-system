@@ -387,9 +387,11 @@ describe("Sortable — announcer passthrough (E8 / G-13)", () => {
 
 	it("Test 23: passing undefined explicitly still gets dnd-kit's defaults, never silence", async () => {
 		// T-15-02. The component must forward `undefined`, never `{}`: dnd-kit
-		// substitutes a default only for a member that IS undefined, so an empty
-		// object replaces the defaults with a crash — every member except
-		// onDragMove is required — rather than with silence.
+		// substitutes a default only for a member that IS undefined. Measured under
+		// a negative control: substituting `{}` throws "announcements.onDragStart
+		// is not a function" inside dnd-kit's monitor dispatch, so the live region
+		// is never written and this case fails with `expected '' to be …`. Silence
+		// plus an unhandled error, not silence alone.
 		renderList({ announcements: undefined, screenReaderInstructions: undefined });
 		focusFirstTile();
 		press(...SPACE);

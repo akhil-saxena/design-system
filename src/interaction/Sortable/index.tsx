@@ -130,8 +130,12 @@ export interface SortableDndContextProps {
 //      before this passthrough existed. `{}` would behave the same for the
 //      defaults but would be a fresh object on every render.
 //   2. Never merge, never default, never substitute `{}`. Every member of
-//      dnd-kit's `Announcements` except `onDragMove` is REQUIRED, so an empty
-//      object does not mute the announcer — it throws on the first drag. Absent
+//      dnd-kit's `Announcements` except `onDragMove` is REQUIRED, and dnd-kit
+//      calls them unguarded. Measured: substituting `{}` throws
+//      `announcements.onDragStart is not a function` on the first drag, and
+//      because the throw happens inside dnd-kit's monitor dispatch the live
+//      region is never written — so the result is silence AND an unhandled
+//      error, which is strictly worse than the defaults it replaced. Absent
 //      means absent.
 //
 // Deliberately NOT a `{...rest}` spread onto DndContext: that would let a
