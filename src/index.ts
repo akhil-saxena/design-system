@@ -227,3 +227,11 @@ export {
 	type SortableItemData,
 	type SortableDndContextProps,
 } from "./interaction/Sortable";
+// Re-exported from @dnd-kit/core, not redeclared. `Sortable.announcements` and
+// `Sortable.screenReaderInstructions` are a passthrough to dnd-kit, so a consumer
+// needs these types to write an announcer — and without this line it would have to
+// add @dnd-kit/core as a direct dependency to name the type of something this
+// library asked it for. Re-exporting the upstream type rather than restating its
+// shape also means a dnd-kit minor bump surfaces as a typecheck failure here
+// instead of as a silent mismatch at a call site.
+export type { Announcements, ScreenReaderInstructions } from "@dnd-kit/core";

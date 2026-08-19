@@ -1,4 +1,5 @@
 import {
+	type Announcements,
 	DndContext,
 	type DragEndEvent,
 	type DragOverEvent,
@@ -6,6 +7,7 @@ import {
 	type DragStartEvent,
 	KeyboardSensor,
 	PointerSensor,
+	type ScreenReaderInstructions,
 	type UniqueIdentifier,
 	closestCenter,
 	useSensor,
@@ -19,7 +21,7 @@ import {
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { type ReactNode, createContext, useCallback, useContext, useState } from "react";
+import { type ReactNode, createContext, useCallback, useContext, useMemo, useState } from "react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -39,6 +41,39 @@ export interface SortableProps {
 	id?: string;
 	className?: string;
 	style?: React.CSSProperties;
+	/**
+	 * Replaces what a screen reader hears during a reorder.
+	 *
+	 * Omitting this is NOT silence. dnd-kit substitutes `defaultAnnouncements` for
+	 * an absent announcer, and those defaults speak the raw record id and never a
+	 * position — measured verbatim as *"Draggable item abstract-intothemist was
+	 * moved over droppable area abstract-lightscameraart."* This prop is the way
+	 * to say something useful instead; `Sortable.stories.tsx` -> `AnnouncedReorder`
+	 * is a reference announcer that speaks a title and a one-based position.
+	 *
+	 * Note that the utterance heard immediately after pick-up comes from
+	 * `onDragOver`, not `onDragStart`: the active item collides with its own
+	 * droppable the moment a drag begins, and both callbacks write to the same
+	 * live region. An announcer that fixes only `onDragStart` changes nothing
+	 * audible. Returning `undefined` from a callback leaves the previous utterance
+	 * standing rather than clearing it.
+	 *
+	 * **Ignored when this Sortable is nested inside a `SortableDndContext`.** The
+	 * parent owns the only `DndContext` on that subtree, so this Sortable renders
+	 * none and has nowhere to forward the announcer; pass it to the
+	 * `SortableDndContext` instead.
+	 */
+	announcements?: Announcements;
+	/**
+	 * Replaces dnd-kit's default *"To pick up a draggable item, press the space
+	 * bar…"* text, which is rendered into the hidden element every tile points at
+	 * with `aria-describedby`. Omit it to keep dnd-kit's default.
+	 *
+	 * **Ignored when this Sortable is nested inside a `SortableDndContext`**, for
+	 * the same reason as `announcements`: the parent owns the only `DndContext`,
+	 * so pass the instructions to the `SortableDndContext` instead.
+	 */
+	screenReaderInstructions?: ScreenReaderInstructions;
 }
 
 export interface SortableItemProps {
@@ -67,6 +102,53 @@ export interface SortableDndContextProps {
 	 * Receives the active item id. If omitted, a ghost placeholder is shown.
 	 */
 	renderOverlay?: (activeId: UniqueIdentifier) => ReactNode;
+	/**
+	 * Replaces what a screen reader hears during a cross-list drag. This is the
+	 * component that owns the shared `DndContext`, so this is where a cross-list
+	 * announcer belongs — a nested `Sortable`'s own `announcements` prop has no
+	 * `DndContext` to reach and is ignored.
+	 *
+	 * Omitting it keeps dnd-kit's defaults, which speak raw record ids and no
+	 * position. See `SortableProps.announcements` for the pick-up/drag-over
+	 * ordering that any replacement has to account for.
+	 */
+	announcements?: Announcements;
+	/**
+	 * Replaces dnd-kit's default draggable instruction text for every `Sortable`
+	 * inside this context. Omit it to keep dnd-kit's default.
+	 */
+	screenReaderInstructions?: ScreenReaderInstructions;
+}
+
+// ─── Accessibility passthrough ────────────────────────────────────────────────
+// E8 / G-13. dnd-kit takes both of these off a single `accessibility` object, and
+// `<Accessibility>` substitutes its own default for any member that is
+// `undefined`. Two rules this hook exists to keep:
+//
+//   1. Return `undefined` for the whole object when a consumer supplied neither
+//      prop, so the props `DndContext` receives are identical to what they were
+//      before this passthrough existed. `{}` would behave the same for the
+//      defaults but would be a fresh object on every render.
+//   2. Never merge, never default, never substitute `{}`. Every member of
+//      dnd-kit's `Announcements` except `onDragMove` is REQUIRED, so an empty
+//      object does not mute the announcer — it throws on the first drag. Absent
+//      means absent.
+//
+// Deliberately NOT a `{...rest}` spread onto DndContext: that would let a
+// consumer replace `sensors` or `collisionDetection` and break the keyboard path
+// Phase 0 measured as working. Two named props, nothing else.
+
+function useDndAccessibility(
+	announcements: Announcements | undefined,
+	screenReaderInstructions: ScreenReaderInstructions | undefined,
+) {
+	return useMemo(
+		() =>
+			announcements === undefined && screenReaderInstructions === undefined
+				? undefined
+				: { announcements, screenReaderInstructions },
+		[announcements, screenReaderInstructions],
+	);
 }
 
 // ─── Context sentinel ─────────────────────────────────────────────────────────
@@ -104,8 +186,15 @@ export function SortableItem({ id, children, reducedMotion }: SortableItemProps)
 // Shared DndContext for cross-list drag - D-12.
 // Hosts the DndContext and provides SortableDndCtx sentinel to children Sortable instances.
 
-export function SortableDndContext({ children, onMove, renderOverlay }: SortableDndContextProps) {
+export function SortableDndContext({
+	children,
+	onMove,
+	renderOverlay,
+	announcements,
+	screenReaderInstructions,
+}: SortableDndContextProps) {
 	const reducedMotion = useReducedMotion();
+	const accessibility = useDndAccessibility(announcements, screenReaderInstructions);
 	const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
 	const sensors = useSensors(
@@ -136,6 +225,7 @@ export function SortableDndContext({ children, onMove, renderOverlay }: Sortable
 	return (
 		<SortableDndCtx.Provider value={true}>
 			<DndContext
+				accessibility={accessibility}
 				sensors={sensors}
 				collisionDetection={closestCenter}
 				onDragStart={handleDragStart}
@@ -163,9 +253,19 @@ export function SortableDndContext({ children, onMove, renderOverlay }: Sortable
 // Self-contained sortable list. When inside a SortableDndContext, renders
 // SortableContext only (parent owns DndContext).
 
-export function Sortable({ items, onReorder, renderItem, id, className, style }: SortableProps) {
+export function Sortable({
+	items,
+	onReorder,
+	renderItem,
+	id,
+	className,
+	style,
+	announcements,
+	screenReaderInstructions,
+}: SortableProps) {
 	const reducedMotion = useReducedMotion();
 	const hasParentDnd = useContext(SortableDndCtx);
+	const accessibility = useDndAccessibility(announcements, screenReaderInstructions);
 
 	// overId is only tracked when this Sortable owns its DndContext (standalone mode).
 	// In cross-list mode (hasParentDnd=true), the parent SortableDndContext drives state.
@@ -218,6 +318,10 @@ export function Sortable({ items, onReorder, renderItem, id, className, style }:
 	);
 
 	// When inside SortableDndContext: render SortableContext only (parent owns DndContext).
+	// `accessibility` is deliberately unused on this branch — there is no DndContext
+	// here to give it to. Documented on both props rather than warned about, because
+	// this library ships no dev-mode warnings anywhere else; introducing the pattern
+	// for one prop would be its own inconsistency.
 	if (hasParentDnd) {
 		return listContent;
 	}
@@ -225,6 +329,7 @@ export function Sortable({ items, onReorder, renderItem, id, className, style }:
 	// Standalone mode: wrap in own DndContext.
 	return (
 		<DndContext
+			accessibility={accessibility}
 			sensors={sensors}
 			collisionDetection={closestCenter}
 			onDragStart={handleDragStart}
