@@ -5,6 +5,11 @@ coverage/
 test-results/
 playwright-report/
 storybook-static/
+
+# npm pack output. Plans 01-06, 01-08 and 01-21 all pack the package to measure
+# or publish it, and an untracked tarball trips the tracked-clean gate that opens
+# every plan in this phase — it reads as a human session having left work behind.
+*.tgz
 .DS_Store
 Thumbs.db
 .idea/
