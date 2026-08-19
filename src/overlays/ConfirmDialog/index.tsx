@@ -169,6 +169,15 @@ export interface ConfirmDialogProps {
 	 * @default "Cancel"
 	 */
 	cancelLabel?: string;
+	/**
+	 * Render in place instead of through a portal, so the dialog exists in
+	 * server-rendered HTML (F-15-1). Opt-in, and it reintroduces coupling to
+	 * ancestor `overflow` / `transform` / `z-index` — see `DSPortal`'s own
+	 * `inline` prop, which documents the tradeoff in full.
+	 *
+	 * @default false
+	 */
+	inline?: boolean;
 	/** Ref to the ConfirmDialog root element. */
 	ref?: Ref<HTMLDivElement>;
 }
@@ -182,6 +191,7 @@ export function ConfirmDialog({
 	body,
 	confirmLabel = "Confirm",
 	cancelLabel = "Cancel",
+	inline = false,
 	ref,
 }: ConfirmDialogProps) {
 	// Callback-ref pattern: panel state flips from null to the DOM node when
@@ -230,7 +240,7 @@ export function ConfirmDialog({
 	const btnConfig = toneButtonStyle[canonicalTone];
 
 	return (
-		<DSPortal>
+		<DSPortal inline={inline}>
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above on `document` */}
 			<div className="ds-atom-modal-backdrop" onClick={handleBackdropClick}>
 				<div
@@ -325,6 +335,15 @@ export interface TypeToConfirmProps {
 	 * @default "Cancel"
 	 */
 	cancelLabel?: string;
+	/**
+	 * Render in place instead of through a portal, so the dialog exists in
+	 * server-rendered HTML (F-15-1). Opt-in, and it reintroduces coupling to
+	 * ancestor `overflow` / `transform` / `z-index` — see `DSPortal`'s own
+	 * `inline` prop, which documents the tradeoff in full.
+	 *
+	 * @default false
+	 */
+	inline?: boolean;
 }
 
 export function TypeToConfirm({
@@ -336,6 +355,7 @@ export function TypeToConfirm({
 	guardWord = "DELETE",
 	confirmLabel = "Delete forever",
 	cancelLabel = "Cancel",
+	inline = false,
 }: TypeToConfirmProps) {
 	const [panel, setPanel] = useState<HTMLDivElement | null>(null);
 	const [v, setV] = useState("");
@@ -371,7 +391,7 @@ export function TypeToConfirm({
 	}
 
 	return (
-		<DSPortal>
+		<DSPortal inline={inline}>
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above on `document` */}
 			<div className="ds-atom-modal-backdrop" onClick={handleBackdropClick}>
 				<div

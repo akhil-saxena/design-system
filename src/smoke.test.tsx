@@ -179,8 +179,7 @@ describe("server-rendered overlays (F-15-1)", () => {
 			renderToStaticMarkup(<DS.AlertBanner open tone="warning" title="Heads up" />).length,
 		).toBeGreaterThan(0);
 		expect(
-			renderToStaticMarkup(<DS.FormErrorSummary errors={[{ fieldId: "e", message: "Required" }]} />)
-				.length,
+			renderToStaticMarkup(<DS.FormErrorSummary errors={[{ message: "Required" }]} />).length,
 		).toBeGreaterThan(0);
 	});
 });

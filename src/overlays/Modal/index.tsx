@@ -17,6 +17,14 @@ import { X } from "../../icons";
 import { Button } from "../../inputs/Button";
 export type ModalRole = "dialog" | "alertdialog";
 
+/**
+ * Passed to useDismiss when `closable` is false: the layer occupies the top of
+ * the dismiss stack and swallows Escape. Module-level so the identity is stable
+ * across renders — useDismiss keys its effect on the callback, and a fresh arrow
+ * would unregister and re-register the layer on every render.
+ */
+const IGNORE_DISMISS = () => {};
+
 export interface ModalProps {
 	/** Controls visibility; returns null when false. */
 	open: boolean;
@@ -34,6 +42,41 @@ export interface ModalProps {
 	 * @default true
 	 */
 	closeOnBackdropClick?: boolean;
+	/**
+	 * Whether the user may dismiss the dialog at all.
+	 *
+	 * `false` suppresses **all three** exits together — the header Close button,
+	 * the Escape key and the backdrop click path. It overrides
+	 * `closeOnBackdropClick`, because a fail-closed dialog that is one default
+	 * away from being dismissable is not fail-closed. Suppressing only the visible
+	 * button would leave two silent exits and merely *look* solved (F-15-2).
+	 *
+	 * Escape is **swallowed**, not passed through: the layer still registers in
+	 * the dismiss stack and ignores the key, so a press cannot close whatever
+	 * surface is open beneath the trap — a surface the user can neither see behind
+	 * the scrim nor reach through the focus trap.
+	 *
+	 * ## This makes the dialog a keyboard trap by design
+	 *
+	 * That is the point — a re-auth prompt or an expired-session dialog is the one
+	 * dialog whose entire purpose is that you may not dismiss it. It also means
+	 * **the consumer must provide its own way out**: a re-auth form, a sign-out
+	 * button, a link. An undismissable dialog with no action inside it is an
+	 * accessibility failure, not a security feature. Do not reach for this prop to
+	 * make a dialog feel important.
+	 *
+	 * @default true
+	 */
+	closable?: boolean;
+	/**
+	 * Render in place instead of through a portal, so the dialog exists in
+	 * server-rendered HTML (F-15-1). Opt-in, and it reintroduces coupling to
+	 * ancestor `overflow` / `transform` / `z-index` — see `DSPortal`'s own
+	 * `inline` prop, which documents the tradeoff in full.
+	 *
+	 * @default false
+	 */
+	inline?: boolean;
 	/** ARIA role - use `"alertdialog"` for destructive confirmations.
 	 * @default "dialog"
 	 */
@@ -68,6 +111,7 @@ export interface ModalProps {
  *
  * Behavior (D-320, D-322):
  * - closeOnBackdropClick defaults to true; click on backdrop only (not panel) closes
+ * - closable defaults to true; false suppresses button + Escape + backdrop together
  * - Animations namespaced (ds-atom-modal-fadein, ds-atom-modal-in) to avoid
  *   colliding with consumer-defined keyframes
  */
@@ -79,6 +123,8 @@ export function Modal({
 	footer,
 	children,
 	closeOnBackdropClick = true,
+	closable = true,
+	inline = false,
 	role = "dialog",
 	initialFocus,
 	className,
@@ -113,18 +159,27 @@ export function Modal({
 	// Escape closes only the *topmost* layer — see useDismiss. Each overlay
 	// previously installed its own document listener, so one press closed every
 	// open layer at once.
-	useDismiss(open, onClose);
+	//
+	// A non-closable Modal REGISTERS and ignores the key rather than declining to
+	// register. Declining would leave the topmost registered layer as the one
+	// *below* the trap, so Escape would close a surface hidden behind the scrim
+	// and unreachable through the focus trap. Registering keeps the press
+	// swallowed. IGNORE_DISMISS is module-level so its identity is stable and the
+	// effect does not re-register on every render.
+	useDismiss(open, closable ? onClose : IGNORE_DISMISS);
 
 	if (!open) return null;
 
 	function handleBackdropClick(e: ReactMouseEvent<HTMLDivElement>) {
-		if (e.target === e.currentTarget && closeOnBackdropClick) {
+		// `closable` gates before `closeOnBackdropClick`, so the two props cannot
+		// disagree into a dismissable trap.
+		if (e.target === e.currentTarget && closable && closeOnBackdropClick) {
 			onClose();
 		}
 	}
 
 	return (
-		<DSPortal>
+		<DSPortal inline={inline}>
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is mouse-only UX; keyboard close is via the document Escape handler installed above on `document` (handles all focus contexts, including the panel) */}
 			<div className="ds-atom-modal-backdrop" onClick={handleBackdropClick}>
 				<div
@@ -141,15 +196,17 @@ export function Modal({
 						<span id={titleId} className="ds-atom-modal-hd-title">
 							{title}
 						</span>
-						<Button
-							variant="ghost"
-							size="sm"
-							aria-label="Close"
-							onClick={onClose}
-							style={{ marginLeft: "auto", flexShrink: 0 }}
-						>
-							<X size={16} />
-						</Button>
+						{closable ? (
+							<Button
+								variant="ghost"
+								size="sm"
+								aria-label="Close"
+								onClick={onClose}
+								style={{ marginLeft: "auto", flexShrink: 0 }}
+							>
+								<X size={16} />
+							</Button>
+						) : null}
 					</header>
 					<div className="ds-atom-modal-body">
 						{description ? <div id={descId}>{description}</div> : null}

@@ -37,6 +37,15 @@ export interface SheetProps {
 	 * @default true
 	 */
 	closeOnBackdropClick?: boolean;
+	/**
+	 * Render in place instead of through a portal, so the panel exists in
+	 * server-rendered HTML (F-15-1). Opt-in, and it reintroduces coupling to
+	 * ancestor `overflow` / `transform` / `z-index` — see `DSPortal`'s own
+	 * `inline` prop, which documents the tradeoff in full.
+	 *
+	 * @default false
+	 */
+	inline?: boolean;
 	/** Additional className applied to the sheet panel. */
 	className?: string;
 	/** Inline styles applied to the sheet panel. */
@@ -77,6 +86,7 @@ export function Sheet({
 	footer,
 	children,
 	closeOnBackdropClick = true,
+	inline = false,
 	className,
 	style,
 	ref,
@@ -113,7 +123,13 @@ export function Sheet({
 
 	// Portaled content escapes any ancestor `.dark`, so the theme is re-detected.
 	// See _internals/darkContext for why all four overlays now share this.
-	const isDark = isDarkContext();
+	//
+	// Not when inline: the panel never left the consumer's DOM, so an ancestor
+	// `.dark` still applies and re-establishing it would nest one inside another.
+	// It would also produce a hydration mismatch — isDarkContext reads `document`,
+	// which returns false on the server and true on the client, so the server pass
+	// would omit a wrapper div the first client pass adds.
+	const isDark = !inline && isDarkContext();
 
 	function handleBackdropClick(e: ReactMouseEvent<HTMLDivElement>) {
 		if (e.target === e.currentTarget && closeOnBackdropClick) {
@@ -156,5 +172,7 @@ export function Sheet({
 		</div>
 	);
 
-	return <DSPortal>{isDark ? <div className="dark">{sheetEl}</div> : sheetEl}</DSPortal>;
+	return (
+		<DSPortal inline={inline}>{isDark ? <div className="dark">{sheetEl}</div> : sheetEl}</DSPortal>
+	);
 }
