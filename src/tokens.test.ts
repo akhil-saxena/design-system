@@ -281,6 +281,158 @@ describe("token contrast (WCAG)", () => {
 });
 
 /**
+ * Charcoal's contrast register - every foreground token measured against ALL
+ * THREE surfaces of its own mode, never against the page alone.
+ *
+ * Page-only measurement is how two wrong values survived review, and it is the
+ * whole content of AAA-1: the superseded #6e6a5e muted step reads like an AA
+ * pass on the page (4.79) and fails AA outright on the panel (4.46) - which is
+ * exactly where admin zebra rows, disabled fields and the pending dashboard put
+ * muted text. In both modes the binding constraint is the panel, the surface a
+ * page-only check never sees. That makes three surfaces a rule here, not a
+ * preference.
+ *
+ * The helpers above are reused deliberately. One WCAG formula serves both
+ * themes, so a disagreement between charcoal and the default theme is a real
+ * disagreement rather than a second implementation's rounding.
+ */
+describe("charcoal token contrast (WCAG)", () => {
+	const MODES = [
+		["light", CHARCOAL_LIGHT],
+		["dark", CHARCOAL_DARK],
+	] as const;
+
+	/**
+	 * page / paper / panel, read through resolve() rather than hardcoded, so
+	 * remapping a surface alias is caught instead of silently measuring against
+	 * a literal that no longer matches the theme.
+	 *   light  #f4f1ea / #fbf9f4 / #ede9e0
+	 *   dark   #161616 / #1e1e1d / #242423
+	 */
+	const SURFACES = [
+		["page", "--cream"],
+		["paper", "--cream-2"],
+		["panel", "--cream-3"],
+	] as const;
+
+	/**
+	 * The three bars, with the contract's measured values recorded beside each
+	 * so a reader can see exactly what moved. Order is page / paper / panel.
+	 *
+	 * 7:1 AAA - D-46's targeted AAA, adopted rather than contingent
+	 *   --ink-3           light  7.61  8.16  7.09    dark  8.18  7.54  7.02
+	 *   --ink-4           an alias of --ink-3, so the two cannot diverge by mode
+	 *   --ochre-d-strong  light  7.55  8.10  7.03    dark  8.16  7.53  7.01
+	 *
+	 * 4.5:1 AA - body text
+	 *   --ink             light 15.71 16.84 14.62    dark 14.65 13.51 12.58
+	 *   --ink-2           light  9.12  9.78  8.50    dark 10.51  9.69  9.02
+	 *   --ochre-d         light  5.22  5.60  4.86    dark  6.02  5.55  5.17
+	 *
+	 * 3:1 SC 1.4.11 - non-text: a control's sole boundary, and the focus ring
+	 *   --wire            light  3.44  3.68  3.20    dark  3.72  3.43  3.20
+	 *   --focus           bound to --ochre-d, so it carries that row
+	 *
+	 * The tightest three, i.e. what a regression reaches first: 7.01 (dark
+	 * --ochre-d-strong on panel), 4.86 (light --ochre-d on panel) and 3.20
+	 * (--wire on panel, in BOTH modes).
+	 */
+	const TIERS = [
+		[7, "7:1 (AAA)", ["--ink-3", "--ink-4", "--ochre-d-strong"]],
+		[4.5, "4.5:1 (AA text)", ["--ink", "--ink-2", "--ochre-d"]],
+		[3, "3:1 (non-text, SC 1.4.11)", ["--wire", "--focus"]],
+	] as const;
+
+	/**
+	 * Rule C-1, asserted DIRECTIONALLY - the half of this register that is easy
+	 * to get backwards. --ochre #b0722a is a FILL and a decorative stroke, never
+	 * text; all ochre TEXT uses --ochre-d or --ochre-d-strong. It clears the
+	 * 4.5:1 text bar on exactly one of the six surfaces, the dark page, and
+	 * fails the other five. That is the contract, not a defect: Work's project
+	 * cards, the case-study screenshots and the whole admin sit on RAISED
+	 * surfaces, where it measures 4.20 and 3.91, so an ochre text colour would
+	 * fail almost everywhere it actually appears.
+	 *
+	 * Pinned at 2dp in BOTH directions on purpose. If someone quietly darkens
+	 * --ochre to make a lint pass, the fill/text distinction is lost and Rule
+	 * C-2's ink flip goes with it - --ink-inverse is charcoal on ochre in both
+	 * modes precisely because ochre is a fill. A one-sided toBeLessThan(4.5)
+	 * would wave that edit through, so it is not used here.
+	 */
+	const OCHRE = {
+		"light page": 3.52,
+		"light paper": 3.78,
+		"light panel": 3.28,
+		"dark page": 4.56,
+		"dark paper": 4.2,
+		"dark panel": 3.91,
+	} as const;
+
+	/**
+	 * Measured at collection time so each case NAME carries its ratio and the
+	 * reporter itself is the evidence. A token that cannot be resolved becomes a
+	 * FAILING CASE naming it, never a collection crash: a throw here would
+	 * preempt the exhaustiveness mirror above, which is the assertion that
+	 * actually diagnoses a missing declaration.
+	 */
+	function measure(selector: string, fg: string, bg: string): number | string {
+		try {
+			return contrast(resolve(charcoalCss, selector, fg), resolve(charcoalCss, selector, bg));
+		} catch (e) {
+			return (e as Error).message;
+		}
+	}
+
+	const cases: { name: string; run: () => void }[] = [];
+
+	for (const [bar, label, tokens] of TIERS) {
+		for (const token of tokens) {
+			for (const [mode, selector] of MODES) {
+				for (const [surface, surfaceToken] of SURFACES) {
+					const m = measure(selector, token, surfaceToken);
+					const shown = typeof m === "number" ? m.toFixed(2) : "unresolved";
+					cases.push({
+						name: `charcoal ${mode} ${token} on ${surface} clears ${label} = ${shown}`,
+						run: () => {
+							if (typeof m === "string") throw new Error(m);
+							expect(m).toBeGreaterThanOrEqual(bar);
+						},
+					});
+				}
+			}
+		}
+	}
+
+	for (const [mode, selector] of MODES) {
+		for (const [surface, surfaceToken] of SURFACES) {
+			const expected = OCHRE[`${mode} ${surface}`];
+			const passes = expected >= 4.5;
+			const m = measure(selector, "--ochre", surfaceToken);
+			const shown = typeof m === "number" ? m.toFixed(2) : "unresolved";
+			const verb = passes ? "clears" : "fails";
+			cases.push({
+				name: `charcoal ${mode} --ochre ${verb} the 4.5:1 text bar on ${surface} = ${shown}`,
+				run: () => {
+					if (typeof m === "string") throw new Error(m);
+					expect(Number(m.toFixed(2))).toBe(expected);
+					expect(m >= 4.5).toBe(passes);
+				},
+			});
+		}
+	}
+
+	it("measures 54 charcoal cases: 48 tiered plus 6 directional --ochre", () => {
+		// Assert the case COUNT, not only the cases. A token quietly dropped from
+		// a tier list would otherwise produce a smaller green run, which reads
+		// exactly like a pass. Same shape as the parse floor, and the same reason:
+		// 8 tokens x 3 surfaces x 2 modes = 48, plus the 6 --ochre directions.
+		expect(cases).toHaveLength(54);
+	});
+
+	for (const c of cases) it(c.name, c.run);
+});
+
+/**
  * Inset surfaces — the unfilled part of a slider or progress track, and the
  * skeleton placeholder — must be visible against the page they sit on.
  *
