@@ -13,7 +13,7 @@
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { DataGrid, type DataGridColumn, type DataGridRow } from "./index";
+import { DataGrid, type DataGridColumn, type DataGridRow, dataGridPresets } from "./index";
 
 const COLS: DataGridColumn[] = [
 	{ key: "company", label: "Company", width: 150, sortable: true },
@@ -305,6 +305,286 @@ describe("DataGrid", () => {
 			expect(header.getAttribute("role")).toBe("columnheader");
 			fireEvent.keyDown(header, { key: "Enter" });
 			expect(header.textContent).toMatch(/▲|▼/);
+		});
+	});
+
+	// ── 01-14: E7 / F-13-1 / F-13-2 ───────────────────────────────────────────
+	//
+	// Five hardcoded values became props. Every case below exists because the
+	// value it asserts used to be unreachable from outside the component.
+
+	describe("density (E7)", () => {
+		it("passes a consumer density through to the inner table", () => {
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} density="cozy" />);
+			expect(container.querySelector("table")?.getAttribute("data-density")).toBe("cozy");
+		});
+
+		it("still renders comfortable when density is omitted", () => {
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} />);
+			expect(container.querySelector("table")?.getAttribute("data-density")).toBe("comfortable");
+		});
+
+		it("accepts every density the inner Table accepts, so the passthrough cannot drift", () => {
+			for (const d of ["cozy", "comfortable", "spacious"] as const) {
+				const { container } = render(<DataGrid columns={COLS} rows={ROWS} density={d} />);
+				expect(container.querySelector("table")?.getAttribute("data-density")).toBe(d);
+			}
+		});
+	});
+
+	describe("selectable (E7)", () => {
+		it("renders neither the select-all cell nor any row checkbox when false", () => {
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} selectable={false} />);
+			expect(container.querySelectorAll(".ds-atom-table-selectcell").length).toBe(0);
+			expect(container.querySelectorAll('input[type="checkbox"]').length).toBe(0);
+		});
+
+		it("drops exactly one cell from the header and from every body row", () => {
+			const on = render(<DataGrid columns={COLS} rows={ROWS} />);
+			const off = render(<DataGrid columns={COLS} rows={ROWS} selectable={false} />);
+			const heads = (c: HTMLElement) => c.querySelectorAll("thead tr th").length;
+			const firstRow = (c: HTMLElement) => c.querySelectorAll("tbody tr")[0].children.length;
+			expect(heads(on.container)).toBe(COLS.length + 1);
+			expect(heads(off.container)).toBe(COLS.length);
+			expect(firstRow(on.container)).toBe(COLS.length + 1);
+			expect(firstRow(off.container)).toBe(COLS.length);
+		});
+
+		it("keeps header and body cell counts equal with the selection column off", () => {
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} selectable={false} />);
+			const heads = container.querySelectorAll("thead tr th").length;
+			for (const tr of container.querySelectorAll("tbody tr")) {
+				expect(tr.children.length).toBe(heads);
+			}
+		});
+
+		it("keeps the loading row's colSpan aligned with the visible column count", () => {
+			const off = render(<DataGrid columns={COLS} rows={[]} loading selectable={false} />);
+			expect(off.container.querySelector("td")?.getAttribute("colspan")).toBe(String(COLS.length));
+			const on = render(<DataGrid columns={COLS} rows={[]} loading />);
+			expect(on.container.querySelector("td")?.getAttribute("colspan")).toBe(
+				String(COLS.length + 1),
+			);
+		});
+
+		it("never calls onSelectionChange when the selection column is off", () => {
+			const onSelectionChange = vi.fn();
+			const { container } = render(
+				<DataGrid
+					columns={COLS}
+					rows={ROWS}
+					selectable={false}
+					onSelectionChange={onSelectionChange}
+				/>,
+			);
+			const wrapper = container.querySelector<HTMLDivElement>(".ds-atom-datagrid");
+			const cell = container.querySelectorAll("tbody tr")[0].children[0] as HTMLElement;
+			cell.focus();
+			fireEvent.keyDown(cell, { key: " " });
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: " " });
+			expect(onSelectionChange).not.toHaveBeenCalled();
+			expect(container.querySelector(".ds-atom-datagrid-bulkbar")).toBeNull();
+		});
+
+		it("moves the roving focus origin to the first data column when the checkbox column is gone", () => {
+			// The +1 offset in the roving model is the checkbox column. With it gone
+			// the offset must go too, or every arrow key lands one column right.
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} selectable={false} />);
+			const wrapper = container.querySelector<HTMLDivElement>(".ds-atom-datagrid");
+			fireEvent.keyDown(wrapper as HTMLDivElement, { key: "ArrowDown" });
+			const active = document.activeElement as HTMLElement;
+			expect(active.tagName).toBe("TD");
+			expect(active.textContent).toBe("Stripe");
+		});
+	});
+
+	describe("ariaLabel (F-13-1)", () => {
+		it("puts a consumer-supplied accessible name on the grid", () => {
+			render(<DataGrid columns={COLS} rows={ROWS} ariaLabel="Photos" />);
+			expect(screen.getByRole("grid", { name: "Photos" })).toBeInTheDocument();
+		});
+
+		it("does not announce itself as a job-application table when the name is omitted", () => {
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} />);
+			const label = container.querySelector("table")?.getAttribute("aria-label");
+			expect(label).not.toBe("Job applications");
+			// A grid with no accessible name at all is worse than a generic one.
+			expect(label).toBeTruthy();
+		});
+	});
+
+	describe("pagination (F-13-3)", () => {
+		it("renders no pager when pagination is false", () => {
+			const { container } = render(
+				<DataGrid columns={COLS} rows={ROWS} pagination={false} totalPages={3} page={1} />,
+			);
+			expect(container.querySelector("nav")).toBeNull();
+			expect(container.querySelector(".ds-atom-pagination-btn")).toBeNull();
+		});
+
+		it("keeps the row count in the footer with the pager suppressed", () => {
+			const { container } = render(<DataGrid columns={COLS} rows={ROWS} pagination={false} />);
+			expect(container.querySelector(".ds-atom-datagrid-footer-count")?.textContent).toBe(
+				`${ROWS.length} rows`,
+			);
+		});
+
+		it("lets a single-page grid suppress the pager without losing onPageChange", () => {
+			// pagination is independent of the paging props: a consumer may own its
+			// own pager and still want DataGrid's page callbacks wired.
+			const onPageChange = vi.fn();
+			const { container } = render(
+				<DataGrid
+					columns={COLS}
+					rows={ROWS}
+					pagination={false}
+					totalPages={1}
+					page={1}
+					onPageChange={onPageChange}
+				/>,
+			);
+			expect(container.querySelector("nav")).toBeNull();
+			expect(onPageChange).not.toHaveBeenCalled();
+		});
+
+		it("still renders the pager when pagination is omitted", () => {
+			const { container } = render(
+				<DataGrid columns={COLS} rows={ROWS} totalPages={3} page={1} onPageChange={vi.fn()} />,
+			);
+			expect(container.querySelector("nav")).not.toBeNull();
+		});
+	});
+
+	describe("the new props are inert at their defaults", () => {
+		it("passing every new prop at its documented default renders identically to passing none", () => {
+			// The regression guard for the whole change: every existing call site
+			// passes none of these, so the default render must not move.
+			const none = render(<DataGrid columns={COLS} rows={ROWS} totalPages={3} page={1} />);
+			const explicit = render(
+				<DataGrid
+					columns={COLS}
+					rows={ROWS}
+					totalPages={3}
+					page={1}
+					density="comfortable"
+					selectable={true}
+					pagination={true}
+					ariaLabel="Data grid"
+				/>,
+			);
+			expect(explicit.container.innerHTML).toBe(none.container.innerHTML);
+		});
+	});
+
+	describe("ReactNode cells (F-13-2)", () => {
+		const PLAIN: DataGridColumn[] = [
+			{ key: "company", label: "Company", width: 150 },
+			{ key: "status", label: "Status", width: 110 },
+		];
+
+		it("renders a React element cell value as that element, not its string coercion", () => {
+			const rows: DataGridRow[] = [
+				{ id: 1, company: <em data-testid="node">Stripe</em>, status: "queued" },
+			];
+			render(<DataGrid columns={PLAIN} rows={rows} />);
+			const el = screen.getByTestId("node");
+			expect(el.tagName).toBe("EM");
+			expect(document.body.textContent).not.toContain("[object Object]");
+		});
+
+		it("renders string, number, null and undefined cell values exactly as before", () => {
+			const cols: DataGridColumn[] = [
+				{ key: "s", label: "S", width: 80 },
+				{ key: "n", label: "N", width: 80 },
+				{ key: "z", label: "Z", width: 80 },
+				{ key: "nul", label: "Nul", width: 80 },
+				{ key: "und", label: "Und", width: 80 },
+			];
+			const rows: DataGridRow[] = [{ id: 1, s: "text", n: 42, z: 0, nul: null, und: undefined }];
+			const { container } = render(<DataGrid columns={cols} rows={rows} selectable={false} />);
+			const cells = Array.from(container.querySelectorAll("tbody tr td")).map(
+				(td) => td.textContent,
+			);
+			expect(cells).toEqual(["text", "42", "0", "", ""]);
+		});
+
+		it("lets a column's render() put a Badge in ANY column, not only one keyed status", () => {
+			const cols: DataGridColumn[] = [
+				{
+					key: "company",
+					label: "Company",
+					width: 150,
+					render: (v) => <span data-testid="anycol-badge">{String(v)}</span>,
+				},
+			];
+			render(<DataGrid columns={cols} rows={[{ id: 1, company: "Stripe" }]} />);
+			expect(screen.getByTestId("anycol-badge").textContent).toBe("Stripe");
+		});
+
+		it("no longer routes a column keyed status through the job-domain badge map", () => {
+			// The finding: a consumer's `status` column silently became a
+			// job-application badge, and every value outside the four job keys
+			// collapsed to tone="neutral".
+			const { container } = render(
+				<DataGrid
+					columns={PLAIN}
+					rows={[{ id: 1, company: "Stripe", status: "interviewing" }]}
+					selectable={false}
+				/>,
+			);
+			const cell = container.querySelectorAll("tbody tr td")[1] as HTMLElement;
+			expect(cell.textContent).toBe("interviewing");
+			expect(cell.children.length).toBe(0);
+		});
+
+		it("no longer routes a column keyed priority through the job-domain dot map", () => {
+			const cols: DataGridColumn[] = [{ key: "priority", label: "Priority", width: 90 }];
+			const { container } = render(
+				<DataGrid columns={cols} rows={[{ id: 1, priority: "high" }]} selectable={false} />,
+			);
+			const cell = container.querySelector("tbody tr td") as HTMLElement;
+			expect(cell.textContent).toBe("high");
+			expect(cell.querySelector('[data-part="priority-dot"]')).toBeNull();
+		});
+
+		it("reproduces the old badge behaviour for a column that opts into the preset", () => {
+			const cols: DataGridColumn[] = [
+				{ key: "status", label: "Status", width: 110, render: dataGridPresets.statusBadge },
+			];
+			render(
+				<DataGrid
+					columns={cols}
+					rows={[
+						{ id: 1, status: "interviewing" },
+						{ id: 2, status: "applied" },
+						{ id: 3, status: "offer" },
+						{ id: 4, status: "rejected" },
+					]}
+				/>,
+			);
+			for (const label of ["Interview", "Applied", "Offer", "Rejected"]) {
+				expect(screen.getByText(label)).toBeInTheDocument();
+			}
+		});
+
+		it("reproduces the old priority-dot behaviour for a column that opts into the preset", () => {
+			const cols: DataGridColumn[] = [
+				{ key: "priority", label: "Priority", width: 90, render: dataGridPresets.priorityDot },
+			];
+			const { container } = render(
+				<DataGrid columns={cols} rows={[{ id: 1, priority: "high" }]} />,
+			);
+			const dot = container.querySelector<HTMLElement>('[data-part="priority-dot"]');
+			expect(dot).not.toBeNull();
+			expect(dot?.style.background).toContain("--red-vivid");
+		});
+
+		it("renders an opted-in status value outside the four job keys as that value", () => {
+			const cols: DataGridColumn[] = [
+				{ key: "status", label: "Status", width: 110, render: dataGridPresets.statusBadge },
+			];
+			render(<DataGrid columns={cols} rows={[{ id: 1, status: "published" }]} />);
+			expect(screen.getByText("published")).toBeInTheDocument();
 		});
 	});
 });
