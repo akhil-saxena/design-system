@@ -205,6 +205,7 @@ export {
 	type PasswordStrengthProps,
 	type FieldErrorProps,
 	type FormErrorSummaryProps,
+	type FormErrorSummaryEntry,
 } from "./patterns/FormValidation";
 export { Coachmark, type CoachmarkProps } from "./patterns/Coachmark";
 export { Wizard, type WizardProps, type WizardStep } from "./patterns/Wizard";
