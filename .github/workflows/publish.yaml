@@ -29,8 +29,13 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run check
-      - run: npm test
+      # Build BEFORE test, deliberately. src/packaging.test.ts and
+      # tests/treeshake/subpath.test.ts both assert against dist/ and skip
+      # themselves when it is absent, so with `npm test` first the published-
+      # surface checks and the DS-09 subpath tree-shaking gate silently skipped
+      # here — green, and measuring nothing.
       - run: npm run build
+      - run: npm test
 
       # No NODE_AUTH_TOKEN: npm exchanges the GitHub OIDC token for a
       # short-lived publish credential and attaches provenance automatically.

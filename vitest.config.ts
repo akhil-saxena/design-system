@@ -7,7 +7,12 @@ export default defineConfig({
 		environment: "jsdom",
 		globals: true,
 		setupFiles: ["./src/test-setup.ts"],
-		include: ["src/**/*.{test,spec}.{ts,tsx}"],
+		// tests/treeshake is named EXACTLY — never a whole-directory glob over tests/,
+		// because tests/visual holds Playwright specs (storybook, control-chrome,
+		// polish-audit, brand-probe, control-boundary) and pulling @playwright/test
+		// into vitest crashes the run. Without this line the DS-09 subpath gate is
+		// invisible to `npm test` and passes without ever being collected.
+		include: ["src/**/*.{test,spec}.{ts,tsx}", "tests/treeshake/**/*.{test,spec}.ts"],
 		exclude: ["node_modules", "dist", ".storybook"],
 		coverage: {
 			provider: "v8",
