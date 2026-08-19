@@ -15,11 +15,25 @@
 		"declaration": false,
 		"declarationMap": false,
 		"composite": false,
+		// Inherited as "./src", which rejects every file under tests/ with TS6059
+		// before typechecking any of them. It constrains where emitted output
+		// lands, and this project emits nothing — same reason as the three above.
+		"rootDir": ".",
 		// Stories and tests legitimately hold unused fixture bindings while a case
 		// is being written; the build config keeps these strict for shipped code.
 		"noUnusedLocals": false,
 		"noUnusedParameters": false
 	},
-	"include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.stories.tsx", "src/test-setup.ts"],
+	"include": [
+		"src/**/*.test.ts",
+		"src/**/*.test.tsx",
+		"src/**/*.stories.tsx",
+		"src/test-setup.ts",
+		// The same hole, one directory over: nothing under tests/ was covered by
+		// either project, so a Playwright helper or spec could only fail at run
+		// time. tests/visual/computed.ts is the reason it matters now — nine plans
+		// call it, and an unchecked helper is one that fails in nine places.
+		"tests/**/*.ts"
+	],
 	"exclude": ["node_modules", "dist"]
 }
