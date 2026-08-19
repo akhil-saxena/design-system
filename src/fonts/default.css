@@ -1,0 +1,43 @@
+/* Design system DEFAULT brand - FACE layer (D-29).
+   Imported via:
+     import "@akhil-saxena/design-system/fonts/default.css";
+   Pair it with tokens.css, which carries the tokens. This file carries the
+   faces and nothing else - zero custom properties - exactly like
+   fonts/charcoal.css, which is what makes DS-04 ("the token layer ends with no
+   face rules") literally true rather than aspirational.
+
+   WHY THIS FILE EXISTS AT ALL. It carries the four families the design system
+   shipped INSIDE tokens.css before v2.0.0 - Inter, Archivo, JetBrains Mono and
+   Newsreader. Nothing was deleted in that release; the inclusions below were
+   relocated here verbatim. So the v2.0.0 migration is ONE added line, rather
+   than a hunt to work out which four families vanished and where they used to
+   come from. That is the whole reason the breaking change is affordable.
+
+   THE FAILURE MODE IS DELIBERATELY TOTAL. Omit this file and every family
+   falls back at once, so the page is unmistakably wrong on first load - not
+   subtly wrong in one heading three weeks later. Per-family subpaths were
+   rejected for exactly that reason (D-29).
+
+   EDITING THIS FILE: the acceptance checks are plain greps that read prose the
+   same as code. They require exactly fifteen at-rule inclusions and zero lines
+   beginning with a custom-property name, so do not add a sixteenth mention in
+   a comment and do not open a comment line with a token name. */
+
+/* @fontsource - replaces Google Fonts CDN @import. Versioned with the package. */
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/archivo/500.css";
+@import "@fontsource/archivo/600.css";
+@import "@fontsource/archivo/700.css";
+@import "@fontsource/archivo/800.css";
+@import "@fontsource/archivo/900.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/jetbrains-mono/600.css";
+@import "@fontsource/jetbrains-mono/700.css";
+/* Newsreader (variable, optical-size) — editorial serif for display headings
+   (roman) + quiet italic captions. Consolidated from Cairn (--serif). */
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
