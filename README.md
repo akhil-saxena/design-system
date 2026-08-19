@@ -221,6 +221,32 @@ Button-only goes from 165KB to ~8KB. The per-component files are generated from
 `primitives.css` at build time and a test asserts the split round-trips
 byte-for-byte, so the two paths can never disagree.
 
+**A composed component needs more than one sheet.** The split is by component,
+so `DataGrid`'s sheet holds only `DataGrid`'s own rules — not the `Pagination`
+it renders, nor the `IconButton` that renders. Importing `css/datagrid` alone
+gave a grid with an unstyled 21px pager.
+
+Each generated sheet therefore names its siblings in its own header, so the
+answer travels with the file rather than with this document:
+
+```css
+/* @akhil-saxena/design-system — datagrid.css
+   …
+   DataGrid renders other components, and the split is BY component, so their rules
+   are not in this file. Import these alongside it or the composed parts render
+   unstyled — a DataGrid imported on its own had a 21px unstyled pager:
+     import "@akhil-saxena/design-system/css/button";
+     import "@akhil-saxena/design-system/css/checkbox";
+     …
+     import "@akhil-saxena/design-system/css/pagination";
+     import "@akhil-saxena/design-system/css/table"; */
+```
+
+The list is derived from the component import graph, transitively, and is not
+maintained by hand — run `node scripts/split-css.mjs --deps-json` to print the
+whole map. **Read the header, not this snippet:** it is regenerated on every
+build, and a hand-copied list here would be the thing that goes stale.
+
 ### Accessibility notes
 
 - The ink ramp is contrast-budgeted: `--ink` / `--ink-2` / `--ink-3` all clear WCAG AA (4.5:1) for body text on every surface in both themes. `--ink-4` is an alias of `--ink-3`; `--ink-5` is decorative only and must not be used for text.
