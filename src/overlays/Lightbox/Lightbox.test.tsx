@@ -388,4 +388,237 @@ describe("Lightbox", () => {
 		expect(img.hasAttribute("srcset")).toBe(false);
 		expect(img.hasAttribute("sizes")).toBe(false);
 	});
+
+	// ── swipe navigation (G-14) ───────────────────────────────────────────────
+	//
+	// Thresholds live in the component as named constants:
+	//   SWIPE_MIN_DISTANCE_PX = 44   rejects a tap (a zero-length swipe)
+	//   SWIPE_HORIZONTAL_DOMINANCE = 1.5   rejects a vertical scroll that drifts
+
+	/** Press, travel, release — the gesture a browser emits for a swipe. */
+	function swipe(el: Element, from: [number, number], to: [number, number]) {
+		fireEvent.pointerDown(el, { clientX: from[0], clientY: from[1], pointerId: 1 });
+		fireEvent.pointerUp(el, { clientX: to[0], clientY: to[1], pointerId: 1 });
+	}
+
+	it("a leftward horizontal swipe past the threshold advances to the next slide", () => {
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		swipe(backdropOf(baseElement), [500, 300], [400, 300]);
+		expect(onIndexChange).toHaveBeenCalledWith(1);
+	});
+
+	it("a rightward swipe goes to the previous slide, preserving wrap-around", () => {
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		swipe(backdropOf(baseElement), [300, 300], [420, 300]);
+		expect(onIndexChange).toHaveBeenCalledWith(2);
+	});
+
+	it("a swipe that starts on the image navigates too", () => {
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		const img = baseElement.querySelector(".ds-atom-lightbox-image") as Element;
+		swipe(img, [500, 300], [400, 300]);
+		expect(onIndexChange).toHaveBeenCalledWith(1);
+	});
+
+	it("a drag shorter than the threshold does nothing", () => {
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		// 40px of travel — under SWIPE_MIN_DISTANCE_PX, over the tap slop, so this
+		// is an ambiguous drag and must resolve to no action at all.
+		swipe(backdropOf(baseElement), [500, 300], [460, 300]);
+		expect(onIndexChange).not.toHaveBeenCalled();
+	});
+
+	it("a predominantly vertical drag does not steal the scroll gesture", () => {
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		// 60px across, 200px down: past the distance threshold but nowhere near
+		// horizontally dominant.
+		swipe(backdropOf(baseElement), [500, 100], [440, 300]);
+		expect(onIndexChange).not.toHaveBeenCalled();
+	});
+
+	it("a diagonal drag inside the dominance ratio does not navigate", () => {
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		// 100px across, 80px down — long enough, but 100 <= 80 * 1.5 so the
+		// horizontal component does not dominate.
+		swipe(backdropOf(baseElement), [500, 100], [400, 180]);
+		expect(onIndexChange).not.toHaveBeenCalled();
+	});
+
+	it("a swipe on a single-item Lightbox does nothing (showNav is false)", () => {
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={oneItem}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		swipe(backdropOf(baseElement), [500, 300], [300, 300]);
+		expect(onIndexChange).not.toHaveBeenCalled();
+	});
+
+	it("a completed swipe navigates WITHOUT also closing the overlay", () => {
+		const onClose = vi.fn();
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={onClose}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		const backdrop = backdropOf(baseElement);
+		swipe(backdrop, [700, 550], [300, 550]);
+		// Chromium emits a click on the backdrop after this gesture; the travel
+		// check is what stops one swipe from navigating and closing at once.
+		fireEvent.click(backdrop, { clientX: 300, clientY: 550 });
+		expect(onIndexChange).toHaveBeenCalledWith(1);
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	// ── screen-reader slide announcements (G-14, informed by G-13) ────────────
+
+	function liveRegionOf(baseElement: Element) {
+		return baseElement.querySelector('[role="status"]');
+	}
+
+	it("the live region exists from open, before any navigation", () => {
+		const { baseElement } = render(
+			<Lightbox open onClose={() => {}} items={threeItems} activeIndex={0} />,
+		);
+		const region = liveRegionOf(baseElement);
+		expect(region).not.toBeNull();
+		// polite, not assertive: a slide change is not an interruption (G-13).
+		expect(region?.getAttribute("aria-live")).toBe("polite");
+		// A region inserted at the moment its text changes is frequently never
+		// announced, because the screen reader had nothing to observe.
+		expect(baseElement.querySelector(".ds-atom-lightbox-backdrop")).toContainElement(
+			region as HTMLElement,
+		);
+		// Present is not the same as perceivable. .ds-visually-hidden takes the
+		// region out of the picture but leaves it in the accessibility tree;
+		// `hidden` or display:none would take it out of both, and a region the
+		// screen reader cannot see is a region it will never announce from.
+		expect(region).toBeVisible();
+		expect(region).not.toHaveAttribute("hidden");
+	});
+
+	it("the live region is empty on first open, so opening announces no slide change", () => {
+		const { baseElement } = render(
+			<Lightbox open onClose={() => {}} items={threeItems} activeIndex={0} />,
+		);
+		expect(liveRegionOf(baseElement)?.textContent).toBe("");
+	});
+
+	it("navigating announces one-based position, total and the new item's alt", () => {
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={[
+					{ src: "/a.jpg", alt: "Cliffs at dawn" },
+					{ src: "/b.jpg", alt: "Harbour wall" },
+					{ src: "/c.jpg", alt: "Low tide" },
+				]}
+			/>,
+		);
+		fireEvent.keyDown(document, { key: "ArrowRight" });
+		// G-13's central measured defect is speaking an identifier and NO position.
+		expect(liveRegionOf(baseElement)?.textContent).toBe("Image 2 of 3. Harbour wall");
+	});
+
+	it("a swipe announces the slide it moved to", () => {
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={() => {}}
+				items={[
+					{ src: "/a.jpg", alt: "Cliffs at dawn" },
+					{ src: "/b.jpg", alt: "Harbour wall" },
+					{ src: "/c.jpg", alt: "Low tide" },
+				]}
+			/>,
+		);
+		swipe(backdropOf(baseElement), [500, 300], [400, 300]);
+		expect(liveRegionOf(baseElement)?.textContent).toBe("Image 2 of 3. Harbour wall");
+	});
+
+	it("a rejected gesture leaves the live region untouched", () => {
+		const { baseElement } = render(
+			<Lightbox open onClose={() => {}} items={threeItems} activeIndex={0} />,
+		);
+		// under-threshold drag, then a vertical drag, then an arrow on one item
+		swipe(backdropOf(baseElement), [500, 300], [460, 300]);
+		swipe(backdropOf(baseElement), [500, 100], [440, 300]);
+		expect(liveRegionOf(baseElement)?.textContent).toBe("");
+	});
+
+	it("closing and reopening resets the announcement", () => {
+		const { baseElement, rerender } = render(
+			<Lightbox open onClose={() => {}} items={threeItems} />,
+		);
+		fireEvent.keyDown(document, { key: "ArrowRight" });
+		expect(liveRegionOf(baseElement)?.textContent).toBe("Image 2 of 3. B");
+		rerender(<Lightbox open={false} onClose={() => {}} items={threeItems} />);
+		rerender(<Lightbox open onClose={() => {}} items={threeItems} />);
+		expect(liveRegionOf(baseElement)?.textContent).toBe("");
+	});
 });

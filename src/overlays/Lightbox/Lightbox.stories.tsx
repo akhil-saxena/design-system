@@ -44,6 +44,27 @@ return (
   }]}
   activeIndex={0}
 />`,
+	ResponsiveGallery: `const [open, setOpen] = useState(false);
+const [idx, setIdx] = useState(0);
+const items = [
+  {
+    src: "/cliffs-1200.jpg",
+    srcSet: "/cliffs-600.jpg 600w, /cliffs-1200.jpg 1200w, /cliffs-2400.jpg 2400w",
+    sizes: "100vw",
+    alt: "Cliffs at dawn",
+    caption: "Cliffs at dawn - Moher, 05:41",
+  },
+  // ...
+];
+return (
+  <Lightbox
+    open={open}
+    onClose={() => setOpen(false)}
+    items={items}
+    activeIndex={idx}
+    onIndexChange={setIdx}
+  />
+);`,
 	DarkMode: `const [open, setOpen] = useState(false);
 const [idx, setIdx] = useState(0);
 return (
@@ -187,6 +208,61 @@ function DarkModeDemo() {
 	);
 }
 
+/**
+ * Multi-image set carrying srcSet/sizes and a caption. Exists so the visual and
+ * a11y suites cover the markup added for G-14 - the responsive image attributes,
+ * the polite live region, and the swipe surface - rather than only the four
+ * pre-existing stories, none of which pass a srcSet or a caption alongside
+ * navigation.
+ *
+ * Images are local SVG data URIs, not a remote placeholder service: the visual
+ * suite records that two stories had to be converted away from live picsum /
+ * pravatar fetches because a network round trip is not deterministic.
+ */
+function ResponsiveGalleryDemo() {
+	const [open, setOpen] = useState(false);
+	const [idx, setIdx] = useState(0);
+	// One 600w and one 1200w candidate per slide. The 1200w file is also `src`,
+	// so a browser that ignores srcset still shows the same picture.
+	const items = [
+		{
+			src: placeholder("#b45309", "Cliffs 1200w"),
+			srcSet: `${placeholder("#b45309", "Cliffs 600w")} 600w, ${placeholder("#b45309", "Cliffs 1200w")} 1200w`,
+			sizes: "100vw",
+			alt: "Cliffs at dawn",
+			caption: "Cliffs at dawn - Moher, 05:41",
+		},
+		{
+			src: placeholder("#1d4ed8", "Harbour 1200w"),
+			srcSet: `${placeholder("#1d4ed8", "Harbour 600w")} 600w, ${placeholder("#1d4ed8", "Harbour 1200w")} 1200w`,
+			sizes: "100vw",
+			alt: "Harbour wall",
+			caption: "Harbour wall - low light, handheld",
+		},
+		{
+			src: placeholder("#15803d", "Low tide 1200w"),
+			srcSet: `${placeholder("#15803d", "Low tide 600w")} 600w, ${placeholder("#15803d", "Low tide 1200w")} 1200w`,
+			sizes: "100vw",
+			alt: "Low tide",
+			caption: "Low tide - long exposure",
+		},
+	];
+	return (
+		<>
+			<Button variant="secondary" onClick={() => setOpen(true)}>
+				Open responsive gallery (3 images)
+			</Button>
+			<Lightbox
+				open={open}
+				onClose={() => setOpen(false)}
+				items={items}
+				activeIndex={idx}
+				onIndexChange={setIdx}
+			/>
+		</>
+	);
+}
+
 export const SingleImage: Story = {
 	parameters: {
 		docs: {
@@ -217,6 +293,19 @@ export const WithCaption: Story = {
 		},
 	},
 	render: () => <WithCaptionDemo />,
+};
+
+export const ResponsiveGallery: Story = {
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Responsive gallery - each slide carries srcSet/sizes and a caption. Swipe horizontally to navigate on a touch or pen surface; slide changes are announced through a polite live region.",
+			},
+			source: { code: SRC.ResponsiveGallery },
+		},
+	},
+	render: () => <ResponsiveGalleryDemo />,
 };
 
 export const DarkMode: Story = {

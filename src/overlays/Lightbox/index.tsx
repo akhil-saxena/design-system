@@ -64,6 +64,26 @@ export interface LightboxProps {
 const BACKDROP_TAP_SLOP_PX = 10;
 
 /**
+ * Minimum horizontal travel, in CSS pixels, before a drag counts as a swipe.
+ *
+ * Rejects: a tap. A tap is a zero-length swipe, so without a distance floor
+ * every touch of the overlay would navigate. 44px is the platform minimum
+ * touch-target edge, so the floor is one deliberate finger-width of movement.
+ */
+const SWIPE_MIN_DISTANCE_PX = 44;
+
+/**
+ * How many times more horizontal than vertical a drag must be to count as a
+ * swipe.
+ *
+ * Rejects: a vertical scroll or drag-to-dismiss gesture that drifts sideways.
+ * Comparing the raw absolute deltas (a ratio of 1) still fires on a 46-degree
+ * drag, which reads as the overlay stealing the gesture; requiring the
+ * horizontal component to be half as large again makes the intent unambiguous.
+ */
+const SWIPE_HORIZONTAL_DOMINANCE = 1.5;
+
+/**
  * Lightbox - full-bleed media-display overlay where the image IS the surface.
  * D-350: heavier backdrop rgba(0,0,0,.92), arrow-key navigation with wrap-
  * around, always-dark invariant (NO :root.dark overrides). Modal-adjacent
@@ -108,6 +128,13 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 	const isControlled = activeIndex != null && onIndexChange != null;
 	const [internalIndex, setInternalIndex] = useState(activeIndex ?? 0);
 
+	// Which slide the live region has announced, or null for "nothing yet".
+	// Storing the INDEX rather than the sentence keeps `items` out of
+	// navigateTo's dependency list — callers routinely pass an inline array, so
+	// depending on it would re-create navigateTo (and re-subscribe the keydown
+	// listener) on every single render.
+	const [announcedIndex, setAnnouncedIndex] = useState<number | null>(null);
+
 	// Resolve + clamp the live index to the valid range (guards out-of-range
 	// controlled values and items shrinking underneath us).
 	const rawIndex = isControlled ? (activeIndex ?? 0) : internalIndex;
@@ -137,6 +164,13 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 		if (!isControlled && activeIndex != null) setInternalIndex(activeIndex);
 	}, [activeIndex, isControlled]);
 
+	// The component stays mounted while closed (it renders null), so without this
+	// a reopen would restore the last sentence and announce a slide change that
+	// never happened.
+	useEffect(() => {
+		if (!open) setAnnouncedIndex(null);
+	}, [open]);
+
 	// useCallback so the document keydown effect below can declare it. As a plain
 	// function it was re-created every render while the effect's dependency list
 	// omitted it — the listener therefore closed over whichever `navigateTo` was
@@ -145,6 +179,11 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 		(next: number) => {
 			const wrapped = ((next % safeLength) + safeLength) % safeLength;
 			if (!isControlled) setInternalIndex(wrapped);
+			// Announce from inside navigateTo, not from a useEffect on `index`: a
+			// rejected gesture (under-threshold swipe, arrow key on a one-item set)
+			// never reaches this function, so it cannot announce a move that did
+			// not happen.
+			setAnnouncedIndex(wrapped);
 			onIndexChange?.(wrapped);
 		},
 		[safeLength, isControlled, onIndexChange],
@@ -194,6 +233,20 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 		const dx = e.clientX - start.x;
 		const dy = e.clientY - start.y;
 		backdropTapRef.current = start.startedOnBackdrop && Math.hypot(dx, dy) <= BACKDROP_TAP_SLOP_PX;
+
+		// Swipe. Deliberately no library: react-swipeable was in the legacy
+		// portfolio's tree, and taking on a dependency to subtract two numbers is
+		// supply-chain surface for nothing. Pointer events rather than touch
+		// events, so pen and mouse-drag take the same path a finger does.
+		if (Math.abs(dx) < SWIPE_MIN_DISTANCE_PX) return;
+		if (Math.abs(dx) < Math.abs(dy) * SWIPE_HORIZONTAL_DOMINANCE) return;
+		// Reuse goPrev/goNext so wrap-around, clamping and the
+		// controlled/uncontrolled split are inherited rather than reimplemented -
+		// including the one-item rule, which is why there is no local showNav check
+		// here. A mutation run confirmed a local one is dead code: deleting it left
+		// the single-item test green, because goNext/goPrev already return early.
+		if (dx < 0) goNext();
+		else goPrev();
 	}
 
 	function onPointerCancel() {
@@ -235,6 +288,16 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 
 	const dialogLabel = `Image lightbox: ${current.alt}`;
 
+	// Position and total, not just identity: G-13 measured a neighbouring
+	// announcer that spoke a record id and no position at all, and position is
+	// the one fact a navigating user cannot get any other way. One-based, because
+	// "image 0 of 3" is not a sentence anybody says.
+	const announcedItem = announcedIndex == null ? undefined : items[announcedIndex];
+	const announcement =
+		announcedIndex != null && announcedItem
+			? `Image ${announcedIndex + 1} of ${length}. ${announcedItem.alt}`
+			: "";
+
 	return (
 		<DSPortal>
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: the keyboard equivalent of a backdrop click is Escape, which useDismiss already owns as a stack so nested layers unwind one at a time. A local onKeyDown here would be exactly the second Escape path that hook exists to prevent. */}
@@ -267,8 +330,33 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 					/>
 				) : null}
 
+				{/* Rendered from open rather than on first navigation. A live region
+				    inserted at the moment its content changes is frequently never
+				    announced, because the assistive technology had nothing to
+				    observe.
+
+				    polite, not assertive. G-13 measured dnd-kit assertive regions on a
+				    neighbouring component and recorded that two assertive regions on one
+				    page with no way to share them is itself a defect; a slide change is
+				    a result the user asked for, not an interruption of something else.
+				    (The gate that asserts this strips comments before grepping, which is
+				    why this paragraph can name the level it rejects.) */}
+				<div
+					className="ds-visually-hidden"
+					// biome-ignore lint/a11y/useSemanticElements: <output> carries this role implicitly, but its live-region behaviour is the least consistently supported of the announcement patterns across screen readers, and it is a form-association element being used outside a form. An explicit region with the role and the politeness spelled out is what the assistive-technology guidance recommends and what this component is measured against.
+					role="status"
+					aria-live="polite"
+					aria-atomic="true"
+				>
+					{announcement}
+				</div>
+
 				<img
 					className="ds-atom-lightbox-image"
+					// Chromium starts its native image drag on a mouse or pen press,
+					// which cancels the pointer sequence before pointerup — so without
+					// this the swipe path is touch-only on the overlay's largest target.
+					draggable={false}
 					src={current.src}
 					srcSet={current.srcSet}
 					sizes={current.sizes}

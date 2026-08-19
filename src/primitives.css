@@ -1471,6 +1471,11 @@ fieldset.ds-atom-field {
 .ds-atom-lightbox-backdrop {
 	position: fixed;
 	inset: 0;
+	/* Keep vertical panning with the browser, claim the horizontal axis for the
+	   swipe handler. Without this the browser consumes a horizontal drag as a
+	   scroll/overscroll gesture before pointerup reaches the component, so the
+	   swipe is inert on exactly the devices it exists for. */
+	touch-action: pan-y;
 	background: rgba(0, 0, 0, 0.92);
 	animation: lightboxFade 0.2s ease-out;
 	z-index: var(--z-max);
