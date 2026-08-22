@@ -82,10 +82,46 @@ async function editorHtml(page: import("@playwright/test").Page): Promise<string
 	});
 }
 
-/** Select the whole document, so a mark command has a range to act on. */
+/**
+ * Select the whole document, and **wait until the selection actually exists**
+ * before returning.
+ *
+ * The poll is not defensive padding. Without it this spec flaked, and the flake
+ * matters more in the negative direction than the positive: a mark command
+ * dispatched onto an empty selection sets a *stored mark* rather than wrapping
+ * text, so `getHTML()` is unchanged. In the unrestricted block that reads as a
+ * false FAILURE (measured: `Control+Shift+h` produced no `<mark>` on 1 run in 3).
+ * In the bold-only block, where every assertion has the form
+ * `expect(html).toBe(before)`, the identical race reads as a false PASS — the
+ * keystroke never had a range, nothing changed, and the test reports "the mark is
+ * unreachable" when all it observed was its own timing.
+ *
+ * So the selection is asserted, not assumed, and `from !== to` is the assertion.
+ */
 async function selectAll(page: import("@playwright/test").Page) {
-	await page.locator(".ProseMirror").click();
-	await page.keyboard.press("Meta+a");
+	const selectionWidth = () =>
+		page.evaluate(() => {
+			const node = document.querySelector(".ProseMirror") as unknown as {
+				editor?: { state: { selection: { from: number; to: number } } };
+			} | null;
+			const sel = node?.editor?.state.selection;
+			return sel ? sel.to - sel.from : 0;
+		});
+
+	// The click-and-press is retried, not just polled: when it loses the race the
+	// keystroke went somewhere other than the editor, and no amount of waiting
+	// makes a keystroke that was never delivered arrive. Measured cause — the
+	// editor is not yet focused when the click resolves, so Meta+A reaches the
+	// document instead. Five attempts, then fail loudly.
+	for (let attempt = 0; attempt < 5; attempt += 1) {
+		await page.locator(".ProseMirror").click();
+		await page.keyboard.press("Meta+a");
+		if ((await selectionWidth()) > 0) return;
+		await page.waitForTimeout(150);
+	}
+	expect(await selectionWidth(), "the editor never acquired a non-empty selection").toBeGreaterThan(
+		0,
+	);
 }
 
 /**
