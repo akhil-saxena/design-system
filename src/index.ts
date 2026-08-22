@@ -208,7 +208,15 @@ export {
 	type DataGridRow,
 	dataGridPresets,
 } from "./data-display/DataGrid";
-export { RichText, type RichTextProps } from "./interaction/RichText";
+export {
+	RICHTEXT_DEFAULT_FEATURES,
+	RichText,
+	type RichTextFeature,
+	type RichTextProps,
+	type RichTextSegment,
+	type RichTextSerializeLoss,
+	type RichTextSerializeResult,
+} from "./interaction/RichText";
 export { AppShell, type AppShellProps } from "./layout/AppShell";
 export { AppBar, type AppBarProps, type AppBarVariant } from "./layout/AppBar";
 export { Footer, type FooterProps, type FooterVariant, type FooterColumn } from "./layout/Footer";

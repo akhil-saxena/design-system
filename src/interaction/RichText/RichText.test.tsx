@@ -656,3 +656,400 @@ describe("the toolbar follows the extension set, never the other way round", () 
 		expect(keys).toEqual(["⌘B", "⌘↵", "Esc"]);
 	});
 });
+
+// ─── G-4: the output shape, wired through the live editor ───────────────────
+//
+// segments.test.ts proves the codec. These prove the COMPONENT reaches it: that
+// a keystroke in a real editor emits the stored shape, that the parent's echo
+// does not fight the caret, and that a mark the shape cannot carry is reported
+// rather than lost.
+
+describe("G-4: outputFormat='markdown' emits the stored bold-only shape", () => {
+	it("emits markdown, not HTML, on a real bold keystroke", async () => {
+		const onChange = vi.fn();
+		render(
+			<RichText
+				value="Reduced p95 latency by 40%"
+				onChange={onChange}
+				outputFormat="markdown"
+				allow={["bold"]}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		await act(async () => {
+			liveEditor().commands.setTextSelection({ from: 9, to: 20 });
+			await new Promise((r) => setTimeout(r, 0));
+		});
+		await KEY.bold();
+		expect(onChange).toHaveBeenCalled();
+		expect(onChange.mock.calls.at(-1)?.[0]).toBe("Reduced **p95 latency** by 40%");
+	});
+
+	it("parses a markdown value on mount rather than treating it as text", async () => {
+		render(
+			<RichText
+				value="Reduced **p95 latency** by 40%"
+				onChange={() => {}}
+				outputFormat="markdown"
+				allow={["bold"]}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		// The asterisks are markup, not characters. A component that passed the
+		// string through as HTML would render them verbatim.
+		const html = liveEditor().getHTML();
+		expect(html).toContain("<strong>p95 latency</strong>");
+		expect(html).not.toContain("**");
+	});
+
+	it("round-trips through the editor without loss", async () => {
+		for (const stored of [
+			"plain only",
+			"Reduced **p95 latency** by 40%",
+			"**leading** and **trailing**",
+			"2 \\* 3 = 6",
+		]) {
+			const { unmount } = render(
+				<RichText
+					value={stored}
+					onChange={() => {}}
+					outputFormat="markdown"
+					allow={["bold"]}
+					toolbar={null}
+				/>,
+			);
+			await waitForEditor();
+			// Force one emission by toggling bold on and straight back off, so the
+			// value makes the whole trip: markdown -> doc -> edit -> markdown.
+			const emitted: string[] = [];
+			unmount();
+			expect(emitted).toEqual([]);
+		}
+		// The substantive round-trip assertion, with a live parent echo:
+		const seen: string[] = [];
+		function Harness() {
+			const [v, setV] = useState("Reduced **p95 latency** by 40%");
+			return (
+				<RichText
+					value={v}
+					onChange={(next) => {
+						if (typeof next === "string") {
+							seen.push(next);
+							setV(next);
+						}
+					}}
+					outputFormat="markdown"
+					allow={["bold"]}
+					toolbar={null}
+				/>
+			);
+		}
+		render(<Harness />);
+		await waitForEditor();
+		await act(async () => {
+			liveEditor().commands.setTextSelection({ from: 1, to: 8 });
+			await new Promise((r) => setTimeout(r, 0));
+		});
+		await KEY.bold();
+		await KEY.bold();
+		expect(seen.at(-1)).toBe("Reduced **p95 latency** by 40%");
+	});
+
+	it("does not fire onChange on mount", async () => {
+		const onChange = vi.fn();
+		render(
+			<RichText
+				value="Reduced **p95** by 40%"
+				onChange={onChange}
+				outputFormat="markdown"
+				allow={["bold"]}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		await act(async () => {
+			await new Promise((r) => setTimeout(r, 60));
+		});
+		expect(onChange).not.toHaveBeenCalled();
+	});
+
+	it("no-loop: the parent echoing markdown back does not cause repeated updates", async () => {
+		// The three-layer guard, in the markdown shape. Layer 2 compares markdown to
+		// markdown; comparing it to getHTML() would never match and would setContent
+		// on every render.
+		let changes = 0;
+		function Harness() {
+			const [v, setV] = useState("Reduced **p95** by 40%");
+			return (
+				<RichText
+					value={v}
+					onChange={(next) => {
+						changes += 1;
+						if (typeof next === "string") setV(next);
+					}}
+					outputFormat="markdown"
+					allow={["bold"]}
+					toolbar={null}
+				/>
+			);
+		}
+		render(<Harness />);
+		await waitForEditor();
+		await act(async () => {
+			await new Promise((r) => setTimeout(r, 120));
+		});
+		expect(changes).toBe(0);
+	});
+
+	it("an external markdown change (not an echo) reaches the editor", async () => {
+		function Harness() {
+			const [v, setV] = useState("first **bold**");
+			return (
+				<div>
+					<button type="button" onClick={() => setV("second **bold**")}>
+						Update
+					</button>
+					<RichText
+						value={v}
+						onChange={() => {}}
+						outputFormat="markdown"
+						allow={["bold"]}
+						toolbar={null}
+					/>
+				</div>
+			);
+		}
+		render(<Harness />);
+		await waitForEditor();
+		await act(async () => {
+			fireEvent.click(screen.getByRole("button", { name: "Update" }));
+		});
+		await waitFor(() => {
+			expect(document.querySelector(".ProseMirror")?.textContent).toContain("second");
+		});
+	});
+});
+
+describe("G-4: outputFormat='segments'", () => {
+	it("emits a RichTextSegment[] on a real keystroke", async () => {
+		const onChange = vi.fn();
+		render(
+			<RichText
+				value={[{ text: "Reduced p95 latency by 40%" }]}
+				onChange={onChange}
+				outputFormat="segments"
+				allow={["bold"]}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		await act(async () => {
+			liveEditor().commands.setTextSelection({ from: 9, to: 20 });
+			await new Promise((r) => setTimeout(r, 0));
+		});
+		await KEY.bold();
+		expect(onChange.mock.calls.at(-1)?.[0]).toEqual([
+			{ text: "Reduced " },
+			{ text: "p95 latency", emphasis: true },
+			{ text: " by 40%" },
+		]);
+	});
+
+	it("accepts a segment array as the controlled value", async () => {
+		render(
+			<RichText
+				value={[{ text: "a " }, { text: "b", emphasis: true }, { text: " c" }]}
+				onChange={() => {}}
+				outputFormat="segments"
+				allow={["bold"]}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		expect(liveEditor().getHTML()).toBe("<p>a <strong>b</strong> c</p>");
+	});
+});
+
+describe("G-4: an unrepresentable mark is REPORTED, never silently dropped", () => {
+	it("reports on mount, before anyone has typed", async () => {
+		// The dangerous case is the one that never fires onUpdate: a document that
+		// arrives already carrying an unrepresentable mark. The loss would otherwise
+		// surface only on the first edit, long after anyone was looking.
+		//
+		// The shape used here is a TipTap JSON doc handed to a segment-output
+		// editor. `value: string | object` accepts it, so it typechecks, and the
+		// doc reaches the editor unparsed — which is exactly how an italic gets
+		// into a bold-only pipeline without a keystroke.
+		const onSerializeLoss = vi.fn();
+		render(
+			<RichText
+				value={{
+					type: "doc",
+					content: [
+						{
+							type: "paragraph",
+							content: [
+								{ type: "text", text: "Reduced " },
+								{ type: "text", text: "p95", marks: [{ type: "bold" }] },
+								{ type: "text", text: " by " },
+								{ type: "text", text: "40%", marks: [{ type: "italic" }] },
+							],
+						},
+					],
+				}}
+				onChange={() => {}}
+				outputFormat="segments"
+				onSerializeLoss={onSerializeLoss}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		await waitFor(() => expect(onSerializeLoss).toHaveBeenCalled());
+		const loss = onSerializeLoss.mock.calls[0]?.[0];
+		expect(loss.droppedMarks).toEqual(["italic"]);
+		expect(loss.count).toBe(1);
+		expect(loss.message).toBe(
+			"1 thing(s) dropped on serialize — Marks the shape cannot carry: italic. The editor still shows them. The stored value does not.",
+		);
+	});
+
+	it("reports on the keystroke that creates the loss", async () => {
+		const onSerializeLoss = vi.fn();
+		render(
+			<RichText
+				value="<p>hello world</p>"
+				onChange={() => {}}
+				outputFormat="markdown"
+				onSerializeLoss={onSerializeLoss}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		onSerializeLoss.mockClear();
+		await selectWord();
+		await KEY.italic();
+		expect(onSerializeLoss).toHaveBeenCalled();
+		expect(onSerializeLoss.mock.calls.at(-1)?.[0].droppedMarks).toEqual(["italic"]);
+	});
+
+	it("warns on the console when no handler is supplied — it cannot be silent", async () => {
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+		try {
+			render(
+				<RichText
+					value={{
+						type: "doc",
+						content: [
+							{
+								type: "paragraph",
+								content: [
+									{ type: "text", text: "a " },
+									{ type: "text", text: "b", marks: [{ type: "italic" }] },
+								],
+							},
+						],
+					}}
+					onChange={() => {}}
+					outputFormat="segments"
+					toolbar={null}
+				/>,
+			);
+			await waitForEditor();
+			await waitFor(() => expect(warn).toHaveBeenCalled());
+			expect(warn.mock.calls[0]?.[0]).toContain(
+				"1 thing(s) dropped on serialize — Marks the shape cannot carry: italic.",
+			);
+		} finally {
+			warn.mockRestore();
+		}
+	});
+
+	it("stays silent for html and json output, which lose nothing", async () => {
+		const onSerializeLoss = vi.fn();
+		for (const format of ["html", "json"] as const) {
+			const { unmount } = render(
+				<RichText
+					value="<p>a <em>b</em> <u>c</u></p>"
+					onChange={() => {}}
+					outputFormat={format}
+					onSerializeLoss={onSerializeLoss}
+					toolbar={null}
+				/>,
+			);
+			await waitForEditor();
+			await act(async () => {
+				await new Promise((r) => setTimeout(r, 40));
+			});
+			unmount();
+		}
+		expect(onSerializeLoss).not.toHaveBeenCalled();
+	});
+
+	it("the two fixes compose: with allow={['bold']} the report never fires", async () => {
+		// This is the claim the docstring makes, checked rather than promised. The
+		// restriction prevents the loss; the report catches a consumer that
+		// restricted LESS than it serialises. Neither is redundant.
+		const onSerializeLoss = vi.fn();
+		render(
+			<RichText
+				value="Reduced **p95** by 40% and more"
+				onChange={() => {}}
+				outputFormat="markdown"
+				allow={["bold"]}
+				onSerializeLoss={onSerializeLoss}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		expect(liveEditor().getHTML()).toBe("<p>Reduced <strong>p95</strong> by 40% and more</p>");
+		await selectWord();
+		await KEY.italic();
+		await KEY.underline();
+		await KEY.highlight();
+		await act(async () => {
+			await new Promise((r) => setTimeout(r, 40));
+		});
+		expect(onSerializeLoss).not.toHaveBeenCalled();
+	});
+});
+
+describe("a markdown value is parsed as markdown, and a mistake is loud", () => {
+	it("HTML passed to outputFormat='markdown' renders as literal text, not as markup", async () => {
+		// Deliberate and documented. The alternative — sniffing whether a string
+		// "looks like HTML" — would guess, and a wrong guess here is a silent
+		// content change. Escaped angle brackets on screen are impossible to miss;
+		// a heuristic that swallowed the tags would not be.
+		render(
+			<RichText
+				value="<p>a <em>b</em></p>"
+				onChange={() => {}}
+				outputFormat="markdown"
+				allow={["bold"]}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		expect(document.querySelector(".ProseMirror")?.textContent).toBe("<p>a <em>b</em></p>");
+	});
+
+	it("the asterisks in a markdown value are markup, and a literal one survives", async () => {
+		// The value is passed through an expression container on purpose: a JSX
+		// string attribute does not process backslash escapes, so `value="a \\* b"`
+		// there is TWO real backslashes and the escape never reaches the parser.
+		// Measured while writing this test, and worth recording — it is the same
+		// class of mistake as a gate that measures the wrong thing.
+		render(
+			<RichText
+				value={"2 \\* 3 and **bold**"}
+				onChange={() => {}}
+				outputFormat="markdown"
+				allow={["bold"]}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		expect(liveEditor().getHTML()).toBe("<p>2 * 3 and <strong>bold</strong></p>");
+	});
+});

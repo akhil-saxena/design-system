@@ -1012,6 +1012,21 @@ export const RichText = forwardRef<HTMLDivElement, RichTextProps>(function RichT
 				className={`ds-atom-richtext ds-atom-richtext--loading${className ? ` ${className}` : ""}`}
 				style={{ ...inlineRootStyle, ...style }}
 				data-inline={inline || undefined}
+				// `role="status"` is required, not decorative. A bare <div> is the
+				// `generic` role, and `aria-label` on generic is PROHIBITED — the same
+				// rule the editorProps comment above cites for readOnly. It went
+				// unnoticed while this branch lasted one tick: axe samples the story
+				// after render, and TipTap mounted before it looked. Opting into code
+				// blocks holds the branch open for a dynamic import, and axe caught it
+				// immediately (`aria-prohibited-attr`, serious, 1 node). So the
+				// pre-existing defect became reachable rather than being introduced.
+				//
+				// `status` is the right role rather than the cheapest fix: it can carry
+				// a name, it carries `aria-busy` honestly, and a screen-reader user who
+				// arrives during the window is told the editor is loading instead of
+				// finding an unnamed nothing. ProgressBar and Lightbox set the same
+				// precedent in this repo.
+				role="status"
 				aria-label={ariaLabel}
 				aria-busy="true"
 			/>

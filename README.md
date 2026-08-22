@@ -255,6 +255,79 @@ build, and a hand-copied list here would be the thing that goes stale.
 - `.ds-visually-hidden` is available for screen-reader-only text.
 - `IconButton` takes a **required** `label`, so an icon-only control cannot be built without an accessible name.
 
+### `RichText`: choosing an output format
+
+`RichText` emits four shapes, and the choice is a data-modelling decision rather
+than a preference.
+
+| `outputFormat` | emits | choose it when |
+|---|---|---|
+| `"markdown"` | `"Reduced **p95 latency** by 40%"` | **recommended for stored prose.** Bold-only inline markdown |
+| `"segments"` | `[{ text }, { text, emphasis: true }]` | you render from the runs directly and never want a string |
+| `"json"` | a TipTap Doc object | you need the full document model — headings, lists, links |
+| `"html"` | `"<p>…</p>"` | **legacy only.** Kept for existing consumers; see below |
+
+**Why a new consumer should not choose `"html"`.** A markup string is the thing
+whose *existence* reopens stored XSS. If the stored value is HTML then every
+layer that renders it has to sanitise it, forever, correctly — and one
+`dangerouslySetInnerHTML` on a value that came back from a database is the whole
+vulnerability class. The bold-only shapes cannot express a tag at all, so there
+is nothing to sanitise: the class is designed out rather than filtered. `"html"`
+is not removed, because removing it would break working code for a benefit those
+consumers can take at their own pace. It is simply not the default answer any
+more.
+
+`"segments"` and `"markdown"` carry **bold and nothing else**, so an italic,
+underline, link, highlight or heading in the document cannot be represented.
+That loss is always **reported**, never silent:
+
+```tsx
+<RichText
+  value={bullet}
+  onChange={setBullet}
+  outputFormat="markdown"
+  onSerializeLoss={(loss) => console.error(loss.message)}
+  // -> "1 thing(s) dropped on serialize — Marks the shape cannot carry: italic.
+  //     The editor still shows them. The stored value does not."
+/>
+```
+
+If no `onSerializeLoss` handler is given the component warns on the console
+instead. There is no configuration in which the loss is silent.
+
+**Better still, make the loss unreachable.** `allow` restricts what the editor
+can produce by configuring the TipTap extension list — not by hiding toolbar
+buttons, which never made a mark unreachable:
+
+```tsx
+<RichText
+  value={bullet}
+  onChange={setBullet}
+  outputFormat="markdown"
+  allow={["bold"]}   // ⌘I, ⌘U, ⌘⇧H, ⌘⌥2 and autolink all do nothing
+  toolbar={null}     // and `null` genuinely suppresses the toolbar
+/>
+```
+
+The two compose deliberately and neither is redundant: `allow` stops the loss
+being *created*, and the report catches a consumer that restricted **less** than
+it serialises — `outputFormat="markdown"` with no `allow` is a perfectly
+plausible call in which every mark is reachable and only one is storable.
+
+**Code blocks are opt-in.** `"codeBlock"` is the one feature not in
+`RICHTEXT_DEFAULT_FEATURES`, because registering it pulled a six-language
+`highlight.js` grammar set onto the eager path of every editor — including one
+editing a single prose bullet. Ask for it explicitly and it is fetched on demand:
+
+```tsx
+<RichText allow={[...RICHTEXT_DEFAULT_FEATURES, "codeBlock"]} … />
+```
+
+Measured on a consumer-shaped, code-split bundle of `dist/components/RichText.js`:
+the eager path went from 139,280 B to **131,270 B gzip** and lost `lowlight` and
+`highlight.js` entirely; both stay reachable asynchronously.
+`tests/treeshake/richtext-codeblock.test.ts` asserts that partition.
+
 ### Composition
 
 Complex components are built from the primitives, not raw HTML — a hand-rolled

@@ -1,7 +1,58 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { RichText, type RichTextProps } from ".";
+import { RICHTEXT_DEFAULT_FEATURES, RichText, type RichTextProps } from ".";
+import type { RichTextSegment, RichTextSerializeLoss } from "./segments";
 const SRC = {
+	NoToolbar: `<RichText
+  value={html}
+  onChange={(v) => typeof v === "string" && setHtml(v)}
+  toolbar={null}
+/>`,
+	BoldOnly: `const [markdown, setMarkdown] = useState("Reduced **p95 latency** by 40%");
+return (
+  <RichText
+    value={markdown}
+    onChange={(v) => typeof v === "string" && setMarkdown(v)}
+    outputFormat="markdown"
+    allow={["bold"]}
+    hints
+  />
+);`,
+	BoldOnlyNoToolbar: `<RichText
+  value={markdown}
+  onChange={(v) => typeof v === "string" && setMarkdown(v)}
+  outputFormat="markdown"
+  allow={["bold"]}
+  toolbar={null}
+  inline
+/>`,
+	SegmentOutput: `const [segments, setSegments] = useState<RichTextSegment[]>([
+  { text: "Reduced " },
+  { text: "p95 latency", emphasis: true },
+  { text: " by 40%" },
+]);
+return (
+  <RichText
+    value={segments}
+    onChange={(v) => Array.isArray(v) && setSegments(v as RichTextSegment[])}
+    outputFormat="segments"
+    allow={["bold"]}
+  />
+);`,
+	SerializeLossReported: `const [loss, setLoss] = useState<RichTextSerializeLoss | null>(null);
+return (
+  <RichText
+    value={markdown}
+    onChange={(v) => typeof v === "string" && setMarkdown(v)}
+    outputFormat="markdown"
+    onSerializeLoss={setLoss}
+  />
+);`,
+	CodeBlockOptIn: `<RichText
+  value={html}
+  onChange={(v) => typeof v === "string" && setHtml(v)}
+  allow={[...RICHTEXT_DEFAULT_FEATURES, "codeBlock"]}
+/>`,
 	Default: `const [html, setHtml] = useState("<p>Write your <strong>document</strong> here.</p>");
 return (
   <RichText
@@ -118,7 +169,7 @@ const meta: Meta<typeof RichText> = {
 		docs: {
 			description: {
 				component:
-					"WYSIWYG rich-text editor built on TipTap/StarterKit with a configurable toolbar, markdown shortcuts, read-only mode, and HTML or JSON output.",
+					"WYSIWYG rich-text editor built on TipTap/StarterKit with a configurable toolbar, markdown shortcuts, read-only mode, and HTML, JSON, segment or bold-only-markdown output. `allow` restricts what the editor can produce by configuring the extension list; `toolbar={null}` suppresses the toolbar entirely; code blocks (and their syntax highlighter) are opt-in.",
 			},
 		},
 	},
@@ -138,8 +189,19 @@ const meta: Meta<typeof RichText> = {
 		},
 		outputFormat: {
 			control: "select",
-			options: ["html", "json"],
-			description: "Output format emitted to onChange.",
+			options: ["html", "json", "segments", "markdown"],
+			description:
+				"Output format emitted to onChange. `segments` and `markdown` carry bold and nothing else, and report anything they cannot carry via onSerializeLoss.",
+		},
+		allow: {
+			control: false,
+			description:
+				"Which marks and node types the editor may produce. Configures the TipTap extension list, so a suppressed feature is unreachable by keyboard, by input rule and by autolink — not merely missing from the toolbar. Omit for RICHTEXT_DEFAULT_FEATURES.",
+		},
+		onSerializeLoss: {
+			control: false,
+			description:
+				'Called when a serialize could not carry something the document contains. Only fires for outputFormat="segments" and "markdown".',
 		},
 		toolbar: {
 			control: false,
@@ -513,6 +575,224 @@ export const Playground: Story = {
 					onChange={(v) => {
 						if (typeof v === "string") setHtml(v);
 					}}
+				/>
+			</div>
+		);
+	},
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// E10 / G-3 / G-4 / F-14-1 / F-14-2 — restriction, suppression and output shape
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * `toolbar={null}` suppresses the toolbar entirely.
+ *
+ * This used to render the DEFAULT twelve-button toolbar: the fallback was
+ * nullish coalescing, which falls through on `null` — the exact value this
+ * prop's docstring prescribes for suppression. Verify by eye: there should be
+ * no buttons above the editor.
+ */
+export const NoToolbar: Story = {
+	parameters: { docs: { source: { code: SRC.NoToolbar } } },
+	render: () => {
+		const [html, setHtml] = useState("<p>No toolbar. Keyboard shortcuts still work.</p>");
+		return (
+			<div style={{ maxWidth: 680 }}>
+				<RichText
+					value={html}
+					onChange={(v) => typeof v === "string" && setHtml(v)}
+					toolbar={null}
+					ariaLabel="Editor with no toolbar"
+				/>
+			</div>
+		);
+	},
+};
+
+/**
+ * `allow={["bold"]}` — the bold-only editor a résumé bullet needs.
+ *
+ * Try it by keyboard: **⌘B bolds**, and ⌘I, ⌘U, ⌘⇧H, ⌘⌥2 do nothing at all.
+ * Type `example.com ` and no link appears either, because `autolink` travelled
+ * with the link mark rather than being hardcoded on. The toolbar shows one
+ * button because one extension is registered — the filtering is a consequence,
+ * not the mechanism.
+ */
+export const BoldOnly: Story = {
+	parameters: { docs: { source: { code: SRC.BoldOnly } } },
+	render: () => {
+		const [markdown, setMarkdown] = useState(
+			"Reduced **p95 latency** by 40% across three services",
+		);
+		return (
+			<div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 680 }}>
+				<RichText
+					value={markdown}
+					onChange={(v) => typeof v === "string" && setMarkdown(v)}
+					outputFormat="markdown"
+					allow={["bold"]}
+					hints
+					ariaLabel="Résumé bullet"
+				/>
+				<pre
+					style={{
+						margin: 0,
+						padding: 12,
+						fontFamily: "var(--mono)",
+						fontSize: 12,
+						background: "var(--cream-2)",
+						border: "1px solid var(--rule)",
+						borderRadius: 8,
+						whiteSpace: "pre-wrap",
+						wordBreak: "break-word",
+					}}
+				>
+					{markdown || "(empty)"}
+				</pre>
+			</div>
+		);
+	},
+};
+
+/**
+ * `allow={["bold"]}` with the toolbar suppressed as well — the two fixes
+ * together, which is the configuration the admin's bullet editor uses.
+ */
+export const BoldOnlyNoToolbar: Story = {
+	parameters: { docs: { source: { code: SRC.BoldOnlyNoToolbar } } },
+	render: () => {
+		const [markdown, setMarkdown] = useState("Cut deploy time from **40 minutes** to **six**");
+		return (
+			<div style={{ maxWidth: 680 }}>
+				<RichText
+					value={markdown}
+					onChange={(v) => typeof v === "string" && setMarkdown(v)}
+					outputFormat="markdown"
+					allow={["bold"]}
+					toolbar={null}
+					inline
+					ariaLabel="Inline résumé bullet"
+				/>
+			</div>
+		);
+	},
+};
+
+/**
+ * `outputFormat="segments"` — the in-memory lossless shape,
+ * `Array<{ text, emphasis? }>`. No markup string exists at any point, which is
+ * what designs the stored-XSS class out rather than filtering it.
+ */
+export const SegmentOutput: Story = {
+	parameters: { docs: { source: { code: SRC.SegmentOutput } } },
+	render: () => {
+		const [segments, setSegments] = useState<RichTextSegment[]>([
+			{ text: "Reduced " },
+			{ text: "p95 latency", emphasis: true },
+			{ text: " by 40%" },
+		]);
+		return (
+			<div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 680 }}>
+				<RichText
+					value={segments}
+					onChange={(v) => Array.isArray(v) && setSegments(v as RichTextSegment[])}
+					outputFormat="segments"
+					allow={["bold"]}
+					ariaLabel="Segment-output editor"
+				/>
+				<pre
+					style={{
+						margin: 0,
+						padding: 12,
+						fontFamily: "var(--mono)",
+						fontSize: 12,
+						background: "var(--cream-2)",
+						border: "1px solid var(--rule)",
+						borderRadius: 8,
+						whiteSpace: "pre-wrap",
+						wordBreak: "break-word",
+					}}
+				>
+					{JSON.stringify(segments, null, 2)}
+				</pre>
+			</div>
+		);
+	},
+};
+
+/**
+ * The loss report, G-4's actual bar.
+ *
+ * Every mark is reachable here and only bold is storable — the shape of the
+ * original defect. Select a word and press ⌘I, ⌘U or ⌘⇧H: the editor shows the
+ * mark, the stored value below does not, and the report says so by name. Under
+ * the old component this happened in silence: seven runs became five segments
+ * with nothing naming which one was lost.
+ */
+export const SerializeLossReported: Story = {
+	parameters: { docs: { source: { code: SRC.SerializeLossReported } } },
+	render: () => {
+		const [markdown, setMarkdown] = useState("Select a word and press Cmd-I, Cmd-U or Cmd-Shift-H");
+		const [loss, setLoss] = useState<RichTextSerializeLoss | null>(null);
+		return (
+			<div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 680 }}>
+				<RichText
+					value={markdown}
+					onChange={(v) => typeof v === "string" && setMarkdown(v)}
+					outputFormat="markdown"
+					onSerializeLoss={setLoss}
+					hints
+					ariaLabel="Unrestricted editor with markdown output"
+				/>
+				<pre
+					style={{
+						margin: 0,
+						padding: 12,
+						fontFamily: "var(--mono)",
+						fontSize: 12,
+						background: "var(--cream-2)",
+						border: "1px solid var(--rule)",
+						borderRadius: 8,
+						whiteSpace: "pre-wrap",
+						wordBreak: "break-word",
+					}}
+				>
+					{markdown || "(empty)"}
+				</pre>
+				<p
+					style={{
+						margin: 0,
+						fontFamily: "var(--mono)",
+						fontSize: 12,
+						color: loss ? "var(--red-ink)" : "var(--ink-4)",
+					}}
+				>
+					{loss ? loss.message : "Nothing dropped yet."}
+				</p>
+			</div>
+		);
+	},
+};
+
+/**
+ * Code blocks are opt-in (F-14-2). The extension and its six-language
+ * highlighter are reached only through a dynamic import, so a default RichText
+ * never fetches them. This story asks for them explicitly.
+ */
+export const CodeBlockOptIn: Story = {
+	parameters: { docs: { source: { code: SRC.CodeBlockOptIn } } },
+	render: () => {
+		const [html, setHtml] = useState(
+			'<p>Code blocks are opt-in:</p><pre><code class="language-typescript">const answer: number = 42;</code></pre>',
+		);
+		return (
+			<div style={{ maxWidth: 680 }}>
+				<RichText
+					value={html}
+					onChange={(v) => typeof v === "string" && setHtml(v)}
+					allow={[...RICHTEXT_DEFAULT_FEATURES, "codeBlock"]}
+					ariaLabel="Editor with code blocks enabled"
 				/>
 			</div>
 		);
