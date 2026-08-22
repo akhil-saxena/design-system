@@ -86,6 +86,7 @@ const categories = [
 			"DatePicker",
 			"DateRangePicker",
 			"FileInput",
+			"FocalPointPicker",
 			"InlineAddRow",
 			"InlineEditField",
 			"Kbd",

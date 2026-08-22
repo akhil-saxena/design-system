@@ -164,6 +164,11 @@ export { Autocomplete, type AutocompleteProps } from "./inputs/Autocomplete";
 export { FileInput, type FileInputProps } from "./inputs/FileInput";
 export { ColorPicker, type ColorPickerProps } from "./inputs/ColorPicker";
 export { ColorInput, type ColorInputProps } from "./inputs/ColorPicker/ColorInput";
+export {
+	FocalPointPicker,
+	type FocalPoint,
+	type FocalPointPickerProps,
+} from "./inputs/FocalPointPicker";
 
 export {
 	SegmentedControl,
