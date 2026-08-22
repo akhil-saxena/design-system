@@ -371,12 +371,20 @@ describe("RichText - hints strip", () => {
  * driving a command directly would assert nothing about whether the *input path*
  * is reachable, which is the entire finding.
  */
-function liveEditor(): { getHTML(): string; commands: Record<string, (...a: never[]) => unknown> } {
+interface LiveEditor {
+	getHTML(): string;
+	commands: {
+		setTextSelection(range: { from: number; to: number }): boolean;
+		insertContent(content: string): boolean;
+	};
+}
+
+function liveEditor(): LiveEditor {
 	const surface = document.querySelector(".ProseMirror");
 	if (!surface) throw new Error("ProseMirror surface not mounted");
 	const editor = (surface as unknown as { editor?: unknown }).editor;
 	if (!editor) throw new Error("no editor handle on the ProseMirror node");
-	return editor as ReturnType<typeof liveEditor>;
+	return editor as LiveEditor;
 }
 
 /**
@@ -425,7 +433,7 @@ const KEY = {
 /** Select the first five characters, so a mark command has a range to act on. */
 async function selectWord() {
 	await act(async () => {
-		liveEditor().commands.setTextSelection({ from: 1, to: 6 } as never);
+		liveEditor().commands.setTextSelection({ from: 1, to: 6 });
 		await new Promise((r) => setTimeout(r, 0));
 	});
 }
@@ -438,7 +446,7 @@ async function selectWord() {
  */
 async function typeBareUrl() {
 	await act(async () => {
-		liveEditor().commands.insertContent("example.com " as never);
+		liveEditor().commands.insertContent("example.com ");
 		await new Promise((r) => setTimeout(r, 30));
 	});
 }
