@@ -7159,3 +7159,127 @@ fieldset.ds-atom-field {
 	text-transform: uppercase;
 	font-weight: 700;
 }
+
+/* ─── DS atom: FocalPointPicker (G-1) ─────────────────────────────────────
+   Drag-a-marker focal point selection on a real aspect-ratio frame.
+
+   WHY `aspect-ratio` AND NOT THE PADDING HACK. The legacy 3:2 frame this
+   replaces was built out of `padding-top: 66.67%` on a wrapper with an
+   absolutely positioned child, because `aspect-ratio` did not exist when it was
+   written. That construction was **86 of the local prototype's 269 non-comment
+   lines** — it needs a wrapper element, an inset child, a hardcoded percentage
+   per ratio, and it cannot take the ratio as a variable at all. One
+   `aspect-ratio` declaration replaces all of it and accepts any ratio the
+   component is handed, which is why the ratio could become a prop.
+
+   THE RATIO IS A CLASS-LEVEL KNOB, `--ds-focalpoint-ratio`, and the 3:2 default
+   is declared HERE rather than in the component's props. Two separate reasons,
+   both of them findings this repository already paid for:
+
+     * an inline `aspect-ratio` would outrank every class rule without
+       `!important`, so a consumer could not restyle the frame from a stylesheet
+       at all — findings E3, E5 and F-12-2;
+     * a custom property written from a component's `style` object is fixed at
+       construction, so no media query, container query or future density axis
+       can re-declare it. That is finding E2, measured on AppShell's
+       `--ds-sidebar-w`, and `src/tokens.test.ts` says in as many words that the
+       class-level shape "is the shape new component-scoped knobs must use".
+
+   So the default lives on the class and the component writes NOTHING inline
+   unless a caller passes `aspectRatio` explicitly. A consumer writes
+
+     @media (max-width: 672px) { .ds-atom-focalpoint-frame { --ds-focalpoint-ratio: 1 } }
+
+   and every frame in the page becomes square at that width, with no prop.
+
+   THE EXAMPLE ABOVE IS ON ONE LINE ON PURPOSE, and this note is here so nobody
+   reformats it. `declaredIn()` in src/tokens.test.ts scans for
+   /^\s*(--[a-z0-9-]+)\s*:/ across the RAW file — it does not strip comments —
+   so a knob declared on its own indented line inside a comment counts as
+   declared. Written across three lines, this example silently satisfied the
+   "defines every custom property referenced anywhere in src" assertion, and
+   deleting the real declaration below left that assertion GREEN. Measured. The
+   one-line form starts with `@media`, so the pattern cannot match it.
+
+   It also means the 3:2 default is declared in exactly ONE place. A `= 1.5`
+   default on the prop as well would be a second copy of the same number, and two
+   copies of a default is the shape that drifts.
+
+   `box-sizing: border-box` is load-bearing next to it, not housekeeping: with
+   the default `content-box` the ratio would apply to the content box and the 1px
+   border would make the *visible* rectangle 402x270 rather than 3:2. Measured in
+   Chromium — see tests/visual/focalpoint.spec.ts, which reads the frame's own
+   bounding box rather than trusting the declaration.
+
+   `touch-action: none` is what makes the touch path work at all. Without it the
+   browser claims the gesture for scrolling and fires `pointercancel` partway
+   through, so a touch drag would move the marker a few pixels and stop — legacy
+   defect 1 reappearing as a CSS omission rather than a missing listener.
+
+   NO TRANSITION ANYWHERE IN THIS SECTION, on purpose. The marker tracks a
+   pointer, so any easing on `left`/`top` reads as lag on the one interaction the
+   component exists for. There is therefore nothing here for the system-wide
+   reduced-motion guard to switch off. */
+.ds-atom-focalpoint {
+	display: block;
+	max-width: 100%;
+}
+.ds-atom-focalpoint-frame {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	--ds-focalpoint-ratio: 3 / 2;
+	aspect-ratio: var(--ds-focalpoint-ratio);
+	border: 1px solid var(--rule-strong);
+	border-radius: var(--radius-md);
+	background: var(--paper);
+	cursor: crosshair;
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+}
+.ds-atom-focalpoint-frame:focus-visible {
+	outline: none;
+	box-shadow: var(--focus-ring);
+}
+.ds-atom-focalpoint-image {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: inherit;
+}
+/* The 44px coarse-pointer floor, as a transparent box around a 14px dot.
+   `margin: -22px` on each axis is exactly half of 44, which is what centres the
+   hit box on the point the `left`/`top` percentages place — a `transform`
+   translation would do the same thing while also creating a containing block for
+   anything a consumer nested inside.
+
+   The frame is NOT `overflow: hidden`. Clipping it would look tidier and would
+   shrink this hit box at the extremes, which is the one place a coarse pointer
+   most needs it. */
+.ds-atom-focalpoint-marker {
+	position: absolute;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	margin-top: -22px;
+	margin-left: -22px;
+}
+/* The dot's FILL is tokenised and its rings are not, deliberately. `--amber`
+   aliases `--ochre` under charcoal, so the marker is brand-responsive — and it
+   is the property tests/visual/focalpoint.spec.ts reads to prove which brand it
+   measured in. The white and black rings are literals because the thing behind
+   them is a consumer photograph rather than a themed surface: no token can be
+   guaranteed to contrast with an arbitrary image, and a light ring inside a dark
+   ring reads against every one of them. */
+.ds-atom-focalpoint-dot {
+	display: block;
+	width: 14px;
+	height: 14px;
+	border-radius: var(--radius-full);
+	background: var(--amber);
+	box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px rgba(0, 0, 0, 0.45);
+}

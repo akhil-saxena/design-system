@@ -42,6 +42,43 @@ function stubRect(el: Element, box: { left: number; top: number; width: number; 
 	} as DOMRect);
 }
 
+/**
+ * jsdom 25 does not implement `PointerEvent` (measured:
+ * `typeof window.PointerEvent === "undefined"`), and Testing Library's
+ * `fireEvent.pointerMove` falls back to the bare `Event` constructor when the
+ * class is missing — which **silently drops `clientX`/`clientY`**. Every
+ * position assertion in this file read `50, 50` for that reason before this
+ * helper existed, i.e. it was measuring the clamp's NaN fallback rather than the
+ * component.
+ *
+ * `MouseEvent` carries the coordinate properties for real, so the event is
+ * constructed from that and given a pointer event *name*, which is what the
+ * component listens for. `pointerId`/`pointerType` are attached afterwards
+ * because `MouseEvent`'s init dictionary ignores them.
+ *
+ * What this cannot do is make a genuine touch or pen pointer — jsdom has no
+ * pointer model to distinguish them in. That assertion is only makeable in a real
+ * browser, and it lives in `tests/visual/focalpoint.spec.ts`.
+ */
+function firePointer(
+	target: Element | Document,
+	type: "pointerdown" | "pointermove" | "pointerup" | "pointercancel",
+	init: {
+		clientX?: number;
+		clientY?: number;
+		button?: number;
+		buttons?: number;
+		pointerType?: string;
+		pointerId?: number;
+	} = {},
+) {
+	const { pointerType = "mouse", pointerId = 1, ...mouse } = init;
+	const event = new MouseEvent(type, { bubbles: true, cancelable: true, ...mouse });
+	Object.defineProperty(event, "pointerType", { value: pointerType });
+	Object.defineProperty(event, "pointerId", { value: pointerId });
+	return fireEvent(target, event);
+}
+
 /** The single focusable element — the control the keyboard and pointer both drive. */
 function frame(): HTMLElement {
 	return screen.getByLabelText("Crop focus");
@@ -89,16 +126,21 @@ function trackDocumentListeners() {
 	const original = document.addEventListener.bind(document);
 	const spy = vi
 		.spyOn(document, "addEventListener")
-		.mockImplementation((type: string, listener: never, options?: never) => {
-			const opts = options as { signal?: AbortSignal } | boolean | undefined;
-			if (/^pointer/.test(type)) {
-				seen.push({
-					type,
-					signal: typeof opts === "object" && opts !== null ? opts.signal : undefined,
-				});
-			}
-			return original(type, listener, options);
-		});
+		.mockImplementation(
+			(
+				type: string,
+				listener: EventListenerOrEventListenerObject,
+				options?: boolean | AddEventListenerOptions,
+			) => {
+				if (/^pointer/.test(type)) {
+					seen.push({
+						type,
+						signal: typeof options === "object" && options !== null ? options.signal : undefined,
+					});
+				}
+				return original(type, listener, options);
+			},
+		);
 	return { seen, restore: () => spy.mockRestore() };
 }
 
@@ -116,9 +158,9 @@ describe("FocalPointPicker — pointer (legacy defect 1: mouse-only)", () => {
 		const el = frame();
 		stubRect(el, { left: 0, top: 0, width: 400, height: 200 });
 
-		fireEvent.pointerDown(el, { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
-		fireEvent.pointerMove(document, { pointerId: 1, clientX: 100, clientY: 150 });
-		fireEvent.pointerUp(document, { pointerId: 1 });
+		firePointer(el, "pointerdown", { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
+		firePointer(document, "pointermove", { pointerId: 1, clientX: 100, clientY: 150 });
+		firePointer(document, "pointerup", { pointerId: 1 });
 
 		expect(onChange).toHaveBeenCalledWith({ x: 25, y: 75 });
 	});
@@ -132,9 +174,9 @@ describe("FocalPointPicker — pointer (legacy defect 1: mouse-only)", () => {
 		const el = frame();
 		stubRect(el, { left: 0, top: 0, width: 400, height: 200 });
 
-		fireEvent.pointerDown(el, { pointerId: 7, pointerType, button: 0, buttons: 1 });
-		fireEvent.pointerMove(document, { pointerId: 7, clientX: 100, clientY: 150 });
-		fireEvent.pointerUp(document, { pointerId: 7 });
+		firePointer(el, "pointerdown", { pointerId: 7, pointerType, button: 0, buttons: 1 });
+		firePointer(document, "pointermove", { pointerId: 7, clientX: 100, clientY: 150 });
+		firePointer(document, "pointerup", { pointerId: 7 });
 
 		expect(onChange).toHaveBeenLastCalledWith({ x: 25, y: 75 });
 	});
@@ -216,22 +258,33 @@ describe("FocalPointPicker — clamping at all three entry paths", () => {
 		const el = frame();
 		stubRect(el, { left: 100, top: 100, width: 400, height: 200 });
 
-		fireEvent.pointerDown(el, { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
-		fireEvent.pointerMove(document, { pointerId: 1, clientX: -900, clientY: -900 });
+		firePointer(el, "pointerdown", { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
+		firePointer(document, "pointermove", { pointerId: 1, clientX: -900, clientY: -900 });
 		expect(onChange).toHaveBeenLastCalledWith({ x: 0, y: 0 });
 
-		fireEvent.pointerMove(document, { pointerId: 1, clientX: 9000, clientY: 9000 });
+		firePointer(document, "pointermove", { pointerId: 1, clientX: 9000, clientY: 9000 });
 		expect(onChange).toHaveBeenLastCalledWith({ x: 100, y: 100 });
-		fireEvent.pointerUp(document, { pointerId: 1 });
+		firePointer(document, "pointerup", { pointerId: 1 });
 	});
 
-	it("clamps a keyboard step at the edge instead of wrapping", () => {
+	it("clamps a keyboard step at the edge, and says so rather than going silent", () => {
+		// Two separate contracts, and the distinction is the point.
+		//
+		// onChange must NOT fire: the value did not change, and a consumer that
+		// tracks dirtiness would otherwise mark a form dirty because someone held
+		// an arrow key against an edge.
+		//
+		// The live region must STILL speak, because at an edge a silent control is
+		// indistinguishable from a dead key — the one place where suppressing the
+		// callback and suppressing the announcement are not the same decision.
 		const onChange = vi.fn();
 		render(<Harness initial={{ x: 0, y: 100 }} onChange={onChange} />);
 		fireEvent.keyDown(frame(), { key: "ArrowLeft", shiftKey: true });
-		expect(onChange).toHaveBeenLastCalledWith({ x: 0, y: 100 });
 		fireEvent.keyDown(frame(), { key: "ArrowDown", shiftKey: true });
-		expect(onChange).toHaveBeenLastCalledWith({ x: 0, y: 100 });
+		expect(onChange).not.toHaveBeenCalled();
+		expect(screen.getByRole("status")).toHaveTextContent(
+			"Focal point 0% from the left, 100% from the top.",
+		);
 	});
 
 	it("clamps an out-of-range controlled value from outside", () => {
@@ -271,8 +324,8 @@ describe("FocalPointPicker — cleanup (legacy defect 3: uncleaned listeners)", 
 		const el = frame();
 		stubRect(el, { left: 0, top: 0, width: 400, height: 200 });
 
-		fireEvent.pointerDown(el, { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
-		fireEvent.pointerMove(document, { pointerId: 1, clientX: 100, clientY: 150 });
+		firePointer(el, "pointerdown", { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
+		firePointer(document, "pointermove", { pointerId: 1, clientX: 100, clientY: 150 });
 		expect(onChange).toHaveBeenCalled();
 
 		// Non-vacuity: if the component registered nothing, every assertion below
@@ -290,8 +343,8 @@ describe("FocalPointPicker — cleanup (legacy defect 3: uncleaned listeners)", 
 		}
 
 		const callsAtUnmount = onChange.mock.calls.length;
-		fireEvent.pointerMove(document, { pointerId: 1, clientX: 300, clientY: 50 });
-		fireEvent.pointerUp(document, { pointerId: 1 });
+		firePointer(document, "pointermove", { pointerId: 1, clientX: 300, clientY: 50 });
+		firePointer(document, "pointerup", { pointerId: 1 });
 		expect(onChange.mock.calls.length).toBe(callsAtUnmount);
 		tracker.restore();
 	});
@@ -302,8 +355,8 @@ describe("FocalPointPicker — cleanup (legacy defect 3: uncleaned listeners)", 
 		const el = frame();
 		stubRect(el, { left: 0, top: 0, width: 400, height: 200 });
 
-		fireEvent.pointerDown(el, { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
-		fireEvent.pointerUp(document, { pointerId: 1 });
+		firePointer(el, "pointerdown", { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
+		firePointer(document, "pointerup", { pointerId: 1 });
 
 		expect(tracker.seen.length).toBeGreaterThan(0);
 		for (const l of tracker.seen) expect(l.signal?.aborted).toBe(true);
@@ -316,8 +369,8 @@ describe("FocalPointPicker — cleanup (legacy defect 3: uncleaned listeners)", 
 		const el = frame();
 		stubRect(el, { left: 0, top: 0, width: 400, height: 200 });
 
-		fireEvent.pointerDown(el, { pointerId: 1, pointerType: "touch", button: 0, buttons: 1 });
-		fireEvent.pointerCancel(document, { pointerId: 1 });
+		firePointer(el, "pointerdown", { pointerId: 1, pointerType: "touch", button: 0, buttons: 1 });
+		firePointer(document, "pointercancel", { pointerId: 1 });
 
 		expect(tracker.seen.length).toBeGreaterThan(0);
 		for (const l of tracker.seen) expect(l.signal?.aborted).toBe(true);
@@ -337,13 +390,13 @@ describe("FocalPointPicker — frame-size independence (the recorded model diver
 			const el = frame();
 			stubRect(el, { left: 0, top: 0, width, height });
 
-			fireEvent.pointerDown(el, { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
-			fireEvent.pointerMove(document, {
+			firePointer(el, "pointerdown", { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
+			firePointer(document, "pointermove", {
 				pointerId: 1,
 				clientX: width * 0.25,
 				clientY: height * 0.75,
 			});
-			fireEvent.pointerUp(document, { pointerId: 1 });
+			firePointer(document, "pointerup", { pointerId: 1 });
 
 			expect(onChange).toHaveBeenLastCalledWith({ x: 25, y: 75 });
 		},
@@ -360,9 +413,9 @@ describe("FocalPointPicker — frame-size independence (the recorded model diver
 			const view = render(<Harness onChange={onChange} />);
 			const el = frame();
 			stubRect(el, { left: 0, top: 0, width, height: Math.round(width / 1.5) });
-			fireEvent.pointerDown(el, { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
-			fireEvent.pointerMove(document, { pointerId: 1, clientX: 80, clientY: 40 });
-			fireEvent.pointerUp(document, { pointerId: 1 });
+			firePointer(el, "pointerdown", { pointerId: 1, pointerType: "mouse", button: 0, buttons: 1 });
+			firePointer(document, "pointermove", { pointerId: 1, clientX: 80, clientY: 40 });
+			firePointer(document, "pointerup", { pointerId: 1 });
 			results.push(onChange.mock.calls.at(-1)?.[0]);
 			view.unmount();
 		}
@@ -372,13 +425,30 @@ describe("FocalPointPicker — frame-size independence (the recorded model diver
 });
 
 describe("FocalPointPicker — the frame", () => {
-	it("defaults to 3:2", () => {
+	// The ratio is handed to CSS as the `--ds-focalpoint-ratio` custom property,
+	// not as an inline `aspect-ratio`, so that the `aspect-ratio` DECLARATION can
+	// live in primitives.css where a consumer stylesheet can reach it. These
+	// assertions therefore read the custom property; the resulting GEOMETRY is
+	// measured in a real browser by tests/visual/focalpoint.spec.ts, because jsdom
+	// has no layout and cannot resolve aspect-ratio into a box at all.
+	it("writes NO inline style when aspectRatio is omitted", () => {
+		// The 3:2 default lives on `.ds-atom-focalpoint-frame` in primitives.css.
+		// An inline custom property here would be fixed at construction and
+		// unreachable from any selector — finding E2, measured on AppShell's
+		// --ds-sidebar-w — so the default has to reach the frame through the class
+		// or a media query cannot move it.
 		render(<Harness />);
-		expect(frame().style.aspectRatio).toBe("1.5");
+		expect(frame().getAttribute("style")).toBeNull();
 	});
 
-	it("honours an aspectRatio prop", () => {
+	it("honours an aspectRatio prop as a per-instance override", () => {
 		render(<Harness aspectRatio={1} />);
-		expect(frame().style.aspectRatio).toBe("1");
+		expect(frame().style.getPropertyValue("--ds-focalpoint-ratio")).toBe("1");
+	});
+
+	it("declares no inline aspect-ratio, which would outrank the stylesheet", () => {
+		render(<Harness aspectRatio={2} />);
+		expect(frame().style.aspectRatio).toBe("");
+		expect(frame().getAttribute("style")).toContain("--ds-focalpoint-ratio: 2");
 	});
 });
