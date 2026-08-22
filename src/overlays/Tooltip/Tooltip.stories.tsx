@@ -215,6 +215,7 @@ export const Playground: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	// Storybook v8 preview decorator reads context.globals.theme - must be
 	// top-level globals (NOT parameters.globals). Matches Wave 1 atom pattern
@@ -222,9 +223,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 16,
 					borderRadius: 8,
 					overflowX: "auto",

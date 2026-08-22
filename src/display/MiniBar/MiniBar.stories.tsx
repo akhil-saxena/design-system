@@ -60,6 +60,7 @@ export const WeeklyActivity: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 			<MiniBar
@@ -72,9 +73,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 32,
 					borderRadius: 12,
 					overflowX: "auto",

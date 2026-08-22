@@ -347,13 +347,13 @@ export const CustomSlots: Story = {
 
 /* ─── DarkMode ───────────────────────────────────────────────── */
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	name: "Dark mode",
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 16,
 					borderRadius: 8,
 					overflowX: "auto",

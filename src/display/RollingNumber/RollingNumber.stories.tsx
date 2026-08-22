@@ -310,6 +310,7 @@ export const ClockDark: Story = {
 };
 
 export const CounterLight: Story = {
+	globals: { theme: "dark" },
 	name: "Variant - light (on dark surface)",
 	parameters: {
 		docs: {
@@ -323,9 +324,8 @@ export const CounterLight: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 32,
 					borderRadius: 12,
 					overflowX: "auto",
@@ -340,6 +340,7 @@ export const CounterLight: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	name: "Dark mode - default variant",
 	parameters: {
 		docs: {
@@ -353,9 +354,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 24,
 					borderRadius: 8,
 					overflowX: "auto",

@@ -106,6 +106,7 @@ export const InlineInText: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	parameters: { docs: { source: { code: "<Kbd>⌘K</Kbd>" } } },
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -124,9 +125,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 16,
 					borderRadius: 8,
 					overflowX: "auto",

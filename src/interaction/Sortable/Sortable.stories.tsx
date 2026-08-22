@@ -258,7 +258,6 @@ function DarkDemo() {
 	const [items, setItems] = useState<SortableItemData[]>(TASK_ITEMS);
 	return (
 		<div
-			className="dark"
 			style={{
 				background: "var(--cream, #1a1410)",
 				padding: 24,
@@ -289,6 +288,7 @@ function DarkDemo() {
 }
 
 export const Dark: StoryObj<typeof Sortable> = {
+	globals: { theme: "dark" },
 	render: () => <DarkDemo />,
 };
 

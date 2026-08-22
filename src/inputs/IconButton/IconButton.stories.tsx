@@ -109,8 +109,9 @@ export const States: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	render: () => (
-		<div className="dark" style={{ background: "#1c1917", padding: 24, borderRadius: 8 }}>
+		<div style={{ background: "var(--cream-2)", padding: 24, borderRadius: 8 }}>
 			<Row>
 				<IconButton label="Close" icon={<X size={16} />} />
 				<IconButton label="Search" icon={<Search size={16} />} variant="secondary" />

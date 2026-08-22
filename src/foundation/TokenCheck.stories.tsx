@@ -425,6 +425,6 @@ export const Light: Story = {
 	parameters: { docs: { source: { code: SRC.Light } } },
 };
 export const Dark: Story = {
-	globals: { backgrounds: { value: "#1c1917" } },
+	globals: { theme: "dark" },
 	parameters: { docs: { source: { code: SRC.Dark } } },
 };

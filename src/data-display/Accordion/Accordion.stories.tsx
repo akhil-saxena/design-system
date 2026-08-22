@@ -216,7 +216,7 @@ export const DisabledItem: Story = {
 
 export const DarkMode: Story = {
 	name: "Dark mode",
-	globals: { backgrounds: { value: "#1c1917" } },
+	globals: { theme: "dark" },
 	parameters: {
 		docs: {
 			description: {

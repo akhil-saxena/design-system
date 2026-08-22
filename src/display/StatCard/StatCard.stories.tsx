@@ -148,6 +148,7 @@ export const NoSparkline: Story = {
 
 /** Dark mode — glass tokens adapt automatically; verify bg and border remain readable. */
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	render: () => (
 		<div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
 			<StatCard
@@ -169,9 +170,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 32,
 					borderRadius: 12,
 					overflowX: "auto",

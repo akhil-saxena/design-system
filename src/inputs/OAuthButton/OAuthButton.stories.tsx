@@ -57,12 +57,10 @@ export const Disabled: Story = {
 };
 
 export const Dark: Story = {
+	globals: { theme: "dark" },
 	decorators: [
 		(Story) => (
-			<div
-				className="dark"
-				style={{ background: "#1c1917", padding: 16, borderRadius: 8, width: 360 }}
-			>
+			<div style={{ background: "var(--cream-2)", padding: 16, borderRadius: 8, width: 360 }}>
 				<Story />
 			</div>
 		),

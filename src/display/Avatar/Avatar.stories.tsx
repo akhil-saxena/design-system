@@ -332,6 +332,7 @@ export const Stack: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	name: "Dark mode",
 	parameters: {
 		docs: {
@@ -342,9 +343,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 24,
 					borderRadius: 8,
 					overflowX: "auto",
@@ -421,6 +421,7 @@ export const PresenceAllStatuses: Story = {
 };
 
 export const PresenceDark: Story = {
+	globals: { theme: "dark" },
 	name: "Presence - dark mode corners",
 	parameters: {
 		docs: {
@@ -432,9 +433,8 @@ export const PresenceDark: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 24,
 					borderRadius: 8,
 					overflowX: "auto",

@@ -249,6 +249,7 @@ export const VerticalOrientation: Story = {
 
 // ─── Dark ─────────────────────────────────────────────────────────────────────
 export const Dark: Story = {
+	globals: { theme: "dark" },
 	name: "Dark Mode",
 	render: () => {
 		const steps: WizardStep[] = [
@@ -259,9 +260,8 @@ export const Dark: Story = {
 
 		return (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 32,
 					borderRadius: 14,
 					maxWidth: 560,

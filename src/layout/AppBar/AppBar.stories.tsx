@@ -122,12 +122,12 @@ export const AnchorNavigation: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					overflowX: "auto",
 					minWidth: 0,
 				}}

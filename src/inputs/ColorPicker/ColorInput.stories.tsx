@@ -89,13 +89,13 @@ export const InFormRow: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 24,
 					borderRadius: 8,
 					width: "100%",

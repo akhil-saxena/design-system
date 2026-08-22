@@ -113,11 +113,11 @@ export const FewPages: Story = {
  * Both variants on a dark background to verify dark-mode token coverage.
  */
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	render: () => (
 		<div
-			className="dark"
 			style={{
-				background: "#1c1917",
+				background: "var(--cream-2)",
 				padding: 32,
 				borderRadius: 8,
 				overflowX: "auto",

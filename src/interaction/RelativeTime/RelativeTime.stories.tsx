@@ -99,15 +99,15 @@ export const WithPrefix: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	parameters: {
 		docs: { source: { code: SRC.DarkMode } },
 	},
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 16,
 					borderRadius: 8,
 					overflowX: "auto",

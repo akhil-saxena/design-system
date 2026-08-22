@@ -242,6 +242,7 @@ export const Neutral: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	// Renamed: the panel is no longer hardcoded light. It still renders light HERE,
 	// for a different reason — it portals to document.body and so escapes this
 	// decorator's scoped `.dark`, exactly as Modal does. Under a dark THEME global
@@ -252,9 +253,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 32,
 					borderRadius: 8,
 					overflowX: "auto",
@@ -286,14 +286,16 @@ export const DarkMode: Story = {
  * 3. It is the story the charcoal computed-style probe reads
  *    (`tests/visual/confirm-panel.spec.ts`), in all four brand x mode cells.
  *
- * There is deliberately NO `className="dark"` decorator here. Under charcoal a
- * scoped `.dark` wrapper re-declares the design system's own neutral dark tokens
- * below the brand layer — `:root.dark, .dark` in tokens.css matches any element,
- * charcoal.css only declares `:root[data-brand="charcoal"].dark` — so the panel
- * would resolve `--cream-2` to #1f1f1f instead of charcoal's #1e1e1d. That is the
- * hazard `.storybook/preview.tsx` documents on its own wrapper, and it was
- * measured here: the first draft of this story carried the class and the probe
- * read 31,31,31 where charcoal declares 30,30,29. Use the theme toolbar instead.
+ * There is deliberately no scoped dark wrapper here — and as of plan 01-19.1 no
+ * story in this library has one. Under charcoal such a wrapper re-declares the
+ * design system's own neutral dark tokens below the brand layer — `:root.dark,
+ * .dark` in tokens.css matches any element, charcoal.css only declares
+ * `:root[data-brand="charcoal"].dark` — so the panel would resolve `--cream-2`
+ * to #1f1f1f instead of charcoal's #1e1e1d. That is the hazard
+ * `.storybook/preview.tsx` documents on its own wrapper, and it was measured
+ * here: the first draft of this story carried the class and the probe read
+ * 31,31,31 where charcoal declares 30,30,29. The mode comes from the theme
+ * global instead, enforced by `src/story-mode.test.ts`.
  */
 export const InlinePanel: Story = {
 	name: "Inline (the panel, in the cascade)",

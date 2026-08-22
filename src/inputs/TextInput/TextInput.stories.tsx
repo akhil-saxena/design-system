@@ -104,6 +104,7 @@ export const WithUrlIcon: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	// `render` bypasses the meta-level args, so these fields do not inherit the
 	// shared aria-label — they need their own names, or every one of them is an
@@ -121,9 +122,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 16,
 					borderRadius: 8,
 					width: "100%",

@@ -97,9 +97,10 @@ export const NonInteractive: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	decorators: [
 		(Story) => (
-			<div className="dark" style={{ background: "#1c1917", padding: 16, borderRadius: 8 }}>
+			<div style={{ background: "var(--cream-2)", padding: 16, borderRadius: 8 }}>
 				<Story />
 			</div>
 		),
@@ -119,15 +120,16 @@ export const DarkMode: Story = {
 /**
  * F-15-5's fix, and the story the measurement is taken from.
  *
- * **It deliberately carries no `.dark` decorator.** Every other dark story in
- * this file wraps itself in `<div className="dark">`, and a probe inside such a
- * wrapper measures the WRONG BRAND: `tokens.css` targets `:root.dark, .dark`, so
- * a scoped wrapper re-declares roughly fifty neutral dark tokens, while
- * `charcoal.css` is root-scoped and does not reach inside it. A probe in one of
- * those stories read 31,31,31 where charcoal declares 30,30,29 — it was
- * rendering the default brand. Drive the mode from the Storybook toolbar here,
- * so `<html>` carries both `data-brand` and `.dark` and the cascade is the real
- * one. `tests/visual/status-ladder.spec.ts` asserts the brand at the point of
+ * **It deliberately carries no scoped dark wrapper** — and as of plan 01-19.1 no
+ * story in this library does. A probe inside such a wrapper measures the WRONG
+ * BRAND: `tokens.css` targets `:root.dark, .dark`, so a scoped wrapper
+ * re-declares roughly fifty neutral dark tokens, while `charcoal.css` is
+ * root-scoped and does not reach inside it. A probe in one of those stories read
+ * 31,31,31 where charcoal declares 30,30,29 — it was rendering the default
+ * brand. The mode is driven from the Storybook theme global instead, so `<html>`
+ * carries both `data-brand` and `.dark` and the cascade is the real one.
+ * `src/story-mode.test.ts` enforces that across every story file, and
+ * `tests/visual/status-ladder.spec.ts` asserts the brand at the point of
  * measurement for exactly this reason.
  *
  * Two triads, because two tones share each ladder step:

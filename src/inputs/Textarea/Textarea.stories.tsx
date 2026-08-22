@@ -107,13 +107,11 @@ export const Disabled: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [
 		(Story) => (
-			<div
-				className="dark"
-				style={{ background: "#1c1917", padding: 16, borderRadius: 8, width: W + 32 }}
-			>
+			<div style={{ background: "var(--cream-2)", padding: 16, borderRadius: 8, width: W + 32 }}>
 				<Story />
 			</div>
 		),

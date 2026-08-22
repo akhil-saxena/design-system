@@ -150,6 +150,7 @@ export const EdgeCases: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	render: () => (
 		<div style={{ display: "flex", gap: 16, alignItems: "center" }}>
 			<MiniDonut value={65} />
@@ -162,9 +163,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 32,
 					borderRadius: 12,
 					overflowX: "auto",

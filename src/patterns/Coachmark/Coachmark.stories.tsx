@@ -173,12 +173,12 @@ export const MultiStepStory: Story = {
 // ─── Dark mode ────────────────────────────────────────────────────────────────
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 24,
 					borderRadius: 8,
 					overflowX: "auto",

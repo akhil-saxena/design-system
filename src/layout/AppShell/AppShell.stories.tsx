@@ -223,8 +223,9 @@ export const CollapsedDefault: Story = {
 };
 
 export const Dark: Story = {
+	globals: { theme: "dark" },
 	render: () => (
-		<div className="dark" style={{ height: "100vh" }}>
+		<div style={{ height: "100vh" }}>
 			<AppShell
 				storageKey="storybook-appshell-dark"
 				sidebar={<MockSidebar />}

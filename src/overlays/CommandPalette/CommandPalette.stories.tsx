@@ -49,9 +49,12 @@ return (
 />
 // User types "xyzzy" — no items match the filter
 // → renders <div class="ds-atom-cmd-empty">No results for "xyzzy"</div>`,
-	DarkMode: `<div className="dark" style={{ background: "#1c1917", padding: 32, minHeight: "100vh" }}>
-  <CommandPalette open onClose={() => {}} items={ITEMS} />
-</div>`,
+	DarkMode: `// Dark mode is requested through the Storybook theme global, not through
+// markup: the .dark class belongs on <html>, where every .dark rule in the
+// system can still reach it. A wrapper carrying the class would re-declare the
+// design system's neutral dark tokens below the brand layer.
+//   globals: { theme: "dark" }
+<CommandPalette open onClose={() => {}} items={ITEMS} />`,
 };
 
 // ─── Sample items ─────────────────────────────────────────────────────────────
@@ -225,14 +228,14 @@ export const FilteredEmpty: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	name: "Dark Mode",
 	parameters: { docs: { source: { code: SRC.DarkMode } } },
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 32,
 					minHeight: "100vh",
 					borderRadius: 8,

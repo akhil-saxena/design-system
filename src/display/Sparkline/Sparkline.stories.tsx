@@ -62,6 +62,7 @@ export const CustomColors: Story = {
 };
 
 export const DarkMode: Story = {
+	globals: { theme: "dark" },
 	render: () => (
 		<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 			<Sparkline data={[4, 6, 5, 8, 7, 10, 9, 12, 11, 15, 14, 18, 16, 20, 19, 24]} />
@@ -72,9 +73,8 @@ export const DarkMode: Story = {
 	decorators: [
 		(Story) => (
 			<div
-				className="dark"
 				style={{
-					background: "#1c1917",
+					background: "var(--cream-2)",
 					padding: 32,
 					borderRadius: 12,
 					overflowX: "auto",
