@@ -19,7 +19,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { RichText } from ".";
+import { RICHTEXT_DEFAULT_FEATURES, RichText } from ".";
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
 /** Wait for TipTap editor to initialize (immediatelyRender:false defers it). */
@@ -349,5 +349,302 @@ describe("RichText - hints strip", () => {
 		const { container } = render(<RichText value="<p>x</p>" onChange={() => {}} hints readOnly />);
 		await waitForEditor();
 		expect(container.querySelector(".ds-atom-richtext-hints")).toBeNull();
+	});
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// E10 / G-3 / G-4 / F-14-1 / F-14-2
+//
+// The seven rows below are the ones G-3 measured in Chromium with
+// `toolbar={null}`, re-run here against both the default and the bold-only
+// configuration. `tests/visual/richtext-marks.spec.ts` drives the same table
+// with real ⌘ combinations in a browser; this is the version that runs in
+// `npm test`.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * The live TipTap editor for the mounted RichText.
+ *
+ * TipTap 3 hangs an `editor` property on the ProseMirror DOM node, which is the
+ * only handle a test has into the instance a component created internally. Used
+ * to place a selection and to read `getHTML()` — never to apply a mark, because
+ * driving a command directly would assert nothing about whether the *input path*
+ * is reachable, which is the entire finding.
+ */
+function liveEditor(): { getHTML(): string; commands: Record<string, (...a: never[]) => unknown> } {
+	const surface = document.querySelector(".ProseMirror");
+	if (!surface) throw new Error("ProseMirror surface not mounted");
+	const editor = (surface as unknown as { editor?: unknown }).editor;
+	if (!editor) throw new Error("no editor handle on the ProseMirror node");
+	return editor as ReturnType<typeof liveEditor>;
+}
+
+/**
+ * Dispatch a real keydown at the editable surface.
+ *
+ * **`Mod` is dispatched as `ctrlKey`, and that is not a shortcut.** It is what
+ * the binding resolves to in this environment: prosemirror-keymap chooses between
+ * `Meta-` and `Ctrl-` by reading `navigator.platform`, jsdom reports `""`, so
+ * every `Mod-x` binding normalises to `Ctrl-x`. Measured: dispatching `metaKey`
+ * here reaches no binding at all and leaves the document untouched — a test
+ * written that way would pass against *any* implementation, including one that
+ * restricted nothing. The macOS ⌘ combinations are driven in
+ * `tests/visual/richtext-marks.spec.ts`.
+ *
+ * `keyCode` is supplied for the same class of reason: w3c-keyname falls back to
+ * it when `event.key`'s case disagrees with the binding's, so `⌘⇧H` (key `"H"`,
+ * binding `"Shift-Ctrl-h"`) is silently unreachable in jsdom without it. That was
+ * measured too, and it is exactly the shape of a gate that cannot fail.
+ */
+async function press(key: string, keyCode: number, mods: { shift?: boolean; alt?: boolean } = {}) {
+	const surface = document.querySelector(".ProseMirror") as HTMLElement;
+	await act(async () => {
+		surface.dispatchEvent(
+			new KeyboardEvent("keydown", {
+				bubbles: true,
+				cancelable: true,
+				key,
+				keyCode,
+				ctrlKey: true,
+				shiftKey: mods.shift ?? false,
+				altKey: mods.alt ?? false,
+			} as KeyboardEventInit),
+		);
+		await new Promise((r) => setTimeout(r, 20));
+	});
+}
+
+const KEY = {
+	bold: () => press("b", 66),
+	italic: () => press("i", 73),
+	underline: () => press("u", 85),
+	highlight: () => press("H", 72, { shift: true }),
+	heading2: () => press("2", 50, { alt: true }),
+} as const;
+
+/** Select the first five characters, so a mark command has a range to act on. */
+async function selectWord() {
+	await act(async () => {
+		liveEditor().commands.setTextSelection({ from: 1, to: 6 } as never);
+		await new Promise((r) => setTimeout(r, 0));
+	});
+}
+
+/**
+ * Type a bare URL. Not a keypress on purpose: `autolink` is driven by the
+ * transaction, not by a binding, which is precisely why the link was the one mark
+ * reachable **with no keystroke at all**. `insertContent` produces the same
+ * transaction typing does, which is the path the autolink plugin observes.
+ */
+async function typeBareUrl() {
+	await act(async () => {
+		liveEditor().commands.insertContent("example.com " as never);
+		await new Promise((r) => setTimeout(r, 30));
+	});
+}
+
+const SENTENCE = "<p>hello world</p>";
+
+// ─── F-14-1: toolbar={null} suppresses the toolbar ──────────────────────────
+
+describe("F-14-1: toolbar suppression honours null", () => {
+	it("toolbar={null} renders NO toolbar", async () => {
+		render(<RichText value={SENTENCE} onChange={() => {}} toolbar={null} />);
+		await waitForEditor();
+		// The regression: a nullish-coalescing fallback here selected the DEFAULT
+		// toolbar for exactly the value the docstring prescribes for suppression,
+		// so twelve buttons rendered for every consumer who followed the docs.
+		expect(screen.queryByRole("toolbar")).toBeNull();
+		expect(screen.queryAllByRole("button")).toHaveLength(0);
+	});
+
+	it("the default toolbar still renders its twelve buttons when the prop is absent", async () => {
+		render(<RichText value={SENTENCE} onChange={() => {}} />);
+		await waitForEditor();
+		const toolbar = screen.getByRole("toolbar");
+		// Twelve is the number that used to render for toolbar={null}, so asserting
+		// it keeps the suppression case above honest: a component that rendered no
+		// toolbar at all would pass that test and fail this one.
+		expect(toolbar.querySelectorAll("button")).toHaveLength(12);
+	});
+
+	it("an explicit toolbar node still replaces the default", async () => {
+		render(
+			<RichText
+				value={SENTENCE}
+				onChange={() => {}}
+				toolbar={<div data-testid="mine">mine</div>}
+			/>,
+		);
+		await waitForEditor();
+		expect(screen.getByTestId("mine")).not.toBeNull();
+		expect(screen.queryByRole("toolbar")).toBeNull();
+	});
+
+	it("toolbar={null} does not suppress the editor itself", async () => {
+		render(<RichText value={SENTENCE} onChange={() => {}} toolbar={null} />);
+		await waitForEditor();
+		expect(document.querySelector(".ProseMirror")?.textContent).toContain("hello world");
+	});
+});
+
+// ─── G-3: the seven measured rows, both configurations ──────────────────────
+
+describe("G-3: with allow omitted, every measured input path still works", () => {
+	it("⌘B applies bold — the control case, and the one mark the stored shape carries", async () => {
+		render(<RichText value={SENTENCE} onChange={() => {}} toolbar={null} />);
+		await waitForEditor();
+		await selectWord();
+		await KEY.bold();
+		expect(liveEditor().getHTML()).toContain("<strong>");
+	});
+
+	it.each([
+		["⌘I", "italic", "<em>"],
+		["⌘U", "underline", "<u>"],
+		["⌘⇧H", "highlight", "<mark>"],
+	] as const)("%s still applies %s (unchanged from today)", async (_combo, name, tag) => {
+		render(<RichText value={SENTENCE} onChange={() => {}} toolbar={null} />);
+		await waitForEditor();
+		await selectWord();
+		await KEY[name]();
+		expect(liveEditor().getHTML()).toContain(tag);
+	});
+
+	it("⌘⌥2 still produces an h2 (a node type, not a mark)", async () => {
+		render(<RichText value={SENTENCE} onChange={() => {}} toolbar={null} />);
+		await waitForEditor();
+		await selectWord();
+		await KEY.heading2();
+		expect(liveEditor().getHTML()).toContain("<h2>");
+	});
+
+	it("typing a bare URL still autolinks — reachable with no keystroke at all", async () => {
+		render(<RichText value="<p></p>" onChange={() => {}} toolbar={null} />);
+		await waitForEditor();
+		await typeBareUrl();
+		expect(liveEditor().getHTML()).toContain("<a ");
+	});
+});
+
+describe("G-3: allow={['bold']} makes every other path unreachable", () => {
+	it("⌘B still applies bold", async () => {
+		render(<RichText value={SENTENCE} onChange={() => {}} allow={["bold"]} toolbar={null} />);
+		await waitForEditor();
+		await selectWord();
+		await KEY.bold();
+		expect(liveEditor().getHTML()).toContain("<strong>");
+	});
+
+	it.each([
+		["⌘I", "italic", "<em"],
+		["⌘U", "underline", "<u"],
+		["⌘⇧H", "highlight", "<mark"],
+	] as const)("%s produces no %s", async (_combo, name, tag) => {
+		render(<RichText value={SENTENCE} onChange={() => {}} allow={["bold"]} toolbar={null} />);
+		await waitForEditor();
+		await selectWord();
+		await KEY[name]();
+		const html = liveEditor().getHTML();
+		expect(html).not.toContain(tag);
+		// The text is untouched: the mark is unreachable, not the content.
+		expect(html).toContain("hello world");
+	});
+
+	it("⌘⌥2 produces no h2, because node types are restricted too", async () => {
+		render(<RichText value={SENTENCE} onChange={() => {}} allow={["bold"]} toolbar={null} />);
+		await waitForEditor();
+		await selectWord();
+		await KEY.heading2();
+		expect(liveEditor().getHTML()).not.toContain("<h2");
+	});
+
+	it("typing a bare URL produces no anchor, because autolink went with the link mark", async () => {
+		render(<RichText value="<p></p>" onChange={() => {}} allow={["bold"]} toolbar={null} />);
+		await waitForEditor();
+		await typeBareUrl();
+		const html = liveEditor().getHTML();
+		expect(html).not.toContain("<a ");
+		expect(html).toContain("example.com");
+	});
+
+	it("initial-value HTML carrying a suppressed mark is stripped by the schema", async () => {
+		// The extension is not registered, so the mark is not in the schema at all —
+		// which means a crafted or pasted initial value cannot smuggle it in either.
+		render(
+			<RichText
+				value="<p>a <em>b</em> <u>c</u> <mark>d</mark> <a href='https://x.test'>e</a></p>"
+				onChange={() => {}}
+				allow={["bold"]}
+				toolbar={null}
+			/>,
+		);
+		await waitForEditor();
+		const html = liveEditor().getHTML();
+		for (const tag of ["<em", "<u", "<mark", "<a "]) expect(html).not.toContain(tag);
+		expect(html).toContain("a b c d e");
+	});
+
+	it("allow={[]} is a plain-text editor: even bold is unreachable", async () => {
+		render(<RichText value={SENTENCE} onChange={() => {}} allow={[]} toolbar={null} />);
+		await waitForEditor();
+		await selectWord();
+		await KEY.bold();
+		expect(liveEditor().getHTML()).not.toContain("<strong");
+	});
+});
+
+// ─── Toolbar filtering as a consequence of the extension set ────────────────
+
+describe("the toolbar follows the extension set, never the other way round", () => {
+	it("allow={['bold']} renders exactly one button", async () => {
+		render(<RichText value={SENTENCE} onChange={() => {}} allow={["bold"]} />);
+		await waitForEditor();
+		expect(screen.getByRole("toolbar").querySelectorAll("button")).toHaveLength(1);
+		expect(screen.getByRole("button", { name: "Bold" })).not.toBeNull();
+	});
+
+	it.each([
+		["Italic", "italic"],
+		["Underline", "underline"],
+		["Highlight", "highlight"],
+		["Strikethrough", "strike"],
+		["Inline code", "code"],
+		["Insert link", "link"],
+		["Bulleted list", "bulletList"],
+		["Ordered list", "orderedList"],
+		["Blockquote", "blockquote"],
+		["Horizontal rule", "horizontalRule"],
+	] as const)("the %s button disappears when %s is not allowed", async (label, feature) => {
+		const without = RICHTEXT_DEFAULT_FEATURES.filter((f) => f !== feature);
+		render(<RichText value={SENTENCE} onChange={() => {}} allow={without} />);
+		await waitForEditor();
+		expect(screen.queryByRole("button", { name: label })).toBeNull();
+		// Non-inert: the same render with the feature present DOES show it.
+		expect(RICHTEXT_DEFAULT_FEATURES).toContain(feature);
+	});
+
+	it("the heading dropdown disappears when heading is not allowed", async () => {
+		render(
+			<RichText
+				value={SENTENCE}
+				onChange={() => {}}
+				allow={RICHTEXT_DEFAULT_FEATURES.filter((f) => f !== "heading")}
+			/>,
+		);
+		await waitForEditor();
+		expect(screen.queryByRole("button", { name: /heading style/i })).toBeNull();
+	});
+
+	it("the hint strip never advertises a shortcut the editor cannot honour", async () => {
+		const { container } = render(
+			<RichText value={SENTENCE} onChange={() => {}} allow={["bold"]} hints />,
+		);
+		await waitForEditor();
+		const keys = Array.from(container.querySelectorAll(".ds-atom-richtext-hints .ds-atom-kbd")).map(
+			(k) => k.textContent,
+		);
+		// ⌘I / ⌘U / ⌘⇧H / ⌘K are gone; the two that are not marks remain.
+		expect(keys).toEqual(["⌘B", "⌘↵", "Esc"]);
 	});
 });
