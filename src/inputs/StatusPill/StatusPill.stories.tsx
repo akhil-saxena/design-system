@@ -10,7 +10,7 @@ const meta: Meta<typeof StatusPill> = {
 		docs: {
 			description: {
 				component:
-					"Per-stage tinted pipeline chip for Cairn-style kanban + DataGrid status columns. Six locked stages — `wishlist`, `applied`, `screening`, `interviewing`, `offer`, `closed`. Renders as `<button>` by default; pass `interactive={false}` for decorative read-only contexts.",
+					"Status chip with two paths. **Preset** — the six job-application stages (`wishlist`, `applied`, `screening`, `interviewing`, `offer`, `closed`), rendered as `<button>` by default; pass `interactive={false}` for read-only contexts. **Generic** — any status, as a `tone` from the library's own tone vocabulary plus a `label`, rendered as a `<span>` with a measured 1.2:1 fill ladder and a non-colour marker. Use the generic path for product statuses: the stage union is job-domain vocabulary and cannot express draft/ready/published or Live/Maintained/Archived (G-5).",
 			},
 		},
 	},
@@ -28,6 +28,16 @@ const meta: Meta<typeof StatusPill> = {
 		interactive: {
 			control: "boolean",
 			description: "Render as <button> (true) or decorative <span> (false).",
+		},
+		tone: {
+			control: "select",
+			options: ["primary", "secondary", "muted", "accent", "danger", "success"],
+			description:
+				"Generic path: semantic tone, mutually exclusive with `stage`. Drives the fill ladder step and the marker shape.",
+		},
+		label: {
+			control: "text",
+			description: "Generic path: the pill's content. Replaces `children` on that path.",
 		},
 		children: { control: false },
 		className: { control: false },
@@ -102,6 +112,50 @@ export const DarkMode: Story = {
 			<StatusPill stage="interviewing">Interviewing</StatusPill>
 			<StatusPill stage="offer">Offer</StatusPill>
 			<StatusPill stage="closed">Closed</StatusPill>
+		</div>
+	),
+};
+
+/**
+ * F-15-5's fix, and the story the measurement is taken from.
+ *
+ * **It deliberately carries no `.dark` decorator.** Every other dark story in
+ * this file wraps itself in `<div className="dark">`, and a probe inside such a
+ * wrapper measures the WRONG BRAND: `tokens.css` targets `:root.dark, .dark`, so
+ * a scoped wrapper re-declares roughly fifty neutral dark tokens, while
+ * `charcoal.css` is root-scoped and does not reach inside it. A probe in one of
+ * those stories read 31,31,31 where charcoal declares 30,30,29 — it was
+ * rendering the default brand. Drive the mode from the Storybook toolbar here,
+ * so `<html>` carries both `data-brand` and `.dark` and the cascade is the real
+ * one. `tests/visual/status-ladder.spec.ts` asserts the brand at the point of
+ * measurement for exactly this reason.
+ *
+ * Two triads, because two tones share each ladder step:
+ *
+ *   NEUTRAL  muted / secondary / primary   — what D-45's Live/Maintained/Archived
+ *                                            wants; three neutral statuses that
+ *                                            are actually told apart
+ *   HUED     success / accent / danger     — what a semantic surface wants
+ *
+ * Within a triad the fills clear 1.2:1 against each other and against the page,
+ * in both modes and both brands, and the marker shape (ring / disc / square)
+ * repeats the same split without using colour. Set the display to greyscale and
+ * all three should still read as three states.
+ */
+export const StatusLadder: Story = {
+	parameters: { layout: "padded" },
+	render: () => (
+		<div style={{ display: "grid", gap: 20 }}>
+			<div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+				<StatusPill tone="muted" label="Archived" />
+				<StatusPill tone="secondary" label="Maintained" />
+				<StatusPill tone="primary" label="Live" />
+			</div>
+			<div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+				<StatusPill tone="success" label="Published" />
+				<StatusPill tone="accent" label="Ready" />
+				<StatusPill tone="danger" label="Draft" />
+			</div>
 		</div>
 	),
 };

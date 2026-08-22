@@ -163,8 +163,6 @@ describe("styling boundary: inline styles must not fight primitives.css", () => 
 			"the labelled variant, which lays its rule/label/rule out inline",
 		"foundation/Eyebrow/index.tsx":
 			"root baseStyle — same shape as E3, migrate to .ds-atom-eyebrow",
-		"inputs/Badge/index.tsx":
-			"root baseStyle; Badge is one inline style object with no class at all — F-15-4, owned by plan 01-18",
 		"inputs/Button/index.tsx": "root baseStyle — same shape as E3, migrate to .ds-atom-btn",
 		"inputs/Checkbox/index.tsx":
 			"labelStyle and boxStyle roots, plus the visually-hidden native input",
@@ -212,10 +210,12 @@ describe("styling boundary: inline styles must not fight primitives.css", () => 
 	 * four variant colours are zero-specificity rules in primitives.css now.
 	 *
 	 * Some entries carry an owning finding rather than a migration note, because
-	 * the fix belongs to another plan: Badge is one inline style object with no
-	 * class hook at all (F-15-4, plan 01-18), and AppBar/Footer geometry is D-16-1
-	 * (plan 01-12). Listing them rather than widening the regex is the whole point
-	 * of a ratchet — the list is visible, and it can only shrink.
+	 * the fix belongs to another plan: AppBar/Footer geometry is D-16-1 (plan
+	 * 01-12). Listing them rather than widening the regex is the whole point of a
+	 * ratchet — the list is visible, and it can only shrink. Badge was on both
+	 * lists until plan 01-18 closed F-15-4: it now emits `ds-atom-badge` and holds
+	 * no inline typography or colour at all, so the ratchet removed it by failing
+	 * for being stale, which is the half of a ratchet that usually never fires.
 	 */
 	const KNOWN_INLINE_COLOR: Record<string, string> = {
 		"data-display/Calendar/index.tsx": "internal month-label and weekday-header spans",
@@ -227,8 +227,6 @@ describe("styling boundary: inline styles must not fight primitives.css", () => 
 			"identical shape to E5 — the variant colour is inlined whenever `tone` is absent, so a page cannot recolour an Eyebrow from a stylesheet either. Not fixed here: Eyebrow is outside this plan's file set. Raised as a finding by plan 01-09",
 		"foundation/Link/index.tsx":
 			"variantStyles carries the three link colours; the same E5 migration applies and has not been done",
-		"inputs/Badge/index.tsx":
-			"ten toneStyles colours; Badge has no class hook at all — F-15-4, owned by plan 01-18",
 		"inputs/Button/index.tsx":
 			"variantStyles carries the per-variant foreground; migrate with the rest of Button's base layer",
 		"inputs/Checkbox/index.tsx": "labelStyle root",

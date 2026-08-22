@@ -402,6 +402,113 @@ fieldset.ds-atom-field {
 	box-shadow: var(--error-ring);
 }
 
+/* ─── DS atom: Badge ─────────────────────────────────────────────────────
+   F-15-4: this component emitted NO CLASS AT ALL and there was no badge.css.
+   It was one inline style object with a hardcoded 9.5px, on a component that
+   appears on all seven admin screens — so a consumer could not select, restyle
+   or resize a Badge, and an audit had to reach it as `span:not([class])`.
+
+   MOVING the declarations here is the load-bearing change; adding the class was
+   not. An inline style beats a class rule without `!important`, so a
+   `ds-atom-badge` sitting BESIDE the old `baseStyle` would have satisfied a grep
+   and left the type exactly as unreachable. The same shape as F-15-3 one plan
+   earlier, where `.ds-atom-confirm-panel` was already on both elements and the
+   only edit that painted anything was deleting `style={panelStyle}`.
+
+   The type step is `--text-2xs`, which IS 9.5px in the scale, so nothing moves
+   visually while the size becomes overridable.
+
+   THE TONE FILLS ARE CARRIED OVER AS THE SAME LITERALS, deliberately. They are
+   brand-blind alpha washes rather than tokens, which is a real defect — but
+   re-pointing `rgba(245,158,11,.15)` at `--amber-vivid` is a VISUAL change under
+   charcoal, where that token aliases `--ochre`. A class hook must not move
+   pixels. For a status that has to be told apart at a glance, use StatusPill's
+   generic tone path below: these washes all land within 1.15:1 of a light page,
+   which is F-15-5. */
+.ds-atom-badge {
+	font-family: var(--mono);
+	font-size: var(--text-2xs);
+	padding: 3px 8px;
+	border-radius: 999px;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	font-weight: 700;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	white-space: nowrap;
+}
+.ds-atom-badge-dot {
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	flex: 0 0 auto;
+}
+/* Tinted tones pair their hue's wash with the matching `*-ink` text token,
+   which is darkened specifically for this composite. The plain --green / --red
+   are tuned for a neutral surface and fall to ~4.2:1 once their own tint sits
+   underneath — under AA for this label size, which is too small for the
+   large-text allowance. */
+.ds-atom-badge[data-tone="info"],
+.ds-atom-badge[data-tone="upcoming"] {
+	background: rgba(59, 130, 246, 0.12);
+	color: var(--blue);
+}
+.ds-atom-badge[data-tone="info"] .ds-atom-badge-dot,
+.ds-atom-badge[data-tone="upcoming"] .ds-atom-badge-dot {
+	background: var(--blue-vivid);
+}
+.ds-atom-badge[data-tone="success"],
+.ds-atom-badge[data-tone="passed"] {
+	background: rgba(34, 197, 94, 0.14);
+	color: var(--green-ink);
+}
+.ds-atom-badge[data-tone="success"] .ds-atom-badge-dot,
+.ds-atom-badge[data-tone="passed"] .ds-atom-badge-dot {
+	background: var(--green-vivid);
+}
+.ds-atom-badge[data-tone="warning"] {
+	background: rgba(245, 158, 11, 0.15);
+	color: var(--amber-ink);
+}
+.ds-atom-badge[data-tone="warning"] .ds-atom-badge-dot {
+	background: var(--amber-vivid);
+}
+.ds-atom-badge[data-tone="error"] {
+	background: rgba(239, 68, 68, 0.12);
+	color: var(--red-ink);
+}
+.ds-atom-badge[data-tone="error"] .ds-atom-badge-dot {
+	background: var(--red-vivid);
+}
+.ds-atom-badge[data-tone="done"] {
+	background: rgba(139, 92, 246, 0.12);
+	color: var(--purple);
+}
+.ds-atom-badge[data-tone="done"] .ds-atom-badge-dot {
+	background: var(--purple-vivid);
+}
+.ds-atom-badge[data-tone="neutral"] {
+	background: var(--cream-2);
+	color: var(--ink-2);
+}
+.ds-atom-badge[data-tone="count"] {
+	background: var(--cream-3);
+	color: var(--ink-2);
+}
+.ds-atom-badge[data-tone="neutral"] .ds-atom-badge-dot,
+.ds-atom-badge[data-tone="count"] .ds-atom-badge-dot {
+	background: var(--ink-3);
+}
+.ds-atom-badge[data-tone="pending"] {
+	background: var(--cream-2);
+	color: var(--ink-3);
+}
+.ds-atom-badge[data-tone="pending"] .ds-atom-badge-dot {
+	background: var(--ink-4);
+}
+
 /* ─── DS atom: Chip ──────────────────────────────────────────────────────
    Source: handoff .ds-chip rule. × hover turns red. */
 /* Interactive chips (role="button").
@@ -6464,6 +6571,128 @@ fieldset.ds-atom-field {
 .ds-atom-statuspill:focus-visible {
 	outline: none;
 	box-shadow: var(--focus-ring);
+}
+/* ── Generic tone path (G-5, F-15-5) ──────────────────────────────────
+   F-15-5 measured D-45's three statuses on charcoal light at a 1.02:1 fill
+   separation, with all three within 1.07-1.14:1 of the page: "only the words
+   separate them, at 9.5px." The cause is the tinted-pill model itself — a
+   12-15% alpha wash of ANY hue composites to within 1.15:1 of a light page, so
+   the hue is irrelevant and no choice of hue fixes it.
+
+   THE LADDER IS BUILT FROM --ink, NOT FROM A HUE, and that is the whole trick.
+   Mixing --ink into --paper moves away from the surface in every brand and both
+   modes, by construction: that is what an ink ramp IS. The hue tokens do not.
+   Measured: --green is a dark editorial #2f7a52 in light and a light pastel
+   #7fcfa1 in dark, so it INVERTS; --ochre is identical in both modes and
+   therefore changes role from dark to light relative to the surface. A single
+   mix percentage that clears 1.2:1 in charcoal light fails in the other three
+   brand x mode cells — so the percentages below are per-mode, and hue moves off
+   the fill onto the marker and the hairline where it cannot carry the burden.
+
+   MEASURED, charcoal light (page #F4F1EA, paper #FBF9F4, panel #EDE9E0):
+     step 1  16%  rgb(215,213,208)  vs page 1.300  vs panel 1.21  text 12.08:1
+     step 2  27%  rgb(190,188,184)  vs page 1.681  vs panel 1.57  text  9.34:1
+     step 3  38%  rgb(166,164,159)  vs page 2.208  vs panel 2.06  text  7.11:1
+     pairwise 1/2 1.293   2/3 1.313   1/3 1.698
+   MEASURED, charcoal dark (page #161616, paper #1E1E1D, panel #242423):
+     step 1   7%  rgb(44,44,43)     vs page 1.295  vs panel 1.11  text 11.32:1
+     step 2  15%  rgb(61,60,58)     vs page 1.642  vs panel 1.41  text  8.92:1
+     step 3  22%  rgb(75,74,72)     vs page 2.044  vs panel 1.76  text  7.17:1
+     pairwise 1/2 1.269   2/3 1.245   1/3 1.579
+   Both hold in the DEFAULT brand too, which is why the percentages are not
+   brand-scoped. Verified in Chromium by tests/visual/status-ladder.spec.ts,
+   which asserts the brand at the point of measurement — a probe inside a story
+   carrying a hardcoded `.dark` wrapper reads the default brand's neutrals, not
+   charcoal's, because tokens.css matches ".dark" and charcoal.css is
+   root-scoped.
+
+   THREE STEPS IS A CEILING, NOT A PREFERENCE. Six pairwise-1.2:1 steps span
+   1.2^6 = 2.99x from the page; in charcoal dark that puts the sixth step's text
+   at 3.76:1, below AA at a pill's type size where the large-text allowance
+   never applies. Three steps hold 7:1 in all four cells. D-13 and D-45 both
+   need exactly three states.
+
+   TWO TONES SHARE EACH STEP, and a consumer should read that as two triads
+   rather than six levels. The NEUTRAL triad (muted / secondary / primary) is
+   the one D-45 wants — 00-PUBLIC-DESIGN-NOTES records that it "needs three
+   distinguishable neutral statuses and the tone palette supplies roughly one".
+   The HUED triad (success / accent / danger) is the one a semantic surface
+   wants. Pairing across the two gives two identical fills; pick one triad.
+
+   Text is --ink on every step, never the hue. --green on step 1's fill measures
+   3.55:1, so hue text does not survive the ladder — it survives on the marker,
+   which is not text. */
+.ds-atom-statuspill[data-tone] {
+	background: var(--sp-fill);
+	color: var(--ink);
+	border-color: var(--sp-hue);
+	cursor: default;
+}
+.ds-atom-statuspill[data-step="1"] {
+	--sp-fill: color-mix(in srgb, var(--ink) 16%, var(--paper));
+}
+.ds-atom-statuspill[data-step="2"] {
+	--sp-fill: color-mix(in srgb, var(--ink) 27%, var(--paper));
+}
+.ds-atom-statuspill[data-step="3"] {
+	--sp-fill: color-mix(in srgb, var(--ink) 38%, var(--paper));
+}
+/* Dark mode moves the same ladder onto a much shorter luminance run: the page is
+   near-black, so the room between "separated from the page" and "still carries
+   7:1 text" is a factor of 1.73 rather than 1.89. The light percentages would
+   overshoot it and drop step 3's text to 4.51:1. */
+.dark .ds-atom-statuspill[data-step="1"] {
+	--sp-fill: color-mix(in srgb, var(--ink) 7%, var(--paper));
+}
+.dark .ds-atom-statuspill[data-step="2"] {
+	--sp-fill: color-mix(in srgb, var(--ink) 15%, var(--paper));
+}
+.dark .ds-atom-statuspill[data-step="3"] {
+	--sp-fill: color-mix(in srgb, var(--ink) 22%, var(--paper));
+}
+/* Hue is redundant reinforcement on this path, never the distinction. It paints
+   the hairline and the marker; the fill and the marker's SHAPE carry the split
+   on their own for a monochrome or colour-blind reader. */
+.ds-atom-statuspill[data-tone="muted"] {
+	--sp-hue: var(--ink-5);
+}
+.ds-atom-statuspill[data-tone="secondary"] {
+	--sp-hue: var(--ink-2);
+}
+.ds-atom-statuspill[data-tone="primary"] {
+	--sp-hue: var(--ink);
+}
+.ds-atom-statuspill[data-tone="success"] {
+	--sp-hue: var(--green);
+}
+.ds-atom-statuspill[data-tone="accent"] {
+	--sp-hue: var(--amber);
+}
+.ds-atom-statuspill[data-tone="danger"] {
+	--sp-hue: var(--red);
+}
+/* The non-colour signal. G-7's evidence states the principle for a neighbouring
+   component in as many words: "one of them is a colour and a colour alone is not
+   a distinction." Shape is driven by data-step, the same attribute that drives
+   the fill, so a later restyle cannot move one without the other and leave a
+   monochrome reader with three identical pills again.
+     step 1  hollow ring
+     step 2  filled disc
+     step 3  filled square */
+.ds-atom-statuspill-marker {
+	width: 7px;
+	height: 7px;
+	flex: 0 0 auto;
+	box-sizing: border-box;
+	border-radius: 50%;
+	background: var(--sp-hue);
+}
+.ds-atom-statuspill[data-step="1"] .ds-atom-statuspill-marker {
+	background: transparent;
+	border: 1.5px solid var(--sp-hue);
+}
+.ds-atom-statuspill[data-step="3"] .ds-atom-statuspill-marker {
+	border-radius: 1px;
 }
 
 /* ─── DS atom: Heading (data-attr extensions) ─────────────────────────
