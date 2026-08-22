@@ -3569,6 +3569,49 @@ fieldset.ds-atom-field {
 	color: #000;
 }
 
+/* ─── DS atom: FilterNav (G-9) ──────────────────────────────────────────
+   The anchor sibling of SegmentedControl. It reuses `.ds-atom-segmented` and
+   `.ds-atom-segmented-btn` above rather than copying them, because visual parity
+   IS the requirement and a copied rule is what drifts. This section therefore
+   carries only what genuinely differs, which is the anchor box: an `<a>` is
+   inline and underlined by default, so the shared `height` from
+   `.ds-atom-segmented[data-size] .ds-atom-segmented-btn` would do nothing
+   without the `display` below.
+
+   SOURCE ORDER IS LOAD-BEARING HERE. `.ds-atom-filternav-link` and
+   `.ds-atom-segmented-btn` are both single-class selectors at (0,1,0), so a tie
+   is broken by order and this section must stay AFTER SegmentedControl's.
+   split-css.mjs preserves the order of this file by construction, so the emitted
+   filternav.css and segmentedcontrol.css keep the same relationship — but a
+   consumer importing only `css/filternav` gets the differences without the
+   shared base, which is why the generated header names segmentedcontrol as a
+   dependency.
+
+   The ACTIVE anchor is not styled here at all. It carries `data-active="true"`,
+   so it paints from `.ds-atom-segmented-btn[data-active]` — the very same rule
+   the active segment uses. That is the parity guarantee expressed as code rather
+   than as a comment. */
+/* Every declaration here is individually proven load-bearing by negative
+   control: removing `display` or `align-items` moves the label 15-16px off
+   centre vertically (the parent stretches the anchor to the shared 32px and an
+   anchor does not centre its own content the way a UA-styled button does), and
+   removing `text-decoration` restores the UA underline. A fourth,
+   `justify-content: center`, WAS here and is not any more - it was measured to
+   change nothing, because a content-sized flex item has no free space on the
+   main axis for it to distribute. It is recorded rather than silently dropped so
+   a future reader knows it was considered and why it went. */
+.ds-atom-filternav-link {
+	display: inline-flex;
+	align-items: center;
+	text-decoration: none;
+}
+/* An href the allow-shape rule rejected (T-18-01). The category is still named,
+   so a reader loses nothing but the click; it must not LOOK clickable. */
+.ds-atom-filternav-link[data-rejected="true"] {
+	color: var(--ink-3);
+	cursor: default;
+}
+
 /* ─── DS atom: Breadcrumbs (DS-69) ──────────────────────────────────────
    Hierarchical nav. Last item is current page (ink); others are ink-2
    links. ChevronRight separator. Truncates via DSDropdown when deep. */

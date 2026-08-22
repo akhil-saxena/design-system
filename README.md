@@ -2,7 +2,7 @@
 
 Accessible React primitives with semantic tokens. Full dark mode, neutral paper + ink + amber editorial design language.
 
-**79 components across 10 categories.** (The badge above tracks the published version.)
+**80 components across 10 categories.** (The badge above tracks the published version.)
 
 [![npm](https://img.shields.io/npm/v/@akhil-saxena/design-system)](https://www.npmjs.com/package/@akhil-saxena/design-system)
 [![Storybook](https://img.shields.io/badge/Storybook-live-ff4785?logo=storybook&logoColor=white)](https://design-system-ed1.pages.dev)

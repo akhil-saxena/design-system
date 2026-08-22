@@ -130,6 +130,32 @@ function componentDirs(srcDir) {
  * exist. Only relative specifiers that resolve to a known component directory
  * become edges; `../../hooks/*`, `../../icons` and npm packages have no sheet.
  */
+/**
+ * Couplings that exist in the CSS but NOT in the import graph.
+ *
+ * `componentEdges` below reads relative `from "…"` imports, which is exactly the
+ * right signal for a COMPOSED component: DataGrid renders Pagination, so it
+ * imports it. `FilterNav` (G-9) is the first component that shares another's
+ * CLASSES without importing it, and that is deliberate — importing
+ * SegmentedControl would pull a stateful radiogroup with `useState`/`useCallback`
+ * into a zero-JS anchor list, defeating both tree-shaking and the point of the
+ * component. So the import graph cannot see the coupling, and `css/filternav`
+ * was emitted declaring only tokens and base while its rules are incomplete
+ * without segmentedcontrol's: F-13-3 again, one door over.
+ *
+ * The edge is applied NON-TRANSITIVELY (see componentSheetDeps): borrowing a
+ * class needs that component's sheet, not the sheets of everything it renders.
+ *
+ * Hand-maintained, which this file otherwise avoids on purpose. The staleness
+ * risk is closed by `src/css-split.test.ts`, which asserts each edge here is
+ * REAL — the dependant must reference a class that the dependency's section
+ * defines and its own does not. An entry that stops being true fails rather than
+ * rotting.
+ */
+const CSS_ONLY_EDGES = {
+	FilterNav: ["SegmentedControl"],
+};
+
 function componentEdges(comps) {
 	/** @type {Map<string, Set<string>>} */
 	const edges = new Map();
@@ -156,9 +182,10 @@ function componentEdges(comps) {
  * would name `pagination` and still leave the pager's buttons unstyled, which is
  * the F-13-3 failure one level down.
  *
- * A component with no banner of its own contributes no sheet — `Badge` is one
- * inline style object with no class at all — but it is still WALKED THROUGH, so
- * anything it renders is still declared.
+ * A component with no banner of its own contributes no sheet, but it is still
+ * WALKED THROUGH, so anything it renders is still declared. `Badge` used to be
+ * the example here — one inline style object with no class at all — until plan
+ * 01-18 closed F-15-4 and gave it both a class and a sheet.
  */
 export function componentSheetDeps(srcDir, sheetNames) {
 	const sheets = new Set(sheetNames);
@@ -179,7 +206,14 @@ export function componentSheetDeps(srcDir, sheetNames) {
 	for (const name of comps.values()) {
 		const own = name.toLowerCase();
 		if (!sheets.has(own)) continue;
-		const deps = [...closure(name)]
+		// The import closure, PLUS any declared CSS-only edge. The two are unioned
+		// at this boundary rather than inside componentEdges on purpose: an import
+		// edge is transitive (DataGrid renders Pagination which renders IconButton,
+		// so all three sheets are needed), but a CLASS-REUSE edge is not. FilterNav
+		// borrows `.ds-atom-segmented*` and nothing else — it never renders a Field,
+		// so walking SegmentedControl's own imports from here would tell a consumer
+		// to import field, formvalidation and link for rules it cannot reach.
+		const deps = [...closure(name), ...(CSS_ONLY_EDGES[name] ?? [])]
 			.map((n) => n.toLowerCase())
 			.filter((s) => sheets.has(s) && s !== own);
 		out[own] = [...new Set([...(out[own] ?? []), ...deps])].sort();
@@ -203,7 +237,7 @@ if (rebuilt !== source) {
 // Reject an unrecognised flag rather than falling through to the write path. A
 // typo'd flag used to silently rebuild dist/css and print the summary line where
 // the caller expected JSON, which is a confusing way to find out.
-const KNOWN_FLAGS = new Set(["--check", "--deps-json"]);
+const KNOWN_FLAGS = new Set(["--check", "--deps-json", "--audit-json"]);
 for (const arg of process.argv.slice(2)) {
 	if (arg.startsWith("-") && !KNOWN_FLAGS.has(arg)) {
 		console.error(`split-css: unknown flag ${arg} (known: ${[...KNOWN_FLAGS].join(", ")})`);
@@ -215,6 +249,33 @@ const { deps: SHEET_DEPS, owners: SHEET_OWNERS } = componentSheetDeps(join(root,
 
 if (process.argv.includes("--deps-json")) {
 	process.stdout.write(`${JSON.stringify(SHEET_DEPS, null, "\t")}\n`);
+	process.exit(0);
+}
+
+// A read-only channel for src/css-split.test.ts. It must be a FLAG rather than an
+// export: this module has no entrypoint guard and calls rmSync on dist/css at top
+// level, so `import { CSS_ONLY_EDGES }` from a test would delete the built
+// stylesheets mid-run — and src/packaging.test.ts is describe.skipIf(!dist), so
+// the damage would show up as tests SILENTLY SKIPPING rather than failing.
+if (process.argv.includes("--audit-json")) {
+	// Class names each sheet DEFINES, not the sheets themselves: the payload is the
+	// audit surface and nothing more. Emitting the full CSS here produced a 60KB
+	// blob whose box-drawing characters were easy to corrupt across stream chunks.
+	/** @type {Record<string, string[]>} */
+	const defines = {};
+	for (const [name, css] of files) {
+		// COMMENTS MUST GO FIRST. Every section in this sheet opens with a banner
+		// that discusses neighbouring components by class name — FilterNav's names
+		// `.ds-atom-segmented`, Badge's names `.ds-atom-confirm-panel` — so an
+		// unstripped scan reports a sheet as DEFINING classes it only talks about.
+		// Measured: filternav appeared to define both segmented classes, which would
+		// have made the edge-reality check below pass for the wrong reason.
+		const rules = css.replace(/\/\*[\s\S]*?\*\//g, "");
+		defines[name] = [...new Set([...rules.matchAll(/\.(ds-[a-z0-9-]+)/g)].map((m) => m[1]))].sort();
+	}
+	process.stdout.write(
+		`${JSON.stringify({ cssOnlyEdges: CSS_ONLY_EDGES, defines }, null, "\t")}\n`,
+	);
 	process.exit(0);
 }
 
@@ -254,12 +315,28 @@ const BASE_HEADER = `/* @akhil-saxena/design-system — base.css
 const DEPS_BLOCK = (name) => {
 	const deps = SHEET_DEPS[name];
 	if (!deps || deps.length === 0) return "";
-	const who = (SHEET_OWNERS[name] ?? [name]).join(" / ");
+	const owners = SHEET_OWNERS[name] ?? [name];
+	const who = owners.join(" / ");
 	const lines = deps.map((d) => `     import "@akhil-saxena/design-system/css/${d}";`).join("\n");
-	return `
-   ${who} renders other components, and the split is BY component, so their rules
+	// Two different reasons produce a dependency, and telling a consumer the wrong
+	// one is worse than telling them nothing. "Renders" is right for a COMPOSED
+	// component (DataGrid renders Pagination renders IconButton) and wrong for a
+	// CSS-only edge: FilterNav renders nothing at all, it BORROWS
+	// SegmentedControl's classes. See CSS_ONLY_EDGES.
+	const borrowsOnly = owners.every(
+		(o) =>
+			(CSS_ONLY_EDGES[o] ?? []).length > 0 &&
+			deps.every((d) => (CSS_ONLY_EDGES[o] ?? []).some((t) => t.toLowerCase() === d)),
+	);
+	const why = borrowsOnly
+		? `${who} reuses another component's CSS classes rather than rendering it, and the
+   split is BY component, so the rules it borrows are not in this file. Import these
+   alongside it or it renders unstyled:`
+		: `${who} renders other components, and the split is BY component, so their rules
    are not in this file. Import these alongside it or the composed parts render
-   unstyled — a DataGrid imported on its own had a 21px unstyled pager:
+   unstyled — a DataGrid imported on its own had a 21px unstyled pager:`;
+	return `
+   ${why}
 ${lines}
 `;
 };

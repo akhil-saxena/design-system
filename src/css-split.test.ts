@@ -8,7 +8,7 @@ const distCss = join(root, "dist", "css");
 
 /**
  * `primitives.css` is a single 165KB sheet, so importing one component used to
- * ship styling for all 79. The build now also emits `dist/css/<component>.css`
+ * ship styling for all 80. The build now also emits `dist/css/<component>.css`
  * from that same source — see scripts/split-css.mjs for why it is generated
  * rather than hand-maintained.
  *
@@ -97,6 +97,74 @@ describe("CSS split", () => {
 				expect(list).not.toContain(name);
 				expect(new Set(list).size).toBe(list.length);
 				for (const dep of list) expect(deps[dep] ?? []).toBeDefined();
+			}
+		});
+
+		/**
+		 * CSS_ONLY_EDGES is the one hand-maintained list in split-css.mjs. It exists
+		 * because `FilterNav` (G-9) shares `SegmentedControl`'s CLASSES without
+		 * importing the component — deliberately, since importing it would pull a
+		 * stateful radiogroup into a zero-JS anchor list. The import graph therefore
+		 * cannot see the coupling, and `css/filternav` was emitted claiming it needed
+		 * only tokens and base while its rules are incomplete without
+		 * segmentedcontrol's. That is F-13-3 one door over: a sheet that is broken
+		 * alone with nothing anywhere saying so.
+		 *
+		 * A hand-maintained list is exactly what goes stale, which is why the rest of
+		 * that file derives everything. This closes the hole: every declared edge must
+		 * be REAL, proven from the CSS and the component source. If FilterNav ever
+		 * stops borrowing those classes, this fails and names the entry to delete.
+		 *
+		 * Read through `--audit-json` rather than by importing the module. split-css.mjs
+		 * has no entrypoint guard and calls `rmSync` on dist/css at top level, so an
+		 * import here would delete the built stylesheets mid-run — and
+		 * src/packaging.test.ts is `describe.skipIf(!existsSync(dist))`, so the damage
+		 * would surface as tests silently SKIPPING rather than failing.
+		 */
+		it("proves every declared CSS-only edge is real", () => {
+			const audit: { cssOnlyEdges: Record<string, string[]>; defines: Record<string, string[]> } =
+				JSON.parse(
+					execFileSync(process.execPath, [join(root, "scripts", "split-css.mjs"), "--audit-json"], {
+						encoding: "utf8",
+					}),
+				);
+
+			const entries = Object.entries(audit.cssOnlyEdges);
+			// Non-vacuity: an empty map would make the loop below prove nothing.
+			expect(entries.length).toBeGreaterThan(0);
+
+			for (const [component, targets] of entries) {
+				// Locate the component's source without hardcoding its category.
+				const srcDir = join(root, "src");
+				const found = readdirSync(srcDir)
+					.map((cat) => join(srcDir, cat, component, "index.tsx"))
+					.find((f) => existsSync(f));
+				expect(
+					found,
+					`CSS_ONLY_EDGES names ${component}, which has no src/*/${component}/index.tsx`,
+				).toBeDefined();
+
+				const tsx = readFileSync(found as string, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+				const used = new Set(
+					[...tsx.matchAll(/\b(ds-atom-[a-z0-9-]+)\b/g)].map((m) => m[1] as string),
+				);
+				expect(used.size, `${component} references no ds-atom-* classes at all`).toBeGreaterThan(0);
+
+				const own = new Set(audit.defines[component.toLowerCase()] ?? []);
+				for (const target of targets) {
+					const theirs = new Set(audit.defines[target.toLowerCase()] ?? []);
+					expect(
+						theirs.size,
+						`${target} defines no classes, so it cannot be a CSS dependency`,
+					).toBeGreaterThan(0);
+					// The edge is real iff the component uses a class the DEPENDENCY
+					// defines and its own section does not.
+					const borrowed = [...used].filter((c) => theirs.has(c) && !own.has(c));
+					expect(
+						borrowed,
+						`${component} declares a CSS-only edge to ${target} but borrows no class from it — delete the entry from CSS_ONLY_EDGES`,
+					).not.toEqual([]);
+				}
 			}
 		});
 

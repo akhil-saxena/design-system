@@ -170,6 +170,13 @@ export {
 	type SegmentedControlProps,
 	type SegmentedOption,
 } from "./data-display/SegmentedControl";
+// FilterNav is SegmentedControl's anchor sibling (G-9) and shares its CSS. They
+// are exported side by side so the choice between them is visible at the barrel.
+export {
+	FilterNav,
+	type FilterNavItem,
+	type FilterNavProps,
+} from "./data-display/FilterNav";
 
 // Internal Icon wrapper, exposed publicly so consumers can wrap arbitrary lucide icons.
 // Pre-wrapped common icons live in @akhil-saxena/design-system/icons subpath.

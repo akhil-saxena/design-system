@@ -21,6 +21,18 @@
  * - Optional per-option `tone` ({ fg, activeBg }) recolors the ACTIVE
  *   segment (e.g. outcome toggles: green / neutral / red). Tone-less
  *   options keep the default amber styling (backward compatible).
+ *
+ * SHARED CSS - `FilterNav` reuses `.ds-atom-segmented`, `.ds-atom-segmented-btn`
+ * and `.ds-atom-segmented-btn[data-active]`, so **a restyle of this component
+ * restyles that one too**. The reuse is deliberate: G-9 needed a crawlable
+ * anchor list that is visually identical to this control, not similar to it, and
+ * a copied rule is what drifts. The two are separate components because the ARIA
+ * patterns differ irreconcilably - this one is a radiogroup with `aria-checked`
+ * and arrow-key selection, `FilterNav` is a `<nav>` of real `<a href>` with
+ * `aria-current="page"` and no JS at all. Do not "unify" them behind an `as`
+ * prop; the finding records that as the thing that cannot work. Parity is
+ * asserted on computed style by tests/visual/filternav-parity.spec.ts, so
+ * breaking it fails rather than drifting silently.
  */
 import { type ReactNode, forwardRef, useCallback, useRef } from "react";
 import { Field, useField } from "../../inputs/Field";

@@ -127,6 +127,7 @@ const categories = [
 			"Calendar",
 			"Carousel",
 			"DataGrid",
+			"FilterNav",
 			"InfiniteList",
 			"Pagination",
 			"SegmentedControl",

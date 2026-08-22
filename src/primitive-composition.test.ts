@@ -56,6 +56,20 @@ const OWNS_NATIVE_CONTROL: Record<string, string> = {
 		"a visually-hidden <input type=file> is the only way to open the OS file picker",
 };
 
+/**
+ * Components that render a bare `<a href>` on purpose, and why `<Link>` is the
+ * wrong primitive for them. A ratchet with a reason attached, the same shape as
+ * OWNS_NATIVE_CONTROL above and EXCLUDED_FROM_CATALOG in overview-links.test.ts.
+ *
+ * The rule this relaxes is a good one — `<Link>` owns anchor styling, the focus
+ * ring and the variants — so an entry here has to show that composing it would
+ * make the component WORSE, measured, not merely inconvenient.
+ */
+const OWNS_BARE_ANCHOR: Record<string, string> = {
+	"data-display/FilterNav/index.tsx":
+		"G-9 requires visual parity with SegmentedControl, not with Link, and Link actively prevents it. Measured: `.ds-atom-link[data-variant=\"default\"]` sets `text-decoration: underline` at (0,2,0), which beats `.ds-atom-filternav-link`'s `none` at (0,1,0), so every category would be underlined; `[data-variant=\"quiet\"]` sets `color: var(--ink-3)` at (0,2,0), which ties `.ds-atom-segmented-btn[data-active]`'s `color: #000` and wins on source order because Link's variant block sits ~3500 lines later, so the ACTIVE item's label would be muted grey on the amber fill. Link also emits an unconditional inline `style` carrying font-family and cursor, and re-introducing an inline-over-class override is the exact defect family E3/E5/F-12-2/F-15-3/F-15-4 spent this phase removing. FilterNav is also a zero-JS server-rendered component, so it needs no part of what Link adds.",
+};
+
 describe("primitive composition", () => {
 	it("no component renders a raw <input> or <textarea>", () => {
 		const offenders: string[] = [];
@@ -79,10 +93,32 @@ describe("primitive composition", () => {
 			// OverviewPage is the standalone Storybook landing page, built on its own
 			// --ov-* design language rather than the component library.
 			if (rel(f) === "OverviewPage.tsx") continue;
+			if (OWNS_BARE_ANCHOR[rel(f)]) continue;
 			const src = code(readFileSync(f, "utf8"));
 			if (/<a\s[^>]*href=/.test(src)) offenders.push(rel(f));
 		}
-		expect(offenders, "compose <Link> instead of a bare <a href>").toEqual([]);
+		expect(
+			offenders,
+			"compose <Link> instead of a bare <a href> — or add the file to OWNS_BARE_ANCHOR with a measured reason",
+		).toEqual([]);
+	});
+
+	it("keeps OWNS_BARE_ANCHOR honest", () => {
+		// A stale exclusion is as wrong as a missing one: it would keep the rule
+		// relaxed for a file that no longer needs it, or for one that no longer
+		// exists. Same half of the ratchet that removed Badge from the two
+		// styling-boundary lists in this plan.
+		const present = new Set(files.map(rel));
+		const phantom = Object.keys(OWNS_BARE_ANCHOR).filter((f) => !present.has(f));
+		expect(
+			phantom,
+			`OWNS_BARE_ANCHOR names files that no longer exist: ${phantom.join(", ")}`,
+		).toEqual([]);
+		const stale = Object.keys(OWNS_BARE_ANCHOR).filter((f) => {
+			const full = files.find((x) => rel(x) === f);
+			return full !== undefined && !/<a\s[^>]*href=/.test(code(readFileSync(full, "utf8")));
+		});
+		expect(stale, `fixed — remove from OWNS_BARE_ANCHOR: ${stale.join(", ")}`).toEqual([]);
 	});
 
 	it("no component hand-rolls an icon-only button", () => {
