@@ -1,4 +1,5 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
@@ -135,6 +136,50 @@ function renameCandidates(id: string, all: Set<string>): string[] {
 	return out.sort();
 }
 
+/**
+ * THE BRAND AXIS (D-37). Baseline names in the gating store carry an optional
+ * brand suffix, so `inputs-button--default--charcoal` and
+ * `inputs-button--default` are two recordings of ONE story. The suffix is
+ * stripped before an id is compared to the story set.
+ *
+ * WHAT THE STRIP CHANGES, MEASURED - AND IT IS NOT A VERDICT. Both forms of the
+ * orphan filter return the same answer on the current tree: zero unexplained,
+ * before and after. What changes is WHY. `splitId` splits on "--" and keeps only
+ * the first two segments, so it discards the brand suffix anyway and the strip
+ * cannot alter `renameCandidates`. It alters the `ids.has()` lookup, and there
+ * the difference is total: of the 504 charcoal names, the unstripped form
+ * recognises 0 as live story ids and excuses all 504 through the rename
+ * tolerance, while the stripped form recognises all 504 as live and excuses
+ * none. The charcoal half of this store was green by way of a tolerance built
+ * for a different purpose, which is the same shape as a test that passes for the
+ * wrong reason.
+ *
+ * The first draft of this comment claimed the strip closes a hole that admits a
+ * dead charcoal id. It does not, and the control meant to demonstrate it -
+ * planting `overlays-card--default--charcoal`, a charcoal baseline for a
+ * renamed-away story - stayed green both before and after, because the rename
+ * tolerance is SUPPOSED to excuse exactly that. A control that plants something
+ * the test deliberately tolerates proves nothing about the test.
+ *
+ * WHAT THIS FILE CAN AND CANNOT SEE. It can catch: a legacy directory that is
+ * neither live nor in the manifest; a rotted manifest; a snapshot whose id has
+ * no live story AND no same-component/story under another category (a typo, or
+ * a genuinely deleted component); a live story missing a charcoal baseline; and
+ * a charcoal baseline that is byte-identical to its default one. It CANNOT
+ * catch: a baseline for a deliberately deleted story whose component name still
+ * exists elsewhere, which the rename tolerance excuses by design; or anything
+ * about image CONTENT, since every check here is over filenames and hashes. A
+ * baseline recorded with a visual defect present still compares clean forever.
+ */
+const BRAND_SUFFIXES = ["--charcoal"] as const;
+
+function stripBrand(name: string): { id: string; brand: string } {
+	for (const suffix of BRAND_SUFFIXES) {
+		if (name.endsWith(suffix)) return { id: name.slice(0, -suffix.length), brand: suffix.slice(2) };
+	}
+	return { id: name, brand: "default" };
+}
+
 const LEGACY_DIR = "tests/visual-baselines";
 const MANIFEST = `${LEGACY_DIR}/RENAME-PENDING.json`;
 const PLAYWRIGHT_DIR = "tests/visual/storybook.spec.ts-snapshots";
@@ -180,11 +225,87 @@ describe("the baseline stores agree with the story set (F-19-3)", () => {
 		// recorded baseline should be taken deliberately, not absorbed silently.
 		const snapshotIds = readdirSync(PLAYWRIGHT_DIR)
 			.filter((f) => f.endsWith(".png"))
-			.map((f) => f.replace(/-chromium-darwin\.png$/, ""));
+			.map((f) => stripBrand(f.replace(/-chromium-darwin\.png$/, "")));
 		const unexplained = snapshotIds
-			.filter((id) => !ids.has(id))
-			.filter((id) => renameCandidates(id, ids).length === 0);
+			.filter(({ id }) => !ids.has(id))
+			.filter(({ id }) => renameCandidates(id, ids).length === 0)
+			.map(({ id, brand }) => (brand === "default" ? id : `${id} [${brand}]`));
 		expect(unexplained).toEqual([]);
+	});
+
+	it("D-37: every recorded story has a charcoal baseline beside its default one", () => {
+		// The parity claim of plan 01-20 made checkable, so it cannot decay into a
+		// one-time assertion in a SUMMARY. A story added later and captured under one
+		// brand only turns this red.
+		//
+		// Scoped to LIVE ids on purpose: the store also holds pending-rename orphans
+		// (overlays-card--*, overlays-stickynote--*) which were never captured under
+		// charcoal and should not be, since the decision to move or drop them is
+		// still open. Time-dependent stories have no baseline in either brand, so
+		// they fall out of scope by having no default recording to pair with.
+		const recorded = readdirSync(PLAYWRIGHT_DIR)
+			.filter((f) => f.endsWith(".png"))
+			.map((f) => stripBrand(f.replace(/-chromium-darwin\.png$/, "")));
+		const byBrand = new Map<string, Set<string>>();
+		for (const { id, brand } of recorded) {
+			if (!byBrand.has(brand)) byBrand.set(brand, new Set());
+			byBrand.get(brand)?.add(id);
+		}
+		const defaults = [...(byBrand.get("default") ?? [])].filter((id) => ids.has(id));
+		expect(defaults.length).toBeGreaterThan(450);
+		for (const suffix of BRAND_SUFFIXES) {
+			const brand = suffix.slice(2);
+			const captured = byBrand.get(brand) ?? new Set<string>();
+			const missing = defaults.filter((id) => !captured.has(id)).sort();
+			expect(missing, `stories with no ${brand} baseline`).toEqual([]);
+		}
+	});
+
+	it("D-37: charcoal baselines are actually charcoal renders, not default ones", () => {
+		// THE GAP THIS CLOSES. Every other check in this file is a FILENAME check. If
+		// the `globals=brand:charcoal` query parameter silently stopped being honoured
+		// - a Storybook upgrade, a renamed global, a decorator rewrite - the capture
+		// would write 504 default-brand images under charcoal names and every
+		// name-level assertion here would still pass. The a11y runner guards this per
+		// story by asserting <html data-brand> in postVisit; the Playwright visual
+		// suite has no equivalent, so the recorded bytes are the only evidence left.
+		//
+		// A charcoal render must therefore DIFFER from its default counterpart. Three
+		// stories legitimately do not, and they are enumerated rather than absorbed by
+		// a threshold, so a fourth is a failure and not a rounding error.
+		const BRAND_INVARIANT = new Set([
+			// An empty state: renders no themed surface at all.
+			"data-display-timeline--empty",
+			// Explicit per-instance colour props - the story's subject IS overriding the
+			// palette, so it is brand-independent by construction.
+			"display-sparkline--custom-colors",
+			// DotGrid's demo canvas hardcodes its background and its amber dots. Left
+			// deliberately by 01-19.1 (its finding 1) rather than tokenised.
+			"foundation-dotgrid--high-opacity-amber",
+		]);
+		const suffix = "--charcoal-chromium-darwin.png";
+		const charcoal = readdirSync(PLAYWRIGHT_DIR).filter((f) => f.endsWith(suffix));
+		expect(charcoal.length).toBeGreaterThan(450);
+		const sha = (f: string) =>
+			createHash("sha256")
+				.update(readFileSync(path.join(PLAYWRIGHT_DIR, f)))
+				.digest("hex");
+		const identical: string[] = [];
+		for (const file of charcoal) {
+			const id = file.slice(0, -suffix.length);
+			const plain = `${id}-chromium-darwin.png`;
+			if (!existsSync(path.join(PLAYWRIGHT_DIR, plain))) continue;
+			if (sha(file) === sha(plain)) identical.push(id);
+		}
+		expect(
+			identical.filter((id) => !BRAND_INVARIANT.has(id)).sort(),
+			"charcoal baselines byte-identical to their default counterpart, so the brand axis did not reach these captures",
+		).toEqual([]);
+		// The allowlist must not rot either: an entry that starts differing is stale.
+		expect(
+			[...BRAND_INVARIANT].filter((id) => !identical.includes(id)).sort(),
+			"BRAND_INVARIANT entries that now DO differ between brands, so the exemption is stale",
+		).toEqual([]);
 	});
 
 	it("keeps the two stores from being confused for one another", () => {
