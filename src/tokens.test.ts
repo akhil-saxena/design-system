@@ -217,8 +217,60 @@ function srgb(c: number) {
 	const v = c / 255;
 	return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
 }
-function luminance(hex: string) {
-	const h = hex.replace("#", "");
+/**
+ * THROWS on anything it cannot measure, and that is the point rather than
+ * defensive habit.
+ *
+ * This function used to accept any string and reach for `slice(0, 2)` on it. Fed
+ * a translucent token — `--surf-2` is `rgba(255, 255, 255, 0.055)` in dark —
+ * `Number.parseInt("rg", 16)` returns NaN, every channel is NaN, and the
+ * luminance is NaN. `contrast()` then returns NaN, and the caller's guard is
+ * `if (ratio < 4.5)`, which is FALSE for NaN. So the surface was not measured
+ * leniently; it was not measured at all, and the gate reported no failure.
+ *
+ * That is exactly how the `Data Display/Tabs > DarkMode` axe failure reached a
+ * release branch. The Tabs pill track was painted with `--surf-2`, `--ink-3`
+ * composited to 4.47:1 on it, and adding `--surf-2` to the surface list below
+ * would have LOOKED like it closed the gap while measuring nothing. A silent
+ * pass is worse than a crash here, so this throws.
+ */
+function luminance(color: string) {
+	const rgb = parseColor(color);
+	// Refuse a translucent colour outright rather than measuring it as if the
+	// alpha were 1. Parsing it was not enough: fed --surf-2 directly, an
+	// alpha-blind reading treats rgba(255,255,255,0.055) as near-white and
+	// reports --ink on it as 1.17:1 — a confident number about a surface that is
+	// not painted anywhere. Callers must composite with flatten() first, which
+	// makes the backdrop an explicit argument instead of an assumption.
+	if (rgb[3] !== 1) {
+		throw new Error(
+			`luminance(): ${JSON.stringify(color)} is translucent (alpha ${rgb[3]}). Composite it onto a backdrop with flatten(colour, backdrop) first — a translucent surface has no contrast ratio of its own.`,
+		);
+	}
+	return 0.2126 * srgb(rgb[0]) + 0.7152 * srgb(rgb[1]) + 0.0722 * srgb(rgb[2]);
+}
+
+/** `#abc` / `#aabbcc` / `rgb(...)` / `rgba(...)` -> channels. Throws otherwise. */
+function parseColor(color: string): [number, number, number, number] {
+	const v = color.trim();
+	const fn = v.match(/^rgba?\(([^)]+)\)$/i);
+	if (fn) {
+		const parts = (fn[1] ?? "")
+			.split(/[,\s/]+/)
+			.filter(Boolean)
+			.map(Number);
+		if (parts.length < 3 || parts.slice(0, 3).some((n) => Number.isNaN(n))) {
+			throw new Error(`luminance(): unparseable rgb() colour ${JSON.stringify(color)}`);
+		}
+		const a = parts.length > 3 ? (parts[3] as number) : 1;
+		return [parts[0] as number, parts[1] as number, parts[2] as number, a];
+	}
+	if (!/^#?[0-9a-f]{3}$|^#?[0-9a-f]{6}$/i.test(v)) {
+		throw new Error(
+			`luminance(): ${JSON.stringify(color)} is not a colour this gate can measure. Returning NaN here would make the caller's threshold comparison false and report a pass for a surface that was never measured.`,
+		);
+	}
+	const h = v.replace("#", "");
 	const full =
 		h.length === 3
 			? h
@@ -227,7 +279,16 @@ function luminance(hex: string) {
 					.join("")
 			: h;
 	const [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(full.slice(i, i + 2), 16));
-	return 0.2126 * srgb(r!) + 0.7152 * srgb(g!) + 0.0722 * srgb(b!);
+	return [r as number, g as number, b as number, 1];
+}
+
+/** Composite a possibly-translucent colour down onto an opaque backdrop. */
+function flatten(color: string, backdrop: string): string {
+	const [r, g, b, a] = parseColor(color);
+	if (a === 1) return color;
+	const [br, bg, bb] = parseColor(backdrop);
+	const mix = [r * a + br * (1 - a), g * a + bg * (1 - a), b * a + bb * (1 - a)];
+	return `#${mix.map((c) => Math.round(c).toString(16).padStart(2, "0")).join("")}`;
 }
 function contrast(a: string, b: string) {
 	const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
@@ -255,11 +316,17 @@ function resolve(css: string, selector: string, name: string): string {
 describe("token contrast (WCAG)", () => {
 	const LIGHT = ":root {";
 	const DARK = ":root.dark,";
-	// The lightest surfaces in light mode / darkest-contrast surfaces in dark.
+	// The OPAQUE surface stops. Named precisely because the previous comment
+	// said "every surface" and the test name claimed it too, while the list
+	// held only these six — `--surf-2` and `--surf-3` are surfaces by role and
+	// are used as `background` in 29 rules in primitives.css, and neither was
+	// ever measured. The translucent stops are covered by the case below.
 	const lightSurfaces = ["--cream", "--cream-2", "--cream-3", "--panel", "--bg", "--paper-deep"];
 	const darkSurfaces = lightSurfaces;
+	/** Surfaces declared as a translucent veil, which must be composited first. */
+	const veils = ["--surf-2", "--surf-3"];
 
-	it("muted text steps clear AA (4.5:1) on every surface, in both themes", () => {
+	it("muted text steps clear AA (4.5:1) on every OPAQUE surface stop, in both themes", () => {
 		// --ink-4 measured 1.96:1 on --cream-3 in dark mode while being used as a
 		// text colour in ~28 places; --ink-3 measured 3.44:1.
 		const failures: string[] = [];
@@ -275,6 +342,84 @@ describe("token contrast (WCAG)", () => {
 			}
 		}
 		expect(failures).toEqual([]);
+	});
+
+	/**
+	 * The translucent stops, composited — the gap that let the Tabs failure ship.
+	 *
+	 * `--surf-2` / `--surf-3` are white veils. Which way they move contrast
+	 * depends on the mode, and that asymmetry is the whole finding:
+	 *
+	 *   in LIGHT a white veil lightens the surface under DARK text, so contrast
+	 *   RISES and every ink step is safe by construction;
+	 *   in DARK the same veil lightens the surface under LIGHT text, so contrast
+	 *   FALLS, and the muted steps stop clearing AA.
+	 *
+	 * So light asserts all four steps and dark asserts only the two that hold.
+	 * `--ink-3` / `--ink-4` on a dark veil are a KNOWN boundary, not an
+	 * oversight: measured 3.85 on `--surf-2` over `--cream-3` and 3.44 on
+	 * `--surf-3` over `--cream-3`. They are excluded here rather than "fixed" by
+	 * brightening the ramp, because the lightest grey that would clear the worst
+	 * cell is #9e9e9e, which sits midway between `--ink-3` and `--ink-2` and
+	 * erases the muted step. The real invariant is a component-level one — muted
+	 * text must not be placed on a translucent surface in dark — and it is
+	 * asserted in the browser, against the painted result, by
+	 * tests/visual/tabs-label-contrast.spec.ts.
+	 */
+	it("primary and secondary ink clear AA on the translucent stops too, composited", () => {
+		const failures: string[] = [];
+		for (const [mode, sel, stops] of [
+			["light", LIGHT, lightSurfaces],
+			["dark", DARK, darkSurfaces],
+		] as const) {
+			// Light is safe for every step; dark only for the two brightest.
+			const inks =
+				mode === "light" ? ["--ink", "--ink-2", "--ink-3", "--ink-4"] : ["--ink", "--ink-2"];
+			for (const veil of veils) {
+				const declared = resolve(tokensCss, sel, veil);
+				// The veil must actually BE a veil. If someone makes it opaque this
+				// case would otherwise keep passing while measuring a different thing.
+				expect(declared, `${mode} ${veil} should be declared translucent`).toMatch(/^rgba\(/);
+				for (const stop of stops) {
+					const backdrop = resolve(tokensCss, sel, stop);
+					const painted = flatten(declared, backdrop);
+					for (const ink of inks) {
+						const ratio = contrast(resolve(tokensCss, sel, ink), painted);
+						if (ratio < 4.5) {
+							failures.push(
+								`${mode} ${ink} on ${veil} over ${stop} (${painted}) = ${ratio.toFixed(2)}`,
+							);
+						}
+					}
+				}
+			}
+		}
+		expect(failures).toEqual([]);
+	});
+
+	/**
+	 * The parser must refuse what it cannot measure. Guards the repair directly:
+	 * before it, this call returned NaN and every `ratio < threshold` comparison
+	 * against it was false, so an unmeasurable surface reported a pass.
+	 */
+	it("refuses to measure a colour it cannot parse, rather than returning NaN", () => {
+		// Deliberately not a custom-property reference: the "defines every custom
+		// property referenced anywhere in src" case greps this very file, and its
+		// declaredIn() helper does NOT strip comments, so even naming that syntax
+		// in a comment here would register as a reference to an undefined token.
+		expect(() => contrast("#919191", "chartreuse")).toThrow(/not a colour this gate can measure/);
+		expect(() => contrast("#919191", "")).toThrow(/not a colour this gate can measure/);
+		// A translucent value is refused rather than read as if it were opaque —
+		// reading --surf-2 alpha-blind yields a confident 1.17:1 about a surface
+		// that is painted nowhere.
+		expect(() => contrast("#919191", "rgba(255, 255, 255, 0.055)")).toThrow(
+			/translucent \(alpha 0\.055\)/,
+		);
+		// And it DOES measure that same value once composited.
+		expect(contrast("#919191", flatten("rgba(255, 255, 255, 0.055)", "#1f1f1f"))).toBeCloseTo(
+			4.49,
+			1,
+		);
 	});
 
 	/**
