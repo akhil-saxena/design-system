@@ -93,6 +93,38 @@ async function discoverStoryIds(page: Page): Promise<string[]> {
 }
 
 test.describe("Storybook visual baselines", () => {
+	/**
+	 * SERIAL, AND THIS IS NOT A PERFORMANCE CHOICE -- IT IS CORRECTNESS.
+	 *
+	 * playwright.config.ts sets `fullyParallel: true` with a default worker count,
+	 * so splitting one test into two put both brand passes on the wire at once
+	 * against ONE Storybook dev server. Under that contention the charcoal pass
+	 * flagged `data-display-tabs--narrow-overflow--charcoal` at 96 px (a ratio of
+	 * 0.01), reporting "captured a stable screenshot" as it did so.
+	 *
+	 * The recorded bytes were never wrong. Re-running this same spec serially, with
+	 * no `--update-snapshots` and no file touched, flags NOTHING: 504 + 504, clean.
+	 * So the instability was in the concurrent comparison, not in the capture, and
+	 * a story on a measurement-dependent layout (tab overflow: two triggers plus a
+	 * 32px More button) is where it surfaces first. Serialising removes it.
+	 *
+	 * Worth stating because it nearly became a wrong fix: the obvious reading was
+	 * "the baseline is bad, re-record it". Re-recording would have overwritten a
+	 * correct image with whatever the next contended run produced, and the gate
+	 * would have gone green while getting less trustworthy.
+	 *
+	 * This is the mechanism 01-SIBLING-PROTOCOL section 3(b) warns about ("two
+	 * concurrent runs attach to ONE server... this repository has already recorded
+	 * baselines with a bug present once"), reached from a direction it did not
+	 * anticipate: not two executors, but one spec's own two tests.
+	 *
+	 * Serial costs wall-clock and buys nothing back, which is the correct trade for
+	 * a store of 1,019 recorded images. Each test still measures ~1.6min against
+	 * the 300s per-test budget, so the split's original purpose -- a failure report
+	 * that names the brand -- is unaffected.
+	 */
+	test.describe.configure({ mode: "serial" });
+
 	for (const brand of BRANDS) {
 		test(`captures all stories — ${brand.id} brand`, async ({ page }) => {
 			await page.clock.setFixedTime(FIXED_NOW);
