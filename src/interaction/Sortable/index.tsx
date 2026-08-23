@@ -6,6 +6,7 @@ import {
 	DragOverlay,
 	type DragStartEvent,
 	KeyboardSensor,
+	type KeyboardSensorProps,
 	PointerSensor,
 	type ScreenReaderInstructions,
 	type UniqueIdentifier,
@@ -155,6 +156,96 @@ function useDndAccessibility(
 	);
 }
 
+// ─── Keyboard drag release ────────────────────────────────────────────────────
+// E34. dnd-kit's KeyboardSensor opens a drag that ONLY a key can close. Measured
+// in Chromium 147 against `interaction-sortable--single-list`: press Space on
+// Task A, then click Task D, and the click moves DOM focus to Task D while
+// dnd-kit keeps holding Task A — `data-dragging` stays on Task A, the live region
+// keeps saying `task-a`, and the next ArrowDown/Space moves Task A. It has to,
+// because `DndContext` refuses every new activation while `activeRef.current` is
+// set, so the click cannot start a drag of its own and is discarded in silence.
+// From the outside that reads as "it always drags the first item", because Tab
+// lands on the first tile and Space there is the instruction the screen reader
+// just gave: the very first thing a keyboard user is told to do wedges the list.
+//
+// The sensor only listens for `keydown` on the document and for window `resize`
+// and `visibilitychange`. Nothing about the pointer or about focus reaches it.
+// This subclass adds the two missing exits: a pointerdown outside the dragged
+// tile, and a Tab off it. Both cancel rather than drop — a click elsewhere is not
+// an instruction about WHERE to put the item, and cancelling restores the order
+// the user started with and announces "Dragging was cancelled" through the live
+// region that is already there.
+//
+// Both triggers deliberately fire BEFORE focus has actually moved (`pointerdown`
+// in the capture phase precedes the browser's focus default action; `keydown`
+// precedes Tab's). That ordering is load-bearing: dnd-kit's own `RestoreFocus`
+// re-focuses the dragged tile after a keyboard drag ends UNLESS
+// `document.activeElement` is already the activator's target, so cancelling
+// while focus is still on the dragged tile lets that guard suppress the restore
+// on its own. Cancel on `focusin` instead and focus is yanked back to Task A
+// the instant the user clicks Task D — the same defect wearing a different coat.
+//
+// Not `accessibility.restoreFocus: false`, which would fix the yank by turning
+// off focus restoration for every drag, including the ones that need it.
+
+const noop = () => {};
+
+class FocusScopedKeyboardSensor extends KeyboardSensor {
+	constructor(props: KeyboardSensorProps) {
+		// Wrapped BEFORE `super` so dnd-kit's own drop (Space) and cancel (Escape)
+		// paths remove these listeners too, not just the two exits added here.
+		let release = () => {};
+		const scoped: KeyboardSensorProps = {
+			...props,
+			onEnd: () => {
+				release();
+				props.onEnd();
+			},
+			onCancel: () => {
+				release();
+				props.onCancel();
+			},
+		};
+		super(scoped);
+
+		const node = props.activeNode.node.current;
+		// No node means no "outside", and treating everything as outside would
+		// cancel on the first pointerdown anywhere. Guard nothing instead.
+		if (!node) return;
+		const doc = node.ownerDocument;
+
+		const bail = (event: Event) => {
+			if (event.type === "pointerdown") {
+				const target = event.target;
+				if (target instanceof Node && node.contains(target)) return;
+			} else if ((event as KeyboardEvent).code !== "Tab") {
+				return;
+			}
+			release();
+			// The base sensor's document keydown listener is still attached: its
+			// `detach()` is private and reachable only from its own handlers. It
+			// reads every callback and option off THIS object on each keystroke, so
+			// blanking them makes it inert, and the first Space/Escape after this
+			// runs its detach() and removes it for good. Without this, that stale
+			// listener sees the Space that starts the NEXT pick-up and ends it
+			// immediately — the bug, restored one keystroke later.
+			scoped.onStart = noop;
+			scoped.onMove = noop;
+			scoped.onEnd = noop;
+			scoped.onCancel = noop;
+			scoped.options = { ...props.options, coordinateGetter: () => undefined };
+			props.onCancel();
+		};
+
+		doc.addEventListener("pointerdown", bail, true);
+		doc.addEventListener("keydown", bail, true);
+		release = () => {
+			doc.removeEventListener("pointerdown", bail, true);
+			doc.removeEventListener("keydown", bail, true);
+		};
+	}
+}
+
 // ─── Context sentinel ─────────────────────────────────────────────────────────
 // Internal context - Sortable checks this to decide whether to render its own DndContext.
 const SortableDndCtx = createContext<boolean>(false);
@@ -203,7 +294,7 @@ export function SortableDndContext({
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
-		useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+		useSensor(FocusScopedKeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
 	);
 
 	const handleDragStart = useCallback((e: DragStartEvent) => {
@@ -277,7 +368,7 @@ export function Sortable({
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
-		useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+		useSensor(FocusScopedKeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
 	);
 
 	const handleDragStart = useCallback((e: DragStartEvent) => {
