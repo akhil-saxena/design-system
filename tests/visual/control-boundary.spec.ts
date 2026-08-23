@@ -127,6 +127,13 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 
 	/** class → worst hit, so the report names a reproducing story per control. */
 	const seen = new Map<string, Hit>();
+	/**
+	 * Stories whose EFFECTIVE mode is not the one this spec measures, recorded
+	 * rather than silently dropped. Printed at the end and used by the roster
+	 * ratchet below: a skip list that quietly grew until it covered every story
+	 * would leave a green spec measuring nothing.
+	 */
+	const modePinnedDark: string[] = [];
 	let wire = "";
 	let rule = "";
 
@@ -161,20 +168,73 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 			brand: document.documentElement.getAttribute("data-brand"),
 			dark: document.documentElement.classList.contains("dark"),
 		}));
-		if (cell.brand !== "charcoal" || cell.dark) {
-			await page.evaluate(() => {
-				document.documentElement.setAttribute("data-brand", "charcoal");
-				document.documentElement.classList.remove("dark");
-			});
-		}
-		const confirmed = await page.evaluate(() => ({
-			brand: document.documentElement.getAttribute("data-brand"),
-			dark: document.documentElement.classList.contains("dark"),
-		}));
+
+		// THE BRAND IS ASSERTED, NOT FORCED.
+		//
+		// No story pins `brand`, so the URL global is the only thing that sets it
+		// and a failure to apply means the harness is broken. Writing the attribute
+		// ourselves would paper over exactly that.
 		expect(
-			confirmed,
-			`story ${id} could not be put into brand=charcoal mode=light; any value read there belongs to the wrong cell`,
-		).toEqual({ brand: "charcoal", dark: false });
+			cell.brand,
+			`story ${id} did not receive brand=charcoal from the globals query parameter; any value read here would belong to the default brand`,
+		).toBe("charcoal");
+
+		// THE MODE IS READ, NOT FORCED — this is the repair for F-20-3.
+		//
+		// Since 01-19.1's E29 conversion (380d979) around seventy stories pin
+		// `globals: { theme: "dark" }` at STORY level, and a story-level global
+		// beats the URL global for the same key. So `?globals=theme:light` does NOT
+		// put those stories in light; they render dark and this spec used to force
+		// them by removing `.dark` from <html>. That produced a cell which does not
+		// exist in any real render, and it is measurably a chimera in two
+		// independent ways — both measured in this browser, on this commit:
+		//
+		//   1. TRANSITIONS ARE READ MID-FLIGHT. `.ds-atom-input` declares
+		//      `transition: border-color 0.15s`. Removing `.dark` does re-match the
+		//      cascade — the untransitioned `background` snaps to the light value
+		//      immediately — but `border-color` is still 150ms away from it. Read
+		//      immediately, `.ds-atom-input` in `inputs-autocomplete--dark-mode`
+		//      returned the dark `rgba(255,255,255,0.12)`; read 500ms later it
+		//      returned `rgb(135,129,115)`, which is exactly what the genuinely
+		//      light `inputs-autocomplete--default` returns. The old code reported
+		//      1.02:1 for a control that is actually on --wire at 3.44:1.
+		//
+		//   2. REACT-AUTHORED INLINE STYLES CANNOT BE UNDONE AT ALL, which is the
+		//      decisive one. OAuthButton writes its dark colours into the style
+		//      attribute — `border: 1.5px solid rgba(255,255,255,0.2)` — because it
+		//      branches on the theme in JS. Measured before the class removal,
+		//      immediately after, and 500ms after: `rgba(255,255,255,0.2)` all
+		//      three times. The genuinely light `inputs-oauthbutton--default` reads
+		//      `rgb(135,129,115)`. No DOM surgery on <html> can move a value that
+		//      lives in a style attribute, so a mode-pinned story can never be
+		//      relocated into the light cell. It can only be skipped.
+		//
+		// Hence: ask for light, observe what the story actually resolved to, and
+		// skip the ones that are not in this cell. Reading the mode rather than
+		// hardcoding a list of story ids is deliberate — a spec that hardcodes
+		// "these stories are dark" breaks again the next time a story's globals
+		// change, which is precisely how this spec broke in the first place.
+		//
+		// The stories are NOT the thing to fix. 01-19.1 moved every story off
+		// hardcoded dark wrappers onto story-level globals on purpose, and
+		// brand-isolation.spec.ts asserts from the DOM that under charcoal the only
+		// `.dark` element is <html>. Undoing that to make this spec pass would
+		// trade a real guard for a green tick.
+		if (cell.dark) {
+			modePinnedDark.push(id);
+			continue;
+		}
+
+		// Measure at rest, never mid-transition. Mechanism 1 above is why this is
+		// not optional: without it a control that changed state moments ago reports
+		// a colour it is on its way out of. Every other probe in this repository
+		// does the same thing for the same reason — computed.ts, storybook.spec.ts
+		// and .storybook/test-runner.ts all inject this before reading anything —
+		// and this spec was the one that did not.
+		await page.addStyleTag({
+			content:
+				"*, *::before, *::after { animation: none !important; transition: none !important; }",
+		});
 
 		const hits = await page.evaluate(() => {
 			const parse = (c: string): [number, number, number, number] => {
@@ -293,6 +353,78 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 		"no ds-* control elements were found in any story — the assertions below would be vacuous",
 	).toBeGreaterThan(0);
 
+	/**
+	 * THE ROSTER RATCHET — the guard that makes the mode skip above safe.
+	 *
+	 * Skipping stories is only sound if it does not cost coverage, and "it does
+	 * not cost coverage" is a claim a gate has to check rather than a sentence in
+	 * a summary. Measured on the commit that introduced the skip: the roster was
+	 * 38 controls before and 38 after, because every control that appears in a
+	 * mode-pinned story also appears in at least one light story. `ds-atom-oauthbtn`
+	 * is the case worth naming — its worst hit used to come from
+	 * `inputs-oauthbutton--dark`, and it is still measured, now from
+	 * `inputs-oauthbutton--default`.
+	 *
+	 * This list may GROW freely — a new control simply appears. It must never
+	 * SHRINK without a human deleting a line, which is the same ratchet contract
+	 * as LABEL_IS_THE_AFFORDANCE above and src/styling-boundary.test.ts.
+	 *
+	 * Without this, the failure mode is silent and total: widen the skip
+	 * condition by accident and the spec measures nothing, reports "no control
+	 * was found relying on its border" as a soft pass, and goes green.
+	 */
+	const ROSTER_FLOOR = [
+		"ds-atom-accordion-trigger",
+		"ds-atom-breadcrumbs-more",
+		"ds-atom-btn",
+		"ds-atom-calendar-cell",
+		"ds-atom-calendar-weekcell-header",
+		"ds-atom-carousel-dot",
+		"ds-atom-checkbox-input",
+		"ds-atom-chip-x",
+		"ds-atom-cmd-item",
+		"ds-atom-colorpicker-cell",
+		"ds-atom-colorpicker-swatch",
+		"ds-atom-copy",
+		"ds-atom-datepicker-cell",
+		"ds-atom-datepicker-trigger",
+		"ds-atom-fileinput",
+		"ds-atom-footer-link",
+		"ds-atom-iconbtn",
+		"ds-atom-input",
+		"ds-atom-input-inner",
+		"ds-atom-link",
+		"ds-atom-multiselect",
+		"ds-atom-multiselect-chip",
+		"ds-atom-multiselect-chip-x",
+		"ds-atom-oauthbtn",
+		"ds-atom-pagination-btn",
+		"ds-atom-radio-input",
+		"ds-atom-segmented-btn",
+		"ds-atom-select",
+		"ds-atom-split-chevron",
+		"ds-atom-split-primary",
+		"ds-atom-star-btn",
+		"ds-atom-statuspill",
+		"ds-atom-stepper-input",
+		"ds-atom-tabs-more",
+		"ds-atom-tabs-trigger",
+		"ds-atom-textarea",
+		"ds-atom-toggle-input",
+		"ds-focus-ring",
+	];
+	const droppedFromRoster = ROSTER_FLOOR.filter((c) => !seen.has(c));
+	expect(
+		droppedFromRoster,
+		[
+			`${droppedFromRoster.length} control(s) that this spec used to measure are no longer measured by it.`,
+			"Either a component stopped rendering in every light story, or the mode skip above widened.",
+			`Skipped ${modePinnedDark.length} of ${ids.length} stories as mode-pinned.`,
+			"If a control was deliberately removed from the library, delete its line from ROSTER_FLOOR.",
+			`  missing: ${droppedFromRoster.join(", ")}`,
+		].join("\n"),
+	).toEqual([]);
+
 	const allowed = (c: Hit) => c.cls in LABEL_IS_THE_AFFORDANCE;
 	const checked = controls.map((c) => c.cls).sort();
 	const roster = `Checked ${controls.length} controls across ${ids.length} stories: ${checked.join(", ")}`;
@@ -381,7 +513,12 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 		)
 		.toEqual([]);
 
-	console.log(`control-boundary: ${roster}\n  --wire=${wire}  --rule=${rule}`);
+	console.log(
+		`control-boundary: ${roster}\n  --wire=${wire}  --rule=${rule}` +
+			`\n  measured ${ids.length - modePinnedDark.length} stories in charcoal light;` +
+			` skipped ${modePinnedDark.length} whose story-level globals pin a different mode` +
+			`\n  skipped: ${modePinnedDark.join(", ")}`,
+	);
 });
 
 /**
