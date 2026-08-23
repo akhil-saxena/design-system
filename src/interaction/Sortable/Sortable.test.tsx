@@ -522,3 +522,122 @@ describe("Sortable — announcer passthrough (E8 / G-13)", () => {
 		expect(spoken()).toBe(DEFAULT_CANCEL_TEXT);
 	});
 });
+
+// ─── Keyboard pick-up target (E34) ────────────────────────────────────────────
+// The bug these exist for: pressing Space on Task A and then clicking Task D left
+// dnd-kit holding Task A while DOM focus sat on Task D, so every later Space and
+// ArrowDown moved Task A. Reported as "it always drags the first item", because
+// Tab lands on the first tile and Space there is exactly what the screen-reader
+// instruction tells a keyboard user to do.
+//
+// Why the 29 cases above could not catch it. Every one of them calls
+// `focusFirstTile()`, so "the tile that was picked up" and "the first tile" were
+// the same element in all of them, and reading `task-a` out of the live region
+// was consistent with both a correct component and a component that can only ever
+// pick up index 0. These cases focus a tile that is NOT the first, and assert
+// WHICH id was picked up rather than that a pick-up happened.
+//
+// Assertions read a recording announcer rather than the live region, because a
+// click on another tile also fires a phantom pointer drag on it — PointerSensor
+// is registered with no activation constraint, so pointerdown alone starts a drag
+// and pointerup ends it — and that drag's own utterances overwrite the region
+// before it can be read. The recorder keeps the whole ordered sequence.
+
+/** Records every announcement dnd-kit asks for, in order, as `event:id`. */
+function recordingAnnouncer(log: string[]): Announcements {
+	const note = (event: string, id: string) => {
+		log.push(`${event}:${id}`);
+		return `${event} ${id}.`;
+	};
+	return {
+		onDragStart: ({ active }) => note("start", String(active.id)),
+		onDragOver: () => undefined,
+		onDragEnd: ({ active }) => note("end", String(active.id)),
+		onDragCancel: ({ active }) => note("cancel", String(active.id)),
+	};
+}
+
+/** The nth rendered tile, asserted present: an out-of-range index would otherwise
+ *  make every downstream assertion vacuous rather than failing here. */
+function tile(index: number): HTMLElement {
+	const found = document.querySelectorAll<HTMLElement>(".ds-atom-sortable-item")[index];
+	if (!found) throw new Error(`no sortable tile at index ${index}`);
+	return found;
+}
+
+/** Focus inside `act`, so React sees the resulting commit before the next key. */
+const focusTile = (index: number) =>
+	act(() => {
+		tile(index).focus();
+	});
+
+const TAB = ["Tab", "Tab", 9] as const;
+
+describe("Sortable — keyboard pick-up targets the focused tile (E34)", () => {
+	it("Test 30: Space picks up the tile that has focus, not the first tile", async () => {
+		// The assertion the 29 cases above never made. `focusFirstTile()` made
+		// "picked up" and "first" indistinguishable; this case separates them.
+		const log: string[] = [];
+		renderList({ announcements: recordingAnnouncer(log) });
+		await focusTile(2);
+		press(...SPACE);
+		await flush();
+		expect(log).toContain("start:c");
+		expect(log).not.toContain("start:a");
+	});
+
+	it("Test 31: clicking another tile releases the held one, so the next Space picks up the tile that was clicked", async () => {
+		const log: string[] = [];
+		renderList({ announcements: recordingAnnouncer(log) });
+		await focusTile(0);
+		press(...SPACE);
+		await flush();
+		// Non-vacuity: the wedged state has to exist before its release can mean
+		// anything. If this fails the rest of the case is testing nothing.
+		expect(log).toContain("start:a");
+
+		// The developer's gesture. pointerdown+pointerup because a real click is
+		// both, and because the phantom pointer drag they cause is part of what the
+		// fix has to survive.
+		fireEvent.pointerDown(tile(2));
+		fireEvent.pointerUp(tile(2));
+		await flush();
+		expect(log, "the pointerdown outside the held tile must release it").toContain("cancel:a");
+
+		await focusTile(2);
+		press(...SPACE);
+		await flush();
+		// The whole point: the pick-up follows focus, and `a` is not picked up again.
+		expect(log.filter((entry) => entry === "start:c").length).toBeGreaterThan(0);
+		expect(log.lastIndexOf("start:c")).toBeGreaterThan(log.lastIndexOf("start:a"));
+	});
+
+	it("Test 32: Tab off a held tile releases it", async () => {
+		const log: string[] = [];
+		renderList({ announcements: recordingAnnouncer(log) });
+		await focusTile(0);
+		press(...SPACE);
+		await flush();
+		expect(log).toContain("start:a");
+
+		press(...TAB);
+		await flush();
+		expect(log).toContain("cancel:a");
+	});
+
+	it("Test 33: a pointerdown INSIDE the held tile does NOT release it", async () => {
+		// The negative control. Without it, "cancel on any pointerdown" would pass
+		// Tests 31 and 32 while breaking every drag that begins with a mouse press
+		// on the tile itself.
+		const log: string[] = [];
+		renderList({ announcements: recordingAnnouncer(log) });
+		await focusTile(0);
+		press(...SPACE);
+		await flush();
+		expect(log).toContain("start:a");
+
+		fireEvent.pointerDown(tile(0).querySelector("span") ?? tile(0));
+		await flush();
+		expect(log).not.toContain("cancel:a");
+	});
+});
