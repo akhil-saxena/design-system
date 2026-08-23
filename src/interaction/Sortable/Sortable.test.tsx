@@ -537,11 +537,18 @@ describe("Sortable — announcer passthrough (E8 / G-13)", () => {
 // pick up index 0. These cases focus a tile that is NOT the first, and assert
 // WHICH id was picked up rather than that a pick-up happened.
 //
-// Assertions read a recording announcer rather than the live region, because a
-// click on another tile also fires a phantom pointer drag on it — PointerSensor
-// is registered with no activation constraint, so pointerdown alone starts a drag
-// and pointerup ends it — and that drag's own utterances overwrite the region
-// before it can be read. The recorder keeps the whole ordered sequence.
+// Assertions read a recording announcer rather than the live region. The live
+// region is a single node that each utterance overwrites, so it can only ever
+// answer "what was said last", while these cases are about the ORDER of a
+// sequence — that a pick-up was followed by a cancel naming the same id.
+//
+// This originally had a second reason, now obsolete: a click on another tile used
+// to fire a phantom pointer drag whose own utterances overwrote the region before
+// it could be read. E35 gave PointerSensor an activationConstraint of 4px, so
+// pointerdown no longer starts a drag and the phantom is gone. The recorder stays
+// for the ordering reason above, and Test 32 still drives pointerDown to prove
+// the keyboard guard releases — that guard listens on the document itself, so it
+// is independent of whether PointerSensor activates.
 
 /** Records every announcement dnd-kit asks for, in order, as `event:id`. */
 function recordingAnnouncer(log: string[]): Announcements {
