@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { type Page, expect, test } from "@playwright/test";
 
 // Iterates Storybook stories and captures screenshots into
 // tests/visual/storybook.spec.ts-snapshots/. Storybook must be running on
@@ -17,6 +17,10 @@ import { expect, test } from "@playwright/test";
  * `nowOverride` prop, and Carousel/Avatar swapped live picsum/pravatar fetches
  * for local SVG data URIs. These two remain because a *live clock* is the entire
  * subject of the story — freezing it would document the wrong thing.
+ *
+ * This set is shared by every brand and is NOT widened per brand. A story that
+ * is nondeterministic under charcoal but stable under the default brand would be
+ * a finding about charcoal, not a candidate for this list.
  */
 const TIME_DEPENDENT = new Set([
 	// Driven by useClock() — re-renders every second with the real time.
@@ -40,64 +44,131 @@ const TIME_DEPENDENT = new Set([
  */
 const FIXED_NOW = new Date("2026-06-15T12:00:00Z");
 
-test.describe("Storybook visual baselines", () => {
-	test("captures all stories", async ({ page }) => {
-		await page.clock.setFixedTime(FIXED_NOW);
-		await page.goto("http://localhost:6006/index.json");
-		const indexJson = await page.evaluate(() => document.body.innerText);
-		const stories: { id: string }[] = Object.values(JSON.parse(indexJson).entries ?? {}).filter(
-			(e: unknown) => (e as { type: string }).type === "story",
-		) as {
-			id: string;
-		}[];
-		expect(stories.length).toBeGreaterThan(0);
+/**
+ * THE BRAND AXIS (D-37). Every story is captured once per brand, so charcoal
+ * gains the visual companion DS-06's numeric contrast contract cannot provide —
+ * a token can pass a ratio assertion and still look wrong. The accepted cost is
+ * a doubled snapshot count and a doubled review burden; it was weighed in
+ * 00-THEME-API.md §"Release and versioning" and taken.
+ *
+ * MODE IS NOT A THIRD LOOP, and that is not an omission. Mode is already an axis
+ * of the story set itself: the library ships an explicit `--dark-mode` story per
+ * component, and since 01-19.1 each one pins `globals: { theme: "dark" }` at the
+ * story level rather than wrapping itself in a hardcoded `className="dark"`
+ * island. So iterating brand over every story IS brand x mode. Adding a mode
+ * loop here would re-capture every light story a second time under a theme
+ * global that its own story-level global overrides — 504 identical duplicates.
+ *
+ * ONE TEST PER BRAND, rather than a raised `timeout`. playwright.config.ts
+ * allows 300s per test and a single-brand pass over 504 stories measures ~1.7min,
+ * so two tests both stay inside the existing budget while a failure report names
+ * the brand that broke. Raising the timeout would have bought one test that can
+ * only say "something, somewhere, moved".
+ *
+ * THE SUFFIX IS CHOSEN SO THE TWO BRANDS INTERLEAVE. `--charcoal` sorts
+ * immediately before the bare default name, because "-" (0x2D) precedes the "c"
+ * of the "-chromium-darwin" platform suffix Playwright appends:
+ *
+ *   inputs-button--default--charcoal-chromium-darwin.png
+ *   inputs-button--default-chromium-darwin.png
+ *
+ * A reviewer comparing one component across brands reads two adjacent lines
+ * instead of scrolling between two halves of a 1,000-file directory. Separate
+ * subdirectories or a `charcoal-` prefix would both have produced that split.
+ */
+const BRANDS = [
+	{ id: "default", suffix: "" },
+	{ id: "charcoal", suffix: "--charcoal" },
+] as const;
 
-		const captured: string[] = [];
-		for (const story of stories) {
-			if (TIME_DEPENDENT.has(story.id)) continue;
-			await page.goto(`http://localhost:6006/iframe.html?id=${story.id}&viewMode=story`);
-			// Use 'attached' state so Lightbox stories (which auto-open a dialog that hides
-			// #storybook-root from the accessibility tree) don't time out.
-			await page.waitForSelector("#storybook-root", { state: "attached", timeout: 5000 });
-			// Web fonts change metrics and therefore layout height. Without this the
-			// capture races font loading.
-			// Kill animation via CSS rather than Playwright's `animations: "disabled"`.
-			// That option waits for animations to *finish*, and three of the system's
-			// animations are infinite (button spinner, progress dot, skeleton pulse),
-			// so it times out on any story containing them. This mirrors what
-			// .storybook/test-runner.ts injects in preVisit.
-			await page.addStyleTag({
-				content: `*, *::before, *::after {
+async function discoverStoryIds(page: Page): Promise<string[]> {
+	await page.goto("http://localhost:6006/index.json");
+	const indexJson = await page.evaluate(() => document.body.innerText);
+	const stories: { id: string }[] = Object.values(JSON.parse(indexJson).entries ?? {}).filter(
+		(e: unknown) => (e as { type: string }).type === "story",
+	) as {
+		id: string;
+	}[];
+	return stories.map((s) => s.id);
+}
+
+test.describe("Storybook visual baselines", () => {
+	for (const brand of BRANDS) {
+		test(`captures all stories — ${brand.id} brand`, async ({ page }) => {
+			await page.clock.setFixedTime(FIXED_NOW);
+			const storyIds = await discoverStoryIds(page);
+			expect(storyIds.length).toBeGreaterThan(0);
+
+			// A story id that already ends in a brand suffix would make two different
+			// stories share one baseline filename, silently. Assert it cannot happen
+			// rather than trusting that nobody ever names a story "--charcoal".
+			for (const suffix of BRANDS.map((b) => b.suffix).filter(Boolean)) {
+				const collisions = storyIds.filter((id) => id.endsWith(suffix));
+				expect(
+					collisions,
+					`story ids ending in "${suffix}" would collide with a brand-suffixed baseline name`,
+				).toEqual([]);
+			}
+
+			const captured: string[] = [];
+			for (const id of storyIds) {
+				if (TIME_DEPENDENT.has(id)) continue;
+				// The brand is set through Storybook's own `globals` query param, which
+				// is what .storybook/preview.tsx's decorator reads. It composes with a
+				// story-level `globals: { theme: "dark" }` rather than replacing it:
+				// story-level globals only override the keys they declare, so a dark
+				// story stays dark and gains the brand. Measured, not assumed — under
+				// `brand:charcoal` a dark story resolves --cream to charcoal's #161616
+				// rather than the design system's #181818.
+				await page.goto(
+					`http://localhost:6006/iframe.html?id=${id}&viewMode=story&globals=brand:${brand.id}`,
+				);
+				// Use 'attached' state so Lightbox stories (which auto-open a dialog that hides
+				// #storybook-root from the accessibility tree) don't time out.
+				await page.waitForSelector("#storybook-root", { state: "attached", timeout: 5000 });
+				// Web fonts change metrics and therefore layout height. Without this the
+				// capture races font loading.
+				// Kill animation via CSS rather than Playwright's `animations: "disabled"`.
+				// That option waits for animations to *finish*, and three of the system's
+				// animations are infinite (button spinner, progress dot, skeleton pulse),
+				// so it times out on any story containing them. This mirrors what
+				// .storybook/test-runner.ts injects in preVisit.
+				await page.addStyleTag({
+					content: `*, *::before, *::after {
 					animation: none !important;
 					transition: none !important;
 					caret-color: transparent !important;
 				}`,
-			});
-			// `.then(() => undefined)` because document.fonts.ready resolves to a
-			// FontFaceSet, which Playwright cannot serialize back across the bridge.
-			await page.evaluate(() => document.fonts.ready.then(() => undefined));
-			// `expect.soft` so one mismatch does not abort the loop. This was a hard
-			// `expect`, and the suite is a *single test* iterating every story — so the
-			// first differing story ended the run and every story after it went
-			// unchecked. A date-dependent DatePicker story failing on a date rollover
-			// was silently hiding the rest of the suite.
-			await expect.soft(page).toHaveScreenshot(`${story.id}.png`, {
-				fullPage: true,
-				// Nothing previously froze the system's 20 @keyframes / ~74 transitions
-				// for this suite, so a story with an entry animation could be captured
-				// mid-flight — which is why re-recording produced a *different* flaky
-				// story on each subsequent run. Animation is killed by the style tag
-				// above; caret: "hide" removes the blinking cursor, a 1px diff in any
-				// story with a focused input.
-				caret: "hide",
-			});
-			captured.push(story.id);
-		}
+				});
+				// `.then(() => undefined)` because document.fonts.ready resolves to a
+				// FontFaceSet, which Playwright cannot serialize back across the bridge.
+				await page.evaluate(() => document.fonts.ready.then(() => undefined));
+				// `expect.soft` so one mismatch does not abort the loop. This was a hard
+				// `expect`, and the suite is a *single test* iterating every story — so the
+				// first differing story ended the run and every story after it went
+				// unchecked. A date-dependent DatePicker story failing on a date rollover
+				// was silently hiding the rest of the suite. Kept in both brand tests: one
+				// charcoal mismatch must not hide the other 503 charcoal stories either.
+				await expect.soft(page).toHaveScreenshot(`${id}${brand.suffix}.png`, {
+					fullPage: true,
+					// Nothing previously froze the system's 20 @keyframes / ~74 transitions
+					// for this suite, so a story with an entry animation could be captured
+					// mid-flight — which is why re-recording produced a *different* flaky
+					// story on each subsequent run. Animation is killed by the style tag
+					// above; caret: "hide" removes the blinking cursor, a 1px diff in any
+					// story with a focused input.
+					caret: "hide",
+				});
+				captured.push(id);
+			}
 
-		// Fail loudly if the exclusion list silently grows to cover everything, and
-		// make the skipped count visible in the run output rather than implicit.
-		const skipped = stories.length - captured.length;
-		expect(skipped).toBeLessThanOrEqual(TIME_DEPENDENT.size);
-		console.log(`visual baselines: captured ${captured.length}, skipped ${skipped} time-dependent`);
-	});
+			// Fail loudly if the exclusion list silently grows to cover everything, and
+			// make the skipped count visible in the run output rather than implicit.
+			const skipped = storyIds.length - captured.length;
+			expect(skipped).toBeLessThanOrEqual(TIME_DEPENDENT.size);
+			console.log(
+				`visual baselines [${brand.id}]: captured ${captured.length}, skipped ${skipped} time-dependent`,
+			);
+		});
+	}
 });

@@ -13,7 +13,57 @@ import { checkA11y, configureAxe, injectAxe } from "axe-playwright";
  */
 const MODE = process.env.DS_TEST_MODE ?? "a11y";
 
+/**
+ * THE BRAND AXIS (D-37 / T-20-02).
+ *
+ *   DS_BRAND=charcoal npm run test:a11y
+ *
+ * Without this, every a11y result in the charcoal release is default-brand-only.
+ * Nothing pins the brand: `preview.tsx` sets `initialGlobals.brand = "default"`
+ * deliberately (so charcoal is opt-in and no recorded baseline moves) and no
+ * story overrides it — so an unqualified `test:a11y` sweeps the JobDash cream/
+ * ink/amber palette exclusively. Charcoal is the brand that changes *colours*,
+ * and colour-contrast is where axe violations live, so a green default sweep
+ * says nothing whatsoever about it.
+ *
+ * DEFAULT IS STILL "default", on purpose. This is a switch, not a re-point: the
+ * committed gate keeps sweeping the brand every existing consumer is on, and the
+ * charcoal sweep is a second, explicitly-requested run. Making charcoal the
+ * default here would silently change what `npm run test:a11y` means for anyone
+ * who inherits this file.
+ */
+const BRAND = process.env.DS_BRAND ?? "default";
+
 const config: TestRunnerConfig = {
+	/**
+	 * Overrides the runner's default navigation for one reason: to carry the brand
+	 * global on the URL.
+	 *
+	 * This is the only seam that works. The runner navigates to `iframe.html`
+	 * ONCE per worker and thereafter switches stories over Storybook's channel
+	 * without re-navigating, so a `preVisit` that writes
+	 * `documentElement.dataset.brand` would be undone the moment the decorator
+	 * re-renders — it calls `removeAttribute("data-brand")` on every render whose
+	 * `globals.brand` is not charcoal. Setting the DOM attribute directly is
+	 * precisely the kind of change a grep can confirm and a browser cannot; the
+	 * global has to be set where Storybook reads it.
+	 *
+	 * Because the navigation happens once and globals survive channel-driven story
+	 * switches, one goto here brands the entire sweep.
+	 */
+	async prepare({ page, browserContext, testRunnerConfig }) {
+		const targetURL = process.env.TARGET_URL ?? "http://localhost:6006";
+		// Built by concatenation rather than URLSearchParams: the latter
+		// percent-encodes the ":" in "brand:charcoal" into "%3A", and this URL is
+		// also what gets printed in a failure, where the encoded form is harder to
+		// paste into a browser.
+		const iframeURL = `${new URL("iframe.html", targetURL).toString()}?globals=brand:${BRAND}`;
+		if (testRunnerConfig?.getHttpHeaders) {
+			await browserContext.setExtraHTTPHeaders(await testRunnerConfig.getHttpHeaders(iframeURL));
+		}
+		await page.goto(iframeURL, { waitUntil: "load" });
+	},
+
 	async preVisit(page) {
 		// Freezing animation makes both jobs deterministic: screenshots stop
 		// catching mid-transition frames, and axe stops sampling colours from a
@@ -32,6 +82,30 @@ const config: TestRunnerConfig = {
 
 	async postVisit(page, context) {
 		await waitForPageReady(page);
+
+		/**
+		 * Assert the brand axis actually reached the DOM, on every story.
+		 *
+		 * This exists because "the runner is brand-aware" is otherwise a claim no
+		 * gate can check: if the globals query param stopped being honoured — a
+		 * Storybook upgrade, a decorator rewrite, a typo in the key — the sweep
+		 * would keep passing while silently testing the default brand again, which
+		 * is exactly the failure T-20-02 describes and exactly the failure this
+		 * whole mechanism was added to end. A wrong brand must be LOUD, so it
+		 * throws per story rather than warning once.
+		 */
+		const domBrand = await page.evaluate(() => document.documentElement.dataset.brand ?? "default");
+		if (domBrand !== BRAND) {
+			throw new Error(
+				[
+					`Brand axis did not apply on "${context.id}":`,
+					`requested DS_BRAND="${BRAND}" but <html data-brand> resolves to "${domBrand}".`,
+					`The sweep would have reported "${domBrand}" results under a "${BRAND}" label.`,
+					"Check that preview.tsx's decorator still reads context.globals.brand,",
+					"and that the globals query parameter is still honoured by this Storybook version.",
+				].join(" "),
+			);
+		}
 
 		if (MODE === "visual") {
 			const isDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
