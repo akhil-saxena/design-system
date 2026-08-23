@@ -6,6 +6,285 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## 2.0.0-beta.1 — The charcoal brand, and a font layer you now import yourself
+
+**A prerelease, published under the `next` dist-tag.** Nothing about
+`npm install @akhil-saxena/design-system` changes for anyone: npm caret ranges
+never match a prerelease, so `^1.9.0` and `^1.11.0` keep resolving to `1.11.4`
+and `latest` has not moved. To try this release, ask for it by name:
+
+```
+npm install @akhil-saxena/design-system@2.0.0-beta.1
+```
+
+It is a major because of the first item below. Read that one even if you skip
+everything else — it is the only change that makes a working page look wrong,
+and it does so everywhere at once rather than in one heading three weeks later.
+
+### BREAKING — read before upgrading
+
+**1. `tokens.css` no longer ships `@font-face`. You must import a face layer.**
+
+`tokens.css` used to carry the `@font-face` rules for all four families —
+**Inter, Archivo, JetBrains Mono and Newsreader**. Nothing was deleted: all four
+are preserved, unchanged, in a new entry point. But the type tokens still *name*
+those families, so a build importing only `tokens.css` now names four families
+the browser has never heard of, and **every component on the page falls back to a
+system font at once**.
+
+The migration is one added line, beside wherever you already import `tokens.css`:
+
+```js
+import "@akhil-saxena/design-system/tokens.css";
+import "@akhil-saxena/design-system/fonts/default.css";  // ← add this
+```
+
+Adopting the charcoal brand instead? Import `fonts/charcoal.css`, which carries
+Playfair Display, DM Sans and IBM Plex Mono.
+
+The failure is deliberately total rather than gradual. Per-family subpaths were
+considered and rejected: forgetting one of those degrades a single family while
+the page still looks almost right, which is far harder to notice than a page
+that is obviously in the wrong font on first load. Splitting the layer took the
+token layer's transitive face payload from **73 rules / 128 files / 2,174,132 B
+to zero**, so a project that wants its own typeface no longer downloads four
+families in order to override them.
+
+**2. `AppShell` no longer writes its sidebar width inline, and no longer hides
+the sidebar below 767px.**
+
+- `AppShell` used to put `style="--ds-sidebar-w:240px"` on its root
+  unconditionally. It now does that only when you pass `sidebarWidth`. If you
+  were reading that inline style, read the computed custom property instead. The
+  reason for the change is that an inline declaration cannot be overridden by a
+  media query, so the width was never actually themeable.
+- The `@media (max-width: 767px)` rule that hid the sidebar is gone — it bisected
+  a common tablet range, and a breakpoint cannot be made configurable in CSS at
+  all, because a media query cannot read a custom property. Restore the old
+  posture with two declarations, which hold with or without the new banner row:
+
+```css
+@media (max-width: 672px) {
+  .ds-atom-appshell { --ds-sidebar-w: 0px; }
+  .ds-atom-appshell-sidebar { display: none; }
+}
+```
+
+Related, and not breaking, but worth knowing: `collapsed` is now an **input**,
+not only an output. Passing it pins the sidebar, and the shell no longer
+overwrites a `collapsed` that the sidebar child set on itself. Precedence is
+`collapsed` → the sidebar child's own `collapsed` (uncontrolled only) →
+`defaultCollapsed` → the persisted value → `false`. A shell counts as controlled
+on `collapsed != null` alone; it does not also require `onCollapsedChange`,
+because `collapsed={isNarrow}` driven by a media query has nothing to observe.
+
+**3. `DataGrid`'s accessible name changed, and `status` / `priority` columns no
+longer render badges by themselves.**
+
+- The grid used to announce itself as **"Job applications"**. It now defaults to
+  the generic **"Data grid"**; pass `ariaLabel` for a real one. If you select the
+  grid by its accessible name in a test, update the selector. `ariaLabel` was
+  deliberately *not* made required: that would break every call site's compile,
+  including ones already passing a good name, and a required prop can still be
+  filled with `"table"`.
+- A column keyed exactly `status` or `priority` used to render a job-application
+  `Badge` or a priority dot automatically, triggered by the column's *name*. That
+  is gone. Opt in explicitly — and it now works under any key:
+
+```js
+{ key: "state",   header: "State",   render: dataGridPresets.statusBadge }
+{ key: "urgency", header: "Urgency", render: dataGridPresets.priorityDot }
+```
+
+  `render` is `(value, row) => ReactNode`, and any column may now use it.
+
+### Added — the charcoal brand
+
+A second brand alongside the existing cream/ink/amber identity, which is
+untouched. Opt in per document:
+
+```js
+import "@akhil-saxena/design-system/tokens.css";
+import "@akhil-saxena/design-system/themes/charcoal.css";
+import "@akhil-saxena/design-system/fonts/charcoal.css";
+```
+
+```html
+<html data-brand="charcoal">
+```
+
+Every rule in `themes/charcoal.css` is scoped to `:root[data-brand="charcoal"]`
+and `:root[data-brand="charcoal"].dark`, so importing it costs nothing until the
+attribute is set — which is what lets a brand switch happen without a reload. 49
+properties per block, both modes. The seven `--amber*` tokens are bridged to
+charcoal's ochre so a component referencing an amber token does not leave a
+yellow hole in the page, and five surface tokens that previously had no brand
+value are now declared.
+
+- **`fonts/default.css` and `fonts/charcoal.css`** — face layers, carrying
+  `@font-face` and no custom properties at all.
+- **New export subpaths**: `./themes/*.css`, `./fonts/*.css`, `./css/*.css` and
+  per-component `./components/*`. The `.css` sits inside the wildcard on purpose
+  — `"./themes/*"` would make `*` capture `charcoal.css` and resolve to
+  `dist/themes/charcoal.css.css`, failing a consumer's build on that exact
+  specifier. `./css/*` is kept alongside `./css/*.css` so existing extensionless
+  spellings keep resolving.
+
+### Added — components
+
+- **`FocalPointPicker`** — pick a focal point on an image by dragging a reticle,
+  with an aspect-ratio preview. Previously this was ~269 lines every consumer
+  wrote for itself.
+- **`FilterNav`** — `SegmentedControl`'s anchor sibling. Computationally the same
+  control, rendered as real `<a href>` links, so a category filter is crawlable
+  and works with JavaScript disabled. Non-navigable hrefs are rejected rather
+  than rendered as a link that goes nowhere.
+
+### Added — props and tokens
+
+- `Modal.closable` — set `false` for a genuinely non-dismissible modal. The close
+  button, the Escape handler and the backdrop path are suppressed *together*, so
+  a modal cannot end up half-closable. Escape is swallowed rather than leaked to
+  the layer beneath.
+- `DSPortal.inline`, threaded through `Modal`, `Sheet`, `ConfirmDialog` and
+  `TypeToConfirm` — see *Fixed* for what it is for.
+- `AppShell.banner` / `bannerLabel` — a labelled `<section>` row between the
+  topbar and main, spanning both columns, so DOM order matches visual order and
+  landmark navigation agrees with tab order. `bannerLabel` defaults to `"Status"`
+  because an unnamed `<section>` is not exposed as a landmark by most screen
+  readers.
+- `AppShell.collapsed` / `defaultCollapsed` / `onCollapsedChange` — see break 2.
+- `DataGrid.density` (`cozy` | `comfortable` | `spacious`), `.selectable`,
+  `.pagination`, `.ariaLabel`, and `DataGridColumn.render`. `cozy` is the 32px
+  row mode, and it is genuinely reachable only once `selectable` is off.
+- `Sortable.announcements` — replace what a reorder says to a screen reader, so
+  it can name the item and its new position rather than an opaque index.
+- `RichText.allow` — restrict which marks exist, at the extension list rather
+  than in the toolbar, so a suppressed mark is unreachable by keyboard shortcut,
+  by the browser's own `contenteditable` commands, and by autolink.
+  `RichText.onSerializeLoss` reports content the configured output shape cannot
+  carry, instead of dropping it silently.
+- `Field.required` and `FieldError.tone` — a required marker, and error severity,
+  on the field contract rather than reimplemented per form.
+- `Lightbox` gained `srcSet`, backdrop close, swipe navigation and announcements.
+- `StatusPill` takes a tone and a label, so it expresses any status rather than
+  one hardcoded job-application ladder.
+- `--text-4xl-plus: 52px` — a display step between the 44px and 60px rungs, the
+  one size in the handoff that had no token.
+
+### Changed
+
+- **Text fields, selects and textareas have a visible edge in every theme,
+  including the default one.** Control boundaries now come from `--wire`
+  (`rgba(0,0,0,0.18)` light, `rgba(255,255,255,0.22)` dark). Under charcoal these
+  controls were effectively invisible before — a 1.000:1 fill delta against the
+  page with a 1.38:1 hairline. **This visibly darkens the edge of every field in
+  the default theme too**, and is the most noticeable non-charcoal change here.
+- **Card, Chip and Text no longer outrank your own class.** Their styling moved
+  into `:where()` at specificity (0,0,0), so `.my-card { padding: 0 }` wins.
+  Previously `.ds-atom-text[data-variant="body"]` weighed (0,2,0) and beat any
+  single consumer class.
+- **`Badge` emits `ds-atom-badge` and carries no inline styling**, so it can be
+  restyled and themed like every other primitive.
+- `AppBar` and `Footer` link targets are 44px at coarse pointers. Fine-pointer
+  geometry is byte-identical, so nothing moves on a desktop.
+- `--ds-appbar-h` and `--ds-sidebar-w` are declared at class level rather than
+  inline, so a media query can drive them.
+- The component count is **79**, asserted in one place instead of stated as three
+  disagreeing numbers.
+
+### Fixed
+
+- **`RichText`'s `toolbar={null}` was ignored** and rendered the default toolbar
+  anyway.
+- **`RichText`'s code-block syntax highlighter is now opt-in.** It sat on the
+  eager path for every consumer, including one editing a single résumé bullet.
+  The eager bundle drops from **139,280 B to 131,270 B gzip**, losing `lowlight`
+  and `highlight.js` entirely.
+- **Four overlays can now server-render, via the new `inline` prop.** `Modal`,
+  `ConfirmDialog`, `TypeToConfirm` and `Sheet` each emitted **0 B** of server
+  HTML, because they always portalled to `document.body`, which does not exist
+  during SSR. With `inline` they emit 1,065 B, 1,902 B, 1,707 B and 1,075 B
+  respectively. The default is unchanged at 0 B — portalling is still right for a
+  modal over a live app; `inline` is for a dialog that must exist in the server
+  payload.
+- **`ConfirmDialog`'s panel was completely unstyled** — no surface, no radius, no
+  shadow. It had never been painted by a stylesheet. Moving those declarations
+  out of a `style` attribute and into the sheet also made the server-rendered
+  dialog ~10% smaller.
+- **`Tabs` omitted every inactive panel's children from server HTML**, so tab
+  content was invisible to a crawler and absent before hydration. All panels now
+  render (1,202 B → 1,255 B for a three-panel example); inactive ones are hidden
+  presentationally.
+- **`Chip` clobbered a caller's `className`** instead of merging it.
+- **A keyboard drag in `Sortable` could only be released by a key.** Clicking or
+  tabbing away left the drag live, so the list wedged on the first item and every
+  later gesture moved that same item. Pointer-down and focus-out now release it.
+  This survived 34 tests because every one of them picked up the *first* tile,
+  where a wedged drag and a working one are indistinguishable.
+- **A plain click on a `Sortable` tile ran a whole drag cycle**, announcing "was
+  dropped over…" on every click. The pointer sensor now requires real movement
+  before a drag begins.
+- **Charcoal's active tab pill label was below AA**, and the dark pill track was
+  translucent, so an inactive tab label's contrast depended on whatever happened
+  to be behind the component.
+
+### Per-component import subpaths — worth a look if you hydrate islands
+
+This is the change nobody thinks to look for, and it is the one that decides how
+you should import.
+
+`./components/*` gives every component its own entry point:
+
+```js
+import { Chip } from "@akhil-saxena/design-system/components/Chip";
+```
+
+Measured through a real Astro + Rolldown build, a client island importing one
+component went from the barrel's **570,555 B raw / 176,922 B gzip / 99 modules**
+at 1.11.4 to **1,620 B raw / 785 B gzip / 2 modules** — 352× smaller raw, 225×
+smaller gzip. At 1.11.4 that island shipped ProseMirror, Tiptap, lowlight,
+highlight.js, dnd-kit and 43 Lucide icons in order to render a chip.
+
+**The barrel is unchanged and still correct** for server-rendered pages and for
+admin code that uses many components — and it improved substantially here too,
+because splitting across 84 entry points turned it into re-exports a bundler can
+resolve individually. Use the subpath when the import crosses into a hydrated
+client island; use the barrel everywhere else.
+
+Per-component stylesheets under `./css/*` now declare the sibling sheets their
+component actually renders, derived from the import graph rather than written by
+hand — `datagrid` needs `iconbutton` without importing it, so a hand-written list
+shipped an unstyled pager.
+
+### Testing
+
+- **Visual baselines are recorded per brand.** Every story is captured under both
+  the default brand and charcoal, in both modes — 1,019 baselines — so a charcoal
+  token cannot pass a numeric contrast assertion while looking wrong. The suite
+  is one test per brand, so a failure names the brand.
+- Charcoal has bidirectional token-exhaustiveness gates with a parse floor, 54
+  three-surface contrast ratios, and a font-family-to-face agreement check.
+- `test:a11y` can sweep either brand: `DS_BRAND=charcoal npm run test:a11y`. The
+  default remains the default brand.
+
+### Known issues in this beta
+
+These are why it is a beta. All three are recorded, none is fixed here.
+
+- **`DatePicker` and `SplitButton` fail WCAG AA under charcoal**, in both modes,
+  measuring **4.402:1** against the 4.5:1 threshold. Both hardcode an ink value
+  instead of reading the token.
+- **Warning-tone `AlertBanner` and `Toast` keep JobDash's amber in charcoal
+  dark.** `primitives.css` hardcodes `#fbbf24` for the warning border and icon,
+  which bypasses the `--amber*` → ochre bridge, so a charcoal page shows a yellow
+  warning. The same hardcoding exists on a `DatePicker` range-end hover state, in
+  the RichText code-block token colours, and in the `.jd-markdown` utilities.
+- **`npm run test:a11y` does not cover charcoal unless you ask it to.** The
+  brand global defaults to `default` and no story overrides it, so a green
+  unqualified run says nothing about charcoal. Use `DS_BRAND=charcoal` for that,
+  and expect the two failures above.
+
 ## 1.11.4 — Invisible tracks, and a visual suite that was hiding failures
 
 ### Fixed
