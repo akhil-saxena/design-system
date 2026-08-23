@@ -39,25 +39,43 @@ const config: TestRunnerConfig = {
 	 * Overrides the runner's default navigation for one reason: to carry the brand
 	 * global on the URL.
 	 *
-	 * This is the only seam that works. The runner navigates to `iframe.html`
-	 * ONCE per worker and thereafter switches stories over Storybook's channel
-	 * without re-navigating, so a `preVisit` that writes
-	 * `documentElement.dataset.brand` would be undone the moment the decorator
-	 * re-renders — it calls `removeAttribute("data-brand")` on every render whose
-	 * `globals.brand` is not charcoal. Setting the DOM attribute directly is
-	 * precisely the kind of change a grep can confirm and a browser cannot; the
-	 * global has to be set where Storybook reads it.
+	 * This is the only seam that works, and the URL has to be shaped exactly like
+	 * this. The runner navigates to `iframe.html` ONCE per worker and thereafter
+	 * switches stories over Storybook's channel without re-navigating, so a
+	 * `preVisit` that wrote `documentElement.dataset.brand` would be undone the
+	 * moment the decorator re-renders -- it calls `removeAttribute("data-brand")`
+	 * on every render whose `globals.brand` is not charcoal. Setting the DOM
+	 * attribute directly is precisely the kind of change a grep can confirm and a
+	 * browser cannot; the global has to be set where Storybook reads it.
 	 *
-	 * Because the navigation happens once and globals survive channel-driven story
-	 * switches, one goto here brands the entire sweep.
+	 * AND IT MUST BOOT WITH A STORY ID. Storybook only reads the `globals` query
+	 * parameter on a boot that carries an `id`; `iframe.html?globals=brand:charcoal`
+	 * with no story silently discards it, and no later channel switch recovers it.
+	 * Measured all three ways: `?id=X&globals=brand:charcoal` resolves --cream to
+	 * charcoal's #f4f1ea; the same URL without `id` resolves #fcfcfc, the default
+	 * brand; and once the globals HAVE landed on an id-carrying boot they survive a
+	 * `setCurrentStory` switch to any other story, which is what makes one
+	 * navigation brand the entire sweep.
+	 *
+	 * The first version of this hook omitted the id and therefore swept the default
+	 * brand under a charcoal label. It was caught by postVisit's assertion below,
+	 * on all 508 stories, rather than by review -- which is the whole argument for
+	 * that assertion existing.
 	 */
 	async prepare({ page, browserContext, testRunnerConfig }) {
 		const targetURL = process.env.TARGET_URL ?? "http://localhost:6006";
+		// Any real story will do as the seed; the first one the index reports is
+		// deterministic and needs no hardcoded id to fall out of date.
+		const index = await page.request.get(new URL("index.json", targetURL).toString());
+		const entries = ((await index.json()) as { entries?: Record<string, { type: string }> })
+			.entries;
+		const seed = Object.entries(entries ?? {}).find(([, e]) => e.type === "story")?.[0];
+		if (!seed) throw new Error(`Could not read a story id from ${targetURL}/index.json`);
 		// Built by concatenation rather than URLSearchParams: the latter
 		// percent-encodes the ":" in "brand:charcoal" into "%3A", and this URL is
 		// also what gets printed in a failure, where the encoded form is harder to
 		// paste into a browser.
-		const iframeURL = `${new URL("iframe.html", targetURL).toString()}?globals=brand:${BRAND}`;
+		const iframeURL = `${new URL("iframe.html", targetURL).toString()}?id=${seed}&viewMode=story&globals=brand:${BRAND}`;
 		if (testRunnerConfig?.getHttpHeaders) {
 			await browserContext.setExtraHTTPHeaders(await testRunnerConfig.getHttpHeaders(iframeURL));
 		}
