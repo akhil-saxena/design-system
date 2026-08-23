@@ -4293,7 +4293,16 @@ fieldset.ds-atom-field {
 }
 .dark .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-trigger[data-active] {
 	background: var(--amber);
-	color: #1c1917;
+	/* var(), not the literal #1c1917 that used to sit here. That hex IS the
+	   default brand's --ink-inverse, so hardcoding it meant charcoal's override
+	   (#161616) could never reach this rule: charcoal's --amber is --ochre
+	   #b0722a, and #1c1917 on it measures 4.402 — below AA — where #161616
+	   measures 4.555, which is the 4.56 charcoal.css already documents for the
+	   ink-on-accent pairing. Resolves to #1c1917 in the default brand, so this
+	   is byte-identical there. NOT --amber-ink: that token is the ink for a
+	   TINTED amber, and in default dark it is #f5c56b, which would measure
+	   1.338 on a full-strength --amber fill. */
+	color: var(--ink-inverse);
 }
 .dark .ds-atom-tabs-count {
 	background: var(--surf-2);
