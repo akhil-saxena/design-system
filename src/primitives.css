@@ -4267,8 +4267,18 @@ fieldset.ds-atom-field {
 .dark .ds-atom-tabs-list {
 	border-bottom-color: var(--rule);
 }
+/* Opaque, not --surf-2. The track carries the inactive labels, and --surf-2 is
+   a translucent white veil (rgba(255,255,255,0.055) in dark), so its composited
+   colour — and therefore the label's contrast — depended on whatever surface the
+   strip happened to sit on: --ink-3 measured 4.88 over --cream, 4.47 over
+   --cream-2 and 3.85 over --cream-3, i.e. AA held on the page but broke on both
+   raised stops. Pinning the track to the ramp's lightest opaque stop makes the
+   ratio 4.55 wherever the strip is used, which is exactly --ink-3's documented
+   floor on --cream-3, so the labels are no longer a special case. Deliberately
+   NOT fixed by brightening the label: that declaration is shared with the
+   underline variant, and it would narrow the muted step toward --ink-2. */
 .dark .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-list {
-	background: var(--surf-2);
+	background: var(--cream-3);
 }
 /* Inactive tabs: clearly readable but dimmer than active */
 .dark .ds-atom-tabs-trigger {
