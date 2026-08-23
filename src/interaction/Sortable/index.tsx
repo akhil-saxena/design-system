@@ -190,6 +190,33 @@ function useDndAccessibility(
 
 const noop = () => {};
 
+/**
+ * E35. Without an activation constraint, `pointerdown` starts a drag and
+ * `pointerup` ends it, so a PLAIN CLICK runs a complete drag cycle. Measured in
+ * Chromium against interaction-sortable--single-list, clicking the fourth tile:
+ *
+ *     click (0px)  -> "Draggable item task-d was dropped over droppable area task-d"
+ *     2px / 3px    -> same phantom drop
+ *
+ * With the announcer this library added in 01-15, that sentence is spoken into
+ * the live region on EVERY click. The admin's photo grid is 39 tiles and its core
+ * gesture is reordering them, so it was continuous false narration on the most
+ * used surface in the product, aimed exactly at the users the announcer exists
+ * for.
+ *
+ * 4px, not a delay. dnd-kit compares `Math.sqrt(dx^2 + dy^2) > distance`
+ * (core.esm.js:1043), so this is a radius rather than a per-axis box: any
+ * direction of travel past 4px activates. `delay` + `tolerance` is the other
+ * documented remedy and is worse for this component, because it puts latency in
+ * front of every DELIBERATE drag to fix a problem caused by accidental ones.
+ *
+ * 4 is above the 0-3px range measured for a press that is meant to be a click,
+ * and below a real drag: a 5px move still activates, so the dead zone is not
+ * perceptible in a gesture that intends to move a tile. Applied to BOTH sensor
+ * lists — `Sortable` and `SortableDndContext` — since the defect was in both.
+ */
+const POINTER_ACTIVATION = { distance: 4 } as const;
+
 class FocusScopedKeyboardSensor extends KeyboardSensor {
 	constructor(props: KeyboardSensorProps) {
 		// Wrapped BEFORE `super` so dnd-kit's own drop (Space) and cancel (Escape)
@@ -293,7 +320,7 @@ export function SortableDndContext({
 	const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
 	const sensors = useSensors(
-		useSensor(PointerSensor),
+		useSensor(PointerSensor, { activationConstraint: POINTER_ACTIVATION }),
 		useSensor(FocusScopedKeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
 	);
 
@@ -367,7 +394,7 @@ export function Sortable({
 	const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
 	const sensors = useSensors(
-		useSensor(PointerSensor),
+		useSensor(PointerSensor, { activationConstraint: POINTER_ACTIVATION }),
 		useSensor(FocusScopedKeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
 	);
 
