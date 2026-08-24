@@ -60,7 +60,7 @@ const SELECTOR = ".ds-atom-richtext-surface .ProseMirror mark";
 const PINNED_BG = "#fef08a";
 
 /** `--ink-inverse` per brand — mode-independent by construction in both. */
-const INK: Record<string, string> = { charcoal: "#161616", default: "#1c1917" };
+const INK: Record<string, string> = { charcoal: "#0d0d0f", default: "#1c1917" };
 
 interface Mark {
 	story: string;
@@ -181,9 +181,11 @@ for (const brand of BRANDS) {
 
 				// Brand, both halves, at the probed element.
 				if (brand === "charcoal") {
-					expect(tok["--ochre"], `${story}/${mode}: charcoal must declare --ochre`).toBe("#b0722a");
+					expect(tok["--ochre"], `${story}/${mode}: charcoal must declare --ochre`).toBe(
+						mode === "dark" ? "#f2f2f4" : "#8e8e97",
+					);
 					expect(tok["--cream"], `${story}/${mode}: charcoal neutrals not shadowed`).toBe(
-						mode === "dark" ? "#161616" : "#f4f1ea",
+						mode === "dark" ? "#0d0d0f" : "#fafafb",
 					);
 				} else {
 					expect(tok["--ochre"], `${story}/${mode}: default must NOT see --ochre`).toBe("");

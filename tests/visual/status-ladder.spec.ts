@@ -43,13 +43,20 @@ const STORY = "inputs-statuspill--status-ladder";
  *
  * Held as hex because that is what Chromium reports for a custom property:
  * `getPropertyValue` resolves the `var()` chain but keeps the AUTHORED format,
- * so `--amber: var(--ochre)` reads `#b0722a`, not `rgb(176, 114, 42)`. A first
- * draft of this file compared against the rgb spelling and every case failed —
- * which is the brand guard doing its job on itself.
+ * so charcoal's `--ochre: var(--amber)` reads `#8e8e97`, not `rgb(142,142,151)`.
+ * A first draft of this file compared against the rgb spelling and every case
+ * failed — which is the brand guard doing its job on itself.
+ *
+ * Per MODE for charcoal since 01-22. The alias direction also flipped: the
+ * accent literal now lives on `--amber`, the token components actually consume,
+ * and `--ochre` is the vestigial back-compat name pointing at it.
  */
-const BRAND_MARKER: Record<Brand, { amber: string; ochreIsSet: boolean }> = {
-	charcoal: { amber: "#b0722a", ochreIsSet: true },
-	default: { amber: "#f59e0b", ochreIsSet: false },
+const BRAND_MARKER: Record<
+	Brand,
+	{ amber: Record<"light" | "dark", string>; ochreIsSet: boolean }
+> = {
+	charcoal: { amber: { light: "#8e8e97", dark: "#f2f2f4" }, ochreIsSet: true },
+	default: { amber: { light: "#f59e0b", dark: "#f59e0b" }, ochreIsSet: false },
 };
 
 /**
@@ -112,7 +119,7 @@ async function readTriad(
 		expect(
 			got["--amber"],
 			`brand did not reach the probed element: --amber read ${JSON.stringify(got["--amber"])}. A story decorator setting className="dark" strands charcoal.css, which is root-scoped.`,
-		).toBe(marker.amber);
+		).toBe(marker.amber[mode]);
 		expect(
 			(got["--ochre"] ?? "").length > 0,
 			`--ochre is declared only by charcoal.css; read ${JSON.stringify(got["--ochre"])}`,
@@ -205,7 +212,9 @@ test("charcoal x light: the marker is a shape distinction, not another colour", 
 			selector: `.ds-atom-statuspill[data-tone="${tone}"] .ds-atom-statuspill-marker`,
 			props: ["background-color", "border-radius", "border-top-width", "--amber"],
 		});
-		expect(got["--amber"], "brand did not reach the marker").toBe(BRAND_MARKER.charcoal.amber);
+		expect(got["--amber"], "brand did not reach the marker").toBe(
+			BRAND_MARKER.charcoal.amber.light,
+		);
 		shapes[tone] = {
 			transparent: /rgba\([^)]*,\s*0\s*\)|transparent/.test(got["background-color"] as string),
 			radius: got["border-radius"] as string,
@@ -232,7 +241,7 @@ test("the preset stage path renders no marker, so no existing pill moves", async
 		selector: '.ds-atom-statuspill[data-stage="offer"]',
 		props: ["background-color", "--amber"],
 	});
-	expect(got["--amber"]).toBe(BRAND_MARKER.charcoal.amber);
+	expect(got["--amber"]).toBe(BRAND_MARKER.charcoal.amber.light);
 	// rgba(34,197,94,.14), unchanged by this plan.
 	expect(got["background-color"]).toMatch(/34,\s*197,\s*94/);
 });

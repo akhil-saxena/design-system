@@ -47,11 +47,19 @@ import { probeComputed, probeMeta } from "./computed";
  * a human gate.
  */
 
-/** Declared only in src/themes/charcoal.css — the brand fingerprint. */
-const OCHRE = "#b0722a";
+/**
+ * Declared only in src/themes/charcoal.css — the brand fingerprint.
+ *
+ * This file probes DARK stories only, so one value suffices; since 01-22 the
+ * token is per-mode and this is its dark value. It is a vestigial back-compat
+ * alias now rather than a colour of its own, which does not weaken it as a
+ * fingerprint: the default brand resolves it to the empty string either way,
+ * and that asymmetry is the whole assertion.
+ */
+const OCHRE = "#f2f2f4";
 /** src/themes/charcoal.css, :root[data-brand="charcoal"].dark */
-const CHARCOAL_DARK_CREAM = "#161616";
-const CHARCOAL_DARK_WIRE = "#727268";
+const CHARCOAL_DARK_CREAM = "#0d0d0f";
+const CHARCOAL_DARK_WIRE = "#6d6d73";
 /** src/tokens.css, ":root.dark, .dark" — what a shadowed probe reads instead. */
 const DS_DARK_CREAM = "#181818";
 const DS_DARK_WIRE = "rgba(255, 255, 255, 0.22)";

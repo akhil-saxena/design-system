@@ -96,8 +96,18 @@ const SELECTOR = [
 	".ds-atom-datepicker-cell.is-selected .ds-atom-datepicker-cell-num",
 ].join(", ");
 
-/** The accent each brand paints these fills with, per cell. */
-const ACCENT: Record<string, string> = { charcoal: "#b0722a", default: "#f59e0b" };
+/**
+ * The accent each brand paints these fills with, per cell.
+ *
+ * Charcoal is per-MODE since 01-22. Its accent used to be one ochre in both
+ * modes; the near-monochrome accent is a light neutral that inverts with the
+ * mode while --ink-inverse deliberately does not, which is the whole reason
+ * a filled control still carries dark ink in both.
+ */
+const ACCENT: Record<string, Record<string, string>> = {
+	charcoal: { light: "#8e8e97", dark: "#f2f2f4" },
+	default: { light: "#f59e0b", dark: "#f59e0b" },
+};
 
 interface Node {
 	story: string;
@@ -306,11 +316,13 @@ for (const cell of CELLS) {
 
 			// Brand, both halves, at the probed element.
 			if (cell.brand === "charcoal") {
-				expect(tok["--ochre"], `${story}: charcoal must declare --ochre`).toBe("#b0722a");
-				expect(tok["--cream"], `${story}: charcoal neutrals must not be shadowed`).toBe(
-					cell.mode === "dark" ? "#161616" : "#f4f1ea",
+				expect(tok["--ochre"], `${story}: charcoal must declare --ochre`).toBe(
+					cell.mode === "dark" ? "#f2f2f4" : "#8e8e97",
 				);
-				expect(tok["--ink-inverse"], `${story}: charcoal --ink-inverse`).toBe("#161616");
+				expect(tok["--cream"], `${story}: charcoal neutrals must not be shadowed`).toBe(
+					cell.mode === "dark" ? "#0d0d0f" : "#fafafb",
+				);
+				expect(tok["--ink-inverse"], `${story}: charcoal --ink-inverse`).toBe("#0d0d0f");
 			} else {
 				expect(tok["--ochre"], `${story}: default brand must NOT see --ochre`).toBe("");
 				expect(tok["--cream"], `${story}: default neutrals expected`).toBe(
@@ -331,9 +343,9 @@ for (const cell of CELLS) {
 				}
 				// (2) the fill really is the accent, so a ratio cannot pass by the
 				//     element having stopped being an accent fill at all.
-				if (n.bg !== ACCENT[cell.brand]) {
+				if (n.bg !== ACCENT[cell.brand]?.[cell.mode]) {
 					failures.push(
-						`${story} "${n.text}": backdrop composited to ${n.bg}, expected the brand accent ${ACCENT[cell.brand]} (stack: ${n.stack.join(" <- ")})`,
+						`${story} "${n.text}": backdrop composited to ${n.bg}, expected the brand accent ${ACCENT[cell.brand]?.[cell.mode]} (stack: ${n.stack.join(" <- ")})`,
 					);
 				}
 			}

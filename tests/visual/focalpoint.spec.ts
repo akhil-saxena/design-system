@@ -618,8 +618,9 @@ test.describe("brand", () => {
 				selector: DOT,
 				props: ["background-color", "--ochre", "--amber"],
 			});
-			expect(cha["--ochre"]).toBe("#b0722a");
-			expect(cha["background-color"]).toBe(hexToRgb("#b0722a"));
+			const charcoalAccent = mode === "dark" ? "#f2f2f4" : "#8e8e97";
+			expect(cha["--ochre"]).toBe(charcoalAccent);
+			expect(cha["background-color"]).toBe(hexToRgb(charcoalAccent));
 		});
 	}
 });

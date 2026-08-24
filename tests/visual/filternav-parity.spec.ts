@@ -22,9 +22,14 @@ import { type Brand, type Mode, probeComputed } from "./computed";
  */
 
 const STORY = "data-display-filternav--beside-segmented-control";
-const BRAND_AMBER: Record<Brand, string> = {
-	charcoal: "#b0722a",
-	default: "#f59e0b",
+/**
+ * Per MODE for charcoal since 01-22: the near-monochrome accent is a light
+ * neutral that inverts with the mode, where the retired ochre was one value in
+ * both. The default brand still declares its accent once at :root.
+ */
+const BRAND_AMBER: Record<Brand, Record<"light" | "dark", string>> = {
+	charcoal: { light: "#8e8e97", dark: "#f2f2f4" },
+	default: { light: "#f59e0b", dark: "#f59e0b" },
 };
 
 /** Container-level properties that must match between the two. */
@@ -98,7 +103,7 @@ async function read(
 	expect(
 		got["--amber"],
 		`brand did not reach ${selector}; a scoped .dark wrapper strands charcoal.css`,
-	).toBe(BRAND_AMBER[brand]);
+	).toBe(BRAND_AMBER[brand][mode]);
 	const { "--amber": _drop, ...rest } = got;
 	return rest;
 }

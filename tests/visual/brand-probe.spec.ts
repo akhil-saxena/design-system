@@ -130,10 +130,10 @@ test.describe("charcoal brand cascade", () => {
 		// being imported at all — every cell would agree on the design system's
 		// neutrals and this would go green while measuring nothing.
 		const expected = {
-			"--cream": ["#f4f1ea", "#161616"],
-			"--ochre-d-strong": ["#6b4417", "#d4a66d"],
-			"--amber": ["#b0722a", "#b0722a"],
-			"--panel": ["#fbf9f4", "#1e1e1d"],
+			"--cream": ["#fafafb", "#0d0d0f"],
+			"--ochre-d-strong": ["#4e4e54", "#b0b0b6"],
+			"--amber": ["#8e8e97", "#f2f2f4"],
+			"--panel": ["#ffffff", "#17171a"],
 		} as const;
 		for (const [token, [light, dark]] of Object.entries(expected)) {
 			expect.soft(norm(charcoalLight[token] ?? ""), `charcoal light ${token}`).toBe(light);
@@ -223,14 +223,17 @@ test.describe("charcoal brand cascade", () => {
 		// A painted colour, not a token read. Button primary sets its background as
 		// an inline style, so this is the one assertion in the file that could not
 		// be replaced by parsing CSS.
+		// The fill inverts with the mode and the ink does NOT, which is the shape of
+		// a monochrome accent: --ink-inverse is pinned dark in both modes because it
+		// also lands on a pinned light highlight literal no theme can reach.
 		expect
 			.soft(charcoalLight["background-color"], "charcoal light button fill")
-			.toBe(hexToRgb("#b0722a"));
+			.toBe(hexToRgb("#8e8e97"));
 		expect
 			.soft(charcoalDark["background-color"], "charcoal dark button fill")
-			.toBe(hexToRgb("#b0722a"));
-		expect.soft(charcoalLight.color, "charcoal light button ink").toBe(hexToRgb("#161616"));
-		expect.soft(charcoalDark.color, "charcoal dark button ink").toBe(hexToRgb("#161616"));
+			.toBe(hexToRgb("#f2f2f4"));
+		expect.soft(charcoalLight.color, "charcoal light button ink").toBe(hexToRgb("#0d0d0f"));
+		expect.soft(charcoalDark.color, "charcoal dark button ink").toBe(hexToRgb("#0d0d0f"));
 		// The negative half: without the brand the same element paints the design
 		// system's amber, which is what makes the charcoal readings attributable.
 		expect
