@@ -212,6 +212,138 @@ describe("token layer", () => {
 	});
 });
 
+/**
+ * THE SEAM between the two exhaustiveness checks above, which is where the
+ * amber focus ring lived undetected through fifteen plans.
+ *
+ * The mirrors above compare charcoal's own two blocks against each other, and
+ * the tokens.css mirror compares its dark block against its light one. Neither
+ * can see a token that tokens.css overrides in ITS OWN dark block while
+ * charcoal never mentions it at all: such a token is in lightTokens and in
+ * darkTokens, so the first mirror is satisfied, and it is in neither
+ * charcoalLight nor charcoalDark, so both charcoal mirrors are satisfied
+ * vacuously. --focus-ring-soft was exactly that shape. It spelled --amber-d as
+ * an rgba literal in both tokens.css blocks, so charcoal's `--focus` rebinding
+ * could not reach it, and every focused text field in charcoal dark drew a
+ * #fbbf24 glow at 30% around an ochre border. No contrast gate samples it
+ * because it is a box-shadow, and no exhaustiveness gate compared it because
+ * charcoal never overrode it.
+ *
+ * So assert reachability directly rather than symmetry: a brand-accent colour
+ * spelled as a LITERAL in tokens.css is unreachable by any brand, and charcoal
+ * must therefore redeclare the token that carries it.
+ */
+describe("brand accent reach", () => {
+	/** Comments are not declarations. Strip them, or a token name mentioned in
+	 * prose satisfies the gate and a hex quoted in prose fails it. */
+	const stripComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, "");
+
+	/** Parsed NAME/VALUE pairs — literals are only ever read from the value. */
+	function valueDecls(css: string): [string, string][] {
+		const out: [string, string][] = [];
+		for (const m of stripComments(css).matchAll(/^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);/gim))
+			out.push([m[1]!, m[2]!.replace(/\s+/g, " ").trim()]);
+		return out;
+	}
+
+	/** Every sRGB literal in a value, as 8-bit channels. */
+	function literals(value: string): [string, [number, number, number]][] {
+		const out: [string, [number, number, number]][] = [];
+		for (const m of value.matchAll(/#([0-9a-fA-F]{6})\b/g)) {
+			const h = m[1]!;
+			out.push([
+				m[0]!,
+				[
+					Number.parseInt(h.slice(0, 2), 16),
+					Number.parseInt(h.slice(2, 4), 16),
+					Number.parseInt(h.slice(4, 6), 16),
+				],
+			]);
+		}
+		for (const m of value.matchAll(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/g))
+			out.push([`${m[0]!})`, [Number(m[1]), Number(m[2]), Number(m[3])]]);
+		return out;
+	}
+
+	function hue([r, g, b]: [number, number, number]): number | null {
+		const mx = Math.max(r, g, b);
+		const d = mx - Math.min(r, g, b);
+		if (d === 0) return null;
+		const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+		return (((h * 60) % 360) + 360) % 360;
+	}
+
+	/**
+	 * A BRAND accent, as opposed to a warm-tinted neutral or a status colour.
+	 * Two axes, both needed, and the thresholds are the reason this gate does
+	 * not have an allowlist to erode:
+	 *
+	 *  - channel spread >= 60/255 is chroma. It admits the amber ramp (#b45309
+	 *    spreads 171, #fbbf24 spreads 215) and rejects warm-tinted NEUTRALS,
+	 *    which charcoal is entitled to inherit: --g-bd spreads 28,
+	 *    --fill-disabled 12, the dark --g-bg 4.
+	 *  - hue 18-70 is the amber/ochre wedge. It rejects the status reds, which
+	 *    charcoal deliberately shares rather than rebrands: every one of them
+	 *    sits at hue 0-3.5 (--red, --red-ink, --red-vivid, --error-ring).
+	 */
+	const SPREAD_MIN = 60;
+	const isBrandAccent = (rgb: [number, number, number]) => {
+		const h = hue(rgb);
+		return h !== null && Math.max(...rgb) - Math.min(...rgb) >= SPREAD_MIN && h >= 18 && h <= 70;
+	};
+
+	it("rejects a comment and rejects a status red, so the two axes are real", () => {
+		// The gate must read declarations, not prose.
+		expect(valueDecls("/* --x: #fbbf24; */\n--y: #101010;").map(([n]) => n)).toEqual(["--y"]);
+		// Amber ramp in, status reds and warm neutrals out.
+		expect(isBrandAccent([180, 83, 9])).toBe(true); // --amber-d light
+		expect(isBrandAccent([251, 191, 36])).toBe(true); // --amber-d dark
+		expect(isBrandAccent([184, 70, 63])).toBe(false); // --error-ring light, hue 3.5
+		expect(isBrandAccent([240, 164, 160])).toBe(false); // --error-ring dark, hue 3.0
+		expect(isBrandAccent([247, 236, 219])).toBe(false); // --g-bd, spread 28
+	});
+
+	it("leaves no brand-accent literal in tokens.css beyond charcoal's reach", () => {
+		const unreachable: string[] = [];
+		for (const [mode, sel] of [
+			["light", ":root {"],
+			["dark", ":root.dark,"],
+		] as const)
+			for (const [name, value] of valueDecls(block(tokensCss, sel)))
+				for (const [lit, rgb] of literals(value))
+					if (isBrandAccent(rgb) && !charcoalLight.has(name))
+						unreachable.push(
+							`tokens.css ${mode} ${name}: ${lit} is a brand accent charcoal cannot reach`,
+						);
+		expect(unreachable).toEqual([]);
+	});
+
+	it("smuggles no foreign accent into charcoal itself", () => {
+		// The bypass the case above cannot see: redeclare the token INSIDE
+		// charcoal and paint it amber anyway. Charcoal's own accent literals must
+		// come from its ochre ramp, so a foreign hex is named rather than blessed
+		// by the mere fact of being declared in the right file.
+		const ochreRamp = new Set<string>();
+		for (const sel of [CHARCOAL_LIGHT, CHARCOAL_DARK])
+			for (const [name, value] of valueDecls(block(charcoalCss, sel)))
+				if (name.includes("ochre"))
+					for (const [, rgb] of literals(value)) ochreRamp.add(rgb.join());
+		// The ramp must actually be populated, or every comparison below is vacuous.
+		expect(ochreRamp.size).toBeGreaterThanOrEqual(4);
+
+		const foreign: string[] = [];
+		for (const [mode, sel] of [
+			["light", CHARCOAL_LIGHT],
+			["dark", CHARCOAL_DARK],
+		] as const)
+			for (const [name, value] of valueDecls(block(charcoalCss, sel)))
+				for (const [lit, rgb] of literals(value))
+					if (isBrandAccent(rgb) && !ochreRamp.has(rgb.join()))
+						foreign.push(`charcoal ${mode} ${name}: ${lit} is not one of charcoal's ochre values`);
+		expect(foreign).toEqual([]);
+	});
+});
+
 // ── Contrast ────────────────────────────────────────────────────────────────
 function srgb(c: number) {
 	const v = c / 255;
