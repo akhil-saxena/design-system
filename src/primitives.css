@@ -5032,10 +5032,25 @@ fieldset.ds-atom-field {
 	margin: 14px 0 6px 0;
 	line-height: 1.4;
 }
-/* Highlight mark */
+/* Highlight mark.
+
+   `color: inherit` was the defect: this rule PINS a pale yellow background that
+   no brand or mode can move, and then delegates the foreground to whatever the
+   surrounding text colour happens to be. In dark mode that inherited ink is
+   near-white, so the highlighted word became invisible — 1.061:1 under charcoal
+   and 1.006:1 under the DEFAULT brand, the worst readings measured anywhere in
+   the charcoal a11y sweep. The default brand is not exempt and never was; axe
+   simply declines to report a ratio that rounds to 1.00, returning `incomplete`
+   with messageKey `equalRatio` instead of a violation, so the green default-brand
+   gate has been hiding it.
+
+   Pinning a background and inheriting a foreground is the one combination that
+   cannot be safe across modes. `--ink-inverse` is exactly "ink that stays dark on
+   a light fill in both modes" and is the same token G1 uses for the accent fills:
+   #161616 in charcoal (14.4:1 here) and #1c1917 in the default brand (13.9:1). */
 .ds-atom-richtext-surface .ProseMirror mark {
 	background: #fef08a;
-	color: inherit;
+	color: var(--ink-inverse);
 	border-radius: 2px;
 	padding: 0 1px;
 }
