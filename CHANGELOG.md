@@ -225,6 +225,22 @@ value are now declared.
 - **A plain click on a `Sortable` tile ran a whole drag cycle**, announcing "was
   dropped over…" on every click. The pointer sensor now requires real movement
   before a drag begins.
+- **`DatePicker`, `SplitButton` and `DateRangePicker` failed WCAG AA under
+  charcoal in both modes**, all measuring exactly **4.402:1**. Each hardcoded
+  `#1c1917` for its ink — which *is* the default brand's `--ink-inverse`, so
+  charcoal could never override it. Now reading the token: **4.555:1**. Because the
+  literal and the token agree in the default brand, this moved **27 charcoal nodes
+  and zero default ones** — measured, not assumed.
+- **Tinted `StatusPill` stages were unreadable in charcoal dark**, at **1.29:1**
+  and **1.53:1**. The cause was `--amber-ink` collapsed to a single dark value
+  across both modes and then used on a 10% tint. A census of all five consumers
+  found none is a solid fill, so the token was wrong rather than misused, and
+  fixing it repaired `Badge` and the open `DatePicker` trigger too. Now **6.31:1**
+  and **5.34:1**.
+- **A `RichText` `mark` was invisible in both brands** — **1.061:1** under
+  charcoal and **1.006:1** in the *default* brand, which was the worse of the two
+  and had never been reported, because axe declines to judge a ratio rounding to
+  1.00. Now **15.55:1** and **15.03:1**.
 - **Charcoal's active tab pill label was below AA**, and the dark pill track was
   translucent, so an inactive tab label's contrast depended on whatever happened
   to be behind the component.
@@ -270,20 +286,48 @@ shipped an unstyled pager.
 
 ### Known issues in this beta
 
-These are why it is a beta. All three are recorded, none is fixed here.
+These are why it is a beta. Every figure below was measured in a browser with the
+brand asserted at the probed element, not read off a linter.
 
-- **`DatePicker` and `SplitButton` fail WCAG AA under charcoal**, in both modes,
-  measuring **4.402:1** against the 4.5:1 threshold. Both hardcode an ink value
-  instead of reading the token.
-- **Warning-tone `AlertBanner` and `Toast` keep JobDash's amber in charcoal
-  dark.** `primitives.css` hardcodes `#fbbf24` for the warning border and icon,
-  which bypasses the `--amber*` → ochre bridge, so a charcoal page shows a yellow
-  warning. The same hardcoding exists on a `DatePicker` range-end hover state, in
-  the RichText code-block token colours, and in the `.jd-markdown` utilities.
-- **`npm run test:a11y` does not cover charcoal unless you ask it to.** The
-  brand global defaults to `default` and no story overrides it, so a green
-  unqualified run says nothing about charcoal. Use `DS_BRAND=charcoal` for that,
-  and expect the two failures above.
+**Charcoal's own accessibility sweep is not clean, and the honest number is
+larger than the gate reports.**
+
+`DS_BRAND=charcoal npm run test:a11y` fails **11 stories**. Two root causes remain,
+both deliberately unfixed because each needs a decision rather than an edit:
+
+- **A pale amber flattens onto a mid-tone ochre** (4 stories). Warning-tone
+  `AlertBanner` and `Toast` keep a pale `--amber-l` that charcoal maps onto
+  `--ochre`, so ratios land between **1.92:1 and 4.46:1**. Every candidate repair
+  either adds public token surface or moves default-brand baselines, so it is a
+  theme decision, not a one-line fix.
+- **`--ochre` used as text on a pinned near-black surface** (7 stories). Charcoal
+  has no mode-independent "accent on near-black" token, which is what this needs.
+  The clearest instance is `.ds-atom-table-sort-indicator`, which paints `--ochre`
+  as **9px text** at **3.775–3.796:1** across 7 stories — and unlike the other
+  instances, that is code a real consumer renders.
+
+**The gate under-reports, and this is the part worth reading.** Four separate blind
+spots mean a green `test:a11y` is weaker evidence than it looks:
+
+1. `checkA11y` is scoped to `#storybook-root`, so anything portaled to
+   `document.body` is invisible — `Toast`'s own log prints *"Found 1 a11y
+   violations"* and then prints **PASS**.
+2. Backgrounds painted by a `::before` return `incomplete` rather than
+   `violation`, and the gate does not fail on `incomplete`.
+3. axe refuses to judge a ratio that rounds to 1.00, returning `equalRatio`. That
+   is how a **1.006:1** failure in the *default* brand stayed green.
+4. Two shipped states are rendered by no story at all, so nothing can measure
+   them.
+
+Measured with those holes closed, **21 further stories (28 nodes)** sit below AA
+that the gate never fails on, plus an undecidable tail of up to 18 more. So the
+pre-release total was **46–64 stories, not 25**. Fixing the scoping is deliberately
+not in this beta: it would turn a green gate red across a surface nobody has
+triaged yet, and that is a choice to make in daylight rather than in a release.
+
+**`npm run test:a11y` does not cover charcoal unless you ask it to.** The brand
+global defaults to `default` and no story overrides it, so an unqualified green run
+says nothing about charcoal. Use `DS_BRAND=charcoal`.
 
 ## 1.11.4 — Invisible tracks, and a visual suite that was hiding failures
 
