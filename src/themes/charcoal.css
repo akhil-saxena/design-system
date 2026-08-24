@@ -357,12 +357,37 @@
 	   exceptions, and because a family declared in light alone is exactly the
 	   order-dependent bug the header describes. Identical in TEXT but not in
 	   value: --ochre-d differs by mode, so each alias follows its own referent
-	   here. --amber-ink stays charcoal for the same reason --ink-inverse does -
-	   it is the ink ON an ochre fill, and --ochre does not change between
-	   modes. */
+	   here.
+
+	   --amber-ink does NOT follow --ink-inverse here, and the reason it used to
+	   was a misreading of the token. The old rationale was "it is the ink ON an
+	   ochre fill, and --ochre does not change between modes" - true of a SOLID
+	   ochre fill, and this token is not for solid fills. tokens.css defines it as
+	   "text colours for use *on a tinted pill* of the same hue (Badge, Chip,
+	   StatusPill, error summaries)", and the design system honours that by
+	   flipping it to a light #f5c56b in dark, because a 10-18% wash of amber over
+	   a near-black page composites to something essentially as dark as the page.
+	   Pinning it to #161616 in dark put near-black ink on near-black surfaces.
+
+	   Measured across every consumer of --amber-ink in charcoal dark - there are
+	   four, and NONE of them is a solid ochre fill:
+
+	     StatusPill screening      rgba(245,158,11,0.10)   1.18 -> 6.93
+	     StatusPill interviewing   rgba(245,158,11,0.18)   1.39 -> 5.87
+	     Badge [data-tone=warning] rgba(245,158,11,0.15)   1.30 -> 6.27
+	     DatePicker .is-open       --paper-warm/--cream-2  1.09 -> 7.53
+
+	   (ranges are the worst of the three surface stops; all four failed on all
+	   three before, all four clear AA on all three after.)
+
+	   --ochre-d-strong is this theme's own ochre-as-TEXT step and the value
+	   tokens.test.ts already documents for that role. Only the DARK block moves:
+	   charcoal light reads 15.263 / 14.451 on the same pills with --ink-inverse
+	   and is left alone. Solid ochre fills are unaffected - they take
+	   --ink-inverse directly, which is what G1 pointed them at. */
 	--amber: var(--ochre);
 	--amber-d: var(--ochre-d);
-	--amber-ink: var(--ink-inverse);
+	--amber-ink: var(--ochre-d-strong);
 	--amber-l: var(--ochre);
 	--amber-soft: var(--ochre);
 	--amber-vivid: var(--ochre);

@@ -6660,34 +6660,15 @@ fieldset.ds-atom-field {
 	background: rgba(34, 197, 94, 0.18);
 	color: var(--green);
 }
-/* The two amber-tinted stages need the same dark-mode ink treatment `offer` has
-   above, and for a sharper reason: `--amber-ink` is documented (tokens.css) as
-   "text for use ON A TINTED PILL of the same hue", and the default brand honours
-   that by flipping it to a LIGHT #f5c56b in dark. Charcoal aliases it to
-   `--ink-inverse` = #161616 in BOTH modes, on the stated grounds that it is "the
-   ink on an --ochre fill" — correct for a solid fill and catastrophic for a 10%
-   tint, where the composited surface is essentially the page. Charcoal dark
-   measured 1.294:1 (screening) and 1.530:1 (interviewing); the labels are
-   effectively invisible, and no surface stop rescues them (1.178-1.648 across
-   --cream / --cream-2 / --cream-3).
-
-   `--ochre-d-strong` is the theme's own ochre-as-TEXT step — tokens.test.ts
-   states "all ochre TEXT uses --ochre-d or --ochre-d-strong" — and in dark it is
-   #d4a66d, which clears AA on all three stops (4.96-6.93). It is declared only
-   in charcoal.css, so the fallback carries every other brand through unchanged:
-   the default brand resolves to `--amber-ink` #f5c56b exactly as it does today,
-   which is why no default baseline moves. A `[data-brand="charcoal"]` selector
-   would have hardcoded one brand into the component layer, which this file does
-   nowhere; the fallback says the thing that is actually meant — use the theme's
-   ochre-text step if it has one.
-
-   NOT a change to charcoal's `--amber-ink` itself: that would also move Badge
-   `[data-tone="warning"]` and the open DatePicker trigger, which are outside this
-   fix's measured scope. The defect is this tint, not the token. */
-.dark .ds-atom-statuspill[data-stage="screening"],
-.dark .ds-atom-statuspill[data-stage="interviewing"] {
-	color: var(--ochre-d-strong, var(--amber-ink));
-}
+/* The two stages above are correct as written: `--amber-ink` is defined by
+   tokens.css as the ink for a TINTED pill of the same hue, which is exactly what
+   they are. Charcoal used to alias it to `--ink-inverse` in dark and so painted
+   near-black ink on a near-black page — 1.294:1 and 1.530:1. That was a theme
+   bug, not a component bug, and it is fixed in src/themes/charcoal.css by
+   pointing charcoal's DARK `--amber-ink` at its own ochre-as-text step. Fixing it
+   here instead was tried and is wrong twice over: `src/tokens.test.ts` requires
+   every var() in this file to resolve from the BASE token layer, and the same
+   defect was independently failing three other consumers of the token. */
 .ds-atom-statuspill:focus-visible {
 	outline: none;
 	box-shadow: var(--focus-ring);

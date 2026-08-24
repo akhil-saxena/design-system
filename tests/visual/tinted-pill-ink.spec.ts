@@ -15,6 +15,12 @@ import { probeComputed } from "./computed";
  * modes, so charcoal dark put near-black ink on a near-black page and measured
  * 1.294:1 and 1.530:1 — the second-worst readings in the charcoal sweep.
  *
+ * The component declarations were never wrong; the theme's alias was. Charcoal's
+ * DARK `--amber-ink` now points at its own ochre-as-text step, which fixes all
+ * FOUR of the token's charcoal-dark consumers — the two pills here, plus Badge
+ * `[data-tone="warning"]` (1.30 -> 6.27) and the open DatePicker trigger
+ * (1.09 -> 7.53). Neither of those two is rendered by any story, in either mode.
+ *
  * WHY THE RATIO ASSERTION IS NOT ENOUGH, AND WHAT THE SECOND ONE ADDS
  *
  * 1. THE RATIO, composited by hand. These are the only two nodes in the whole
@@ -210,7 +216,7 @@ for (const cell of CELLS) {
 				brand: cell.brand,
 				mode: cell.mode,
 				selector: "#storybook-root",
-				props: ["--ochre", "--cream", "--amber-ink", "--ochre-d-strong"],
+				props: ["--ochre", "--cream", "--amber-ink"],
 			});
 
 			// Brand, both halves, at the probed element.
@@ -219,27 +225,37 @@ for (const cell of CELLS) {
 				expect(tok["--cream"], `${story}: charcoal neutrals must not be shadowed`).toBe(
 					cell.mode === "dark" ? "#161616" : "#f4f1ea",
 				);
-				// The token the fix leans on must actually exist in this cell —
-				// otherwise the fallback silently delivers the broken value and the
-				// ratio assertion below would be testing the default brand's ink.
-				expect(
-					tok["--ochre-d-strong"],
-					`${story}: charcoal must declare --ochre-d-strong, or the fix's fallback resolves to --amber-ink`,
-				).toBe(cell.mode === "dark" ? "#d4a66d" : "#6b4417");
 			} else {
 				expect(tok["--ochre"], `${story}: default brand must NOT see --ochre`).toBe("");
 				expect(tok["--cream"], `${story}: default neutrals expected`).toBe(
 					cell.mode === "dark" ? "#181818" : "#fcfcfc",
 				);
-				// The asymmetry the fix depends on: absent here, so the fallback runs.
-				expect(
-					tok["--ochre-d-strong"],
-					`${story}: --ochre-d-strong must stay charcoal-only, or the default brand's ink has silently changed`,
-				).toBe("");
-				expect(tok["--amber-ink"], `${story}: default --amber-ink`).toBe(
-					cell.mode === "dark" ? "#f5c56b" : "#92400e",
-				);
 			}
+
+			// THE TOKEN CONTRACT, which is where the fix actually lives.
+			//
+			// tokens.css defines `--amber-ink` as the ink for a TINTED pill of the same
+			// hue. Charcoal aliased it to `--ink-inverse` in BOTH modes, which is right
+			// for a solid ochre fill and wrong for a wash, and that alias was the whole
+			// defect. Pinning the resolved value per cell is worth more than the ratio
+			// assertions below on their own, because `--amber-ink` has FOUR consumers in
+			// charcoal dark and only one of them — this pill — is rendered by any story
+			// at all. Badge `[data-tone="warning"]` and the open DatePicker trigger are
+			// shipped states no story reaches, so no story-driven sweep, axe's or this
+			// one's, can measure them. Asserting the token is the only coverage those
+			// two have, which is why this is not redundant with the ratios below.
+			expect(
+				tok["--amber-ink"],
+				`${story}: --amber-ink must be the tinted-pill ink for this cell. Charcoal dark aliasing it back to --ink-inverse is the defect this file exists for, and it would silently re-break Badge and the open DatePicker trigger too, which no story renders`,
+			).toBe(
+				cell.brand === "charcoal"
+					? cell.mode === "dark"
+						? "#d4a66d"
+						: "#161616"
+					: cell.mode === "dark"
+						? "#f5c56b"
+						: "#92400e",
+			);
 
 			const pills = await measurePills(page, story);
 			all.push(...pills);
