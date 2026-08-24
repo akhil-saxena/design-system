@@ -318,28 +318,35 @@ describe("brand accent reach", () => {
 		expect(unreachable).toEqual([]);
 	});
 
-	it("smuggles no foreign accent into charcoal itself", () => {
+	it("smuggles no accent hue into charcoal itself", () => {
 		// The bypass the case above cannot see: redeclare the token INSIDE
-		// charcoal and paint it amber anyway. Charcoal's own accent literals must
-		// come from its ochre ramp, so a foreign hex is named rather than blessed
-		// by the mere fact of being declared in the right file.
-		const ochreRamp = new Set<string>();
-		for (const sel of [CHARCOAL_LIGHT, CHARCOAL_DARK])
-			for (const [name, value] of valueDecls(block(charcoalCss, sel)))
-				if (name.includes("ochre"))
-					for (const [, rgb] of literals(value)) ochreRamp.add(rgb.join());
-		// The ramp must actually be populated, or every comparison below is vacuous.
-		expect(ochreRamp.size).toBeGreaterThanOrEqual(4);
-
+		// charcoal and paint it amber anyway.
+		//
+		// This assertion used to compare charcoal's own literals against its ochre
+		// ramp, and that premise is gone: charcoal is near-monochrome and HAS no
+		// accent ramp to compare against. The successor is strictly stronger and
+		// needs no reference set at all - charcoal may declare NO brand-accent
+		// literal whatsoever. A set-difference gate can pass vacuously on an empty
+		// reference; "there are none" cannot.
 		const foreign: string[] = [];
+		let scanned = 0;
 		for (const [mode, sel] of [
 			["light", CHARCOAL_LIGHT],
 			["dark", CHARCOAL_DARK],
 		] as const)
 			for (const [name, value] of valueDecls(block(charcoalCss, sel)))
-				for (const [lit, rgb] of literals(value))
-					if (isBrandAccent(rgb) && !ochreRamp.has(rgb.join()))
-						foreign.push(`charcoal ${mode} ${name}: ${lit} is not one of charcoal's ochre values`);
+				for (const [lit, rgb] of literals(value)) {
+					scanned++;
+					if (isBrandAccent(rgb))
+						foreign.push(
+							`charcoal ${mode} ${name}: ${lit} is an accent hue, and charcoal has no accent hue`,
+						);
+				}
+		// Anti-vacuity, in the one form that still applies: the scan must actually
+		// have parsed charcoal's literals. A parse that yields nothing would report
+		// "no accent found" for the wrong reason, which is the failure mode this
+		// file has shipped before.
+		expect(scanned, "parsed no colour literals out of charcoal at all").toBeGreaterThanOrEqual(20);
 		expect(foreign).toEqual([]);
 	});
 });
@@ -645,23 +652,29 @@ describe("charcoal token contrast (WCAG)", () => {
 	 * The three bars, with the contract's measured values recorded beside each
 	 * so a reader can see exactly what moved. Order is page / paper / panel.
 	 *
+	 * Every figure below was RECOMPUTED when charcoal went near-monochrome in
+	 * plan 01-22. The surfaces themselves moved, so not one number here is
+	 * carried over from the warm palette.
+	 *
 	 * 7:1 AAA - D-46's targeted AAA, adopted rather than contingent
-	 *   --ink-3           light  7.61  8.16  7.09    dark  8.18  7.54  7.02
+	 *   --ink-3           light  7.44  7.76  7.06    dark  8.21  7.56  7.02
 	 *   --ink-4           an alias of --ink-3, so the two cannot diverge by mode
-	 *   --ochre-d-strong  light  7.55  8.10  7.03    dark  8.16  7.53  7.01
+	 *   --ochre-d-strong  light  7.92  8.26  7.52    dark  9.00  8.29  7.70
 	 *
 	 * 4.5:1 AA - body text
-	 *   --ink             light 15.71 16.84 14.62    dark 14.65 13.51 12.58
-	 *   --ink-2           light  9.12  9.78  8.50    dark 10.51  9.69  9.02
-	 *   --ochre-d         light  5.22  5.60  4.86    dark  6.02  5.55  5.17
+	 *   --ink             light 18.07 18.85 17.16    dark 17.37 16.00 14.86
+	 *   --ink-2           light  9.57  9.98  9.08    dark 10.61  9.77  9.08
+	 *   --ochre-d         light  5.63  5.88  5.35    dark  6.52  6.01  5.58
 	 *
 	 * 3:1 SC 1.4.11 - non-text: a control's sole boundary, and the focus ring
-	 *   --wire            light  3.44  3.68  3.20    dark  3.72  3.43  3.20
-	 *   --focus           bound to --ochre-d, so it carries that row
+	 *   --wire            light  3.38  3.52  3.21    dark  3.78  3.48  3.23
+	 *   --focus           bound to --ink now, not to the accent, because a
+	 *                     neutral accent is a mid grey and would make a weaker
+	 *                     ring than the page's own text colour
 	 *
-	 * The tightest three, i.e. what a regression reaches first: 7.01 (dark
-	 * --ochre-d-strong on panel), 4.86 (light --ochre-d on panel) and 3.20
-	 * (--wire on panel, in BOTH modes).
+	 * The tightest three, i.e. what a regression reaches first: 7.02 (dark
+	 * --ink-3 on panel), 5.35 (light --ochre-d on panel) and 3.21 (--wire on
+	 * panel in light, 3.23 in dark).
 	 */
 	const TIERS = [
 		[7, "7:1 (AAA)", ["--ink-3", "--ink-4", "--ochre-d-strong"]],
@@ -670,29 +683,48 @@ describe("charcoal token contrast (WCAG)", () => {
 	] as const;
 
 	/**
-	 * Rule C-1, asserted DIRECTIONALLY - the half of this register that is easy
-	 * to get backwards. --ochre #b0722a is a FILL and a decorative stroke, never
-	 * text; all ochre TEXT uses --ochre-d or --ochre-d-strong. It clears the
-	 * 4.5:1 text bar on exactly one of the six surfaces, the dark page, and
-	 * fails the other five. That is the contract, not a defect: Work's project
-	 * cards, the case-study screenshots and the whole admin sit on RAISED
-	 * surfaces, where it measures 4.20 and 3.91, so an ochre text colour would
-	 * fail almost everywhere it actually appears.
+	 * The accent contract, asserted DIRECTIONALLY - the half of this register
+	 * that is easy to get backwards, rewritten in 01-22 because its previous
+	 * premise no longer exists.
 	 *
-	 * Pinned at 2dp in BOTH directions on purpose. If someone quietly darkens
-	 * --ochre to make a lint pass, the fill/text distinction is lost and Rule
-	 * C-2's ink flip goes with it - --ink-inverse is charcoal on ochre in both
-	 * modes precisely because ochre is a fill. A one-sided toBeLessThan(4.5)
-	 * would wave that edit through, so it is not used here.
+	 * It used to pin six ratios proving --ochre was a mid-tone FILL that failed
+	 * the text bar on five of six surfaces. Charcoal has no ochre any more, so
+	 * that contract is retired rather than adjusted, and these six cases pin the
+	 * two invariants the monochrome accent actually rests on. Both are load
+	 * bearing and neither is obvious from the values alone:
+	 *
+	 *   1. THE ACCENT FILL IS LIGHT IN BOTH MODES. It does not invert with the
+	 *      mode, because --ink-inverse does not either - every consumer that
+	 *      fills with --amber sets a dark foreground (--ink-inverse, a literal
+	 *      black, or #1f1b17), and --ink-inverse additionally lands on a pinned
+	 *      #fef08a highlight that no theme can reach. So a filled control is a
+	 *      light slab with dark ink in BOTH modes, and darkening the light-mode
+	 *      accent - which a monochrome light theme otherwise wants to do - would
+	 *      put dark ink on a dark fill everywhere at once.
+	 *
+	 *   2. THE ACCENT MUST READ ON THE TWO PINNED NEAR-BLACK CHIPS. AppBar's
+	 *      DefaultLogo hardcodes background #1c1c1a and Card's dark variant
+	 *      hardcodes #1c1917, both with color: var(--amber). Those literals are
+	 *      beyond any theme's reach, so the theme has to come to them. This is
+	 *      finding G3, which measured 4.30 and 4.40 under the warm accent and
+	 *      failed AA on seven stories; it is closed BY CONSTRUCTION here, and
+	 *      these four cases are what keep it closed.
+	 *
+	 * Pinned at 2dp in BOTH directions on purpose, exactly as the contract they
+	 * replace was. A one-sided toBeGreaterThan would wave through someone
+	 * quietly lightening the light-mode accent until the chips pass and the fill
+	 * has stopped reading as a fill.
 	 */
-	const OCHRE = {
-		"light page": 3.52,
-		"light paper": 3.78,
-		"light panel": 3.28,
-		"dark page": 4.56,
-		"dark paper": 4.2,
-		"dark panel": 3.91,
-	} as const;
+	const PINNED_APPBAR_CHIP = "#1c1c1a";
+	const PINNED_CARD_CHIP = "#1c1917";
+	const ACCENT_CONTRACT = {
+		"light --ink-inverse on --amber": 5.98,
+		"dark --ink-inverse on --amber": 17.37,
+		[`light --amber on the pinned AppBar chip ${PINNED_APPBAR_CHIP}`]: 5.26,
+		[`dark --amber on the pinned AppBar chip ${PINNED_APPBAR_CHIP}`]: 15.27,
+		[`light --amber on the pinned Card chip ${PINNED_CARD_CHIP}`]: 5.38,
+		[`dark --amber on the pinned Card chip ${PINNED_CARD_CHIP}`]: 15.64,
+	} as Record<string, number>;
 
 	/**
 	 * Measured at collection time so each case NAME carries its ratio and the
@@ -704,6 +736,15 @@ describe("charcoal token contrast (WCAG)", () => {
 	function measure(selector: string, fg: string, bg: string): number | string {
 		try {
 			return contrast(resolve(charcoalCss, selector, fg), resolve(charcoalCss, selector, bg));
+		} catch (e) {
+			return (e as Error).message;
+		}
+	}
+
+	/** Same, but against a hex a COMPONENT pins beyond any theme's reach. */
+	function measureOnLiteral(selector: string, fg: string, bgHex: string): number | string {
+		try {
+			return contrast(resolve(charcoalCss, selector, fg), bgHex);
 		} catch (e) {
 			return (e as Error).message;
 		}
@@ -730,28 +771,44 @@ describe("charcoal token contrast (WCAG)", () => {
 	}
 
 	for (const [mode, selector] of MODES) {
-		for (const [surface, surfaceToken] of SURFACES) {
-			const expected = OCHRE[`${mode} ${surface}`];
-			const passes = expected >= 4.5;
-			const m = measure(selector, "--ochre", surfaceToken);
+		// 1. The accent fill carries dark ink, in BOTH modes.
+		const inkOnFill = measure(selector, "--ink-inverse", "--amber");
+		const inkShown = typeof inkOnFill === "number" ? inkOnFill.toFixed(2) : "unresolved";
+		const inkExpected = ACCENT_CONTRACT[`${mode} --ink-inverse on --amber`];
+		cases.push({
+			name: `charcoal ${mode} --ink-inverse clears the 4.5:1 text bar on the --amber fill = ${inkShown}`,
+			run: () => {
+				if (typeof inkOnFill === "string") throw new Error(inkOnFill);
+				expect(Number(inkOnFill.toFixed(2))).toBe(inkExpected);
+				expect(inkOnFill).toBeGreaterThanOrEqual(4.5);
+			},
+		});
+
+		// 2. The accent reads on the two chips components pin beyond reach (G3).
+		for (const [chip, hex] of [
+			["AppBar", PINNED_APPBAR_CHIP],
+			["Card", PINNED_CARD_CHIP],
+		] as const) {
+			const m = measureOnLiteral(selector, "--amber", hex);
 			const shown = typeof m === "number" ? m.toFixed(2) : "unresolved";
-			const verb = passes ? "clears" : "fails";
+			const expected = ACCENT_CONTRACT[`${mode} --amber on the pinned ${chip} chip ${hex}`];
 			cases.push({
-				name: `charcoal ${mode} --ochre ${verb} the 4.5:1 text bar on ${surface} = ${shown}`,
+				name: `charcoal ${mode} --amber clears the 4.5:1 text bar on the pinned ${chip} chip ${hex} = ${shown}`,
 				run: () => {
 					if (typeof m === "string") throw new Error(m);
 					expect(Number(m.toFixed(2))).toBe(expected);
-					expect(m >= 4.5).toBe(passes);
+					expect(m).toBeGreaterThanOrEqual(4.5);
 				},
 			});
 		}
 	}
 
-	it("measures 54 charcoal cases: 48 tiered plus 6 directional --ochre", () => {
+	it("measures 54 charcoal cases: 48 tiered plus 6 accent-contract", () => {
 		// Assert the case COUNT, not only the cases. A token quietly dropped from
 		// a tier list would otherwise produce a smaller green run, which reads
 		// exactly like a pass. Same shape as the parse floor, and the same reason:
-		// 8 tokens x 3 surfaces x 2 modes = 48, plus the 6 --ochre directions.
+		// 8 tokens x 3 surfaces x 2 modes = 48, plus the 6 accent-contract cases
+		// (one ink-on-fill and two pinned chips, per mode).
 		expect(cases).toHaveLength(54);
 	});
 
