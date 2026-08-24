@@ -115,11 +115,38 @@ import "@akhil-saxena/design-system/fonts/charcoal.css";
 
 Every rule in `themes/charcoal.css` is scoped to `:root[data-brand="charcoal"]`
 and `:root[data-brand="charcoal"].dark`, so importing it costs nothing until the
-attribute is set — which is what lets a brand switch happen without a reload. 49
-properties per block, both modes. The seven `--amber*` tokens are bridged to
-charcoal's ochre so a component referencing an amber token does not leave a
-yellow hole in the page, and five surface tokens that previously had no brand
-value are now declared.
+attribute is set — which is what lets a brand switch happen without a reload. 50
+properties per block, both modes. The seven `--amber*` tokens are bridged onto
+charcoal's own accent ramp so a component referencing an amber token does not
+leave a yellow hole in the page, and five surface tokens that previously had no
+brand value are now declared.
+
+**Charcoal is near-monochrome, and that is a correction rather than a starting
+position.** Earlier drafts of this brand shipped an ochre accent on warm
+neutrals. It was replaced during the beta, and the reason is measurable rather
+than aesthetic, which is why it is stated here instead of being quietly
+repainted:
+
+- The ochre accent sat at **hue 32.2°**. Across the 39 photographs the brand's
+  first consumer exists to display, the **30–45° band is 14.8%** of their
+  chromatic pixels and 15–30° adds a further **9.4%**. The interface accent was
+  living inside the second-largest colour band of the content it was supposed to
+  frame, so it could neither recede nor read as distinct.
+- The neutrals were the same family: `--cream` was **hue 42° at 31% saturation**
+  — a beige, not a white — so the whole surface read as tinted rather than as a
+  neutral holding a warm accent.
+
+Both blocks are now true neutrals with a faint cool cast and **no channel spread
+above 12**. There is no accent hue at all; a filled control is a light neutral
+slab carrying dark ink, in *both* modes. `--focus` is bound to the primary ink
+rather than to the accent, because a neutral accent is a mid grey and would make
+a weaker indicator than the page's own text colour.
+
+**Colour that carries meaning is untouched.** `--red` and `--green` are inherited
+from the default brand exactly as before and were re-measured against the new
+surfaces — 4.80–5.27 light, 8.32–10.49 dark, clear of AA on all three stops in
+both modes. The line drawn here is *meaning*, not saturation: identity colour is
+gone, semantic colour is not.
 
 - **`fonts/default.css` and `fonts/charcoal.css`** — face layers, carrying
   `@font-face` and no custom properties at all.
@@ -289,22 +316,53 @@ shipped an unstyled pager.
 These are why it is a beta. Every figure below was measured in a browser with the
 brand asserted at the probed element, not read off a linter.
 
-**Charcoal's own accessibility sweep is not clean, and the honest number is
+**Charcoal's accessibility sweep is now clean, and the honest number is still
 larger than the gate reports.**
 
-`DS_BRAND=charcoal npm run test:a11y` fails **11 stories**. Two root causes remain,
-both deliberately unfixed because each needs a decision rather than an edit:
+`DS_BRAND=charcoal npm run test:a11y` passes **508 / 508** across 84 suites,
+matching the default brand. It failed **11 stories** earlier in this beta, and
+those 11 are gone by construction rather than by repair — every one of them
+involved the retired ochre `#b0722a`, so removing the accent hue dissolved both
+root causes at once:
 
-- **A pale amber flattens onto a mid-tone ochre** (4 stories). Warning-tone
-  `AlertBanner` and `Toast` keep a pale `--amber-l` that charcoal maps onto
-  `--ochre`, so ratios land between **1.92:1 and 4.46:1**. Every candidate repair
-  either adds public token surface or moves default-brand baselines, so it is a
-  theme decision, not a one-line fix.
-- **`--ochre` used as text on a pinned near-black surface** (7 stories). Charcoal
-  has no mode-independent "accent on near-black" token, which is what this needs.
-  The clearest instance is `.ds-atom-table-sort-indicator`, which paints `--ochre`
-  as **9px text** at **3.775–3.796:1** across 7 stories — and unlike the other
-  instances, that is code a real consumer renders.
+- *A pale amber flattening onto a mid-tone ochre* (4 stories, `AlertBanner` and
+  `DateRangePicker`). `--amber-l` is a pale tint again, so the warning banner's
+  hardcoded description ink goes from **1.92:1 to 6.03:1** and its title from
+  **3.82:1 to 11.98:1**.
+- *The accent used as text on a pinned near-black surface* (7 stories, `AppBar`
+  and `Card`). The monochrome accent is light in both modes, so it reads
+  **5.26:1** light / **15.27:1** dark on AppBar's pinned `#1c1c1a` chip and
+  **5.38:1** / **15.64:1** on Card's pinned `#1c1917`, against 4.30 and 4.40
+  before.
+
+Verified by running the sweep, not by reasoning, and with a negative control:
+restoring the previous theme file reproduces exactly **11 failed / 497 passed**
+in the same four suites.
+
+**Three things a clean sweep does not cover.** Each is a literal a component
+hardcodes, which no theme can reach — the same shape of defect as the amber
+focus ring fixed earlier in this beta, and worth stating rather than leaving for
+someone to find:
+
+1. **`--amber` painted as small text still fails AA in light mode**, at
+   **3.11 / 3.25 / 2.96** on page / paper / panel. Five rules do it, the most
+   visible being `.ds-atom-table-sort-indicator`. This is not a regression — the
+   ochre it replaces measured 3.52 / 3.78 / 3.28 and also failed — and it is not
+   fixable from the token layer: making the accent dark enough to be AA text on a
+   near-white page would put it below AA on the pinned near-black chips above,
+   and the two constraints have no overlapping solution. The theme documents the
+   accent as a fill, never text; these five rules are the ones that disagree.
+2. **`.ds-atom-btn[data-variant="primary"]:hover` hardcodes `color: #fff`** over
+   `var(--amber-d)`. In charcoal dark that pairing reads **2.98:1**, essentially
+   unchanged from the 3.01:1 it measured before. The default brand has the same
+   defect more severely, at **1.62:1**, because its own dark `--amber-d` is
+   brighter still. The fix is a one-line dark-mode override in `primitives.css`
+   and belongs to the component, not the theme.
+3. **Warning-tone surfaces keep an amber wash in dark mode.** `AlertBanner`,
+   `Toast` and `DateRangePicker` override to `rgba(245, 158, 11, …)` literals
+   under `.dark`, which charcoal cannot reach. They remain legible — the ink over
+   them clears AA on every surface stop — but charcoal dark is not strictly
+   monochrome for those three components.
 
 **The gate under-reports, and this is the part worth reading.** Four separate blind
 spots mean a green `test:a11y` is weaker evidence than it looks:
