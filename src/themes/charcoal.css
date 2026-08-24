@@ -184,8 +184,20 @@
 	   SC 1.4.11 is a 3:1 non-text criterion, so darkening the ring buys nothing
 	   and would make the indicator muddier against --wire. The design system
 	   derives --focus-ring and --focus-ring-offset from this one token, so
-	   repointing it here repoints every focus treatment in the system. */
+	   repointing it here repoints every focus treatment in the system.
+
+	   --focus-ring-soft is the exception that had to be restated. The design
+	   system derives --focus-ring and --focus-ring-offset from --focus, but it
+	   spells --focus-ring-soft as a literal rgba of --amber-d, in BOTH its light
+	   and dark blocks - so it is the one focus treatment --focus cannot reach,
+	   and charcoal painted JobDash amber (#fbbf24 at 30%) around every focused
+	   text field in dark mode while the border beside it went ochre. Derived
+	   through color-mix on --focus rather than restated as a second rgba
+	   literal, so it tracks --ochre-d instead of drifting from it. Alphas are
+	   the design system's own (0.22 light / 0.30 dark): the treatment is
+	   unchanged, only its hue follows the brand. */
 	--focus: var(--ochre-d);
+	--focus-ring-soft: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent);
 
 	/* Elevation. Geometry accents sit on the theme side of the ownership line,
 	   so charcoal owns them. Light mode keeps the design system's black-alpha
@@ -339,7 +351,12 @@
 	--rule-strong: #3e3e39;
 	--rule-s: var(--rule-strong);
 
+	/* See the light block: --focus-ring-soft is a literal in the design system's
+	   dark block too (#fbbf24 at 0.30), so --focus cannot reach it and it must be
+	   restated here. This is the declaration the amber ring was photographed
+	   from. */
 	--focus: var(--ochre-d);
+	--focus-ring-soft: 0 0 0 3px color-mix(in srgb, var(--focus) 30%, transparent);
 
 	/* Elevation, dark - surface plus hairline, never shadow. The design
 	   system's --shadow-1/2/3 are black-alpha and are therefore INVISIBLE on
