@@ -133,7 +133,7 @@ test.describe("charcoal brand cascade", () => {
 			"--cream": ["#fafafb", "#0d0d0f"],
 			"--ochre-d-strong": ["#4e4e54", "#b0b0b6"],
 			"--amber": ["#8e8e97", "#f2f2f4"],
-			"--panel": ["#ffffff", "#17171a"],
+			"--panel": ["#fdfdfe", "#17171a"],
 		} as const;
 		for (const [token, [light, dark]] of Object.entries(expected)) {
 			expect.soft(norm(charcoalLight[token] ?? ""), `charcoal light ${token}`).toBe(light);

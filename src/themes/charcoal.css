@@ -140,18 +140,18 @@
 	--weight-black: var(--weight-bold);
 
 	/* Ink ramp. Every ratio below is measured against ALL THREE surfaces of
-	   this mode - page #FAFAFB, paper #FFFFFF, panel #F4F4F6 - never against
+	   this mode - page #FAFAFB, paper #FDFDFE, panel #F4F4F6 - never against
 	   the page alone. That method rule is not pedantry: page-only measurement
 	   is how two wrong values survived review, and admin table zebra, disabled
 	   fields and the pending dashboard all put muted text on the panel, the
 	   deepest surface of the three. EVERY FIGURE HERE WAS RECOMPUTED against
 	   the new neutrals; none was carried over from the warm palette, where all
 	   three surfaces were different colours.
-	     --ink      primary text     18.07 / 18.85 / 17.16   AA
-	     --ink-2    secondary text    9.57 /  9.98 /  9.08   AA
-	     --ink-3    muted text        7.44 /  7.76 /  7.06   AAA, targeted
+	     --ink      primary text     18.07 / 18.54 / 17.16   AA
+	     --ink-2    secondary text    9.57 /  9.82 /  9.08   AA
+	     --ink-3    muted text        7.44 /  7.63 /  7.06   AAA, targeted
 	     --ink-4    alias of --ink-3, so the two cannot diverge by mode
-	     --ink-5    decorative only   3.16 /  3.30 /  3.00   NEVER text
+	     --ink-5    decorative only   3.16 /  3.25 /  3.00   NEVER text
 	   Muted text sits at AAA unconditionally - it is the single largest
 	   legibility risk in the admin and darkening it costs nothing
 	   stylistically. That discipline is the ONE place this palette departs from
@@ -174,9 +174,15 @@
 	   consumer for no measurable gain, and the values are what a reader
 	   actually renders. Channel spread runs 0 to 2 across the three, so no
 	   surface can read as tinted.
-	   The warm identity carried a never-pure-white rule, and this palette
-	   retires it deliberately rather than by accident: pure white is only wrong
-	   next to a cream page, and there is no cream page any more.
+	   The warm identity carried a never-pure-white rule and this palette KEEPS
+	   it, though for a different reason than the one that made it. It is no
+	   longer about a cream page - there is no cream page. It is that pure white
+	   is the value a component hardcodes when it drops out of the cascade, and
+	   an F-15-3 gate proves the confirm panel is themed by checking the painted
+	   colour against this token. Set this to #FFFFFF and that gate passes on the
+	   very defect it exists to catch, which was measured rather than reasoned:
+	   hardcoding the panel white left the light case green. One unit off pure is
+	   invisible to a reader and restores the discrimination.
 	   --ink-inverse is the ink that goes ON a light fill and it is near-black
 	   in BOTH modes, which is a contract rather than a convenience - it also
 	   lands on the pinned highlight literal that no theme can reach, measuring
@@ -184,7 +190,7 @@
 	--ink-inverse: #0d0d0f;
 	--cream: #fafafb;
 	--page-bg: var(--cream);
-	--cream-2: #ffffff;
+	--cream-2: #fdfdfe;
 	--paper: var(--cream-2);
 	--cream-3: #f4f4f6;
 	--panel2: var(--cream-3);
@@ -195,7 +201,7 @@
 	   hue: the fill sits within 0.2 of the ratio its predecessor measured, and
 	   the text step within 0.03, so every relationship the theme was tuned
 	   around is intact while the colour is gone.
-	   The fill is a FILL - 3.11 / 3.25 / 2.96 as text here, which is exactly
+	   The fill is a FILL - 3.11 / 3.19 / 2.96 as text here, which is exactly
 	   why nothing paints text with it - and it must stay LIGHT ENOUGH TO CARRY
 	   DARK INK in both modes, because every consumer that fills with it sets a
 	   dark foreground: --ink-inverse, a literal black, or #1f1b17. It measures
@@ -205,8 +211,8 @@
 	   and 5.38, both clear of AA. Those two readings are the whole of finding
 	   G3, and they are why the fill is a mid neutral here rather than the
 	   near-black a light-mode monochrome would otherwise reach for.
-	   The accent TEXT step below measures 5.63 / 5.88 / 5.35 and carries white
-	   at 5.88 when it is used as a hover fill. The strong step is 7.92 / 8.26 /
+	   The accent TEXT step below measures 5.63 / 5.78 / 5.35 and carries white
+	   at 5.88 when it is used as a hover fill. The strong step is 7.92 / 8.13 /
 	   7.52, reserved for accent TEXT at or below 22px. */
 	--amber: #8e8e97;
 	--amber-d: #64646a;
@@ -216,7 +222,7 @@
 
 	/* Borders are two tokens with two different jobs. If the border is the ONLY
 	   thing telling you where a control starts, it is --wire and it must clear
-	   the 3:1 non-text floor: 3.38 / 3.52 / 3.21 here. If a fill or a heading
+	   the 3:1 non-text floor: 3.38 / 3.47 / 3.21 here. If a fill or a heading
 	   already does that job, it is --rule, a decorative hairline at 1.36 that
 	   would be illegal as a control's sole boundary. This mode is the admin,
 	   which is nothing but interactive controls, which is why both exist rather
@@ -232,7 +238,7 @@
 	   the most saturated thing on the page and made an obvious ring; a neutral
 	   accent is a mid grey, and a mid-grey ring on a near-white page is a
 	   weaker indicator than the page's own text colour. SC 1.4.11 is a 3:1
-	   non-text criterion and this clears it at 18.07 / 18.85 / 17.16. The design
+	   non-text criterion and this clears it at 18.07 / 18.54 / 17.16. The design
 	   system derives --focus-ring and --focus-ring-offset from this one token,
 	   so repointing it here repoints those two automatically.
 	   --focus-ring-soft is the exception that had to be restated. The design
@@ -285,7 +291,7 @@
 	   consequence, which is that the middle of that triad now reads by position
 	   and label rather than by colour.
 	   --amber-ink is the ink for a TINTED pill, never for a solid fill, and in
-	   this mode it aliases --ink-inverse, which measures 16.68 / 17.32 / 15.93
+	   this mode it aliases --ink-inverse, which measures 16.68 / 17.06 / 15.93
 	   on the amber washes those pills actually use. */
 	--amber-ink: var(--ink-inverse);
 	--amber-l: #e4e4ea;

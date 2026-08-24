@@ -57,11 +57,11 @@ test.describe("ConfirmDialog panel is in the cascade (F-15-3)", () => {
 		});
 		const [r, g, b, a] = parseColour(got["background-color"]!);
 
-		// charcoal dark --cream-2 is #1E1E1D. The 97% glass is preserved, so the
-		// expected paint is that colour at alpha .97.
-		expect.soft(Math.round(r), NEAR_WHITE_97).toBeCloseTo(30, 0);
-		expect.soft(Math.round(g)).toBeCloseTo(30, 0);
-		expect.soft(Math.round(b)).toBeCloseTo(29, 0);
+		// charcoal dark --cream-2 is #17171A since the theme went near-monochrome.
+		// The 97% glass is preserved, so the expected paint is that colour at .97.
+		expect.soft(Math.round(r), NEAR_WHITE_97).toBeCloseTo(23, 0);
+		expect.soft(Math.round(g)).toBeCloseTo(23, 0);
+		expect.soft(Math.round(b)).toBeCloseTo(26, 0);
 		expect(a).toBeCloseTo(0.97, 2);
 
 		// Non-vacuity in the direction that matters: the value must not be the
@@ -70,8 +70,8 @@ test.describe("ConfirmDialog panel is in the cascade (F-15-3)", () => {
 		expect(Math.round(r), NEAR_WHITE_97).toBeLessThan(128);
 
 		// Rule C-5: charcoal's dark --shadow-3 leads with a hairline ring, where an
-		// alpha-only shadow is invisible against #161616. The old hardcoded
-		// `0 16px 48px rgba(0,0,0,.18)` had no ring at all.
+		// alpha-only shadow is invisible against a near-black page. The old
+		// hardcoded `0 16px 48px rgba(0,0,0,.18)` had no ring at all.
 		expect(got["box-shadow"]).toMatch(/rgba?\([^)]*\)\s+0px\s+0px\s+0px\s+1px|0px 0px 0px 1px/);
 	});
 
@@ -81,17 +81,37 @@ test.describe("ConfirmDialog panel is in the cascade (F-15-3)", () => {
 			brand: "charcoal",
 			mode: "light",
 			selector: PANEL,
-			props: ["background-color"],
+			props: ["background-color", "--panel", "--cream-2"],
 		});
 		const [r, g, b, a] = parseColour(got["background-color"]!);
-		// charcoal light --panel is var(--cream-2) = #FBF9F4.
-		expect.soft(Math.round(r)).toBeCloseTo(251, 0);
-		expect.soft(Math.round(g)).toBeCloseTo(249, 0);
-		expect.soft(Math.round(b)).toBeCloseTo(244, 0);
+		// charcoal light --panel is var(--cream-2) = #FDFDFE since the theme went
+		// near-monochrome. One unit off pure white, and that unit is load-bearing
+		// for THIS file — see the guard below.
+		expect.soft(Math.round(r)).toBeCloseTo(253, 0);
+		expect.soft(Math.round(g)).toBeCloseTo(253, 0);
+		expect.soft(Math.round(b)).toBeCloseTo(254, 0);
 		expect(a).toBeCloseTo(0.97, 2);
-		// It is a CREAM white, not a pure one — so it is charcoal's surface token and
-		// not the old hardcoded #ffffff at .97.
-		expect(Math.round(b), NEAR_WHITE_97).toBeLessThan(255);
+
+		// THE NON-VACUITY GUARD, strengthened rather than left as a proxy.
+		//
+		// This used to read `expect(b).toBeLessThan(255)` — "it is a cream white,
+		// not a pure one, so it came from the cascade rather than from the old
+		// hardcoded #ffffff". A draft of the monochrome palette set charcoal light's
+		// paper to pure #FFFFFF and killed that proxy outright: hardcoding the panel
+		// back to rgba(255,255,255,.97) left this case GREEN. Measured, not
+		// reasoned — the control was run, and only the dark case failed.
+		//
+		// Two things came out of that. The palette keeps the paper one unit off pure
+		// white, so the value cannot collide with the literal a dropped-out
+		// component paints. And the proxy is replaced by what F-15-3 actually wants
+		// and the proxy only stood in for: the painted colour must equal the
+		// RESOLVED --panel token, which holds whatever the values are.
+		const panel = (got["--panel"] ?? "").trim();
+		const cream2 = (got["--cream-2"] ?? "").trim();
+		expect(panel, "charcoal light --panel must resolve through --cream-2").toBe(cream2);
+		expect(panel, "--panel did not resolve at the probed element").toMatch(/^#[0-9a-f]{6}$/i);
+		const [pr, pg, pb] = [1, 3, 5].map((i) => Number.parseInt(panel.slice(i, i + 2), 16));
+		expect([Math.round(r), Math.round(g), Math.round(b)], NEAR_WHITE_97).toEqual([pr, pg, pb]);
 	});
 
 	test("default brand x light is unchanged: rgba(255,255,255,.97)", async ({ page }) => {

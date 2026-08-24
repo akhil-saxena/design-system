@@ -657,17 +657,17 @@ describe("charcoal token contrast (WCAG)", () => {
 	 * carried over from the warm palette.
 	 *
 	 * 7:1 AAA - D-46's targeted AAA, adopted rather than contingent
-	 *   --ink-3           light  7.44  7.76  7.06    dark  8.21  7.56  7.02
+	 *   --ink-3           light  7.44  7.63  7.06    dark  8.21  7.56  7.02
 	 *   --ink-4           an alias of --ink-3, so the two cannot diverge by mode
-	 *   --ochre-d-strong  light  7.92  8.26  7.52    dark  9.00  8.29  7.70
+	 *   --ochre-d-strong  light  7.92  8.13  7.52    dark  9.00  8.29  7.70
 	 *
 	 * 4.5:1 AA - body text
-	 *   --ink             light 18.07 18.85 17.16    dark 17.37 16.00 14.86
-	 *   --ink-2           light  9.57  9.98  9.08    dark 10.61  9.77  9.08
-	 *   --ochre-d         light  5.63  5.88  5.35    dark  6.52  6.01  5.58
+	 *   --ink             light 18.07 18.54 17.16    dark 17.37 16.00 14.86
+	 *   --ink-2           light  9.57  9.82  9.08    dark 10.61  9.77  9.08
+	 *   --ochre-d         light  5.63  5.78  5.35    dark  6.52  6.01  5.58
 	 *
 	 * 3:1 SC 1.4.11 - non-text: a control's sole boundary, and the focus ring
-	 *   --wire            light  3.38  3.52  3.21    dark  3.78  3.48  3.23
+	 *   --wire            light  3.38  3.47  3.21    dark  3.78  3.48  3.23
 	 *   --focus           bound to --ink now, not to the accent, because a
 	 *                     neutral accent is a mid grey and would make a weaker
 	 *                     ring than the page's own text colour
