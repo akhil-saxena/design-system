@@ -43,7 +43,8 @@ const STORY = "inputs-statuspill--status-ladder";
  *
  * Held as hex because that is what Chromium reports for a custom property:
  * `getPropertyValue` resolves the `var()` chain but keeps the AUTHORED format,
- * so charcoal's `--ochre: var(--amber)` reads `#8e8e97`, not `rgb(142,142,151)`.
+ * so charcoal's `--ochre` -> `--amber` -> `--ink` chain reads `#111114`, not
+ * `rgb(17,17,20)`.
  * A first draft of this file compared against the rgb spelling and every case
  * failed — which is the brand guard doing its job on itself.
  *
@@ -55,7 +56,7 @@ const BRAND_MARKER: Record<
 	Brand,
 	{ amber: Record<"light" | "dark", string>; ochreIsSet: boolean }
 > = {
-	charcoal: { amber: { light: "#8e8e97", dark: "#f2f2f4" }, ochreIsSet: true },
+	charcoal: { amber: { light: "#111114", dark: "#f2f2f4" }, ochreIsSet: true },
 	default: { amber: { light: "#f59e0b", dark: "#f59e0b" }, ochreIsSet: false },
 };
 

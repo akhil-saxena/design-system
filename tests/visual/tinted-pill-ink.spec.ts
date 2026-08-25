@@ -222,7 +222,7 @@ for (const cell of CELLS) {
 			// Brand, both halves, at the probed element.
 			if (cell.brand === "charcoal") {
 				expect(tok["--ochre"], `${story}: charcoal must declare --ochre`).toBe(
-					cell.mode === "dark" ? "#f2f2f4" : "#8e8e97",
+					cell.mode === "dark" ? "#f2f2f4" : "#111114",
 				);
 				expect(tok["--cream"], `${story}: charcoal neutrals must not be shadowed`).toBe(
 					cell.mode === "dark" ? "#0d0d0f" : "#fafafb",
@@ -253,7 +253,7 @@ for (const cell of CELLS) {
 				cell.brand === "charcoal"
 					? cell.mode === "dark"
 						? "#a8a8ae"
-						: "#0d0d0f"
+						: "#525258"
 					: cell.mode === "dark"
 						? "#f5c56b"
 						: "#92400e",

@@ -28,7 +28,7 @@ const STORY = "data-display-filternav--beside-segmented-control";
  * both. The default brand still declares its accent once at :root.
  */
 const BRAND_AMBER: Record<Brand, Record<"light" | "dark", string>> = {
-	charcoal: { light: "#8e8e97", dark: "#f2f2f4" },
+	charcoal: { light: "#111114", dark: "#f2f2f4" },
 	default: { light: "#f59e0b", dark: "#f59e0b" },
 };
 

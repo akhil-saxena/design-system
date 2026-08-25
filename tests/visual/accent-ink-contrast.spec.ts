@@ -105,7 +105,7 @@ const SELECTOR = [
  * a filled control still carries dark ink in both.
  */
 const ACCENT: Record<string, Record<string, string>> = {
-	charcoal: { light: "#8e8e97", dark: "#f2f2f4" },
+	charcoal: { light: "#111114", dark: "#f2f2f4" },
 	default: { light: "#f59e0b", dark: "#f59e0b" },
 };
 
@@ -317,12 +317,18 @@ for (const cell of CELLS) {
 			// Brand, both halves, at the probed element.
 			if (cell.brand === "charcoal") {
 				expect(tok["--ochre"], `${story}: charcoal must declare --ochre`).toBe(
-					cell.mode === "dark" ? "#f2f2f4" : "#8e8e97",
+					cell.mode === "dark" ? "#f2f2f4" : "#111114",
 				);
 				expect(tok["--cream"], `${story}: charcoal neutrals must not be shadowed`).toBe(
 					cell.mode === "dark" ? "#0d0d0f" : "#fafafb",
 				);
-				expect(tok["--ink-inverse"], `${story}: charcoal --ink-inverse`).toBe("#0d0d0f");
+				// --ink-inverse INVERTS under charcoal since the monochrome-accent repair:
+				// it inks the accent fill, and the accent fill inverts. Asserting one
+				// value here is what would go green on a theme that quietly re-pinned it
+				// and put near-black ink back on a near-black button.
+				expect(tok["--ink-inverse"], `${story}: charcoal --ink-inverse`).toBe(
+					cell.mode === "dark" ? "#0d0d0f" : "#fafafb",
+				);
 			} else {
 				expect(tok["--ochre"], `${story}: default brand must NOT see --ochre`).toBe("");
 				expect(tok["--cream"], `${story}: default neutrals expected`).toBe(

@@ -132,7 +132,7 @@ test.describe("charcoal brand cascade", () => {
 		const expected = {
 			"--cream": ["#fafafb", "#0d0d0f"],
 			"--ochre-d-strong": ["#4e4e54", "#b0b0b6"],
-			"--amber": ["#8e8e97", "#f2f2f4"],
+			"--amber": ["#111114", "#f2f2f4"],
 			"--panel": ["#fdfdfe", "#17171a"],
 		} as const;
 		for (const [token, [light, dark]] of Object.entries(expected)) {
@@ -228,11 +228,15 @@ test.describe("charcoal brand cascade", () => {
 		// also lands on a pinned light highlight literal no theme can reach.
 		expect
 			.soft(charcoalLight["background-color"], "charcoal light button fill")
-			.toBe(hexToRgb("#8e8e97"));
+			.toBe(hexToRgb("#111114"));
 		expect
 			.soft(charcoalDark["background-color"], "charcoal dark button fill")
 			.toBe(hexToRgb("#f2f2f4"));
-		expect.soft(charcoalLight.color, "charcoal light button ink").toBe(hexToRgb("#0d0d0f"));
+		// The ink inverts WITH the fill: white label on a black button in light,
+		// black label on a white one in dark. Both readings are 4.5+ by a wide
+		// margin, and the pair is the whole claim — one value in both modes is
+		// what put a near-black label on a near-black fill.
+		expect.soft(charcoalLight.color, "charcoal light button ink").toBe(hexToRgb("#fafafb"));
 		expect.soft(charcoalDark.color, "charcoal dark button ink").toBe(hexToRgb("#0d0d0f"));
 		// The negative half: without the brand the same element paints the design
 		// system's amber, which is what makes the charcoal readings attributable.

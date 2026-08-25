@@ -684,46 +684,62 @@ describe("charcoal token contrast (WCAG)", () => {
 
 	/**
 	 * The accent contract, asserted DIRECTIONALLY - the half of this register
-	 * that is easy to get backwards, rewritten in 01-22 because its previous
-	 * premise no longer exists.
+	 * that is easy to get backwards, and rewritten a second time because its
+	 * premise moved again.
 	 *
-	 * It used to pin six ratios proving --ochre was a mid-tone FILL that failed
-	 * the text bar on five of six surfaces. Charcoal has no ochre any more, so
-	 * that contract is retired rather than adjusted, and these six cases pin the
-	 * two invariants the monochrome accent actually rests on. Both are load
-	 * bearing and neither is obvious from the values alone:
+	 * WHAT IT USED TO SAY, and why that is now false. Through 01-22 it asserted
+	 * that THE ACCENT FILL IS LIGHT IN BOTH MODES: it did not invert, because
+	 * --ink-inverse did not either. That was true of the values then declared and
+	 * it was never true of the ROLE. It held only because the light-mode accent
+	 * was being kept at a mid grey, which is what made the primary button read as
+	 * disabled on a near-white page - 3.11 against the page, below even the 3:1
+	 * floor a non-text control needs. The accent now aliases --ink in both blocks
+	 * and inverts with the mode, --ink-inverse inverts with it, and a filled
+	 * control is a black slab with white ink in light and a white slab with black
+	 * ink in dark.
 	 *
-	 *   1. THE ACCENT FILL IS LIGHT IN BOTH MODES. It does not invert with the
-	 *      mode, because --ink-inverse does not either - every consumer that
-	 *      fills with --amber sets a dark foreground (--ink-inverse, a literal
-	 *      black, or #1f1b17), and --ink-inverse additionally lands on a pinned
-	 *      #fef08a highlight that no theme can reach. So a filled control is a
-	 *      light slab with dark ink in BOTH modes, and darkening the light-mode
-	 *      accent - which a monochrome light theme otherwise wants to do - would
-	 *      put dark ink on a dark fill everywhere at once.
+	 * The four claims below are what the monochrome accent actually rests on.
+	 * None of them is obvious from the values alone, and the last two are the
+	 * ones that keep this from being re-broken by the obvious "simplification".
 	 *
-	 *   2. THE ACCENT MUST READ ON THE TWO PINNED NEAR-BLACK CHIPS. AppBar's
+	 *   1. THE ACCENT FILL CARRIES ITS INK, IN BOTH MODES. This is the claim the
+	 *      old contract was really protecting, stated without the incidental
+	 *      premise that the fill is light. It survives the inversion unchanged in
+	 *      dark and improves threefold in light.
+	 *
+	 *   2. THE PINNED CHIPS ARE PAINTED FROM THE MODE-STABLE STEP. AppBar's
 	 *      DefaultLogo hardcodes background #1c1c1a and Card's dark variant
-	 *      hardcodes #1c1917, both with color: var(--amber). Those literals are
-	 *      beyond any theme's reach, so the theme has to come to them. This is
-	 *      finding G3, which measured 4.30 and 4.40 under the warm accent and
-	 *      failed AA on seven stories; it is closed BY CONSTRUCTION here, and
-	 *      these four cases are what keep it closed.
+	 *      hardcodes #1c1917. Those literals are beyond any theme's reach, so a
+	 *      foreground on them must not follow the mode - and --amber now does.
+	 *      Both read --amber-vivid, which is finding G3 closed at the component
+	 *      instead of by holding a whole theme's accent inside a band that suited
+	 *      nothing else. The bands never intersected: no value of --amber gives a
+	 *      black button and a legible chip at once.
+	 *
+	 *   3. --amber-vivid IS THE SAME VALUE IN BOTH BLOCKS. That is the entire
+	 *      reason it can serve a pinned surface, so it is asserted from the parsed
+	 *      file rather than inferred from two ratios that happen to match.
+	 *
+	 *   4. --amber IS NOT. Stated as its own case because 3 alone would be
+	 *      satisfied by flattening the accent back onto one value, which is the
+	 *      change that put the grey button on the page to begin with.
 	 *
 	 * Pinned at 2dp in BOTH directions on purpose, exactly as the contract they
-	 * replace was. A one-sided toBeGreaterThan would wave through someone
-	 * quietly lightening the light-mode accent until the chips pass and the fill
-	 * has stopped reading as a fill.
+	 * replace was. A one-sided toBeGreaterThan would wave through someone quietly
+	 * lightening the light-mode accent until the chips pass and the fill has
+	 * stopped reading as a fill.
 	 */
 	const PINNED_APPBAR_CHIP = "#1c1c1a";
 	const PINNED_CARD_CHIP = "#1c1917";
+	/** The token the two pinned chips actually paint with. */
+	const CHIP_TOKEN = "--amber-vivid";
 	const ACCENT_CONTRACT = {
-		"light --ink-inverse on --amber": 5.98,
+		"light --ink-inverse on --amber": 18.07,
 		"dark --ink-inverse on --amber": 17.37,
-		[`light --amber on the pinned AppBar chip ${PINNED_APPBAR_CHIP}`]: 5.26,
-		[`dark --amber on the pinned AppBar chip ${PINNED_APPBAR_CHIP}`]: 15.27,
-		[`light --amber on the pinned Card chip ${PINNED_CARD_CHIP}`]: 5.38,
-		[`dark --amber on the pinned Card chip ${PINNED_CARD_CHIP}`]: 15.64,
+		[`light ${CHIP_TOKEN} on the pinned AppBar chip ${PINNED_APPBAR_CHIP}`]: 5.26,
+		[`dark ${CHIP_TOKEN} on the pinned AppBar chip ${PINNED_APPBAR_CHIP}`]: 5.26,
+		[`light ${CHIP_TOKEN} on the pinned Card chip ${PINNED_CARD_CHIP}`]: 5.38,
+		[`dark ${CHIP_TOKEN} on the pinned Card chip ${PINNED_CARD_CHIP}`]: 5.38,
 	} as Record<string, number>;
 
 	/**
@@ -789,11 +805,11 @@ describe("charcoal token contrast (WCAG)", () => {
 			["AppBar", PINNED_APPBAR_CHIP],
 			["Card", PINNED_CARD_CHIP],
 		] as const) {
-			const m = measureOnLiteral(selector, "--amber", hex);
+			const m = measureOnLiteral(selector, CHIP_TOKEN, hex);
 			const shown = typeof m === "number" ? m.toFixed(2) : "unresolved";
-			const expected = ACCENT_CONTRACT[`${mode} --amber on the pinned ${chip} chip ${hex}`];
+			const expected = ACCENT_CONTRACT[`${mode} ${CHIP_TOKEN} on the pinned ${chip} chip ${hex}`];
 			cases.push({
-				name: `charcoal ${mode} --amber clears the 4.5:1 text bar on the pinned ${chip} chip ${hex} = ${shown}`,
+				name: `charcoal ${mode} ${CHIP_TOKEN} clears the 4.5:1 text bar on the pinned ${chip} chip ${hex} = ${shown}`,
 				run: () => {
 					if (typeof m === "string") throw new Error(m);
 					expect(Number(m.toFixed(2))).toBe(expected);
@@ -803,13 +819,47 @@ describe("charcoal token contrast (WCAG)", () => {
 		}
 	}
 
-	it("measures 54 charcoal cases: 48 tiered plus 6 accent-contract", () => {
+	// 3. The chip token does not move between modes. This is WHY it can paint a
+	//    pinned surface, and it is read from the parsed file rather than inferred
+	//    from the two matching ratios above - which would be circular.
+	{
+		const light = resolve(charcoalCss, CHARCOAL_LIGHT, CHIP_TOKEN);
+		const dark = resolve(charcoalCss, CHARCOAL_DARK, CHIP_TOKEN);
+		cases.push({
+			name: `charcoal ${CHIP_TOKEN} is one value across modes, which is what lets it paint a pinned surface = ${light}`,
+			run: () => {
+				expect(light).toBe(dark);
+			},
+		});
+	}
+
+	// 4. The accent DOES move between modes. Stated separately because case 3
+	//    alone is satisfied by flattening the accent back onto a single value,
+	//    which is exactly the change that produced the grey primary button.
+	{
+		const light = resolve(charcoalCss, CHARCOAL_LIGHT, "--amber");
+		const dark = resolve(charcoalCss, CHARCOAL_DARK, "--amber");
+		cases.push({
+			name: `charcoal --amber inverts with the mode, ${light} light against ${dark} dark`,
+			run: () => {
+				expect(light).not.toBe(dark);
+				// And it inverts by reaching the ink at BOTH ends, which is the
+				// identity claim. A near-black light accent that stopped tracking
+				// --ink would pass the inequality above and still be wrong.
+				expect(light).toBe(resolve(charcoalCss, CHARCOAL_LIGHT, "--ink"));
+				expect(dark).toBe(resolve(charcoalCss, CHARCOAL_DARK, "--ink"));
+			},
+		});
+	}
+
+	it("measures 56 charcoal cases: 48 tiered plus 8 accent-contract", () => {
 		// Assert the case COUNT, not only the cases. A token quietly dropped from
 		// a tier list would otherwise produce a smaller green run, which reads
 		// exactly like a pass. Same shape as the parse floor, and the same reason:
-		// 8 tokens x 3 surfaces x 2 modes = 48, plus the 6 accent-contract cases
-		// (one ink-on-fill and two pinned chips, per mode).
-		expect(cases).toHaveLength(54);
+		// 8 tokens x 3 surfaces x 2 modes = 48, plus the 8 accent-contract cases
+		// (one ink-on-fill and two pinned chips per mode, plus the two
+		// mode-stability cases that say why those two tokens are different jobs).
+		expect(cases).toHaveLength(56);
 	});
 
 	for (const c of cases) it(c.name, c.run);

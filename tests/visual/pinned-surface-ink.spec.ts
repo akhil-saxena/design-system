@@ -59,8 +59,27 @@ const SELECTOR = ".ds-atom-richtext-surface .ProseMirror mark";
 /** The pinned highlight. If this moves, the file is measuring a new component. */
 const PINNED_BG = "#fef08a";
 
-/** `--ink-inverse` per brand — mode-independent by construction in both. */
-const INK: Record<string, string> = { charcoal: "#0d0d0f", default: "#1c1917" };
+/**
+ * The ink the mark PINS, now one literal for every brand and mode.
+ *
+ * This used to read `--ink-inverse` per brand, on the premise that the token was
+ * mode-independent in both. That premise died with the monochrome-accent repair:
+ * --ink-inverse inks the accent fill, the accent fill inverts with the mode, and
+ * so does the token. Reaching for it here would have put #fafafb on this pale
+ * yellow at 1.12 — a fresh instance of the exact defect this file was written to
+ * lock down, arriving through the token that was standing in for the rule.
+ *
+ * So the rule is now applied to itself: a pinned background pins its foreground,
+ * with a literal, and no token gets to move underneath it. The value is what the
+ * default brand already resolved --ink-inverse to, so that brand is unchanged.
+ */
+const INK: Record<string, string> = { charcoal: "#1c1917", default: "#1c1917" };
+
+/** `--ink`, which DOES flip — the reason a pinned surface cannot inherit. */
+const FLIPPING_INK: Record<string, Record<string, string>> = {
+	charcoal: { light: "#111114", dark: "#f2f2f4" },
+	default: { light: "#1c1c1a", dark: "#ededed" },
+};
 
 interface Mark {
 	story: string;
@@ -182,7 +201,7 @@ for (const brand of BRANDS) {
 				// Brand, both halves, at the probed element.
 				if (brand === "charcoal") {
 					expect(tok["--ochre"], `${story}/${mode}: charcoal must declare --ochre`).toBe(
-						mode === "dark" ? "#f2f2f4" : "#8e8e97",
+						mode === "dark" ? "#f2f2f4" : "#111114",
 					);
 					expect(tok["--cream"], `${story}/${mode}: charcoal neutrals not shadowed`).toBe(
 						mode === "dark" ? "#0d0d0f" : "#fafafb",
@@ -193,13 +212,25 @@ for (const brand of BRANDS) {
 						mode === "dark" ? "#181818" : "#fcfcfc",
 					);
 				}
-				// The premise of the whole fix: --ink FLIPS between modes and
-				// --ink-inverse does not. If --ink stopped flipping, `color: inherit`
-				// would no longer be unsafe and this file would be testing nothing.
+				// The premise of the whole fix: --ink FLIPS between modes, so a mark
+				// that inherits its foreground is unsafe. If --ink stopped flipping,
+				// `color: inherit` would no longer be dangerous and this file would be
+				// testing nothing.
 				expect(
-					tok["--ink-inverse"],
-					`${story}/${mode}: --ink-inverse must be mode-independent`,
-				).toBe(INK[brand]);
+					tok["--ink"],
+					`${story}/${mode}: --ink must flip between modes or this spec is vacuous`,
+				).toBe(FLIPPING_INK[brand]?.[mode]);
+				// And the ANTI-premise, which is new: --ink-inverse is no longer a
+				// mode-independent near-black under charcoal, so it is no longer a
+				// safe ink for a pinned surface. Asserted rather than assumed,
+				// because the tempting "simplification" here is to point the mark
+				// back at it — and that would paint #fafafb on #fef08a at 1.12.
+				if (brand === "charcoal") {
+					expect(
+						tok["--ink-inverse"],
+						`${story}/${mode}: charcoal --ink-inverse inverts with the accent fill, which is exactly why the mark must not read it`,
+					).toBe(mode === "dark" ? "#0d0d0f" : "#fafafb");
+				}
 
 				const marks = await measureMarks(page, story);
 				expect(

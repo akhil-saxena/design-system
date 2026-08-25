@@ -618,7 +618,7 @@ test.describe("brand", () => {
 				selector: DOT,
 				props: ["background-color", "--ochre", "--amber"],
 			});
-			const charcoalAccent = mode === "dark" ? "#f2f2f4" : "#8e8e97";
+			const charcoalAccent = mode === "dark" ? "#f2f2f4" : "#111114";
 			expect(cha["--ochre"]).toBe(charcoalAccent);
 			expect(cha["background-color"]).toBe(hexToRgb(charcoalAccent));
 		});
