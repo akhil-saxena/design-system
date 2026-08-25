@@ -334,14 +334,27 @@ test.describe("the Theme toolbar reaches <html> on docs pages too", () => {
 			await countIn(page, ".docs-story"),
 			"a docs page with one story block cannot have a race between blocks",
 		).toBeGreaterThan(1);
-		expect((await readChrome(page)).dark, "the page did not start light").toBe(false);
+		// SOFT, and deliberately so. First paint on this page is itself a draw from
+		// the same race — pre-fix it came back light in one manager run and dark in
+		// the next — so a hard assertion here would abort before the four
+		// transitions, which ARE deterministic, ever ran. Soft reports it and carries
+		// on, so one red row shows the whole picture instead of the first symptom it
+		// happened to hit.
+		expect
+			.soft(
+				(await readChrome(page)).dark,
+				"first paint: <html> is dark while the toolbar says light — a story block's own globals decided the page",
+			)
+			.toBe(false);
 
 		for (const step of THEME_SEQUENCE) {
 			await clickToolbar(page, TOOLBAR.theme, step);
-			expect(
-				(await readChrome(page)).dark,
-				`docs: Theme=${step} did not reach <html> — a story block's own globals decided the page`,
-			).toBe(step === "Dark");
+			expect
+				.soft(
+					(await readChrome(page)).dark,
+					`docs: Theme=${step} did not reach <html> — a story block's own globals decided the page`,
+				)
+				.toBe(step === "Dark");
 		}
 	});
 
@@ -368,17 +381,15 @@ test.describe("the Theme toolbar reaches <html> on docs pages too", () => {
 		// assumed, because that presumption is the obvious one to make.
 		await openManager(page, `/docs/${DOCS_WITH_DARK_STORY}`, "#storybook-docs");
 		expect(await countIn(page, DARK_BLOCK_ANCHOR)).toBe(1);
-		expect(
-			(await readChrome(page)).brand,
-			"the page did not start on the default brand",
-		).toBeNull();
+		expect
+			.soft((await readChrome(page)).brand, "the page did not start on the default brand")
+			.toBeNull();
 
 		for (const step of BRAND_SEQUENCE) {
 			await clickToolbar(page, TOOLBAR.brand, step);
-			expect(
-				(await readChrome(page)).brand,
-				`docs: Brand=${step} did not reach <html data-brand>`,
-			).toBe(step === "Monochrome" ? "monochrome" : null);
+			expect
+				.soft((await readChrome(page)).brand, `docs: Brand=${step} did not reach <html data-brand>`)
+				.toBe(step === "Monochrome" ? "monochrome" : null);
 		}
 	});
 
@@ -400,19 +411,23 @@ test.describe("the Theme toolbar reaches <html> on docs pages too", () => {
 			"overview--docs now renders story blocks, so the decorator covers it and this row no longer exercises the subscription",
 		).toBe(0);
 
+		// Soft on both halves: the theme half is masked by OverviewPage's own handler
+		// and the brand half is not, so a hard theme assertion passing would say
+		// nothing about the brand one failing, and vice versa.
 		for (const step of THEME_SEQUENCE) {
 			await clickToolbar(page, TOOLBAR.theme, step);
-			expect(
-				(await readChrome(page)).dark,
-				`overview docs: Theme=${step} did not reach <html>`,
-			).toBe(step === "Dark");
+			expect
+				.soft((await readChrome(page)).dark, `overview docs: Theme=${step} did not reach <html>`)
+				.toBe(step === "Dark");
 		}
 		for (const step of BRAND_SEQUENCE) {
 			await clickToolbar(page, TOOLBAR.brand, step);
-			expect(
-				(await readChrome(page)).brand,
-				`overview docs: Brand=${step} did not reach <html data-brand> — nothing applies the brand on a page with no story blocks except the subscription`,
-			).toBe(step === "Monochrome" ? "monochrome" : null);
+			expect
+				.soft(
+					(await readChrome(page)).brand,
+					`overview docs: Brand=${step} did not reach <html data-brand> — nothing applies the brand on a page with no story blocks except the subscription`,
+				)
+				.toBe(step === "Monochrome" ? "monochrome" : null);
 		}
 	});
 
@@ -494,10 +509,13 @@ test.describe("the Theme toolbar reaches <html> on docs pages too", () => {
 				brand: document.documentElement.getAttribute("data-brand"),
 			}));
 			const where = `${cell.id} ${cell.vm} theme:${cell.theme} brand:${cell.brand}`;
-			expect(r.dark, `first paint mode wrong: ${where}`).toBe(cell.dark);
-			expect(r.brand, `first paint brand wrong: ${where}`).toBe(
-				cell.brand === "monochrome" ? "monochrome" : null,
-			);
+			// Soft per cell: seven cells, and knowing WHICH ones moved is the
+			// difference between "docs regressed" and "story mode regressed", which
+			// are opposite diagnoses.
+			expect.soft(r.dark, `first paint mode wrong: ${where}`).toBe(cell.dark);
+			expect
+				.soft(r.brand, `first paint brand wrong: ${where}`)
+				.toBe(cell.brand === "monochrome" ? "monochrome" : null);
 		}
 	});
 });
