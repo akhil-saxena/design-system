@@ -21,6 +21,31 @@ import { type Page, expect, test } from "@playwright/test";
  * This set is shared by every brand and is NOT widened per brand. A story that
  * is nondeterministic under monochrome but stable under the default brand would be
  * a finding about monochrome, not a candidate for this list.
+ *
+ * ## Two stories that belong in this conversation and are deliberately NOT here
+ *
+ * `feedback-toast--tones` and `feedback-toast--dark-mode` fire FOUR toasts into a
+ * region that holds a maximum of three, so the fourth evicts the oldest — and the
+ * eviction runs on a `setTimeout(SLIDE_OUT_MS)` inside ToastProvider, not on a
+ * user action. Measured on `--tones`: four toasts at capture time, with the first
+ * already carrying `data-dismissing="true"`, and three toasts about thirty
+ * double-rAFs later, permanently.
+ *
+ * The recorded baselines hold FOUR — verified by sampling the toast box out of
+ * the stored PNG, which contains all four tone tints (success, error, info,
+ * warning). So these baselines record a transient mid-eviction frame, and they
+ * pass today only because `toHaveScreenshot` retries until it MATCHES and the
+ * four-toast window is still open when it looks.
+ *
+ * They are left alone rather than added here, and that is a decision, not an
+ * oversight. Listing them would drop two real baselines and hide the defect;
+ * fixing them properly means making the story deterministic — the preferred
+ * remedy this docstring already argues for, the one Calendar's `nowOverride`
+ * took — and any such change moves both images. That re-record was outside the
+ * scope of the plan that measured this, so the measurement is recorded here
+ * instead of acted on. Anything that makes this suite wait for a story to SETTLE
+ * rather than merely to MOUNT will turn these two red immediately; that is the
+ * defect surfacing, not the settle wait misbehaving.
  */
 const TIME_DEPENDENT = new Set([
 	// Driven by useClock() — re-renders every second with the real time.
@@ -230,6 +255,47 @@ test.describe("Storybook visual baselines", () => {
 				// Use 'attached' state so Lightbox stories (which auto-open a dialog that hides
 				// #storybook-root from the accessibility tree) don't time out.
 				await page.waitForSelector("#storybook-root", { state: "attached", timeout: 5000 });
+				/**
+				 * WAIT FOR THE STORY TO EXIST BEFORE PHOTOGRAPHING IT.
+				 *
+				 * The line above asserts almost nothing: `#storybook-root` is an EMPTY
+				 * div in iframe.html's static markup, so `attached` resolves on the raw
+				 * HTML, before any story module has run. Measured with the protocol
+				 * below, verbatim, at the exact instant the screenshot used to be
+				 * taken — 10 loads of patterns-coachmark--default, 10 out of 10:
+				 *
+				 *   documentElement.scrollHeight  736     (settled: 720)
+				 *   getComputedStyle(body).marginTop  8px (the UA default — Storybook's
+				 *                                          own stylesheet has not applied)
+				 *   #storybook-root children      0       (settled: 1)
+				 *   document.styleSheets.length   10      (settled: 11)
+				 *
+				 * 736 = 720 + the 8px top and bottom body margin no stylesheet has
+				 * overridden yet. That is the 1280x736 signature behind every
+				 * "Expected an image 1280px by 720px, received 1280px by 736px"
+				 * this suite has ever reported, and it is not specific to Coachmark:
+				 * the tabs story produces it too.
+				 *
+				 * The suite survived that only because `toHaveScreenshot` RETRIES
+				 * until it matches. Whether a story passes was therefore decided by
+				 * whether Vite could transform its modules inside the 5s expect
+				 * budget — a lottery that six workers sharing one dev server can lose.
+				 *
+				 * Waiting on the child count is the actual precondition, not a longer
+				 * budget: it is the thing whose absence made the comparison
+				 * meaningless. It moves no baseline. Measured against the recorded
+				 * images across coachmark x3 and feedback-toast x3, 5 loads each: the
+				 * old protocol produced a 1280x736 image 30 times out of 30, and this
+				 * one produced a 0-pixel match 30 times out of 30.
+				 *
+				 * It also makes `document.fonts.ready` below mean something. Resolved
+				 * before the story existed, it was a promise about a blank page.
+				 */
+				await page.waitForFunction(
+					() => (document.querySelector("#storybook-root")?.childElementCount ?? 0) > 0,
+					null,
+					{ timeout: 30_000 },
+				);
 				// Web fonts change metrics and therefore layout height. Without this the
 				// capture races font loading.
 				// Kill animation via CSS rather than Playwright's `animations: "disabled"`.
