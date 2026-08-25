@@ -83,6 +83,28 @@
 	background: var(--amber-d);
 	color: #fff;
 }
+/* THE HOVER INK, and why it is scoped to .dark rather than replaced outright.
+   The hover fill is --amber-d, which does not merely darken across modes -- it
+   INVERTS. It is a dark orange in default light (#b45309) but a bright yellow in
+   default dark (#fbbf24); a mid grey in monochrome light (#64646a) but a light
+   grey in monochrome dark (#95959b). No single ink serves both ends, and that is
+   measured rather than asserted: #fff reads 5.02 / 5.88 in the two light cells
+   and 1.67 / 2.98 in the two dark ones. --ink-inverse is the ink-on-accent-fill
+   token and is correct in BOTH dark cells (10.48 default, 6.52 monochrome).
+   It is deliberately NOT applied in light, where it would take default light
+   from 5.02 down to 3.48 -- so the light literal stays because it measures
+   correct, not because it was overlooked. There is no existing token that is
+   correct in all four brand x mode cells; inventing one was out of scope. */
+/* CURRENTLY INERT, and recorded as such rather than quietly added: Button
+   applies `background: var(--amber)` and `color: var(--ink-inverse)` as INLINE
+   styles (src/inputs/Button/index.tsx variantStyles.primary), and an inline
+   declaration outranks every class selector. So the hover rule above never
+   paints -- the primary button does not darken on hover today, and its #fff was
+   dead code. This rule is here so that if those inline styles are ever lifted
+   into the stylesheet, the hover does not silently ship a 1.67:1 label. */
+.dark .ds-atom-btn[data-variant="primary"]:hover:not(:disabled) {
+	color: var(--ink-inverse);
+}
 /* Rule C-3: secondary is an outlined surface on a near-page fill, so its border
    is the only thing saying where the control is — that is --wire's job, at the
    3:1 SC 1.4.11 bar, not --rule's 1.38:1 hairline. Was inline on the component. */
@@ -263,6 +285,15 @@ fieldset.ds-atom-field {
 .ds-atom-iconbtn[data-variant="primary"]:hover:not(:disabled) {
 	background: var(--amber-d);
 	color: #fff;
+}
+/* THE LIVE INSTANCE of the defect described above. IconButton sets no inline
+   colour, so unlike Button this hover really does paint: #fff on --amber-d
+   measured 1.67 in default dark and 2.98 in monochrome dark. Its own base rule
+   two blocks up already reads `color: var(--ink-inverse)`, which the hover was
+   overriding with a literal -- the hover was actively undoing a correct
+   declaration. Scoped to .dark for the reason stated above. */
+.dark .ds-atom-iconbtn[data-variant="primary"]:hover:not(:disabled) {
+	color: var(--ink-inverse);
 }
 /* Fixed crimson in both themes, for the same reason Button's danger fill is:
    --red is tuned as a text colour and flips to a pale pink in dark mode, which
