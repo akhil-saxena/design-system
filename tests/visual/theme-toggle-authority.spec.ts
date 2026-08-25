@@ -431,6 +431,65 @@ test.describe("the Theme toolbar reaches <html> on docs pages too", () => {
 		}
 	});
 
+	test("a dark story sitting on a LIGHT docs page still renders dark, in both brands", async ({
+		page,
+	}) => {
+		/* THE REGRESSION THIS FIX COULD EASILY HAVE SHIPPED. Once <html> follows the
+		   toolbar, a story pinning theme:"dark" is a dark block on a light page —
+		   which never happened before, because that block used to drag the whole
+		   page dark. The decorator's own wrapper is what makes it dark, and it
+		   deliberately DROPS the `dark` class under monochrome: tokens.css declares
+		   `:root.dark, .dark`, so the class on a nested div re-declares fifty
+		   neutrals below `:root[data-brand="monochrome"]`, which cannot reach inside
+		   it. Keying that drop off the brand alone would have left the block LIGHT
+		   under monochrome only, so it keys off whether <html> is already dark.
+
+		   THIS DOES NOT CONTRADICT tests/visual/brand-isolation.spec.ts, which
+		   asserts that under monochrome the only `.dark` element is <html>. That spec
+		   drives viewMode=story throughout (tests/visual/computed.ts:75), where <html>
+		   IS dark whenever this branch runs and the wrapper still carries nothing.
+		   The two describe different view modes, and both are true.
+
+		   THE COST IS REAL AND MEASURED, not waved off: inside that wrapper `--cream`
+		   resolves to the design system's #181818, not monochrome's #161616, because
+		   the brand layer cannot reach in. On a docs preview that is a shade; in a
+		   story-mode probe it would be a false reading, which is why story mode is
+		   left exactly as it was. */
+		const MONOCHROME_LIGHT_CREAM = "rgb(250, 250, 251)";
+		const DS_DARK_CREAM = "rgb(24, 24, 24)";
+
+		for (const brand of ["default", "monochrome"] as const) {
+			await page.goto(
+				`/iframe.html?id=${DOCS_WITH_DARK_STORY}&viewMode=docs&globals=theme:light;brand:${brand}`,
+			);
+			await page.waitForSelector(`${DARK_BLOCK_ANCHOR}`, { state: "attached", timeout: 30_000 });
+			await page.waitForTimeout(2_500);
+
+			const r = await page.evaluate((anchorId) => {
+				const anchor = document.querySelector(anchorId);
+				const wrapper = anchor?.querySelector(".dark");
+				return {
+					htmlDark: document.documentElement.classList.contains("dark"),
+					darkDescendants: anchor?.querySelectorAll(".dark").length ?? 0,
+					bg: wrapper ? getComputedStyle(wrapper).backgroundColor : null,
+				};
+			}, DARK_BLOCK_ANCHOR);
+
+			// PRECONDITION: the page really is light, or "the block is dark" proves
+			// nothing — it would just be inheriting a dark page.
+			expect
+				.soft(r.htmlDark, `${brand}: the docs page is dark, so this row is vacuous`)
+				.toBe(false);
+			expect
+				.soft(r.darkDescendants, `${brand}: the dark story block carries no .dark wrapper`)
+				.toBe(1);
+			expect.soft(r.bg, `${brand}: the dark story block did not render dark`).toBe(DS_DARK_CREAM);
+			expect
+				.soft(r.bg, `${brand}: the dark story block rendered the LIGHT monochrome surface`)
+				.not.toBe(MONOCHROME_LIGHT_CREAM);
+		}
+	});
+
 	test("FIRST PAINT: every brand × mode cell is already correct before any click", async ({
 		page,
 	}) => {
