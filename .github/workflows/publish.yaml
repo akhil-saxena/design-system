@@ -41,5 +41,28 @@ jobs:
       # short-lived publish credential and attaches provenance automatically.
       # NOTE: the npmjs trusted-publisher config must reference THIS filename
       # (publish.yaml) exactly — a mismatch 404s as "package not found".
+      # `npm publish` with no --tag applies `latest` ALWAYS -- it does not
+      # detect a prerelease suffix. Publishing 2.0.0-beta.1 bare would make the
+      # beta the default install for everyone doing a bare `npm i`. Derive the
+      # dist-tag from the version instead: any version containing `-` is a
+      # prerelease and goes to `next`.
+      - name: Derive dist-tag, and assert the tag matches package.json
+        id: dist
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then
+            TAGGED="${GITHUB_REF_NAME#v}"
+            if [ "$VERSION" != "$TAGGED" ]; then
+              echo "::error::git tag is v$TAGGED but package.json is $VERSION"
+              exit 1
+            fi
+          fi
+          case "$VERSION" in
+            *-*) TAG=next ;;
+            *)   TAG=latest ;;
+          esac
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Publishing $VERSION under dist-tag '$TAG'"
+
       - name: Publish to npm
-        run: npm publish
+        run: npm publish --tag "${{ steps.dist.outputs.tag }}"
