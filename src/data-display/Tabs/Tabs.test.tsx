@@ -15,6 +15,10 @@ let resizeCallback: ResizeObserverCallback | null = null;
 // Must be set up before any Tabs render. Using module-scope beforeEach so every test
 // gets a fresh mock and the callback reference is captured.
 beforeEach(() => {
+	// `stubLayout` below spies on HTMLElement.prototype, and vitest is not
+	// configured to restore mocks. Without this the first overflow test's
+	// geometry would silently answer for every test after it.
+	vi.restoreAllMocks();
 	resizeCallback = null;
 	const MockRO = vi.fn(function (this: unknown, cb: ResizeObserverCallback) {
 		resizeCallback = cb;
@@ -261,20 +265,83 @@ const manyTabs: TabItem[] = [
 	{ id: "6", label: "Tab Six", content: <div>Six</div> },
 ];
 
-/** Helper - simulate a narrow container so tabs overflow */
-function simulateOverflow() {
-	const tablist = document.querySelector("[role='tablist']")!;
-	Object.defineProperty(tablist, "clientWidth", { value: 200, configurable: true });
-	const tabButtons = tablist.querySelectorAll<HTMLButtonElement>("[role='tab']");
-	for (const btn of tabButtons) {
-		Object.defineProperty(btn, "offsetWidth", { value: 60, configurable: true });
-	}
+/**
+ * Layout stub for jsdom, which gives every box zero size.
+ *
+ * The component measures a throwaway strip it builds itself, so the widths
+ * cannot be stubbed per element from out here — the elements do not exist until
+ * `measure()` runs. Stubbing the prototype lets the stub answer for whatever
+ * gets built, keyed on class:
+ *
+ *   .ds-atom-tabs-tablist  the strip, at its full built width
+ *   .ds-atom-tabs-trigger  one tab, positioned by its index among its siblings
+ *   .ds-atom-tabs-more     the More button
+ *
+ * `tabWidths` may be uneven, which is the point of `growsBackWhenWidened`
+ * below: the old implementation estimated the tabs it had hidden from the
+ * average of the ones it had not, and an uneven strip is where that estimate
+ * and the truth part company.
+ */
+function stubLayout({
+	container,
+	tabWidths,
+	gap = 4,
+	moreWidth = 44,
+}: {
+	container: number;
+	tabWidths: number[];
+	gap?: number;
+	moreWidth?: number;
+}) {
+	const bar = document.querySelector(".ds-atom-tabs-list") as HTMLElement;
+	Object.defineProperty(bar, "clientWidth", { value: container, configurable: true });
+
+	const rect = (left: number, width: number) =>
+		({
+			x: left,
+			y: 0,
+			left,
+			right: left + width,
+			top: 0,
+			bottom: 0,
+			width,
+			height: 0,
+			toJSON: () => ({}),
+		}) as DOMRect;
+
+	vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+		this: HTMLElement,
+	) {
+		if (this.classList.contains("ds-atom-tabs-trigger")) {
+			const siblings = Array.from(this.parentElement?.children ?? []);
+			const i = siblings.indexOf(this);
+			const left = tabWidths.slice(0, i).reduce((sum, w) => sum + w + gap, 0);
+			return rect(left, tabWidths[i] ?? 0);
+		}
+		if (this.classList.contains("ds-atom-tabs-tablist")) {
+			const total =
+				tabWidths.reduce((sum, w) => sum + w, 0) + Math.max(0, tabWidths.length - 1) * gap;
+			return rect(0, total);
+		}
+		if (this.classList.contains("ds-atom-tabs-more")) return rect(0, moreWidth);
+		return rect(0, 0);
+	});
+
 	act(() => {
 		resizeCallback?.(
-			[{ contentRect: { width: 200 } } as ResizeObserverEntry],
+			[{ contentRect: { width: container } } as ResizeObserverEntry],
 			{} as ResizeObserver,
 		);
 	});
+}
+
+/**
+ * Six 60px tabs in a 200px bar. The strip is 380px, so it overflows; 44px is
+ * reserved for More, leaving 156px, which fits exactly two tabs ("1" and "2").
+ * Every overflow test below depends on that count.
+ */
+function simulateOverflow() {
+	stubLayout({ container: 200, tabWidths: [60, 60, 60, 60, 60, 60] });
 }
 
 describe("Tabs - overflow menu (ResizeObserver)", () => {
@@ -323,25 +390,12 @@ describe("Tabs - overflow menu (ResizeObserver)", () => {
 // ── Task: overflow keyboard reachability (a11y fix) ──────────────────────────
 
 /**
- * Deterministic partial overflow: set the ROOT clientWidth (measure() reads the
- * root, not the tablist) so a known number of tabs stay visible. With root=200,
- * MORE_WIDTH=44 and tab=60 → available=156 fits exactly 2 tabs ("1","2");
- * "3".."6" overflow into the More menu.
+ * Deterministic partial overflow — the same 2-of-6 geometry as
+ * `simulateOverflow`, kept under its own name because the tests below read as
+ * statements about a PARTIALLY overflowing strip.
  */
 function simulatePartialOverflow() {
-	const root = document.querySelector(".ds-atom-tabs") as HTMLElement;
-	const tablist = document.querySelector("[role='tablist']") as HTMLElement;
-	Object.defineProperty(root, "clientWidth", { value: 200, configurable: true });
-	const tabButtons = tablist.querySelectorAll<HTMLButtonElement>("[role='tab']");
-	for (const btn of tabButtons) {
-		Object.defineProperty(btn, "offsetWidth", { value: 60, configurable: true });
-	}
-	act(() => {
-		resizeCallback?.(
-			[{ contentRect: { width: 200 } } as ResizeObserverEntry],
-			{} as ResizeObserver,
-		);
-	});
+	simulateOverflow();
 }
 
 describe("Tabs - overflow keyboard reachability", () => {
@@ -396,5 +450,52 @@ describe("Tabs - overflow keyboard reachability", () => {
 		fireEvent.keyDown(tablist, { key: "End" });
 		const moreBtn = screen.getByRole("button", { name: /more tabs/i });
 		expect(document.activeElement).toBe(moreBtn);
+	});
+});
+
+// ── The measurement must not be a function of its own output ─────────────────
+
+/**
+ * The overflow count used to be computed from the tabs that were ON SCREEN, with
+ * the hidden ones estimated as the average of the visible ones. That makes the
+ * input depend on the previous output, and it is why the count could not recover
+ * once it was wrong — including when it was wrong because the first and only
+ * measurement ran before a webfont swapped in.
+ *
+ * The tab widths here are deliberately uneven (five narrow, one very wide) so the
+ * average of the visible ones is nothing like the truth. Under the old
+ * implementation, widening the bar to 380px made it estimate 120 + 60x4 = 360px
+ * for a strip that is really 520px, conclude that everything fitted, and render
+ * all six — overflowing the bar and clipping the last one. It has to be 5.
+ */
+describe("Tabs - overflow measurement is independent of what is rendered", () => {
+	const uneven = [60, 60, 60, 60, 60, 200];
+
+	it("recovers the correct count when the bar widens, with uneven tab widths", () => {
+		render(<Tabs tabs={manyTabs} value="1" onChange={vi.fn()} ariaLabel="T" />);
+
+		// Narrow: 200px bar, 44px reserved for More → 156px → two tabs.
+		stubLayout({ container: 200, tabWidths: uneven });
+		expect(screen.getAllByRole("tab")).toHaveLength(2);
+
+		// Widened to 380px. The real strip is 60x5 + 200 + 5 gaps = 520px, so it
+		// still overflows; 380 - 44 = 336px fits five tabs (316px) but not the
+		// 200px sixth.
+		stubLayout({ container: 380, tabWidths: uneven });
+		expect(screen.getAllByRole("tab")).toHaveLength(5);
+		expect(screen.getByRole("button", { name: /more tabs/i })).toBeInTheDocument();
+	});
+
+	it("shows every tab when the bar is genuinely wide enough", () => {
+		render(<Tabs tabs={manyTabs} value="1" onChange={vi.fn()} ariaLabel="T" />);
+		stubLayout({ container: 200, tabWidths: uneven });
+		expect(screen.getAllByRole("tab")).toHaveLength(2);
+
+		// 520px strip in a 600px bar: no overflow, no More button, nothing
+		// reserved. The old code could only reach this through its average
+		// estimate; this asserts it is reached from the real widths.
+		stubLayout({ container: 600, tabWidths: uneven });
+		expect(screen.getAllByRole("tab")).toHaveLength(6);
+		expect(screen.queryByRole("button", { name: /more tabs/i })).not.toBeInTheDocument();
 	});
 });

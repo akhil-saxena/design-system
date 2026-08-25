@@ -4214,6 +4214,39 @@ fieldset.ds-atom-field {
 	flex-wrap: nowrap;
 	overflow: hidden;
 }
+/* Hidden measurement host. The overflow calculation needs every tab's intrinsic
+   width, including the ones it has already hidden — see the component for why
+   measuring the RENDERED tabs made the count a function of its own previous
+   answer. A full-width strip is built in here, measured and removed inside one
+   synchronous call; only the two text-free elements below are permanent.
+
+   `visibility: hidden`, NOT `display: none`: a display:none subtree has no
+   layout, reports zero width and never fires a ResizeObserver, so it could not
+   be the trigger that catches a webfont swapping in. The 0x0 overflow:hidden
+   box is the other half — the measured strip is wider than its container by
+   construction, and an unclipped one would extend the page's scroll width. */
+.ds-atom-tabs-measure {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+	visibility: hidden;
+	pointer-events: none;
+}
+/* Font-metric probe. `ch` is the advance width of "0" and `ex` the x-height, in
+   the same font the triggers use — so this box resizes exactly when the metrics
+   the tab widths are derived from change, and a ResizeObserver on it is a
+   webfont-swap trigger that needs no Font Loading API. It holds no text. */
+.ds-atom-tabs-metric {
+	display: inline-block;
+	width: 10ch;
+	height: 10ex;
+	font-family: var(--font-body);
+	font-size: 13px;
+	font-weight: 500;
+}
 .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-list {
 	border-bottom: 0;
 	padding: 4px;
