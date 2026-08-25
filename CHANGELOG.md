@@ -222,6 +222,53 @@ gone, semantic colour is not.
 
 ### Fixed
 
+- **Charcoal's light-mode primary button filled mid grey and read as disabled.**
+  The accent was held at `#8e8e97`, which measures **3.11:1** against the
+  near-white page — under even the 3:1 floor a non-text control needs to be
+  seen — while charcoal dark already had its accent at the ink end. `--amber`
+  now aliases `--ink` in **both** blocks, so a filled control is a black slab
+  with a white label in light and a white slab with a black label in dark. The
+  primary button's label goes **5.98 → 18.07** and its fill **3.11 → 18.07**
+  against the page. Dark is unchanged at 17.37.
+
+  Three things had to move first, and none of them could be reached from the
+  token layer — which is why the previous release was right to leave the grey
+  in place rather than paper over it:
+
+  - **`--ink-inverse` now inverts with the mode under charcoal.** It inks the
+    accent fill, so it has to. It was pinned near-black in both blocks, and a
+    single near-black ink on a fill that reaches the ink end measures **1.03**.
+    Its two non-fill consumers moved off it: the pinned `#fef08a` highlight pins
+    its own foreground, and `--amber-ink` aliases the muted ink in both blocks.
+  - **The two pinned near-black chips read `--amber-vivid`.** `AppBar`'s logo
+    mark and `Card`'s dark variant hardcode a background no theme can reach, so
+    a foreground on them must not follow the mode — and the accent now does.
+    `--amber-vivid` is the accent step a theme declares identically in both
+    blocks, which is exactly that property. Both read **5.26** and **5.38** in
+    both modes. This is finding G3, closed at the component.
+  - **`Snackbar` accents from `--amber-vivid`.** It fills from `--ink`, so an
+    accent that aliases the ink disappears into it. That collapse had *already*
+    shipped in charcoal dark at exactly **1.00:1** and no gate reported it:
+    axe-core returns `incomplete` with messageKey `equalRatio` rather than a
+    violation for a ratio that rounds to 1.00.
+
+- **Four rules pinned an ink onto a fill that is now free to move**, and each
+  measured between 1.00 and 1.11 once it did: `SegmentedControl`'s active label
+  (`#000`), `MultiSelect`'s tick (`#1f1b17`), `Checkbox`'s tick (`#1c1917`) and
+  `DateRangePicker`'s selected-cell event dot (`var(--ink)`, which was already
+  1.00:1 in charcoal dark for the same reason as the snackbar). All four read
+  `--ink-inverse` now. **The default brand renders identically** — every literal
+  replaced resolves to the value that brand already painted.
+
+- **`Calendar` chips pinned a caller-supplied background and inherited a
+  theme-controlled ink.** `ev.color` lands as an inline `background` while the
+  label came from the stylesheet, so a brand whose ink moves put a near-white
+  label on a mid-tone event colour — 34 readings between 2.18 and 3.60. The chip
+  now pins its ink beside its background, chosen by measured ratio. Four story
+  events that passed the accent *as* an event colour were dropped: the accent is
+  the chip's own default fill, and passing it explicitly is what made the two
+  paths indistinguishable.
+
 - **`RichText`'s `toolbar={null}` was ignored** and rendered the default toolbar
   anyway.
 - **`RichText`'s code-block syntax highlighter is now opt-in.** It sat on the
