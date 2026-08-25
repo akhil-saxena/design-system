@@ -21,14 +21,51 @@ import "../src/primitives.css";
 import "../src/utilities.css";
 import "./storybook.css";
 
+/* THE DOCS CHROME, and the one constraint that shapes it.
+   `create()` runs ONCE at module scope, before any story renders, so docsTheme
+   cannot be a function of context.globals — there is no re-render hook that would
+   let it follow the Theme or Brand toolbar. That is a hard limit of Storybook's
+   theming API, not an omission here.
+
+   So the values are CSS custom properties rather than hexes. Storybook hands each
+   one to Emotion, which emits it into a rule as-is, so `var(--cream)` is resolved
+   by the browser against whatever <html data-brand> and <html class="dark"> the
+   decorator has set. The theme object stays static while the chrome it produces
+   tracks both toolbars. This was measured, not assumed: theme values that
+   Storybook pipes through a colour function instead of emitting verbatim cannot
+   take a var() and are left as literals below.
+
+   These replace a hardcoded retired identity: cream #f5f3f0 surfaces, a #e7e2dc
+   border, #292524 text, and two #f59e0b ambers that survived the monochrome
+   rename because nothing in the brand sweep looks inside a JS theme object. */
 const docsTheme = create({
+	/* base only fills in values not named below; it cannot follow the toolbar. */
 	base: "light",
-	appBg: "#f5f3f0",
-	appContentBg: "#f5f3f0",
-	appBorderColor: "#e7e2dc",
-	textColor: "#292524",
-	colorPrimary: "#f59e0b",
-	colorSecondary: "#f59e0b",
+	/* --- These ten are emitted verbatim into Emotion rules, so a var() resolves
+	   in the browser against whatever <html data-brand>/<html class="dark"> the
+	   decorator set. This is what lets a module-scope theme track both toolbars. */
+	appBg: "var(--cream)",
+	appContentBg: "var(--cream)",
+	appPreviewBg: "var(--cream)",
+	textInverseColor: "var(--ink-inverse)",
+	barBg: "var(--cream)",
+	barTextColor: "var(--ink-2)",
+	inputBg: "var(--cream)",
+	inputBorder: "var(--wire)",
+	inputTextColor: "var(--ink)",
+	colorPrimary: "var(--amber)",
+	/* --- These three CANNOT take a var(), and it is measured rather than assumed:
+	   Storybook pipes each through polished's parseToRgb to derive shades, which
+	   throws "Couldn't parse the color string" on a custom property and blanks the
+	   whole docs page. Each was tested individually; the other ten render fine.
+	   They are therefore neutral LITERALS -- they no longer carry the retired warm
+	   identity (#e7e2dc border, #f59e0b secondary), but they cannot follow the
+	   Theme or Brand toggle, and no amount of restructuring here would change that.
+	   What the eye actually sees on these surfaces is corrected in storybook.css,
+	   which can use tokens because it is real CSS. */
+	appBorderColor: "#8a8a8f",
+	textColor: "#3f3f46",
+	colorSecondary: "#8a8a8f",
 	fontCode: "ui-monospace, 'Cascadia Code', monospace",
 });
 

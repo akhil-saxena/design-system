@@ -23,9 +23,39 @@ body {
 
 .sbdocs-wrapper,
 .sbdocs-content,
+.sbdocs-preview,
 .docs-story,
 [class*="docblock-"],
 [class*="story-block"] {
+	background: var(--cream) !important;
+	color: var(--ink) !important;
+}
+
+/* WHY THIS SELECTOR IS SO SPECIFIC, and why it is not another blind !important.
+   The rule above already names .docs-story and is already !important, and every
+   sibling in its list obeys it — .sbdocs-content resolves to the brand's --cream
+   in dark mode. .docs-story alone did not, and the reason was found in the
+   browser (CSS.getMatchedStylesForNode) rather than guessed:
+
+     #anchor--<storyId> .docs-story { background: #f5f3f0 !important; }
+
+   The backgrounds addon injects that per story anchor in docs mode, from
+   parameters.backgrounds.values. Both declarations are !important, so the winner
+   is decided on specificity, and an ID beats any number of classes:
+   (1,1,0) for the addon's rule against (0,1,0) for a bare .docs-story. Adding
+   another !important to the existing rule could never have worked — the arms race
+   was already lost on specificity, not on priority.
+
+   So this rule carries an ID of its own: #storybook-docs (1,0,0) + the anchor
+   attribute (0,1,0) + .docs-story (0,1,0) = (1,2,0), which outranks (1,1,0)
+   without touching parameters.backgrounds.
+
+   THE PARAMETER IS DELIBERATELY LEFT ALONE. Pointing backgrounds.values at
+   var(--cream) would fix the docs container and simultaneously repaint the STORY
+   canvas, whose #f5f3f0 body is recorded in all 1,019 visual baselines — a
+   one-line change with a thousand-file blast radius. Scoping to #storybook-docs
+   confines this to docs, which no baseline captures. */
+#storybook-docs [id^="anchor--"] .docs-story {
 	background: var(--cream) !important;
 	color: var(--ink) !important;
 }
@@ -34,6 +64,40 @@ body {
    so scoped dark sections resolve var(--ink) to the dark-mode value (#f5f3f0). */
 .dark {
 	color: var(--ink) !important;
+}
+
+/* THE DOCS CODE CHIPS — a third retired surface, and the reason "no white
+   container" was not yet true. Storybook paints inline <code> and the args
+   table's type/default pills from a hardcoded Emotion class
+   (background-color: #f7fafc), which is NOT derived from docsTheme, so no theme
+   value can reach it. 37 such elements per page stayed near-white in dark mode.
+
+   BOTH ends are set here, deliberately. Re-inking the text alone is the G5 defect
+   this repo already has a rule about — a pinned background must pin its
+   foreground — and doing exactly that is what a first attempt at this did: forcing
+   --ink-2 onto the chips while their #f7fafc stayed put drove 30 cells to 1.75:1.
+   Measured, caught, and reverted rather than shipped.
+
+   :not(.docs-story *) keeps this off the story preview, whose code chips belong to
+   the design system and must render as a consumer would see them. */
+.sbdocs code:not(.docs-story *),
+.docblock-argstable code,
+.docblock-argstable-body span[class*="css-"]:not(.docs-story *) {
+	background: var(--cream-2) !important;
+	color: var(--ink) !important;
+	border-color: var(--rule) !important;
+}
+
+/* The args table's own un-chipped cell text (the "-" placeholders for an absent
+   default) is painted from docsTheme.textColor, which CANNOT be a var(): Storybook
+   pipes it through polished's parseToRgb, which throws on a custom property and
+   blanks the page. It renders at 0.9 alpha and measured 1.70 default / 1.86
+   monochrome on the dark surfaces. No literal fixes it either — the best
+   compromise, #8a8a8f, clears 4.44/4.79 in dark but falls to 2.90/2.86 in light,
+   so the bands do not intersect. CSS is the only layer that follows both toggles.
+   The chip spans are excluded: they pin their own background above. */
+.docblock-argstable-body span:not([class*="css-"]):not(.docs-story *) {
+	color: var(--ink-2) !important;
 }
 
 /* ── Headings + prose inside docs ───────────────────────────────────────── */
