@@ -22,30 +22,46 @@ import { type Page, expect, test } from "@playwright/test";
  * is nondeterministic under monochrome but stable under the default brand would be
  * a finding about monochrome, not a candidate for this list.
  *
- * ## Two stories that belong in this conversation and are deliberately NOT here
+ * ## Two stories that were nearly listed here, and were fixed instead (F-6)
  *
  * `feedback-toast--tones` and `feedback-toast--dark-mode` fire FOUR toasts into a
- * region that holds a maximum of three, so the fourth evicts the oldest — and the
- * eviction runs on a `setTimeout(SLIDE_OUT_MS)` inside ToastProvider, not on a
- * user action. Measured on `--tones`: four toasts at capture time, with the first
- * already carrying `data-dismissing="true"`, and three toasts about thirty
- * double-rAFs later, permanently.
+ * region capped at three, so the fourth evicts the oldest — and the eviction
+ * completes on a `setTimeout(SLIDE_OUT_MS)` inside ToastProvider, not on a user
+ * action. Their baselines recorded the mid-eviction frame: FOUR toasts, verified
+ * by decoding the stored PNGs, which held all four tone tints.
  *
- * The recorded baselines hold FOUR — verified by sampling the toast box out of
- * the stored PNG, which contains all four tone tints (success, error, info,
- * warning). So these baselines record a transient mid-eviction frame, and they
- * pass today only because `toHaveScreenshot` retries until it MATCHES and the
- * four-toast window is still open when it looks.
+ * They passed reliably, and the reason is worth stating precisely because the
+ * obvious explanation is wrong. `toHaveScreenshot` does NOT retry until it
+ * matches. Its call log shows it screenshot, wait 100ms, screenshot again,
+ * declare "captured a stable screenshot", and compare ONCE. The four-toast state
+ * lasts 200ms, which outlives that 100ms stability window — so both screenshots
+ * agreed, the page was pronounced stable, and the comparison was made against a
+ * transient. Had SLIDE_OUT_MS been 50 rather than 200, the identical defect would
+ * have presented as an unreproducible flake rather than a stable baseline.
  *
- * They are left alone rather than added here, and that is a decision, not an
- * oversight. Listing them would drop two real baselines and hide the defect;
- * fixing them properly means making the story deterministic — the preferred
- * remedy this docstring already argues for, the one Calendar's `nowOverride`
- * took — and any such change moves both images. That re-record was outside the
- * scope of the plan that measured this, so the measurement is recorded here
- * instead of acted on. Anything that makes this suite wait for a story to SETTLE
- * rather than merely to MOUNT will turn these two red immediately; that is the
- * defect surfacing, not the settle wait misbehaving.
+ * A baseline that records a transient cannot catch a regression, and this one
+ * fails permanently — not flakily — on any machine slow enough to take its first
+ * screenshot 200ms late.
+ *
+ * THE COMPONENT WAS CHECKED FIRST, because the previous case of this shape — the
+ * tabs baseline — looked stale and turned out to be a component defect, and
+ * fixing the capture instead would have papered over it. The measurement:
+ * a MutationObserver on every committed DOM state plus an rAF sample of every
+ * painted frame, 20 loads across both stories and both brands, found exactly
+ * three states — 0 nodes, then 4 nodes of which 1 already carries
+ * `data-dismissing="true"`, then 3 nodes — and the LIVE (non-dismissing) count
+ * never exceeded 3 in a single committed or painted frame. The cap is on live
+ * toasts, it is honoured, and the fourth node is the evicted toast running the
+ * slide-out `@keyframes` the CSS defines for it. `Toast.test.tsx` encodes the
+ * same expectation, advancing 250ms of "drop animation grace" before asserting
+ * three. So the component is right and the CAPTURE was wrong; the settle wait in
+ * the loop below is the fix, and these two stories are deterministic without it
+ * being touched.
+ *
+ * Recorded because it is the interesting part: this suite kills animations with
+ * an `addStyleTag`, so the evicted toast was photographed at full opacity and
+ * translateX(0) — a fully-drawn fourth toast in a three-slot region, which is a
+ * state no user has ever seen even for one frame.
  */
 const TIME_DEPENDENT = new Set([
 	// Driven by useClock() — re-renders every second with the real time.
@@ -293,6 +309,56 @@ test.describe("Storybook visual baselines", () => {
 				 */
 				await page.waitForFunction(
 					() => (document.querySelector("#storybook-root")?.childElementCount ?? 0) > 0,
+					null,
+					{ timeout: 30_000 },
+				);
+				/**
+				 * ...AND WAIT FOR IT TO SETTLE, NOT MERELY TO EXIST. (F-6)
+				 *
+				 * The wait above says the story has started. It does not say the story
+				 * has finished moving, and two stories finish moving on a TIMER rather
+				 * than on anything the wait above can observe.
+				 *
+				 * `[data-dismissing="true"]` is the design system's own marker for "this
+				 * node's removal is already scheduled". `ToastProvider` and
+				 * `SnackbarProvider` both set it in the SAME state update that calls
+				 * `scheduleRemoval(id)` -> `setTimeout(..., SLIDE_OUT_MS)`. So the
+				 * attribute is not a proxy for the settle; its presence is exactly
+				 * equivalent to "a removal is in flight", and its absence is exactly the
+				 * steady state — the region's rendered node count has converged on its
+				 * live count.
+				 *
+				 * ## Why this is a condition and not a duration
+				 *
+				 * SLIDE_OUT_MS is 200 and the measured eviction window is 198-200ms, so a
+				 * 400ms sleep would "work". It would also be the same race with a longer
+				 * fuse — the lesson §3.2 of 01-FIX-visual-suite.md paid for twice. Under a
+				 * planted 8s eviction window a sleep loses and this does not, which is the
+				 * walk-through that closes this gate.
+				 *
+				 * ## What it does when there are FEWER than three toasts, which is almost
+				 * always
+				 *
+				 * Nothing, immediately. The condition never mentions a target count, and
+				 * that is deliberate: a detector that waited for "3" would hang forever on
+				 * `feedback-toast--persistent` (one toast, and only after a click), on the
+				 * four button-driven Toast stories that hold ZERO at capture time, and on
+				 * all 498 stories in this suite that have no toast region at all. "Settled"
+				 * here means "nothing is mid-transition", not "the region is full" — so
+				 * zero toasts and one toast are both already settled and cost one
+				 * evaluation of a `querySelector` that returns null.
+				 *
+				 * ## Which baselines this moved, measured rather than predicted
+				 *
+				 * A no-screenshot sweep of all 504 stories in BOTH brands — 1,008 loads —
+				 * found this condition false at capture time for exactly four baseline
+				 * stems: `feedback-toast--tones` and `feedback-toast--dark-mode`, each in
+				 * both brands. Every other story satisfies it on the first evaluation.
+				 * Those four recorded FOUR toasts in a three-slot region; they now record
+				 * the three that persist.
+				 */
+				await page.waitForFunction(
+					() => document.querySelector('[data-dismissing="true"]') === null,
 					null,
 					{ timeout: 30_000 },
 				);
