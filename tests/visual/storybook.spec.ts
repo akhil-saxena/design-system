@@ -94,36 +94,67 @@ async function discoverStoryIds(page: Page): Promise<string[]> {
 
 test.describe("Storybook visual baselines", () => {
 	/**
-	 * SERIAL, AND THIS IS NOT A PERFORMANCE CHOICE -- IT IS CORRECTNESS.
+	 * ONE BRAND PASS ON THE WIRE AT A TIME — AND THAT IS ALL THIS BUYS.
+	 *
+	 * This was `mode: "serial"`. The serialisation it provided is kept; the
+	 * skip-on-failure that came bundled with it is not, because that half was
+	 * actively dangerous.
+	 *
+	 * ## The half that is kept, and why
 	 *
 	 * playwright.config.ts sets `fullyParallel: true` with a default worker count,
-	 * so splitting one test into two put both brand passes on the wire at once
-	 * against ONE Storybook dev server. Under that contention the monochrome pass
-	 * flagged `data-display-tabs--narrow-overflow--monochrome` at 96 px (a ratio of
-	 * 0.01), reporting "captured a stable screenshot" as it did so.
+	 * so splitting one test into two puts both brand passes on the wire at once
+	 * against ONE Storybook dev server. That is the mechanism
+	 * 01-SIBLING-PROTOCOL section 3(b) warns about ("two concurrent runs attach to
+	 * ONE server"), reached from a direction it did not anticipate: not two
+	 * executors, but one spec's own two tests.
 	 *
-	 * The recorded bytes were never wrong. Re-running this same spec serially, with
-	 * no `--update-snapshots` and no file touched, flags NOTHING: 504 + 504, clean.
-	 * So the instability was in the concurrent comparison, not in the capture, and
-	 * a story on a measurement-dependent layout (tab overflow: two triggers plus a
-	 * 32px More button) is where it surfaces first. Serialising removes it.
+	 * `mode: "default"` overrides the config's `fullyParallel` for this describe
+	 * only: the two tests run in declaration order, in ONE worker, and do not
+	 * overlap. Measured rather than assumed — instrumented with `Date.now()` at
+	 * both ends of each pass, the default brand ended at t+100684ms and monochrome
+	 * started at t+100728ms, a 44ms gap in worker 0. The negative control is the
+	 * discriminator: with `mode: "parallel"` the two passes start in workers 0 and
+	 * 1 at the SAME millisecond. So this line is doing the serialising, not
+	 * decorating a suite that was sequential anyway.
 	 *
-	 * Worth stating because it nearly became a wrong fix: the obvious reading was
-	 * "the baseline is bad, re-record it". Re-recording would have overwritten a
-	 * correct image with whatever the next contended run produced, and the gate
-	 * would have gone green while getting less trustworthy.
+	 * ## The half that is dropped, and why it had to go
 	 *
-	 * This is the mechanism 01-SIBLING-PROTOCOL section 3(b) warns about ("two
-	 * concurrent runs attach to ONE server... this repository has already recorded
-	 * baselines with a bug present once"), reached from a direction it did not
-	 * anticipate: not two executors, but one spec's own two tests.
+	 * `serial` also means one default-brand mismatch SKIPS the monochrome test
+	 * entirely — Playwright reports it as "1 did not run". All 504 monochrome
+	 * stories then go unchecked, in a run whose only visible symptom is a failure
+	 * somebody has already attributed to the other brand. It happened twice in
+	 * seven runs recorded in 01-FIX-tabs-font-race.md §5.1, and it is how the tabs
+	 * mismatch hid from that plan's first full run. The brand this phase exists for
+	 * is the one that went unchecked.
 	 *
-	 * Serial costs wall-clock and buys nothing back, which is the correct trade for
-	 * a store of 1,019 recorded images. Each test still measures ~1.6min against
-	 * the 300s per-test budget, so the split's original purpose -- a failure report
-	 * that names the brand -- is unaffected.
+	 * Proved by planting, both directions, on this file: with ONE default-brand
+	 * story compared against the other brand's recorded image, `serial` gives
+	 * "captured 504 / 1 did not run" and `default` gives "captured 504 / captured
+	 * 504", the second one green. `tests/visual/brand-independence.spec.ts` is the
+	 * standing gate for it.
+	 *
+	 * ## What the original justification actually described
+	 *
+	 * Recorded honestly, because it is the reason this comment is a rewrite rather
+	 * than an edit. Serialising was adopted after a contended run flagged
+	 * `data-display-tabs--narrow-overflow--monochrome` at 96 px, ratio 0.01. That
+	 * is the same story, the same magnitude and the same 92x13 box as the Tabs
+	 * font race diagnosed in 01-FIX-tabs-font-race.md and fixed at 59abd6e — the
+	 * component measured its overflow from its own output, so under load it
+	 * latched the pre-font answer. Contention did not corrupt a comparison; it
+	 * widened the window on a real component defect.
+	 *
+	 * That defect is gone, so the original reason for serialising is gone with it,
+	 * and a measured `mode: "parallel"` run of this spec is now green. The
+	 * serialisation is kept anyway: F-1 (this spec captures before stories settle,
+	 * and `toHaveScreenshot` retries until it MATCHES) is still open, load still
+	 * widens every such window, and one worker instead of two costs 1.7 minutes of
+	 * wall clock against a store of 1,019 recorded images. Cheap insurance against
+	 * an open finding is worth keeping; a guard that suppresses half the coverage
+	 * is not.
 	 */
-	test.describe.configure({ mode: "serial" });
+	test.describe.configure({ mode: "default" });
 
 	for (const brand of BRANDS) {
 		test(`captures all stories — ${brand.id} brand`, async ({ page }) => {
@@ -142,8 +173,49 @@ test.describe("Storybook visual baselines", () => {
 				).toEqual([]);
 			}
 
+			/**
+			 * A brand-suffixed allowlist, comma separated, matching the BASELINE
+			 * FILE STEM rather than the story id — `foo--bar--monochrome`, not
+			 * `foo--bar`. So it selects a story AND a brand, which is what a
+			 * single-baseline operation actually needs.
+			 *
+			 * It exists because the alternative is worse. Re-recording one image
+			 * with a bare `--update-snapshots` presets the mode to `changed` and
+			 * turns the whole run loose on the store; 01-22 measured that judging
+			 * 448 monochrome baselines "matching" against a different palette. The
+			 * restriction used there was an ad-hoc temporary edit to this file,
+			 * which has to be re-derived and re-proved every time somebody needs it.
+			 * This makes it a first-class, provable operation:
+			 *
+			 *   DS_VISUAL_ONLY=data-display-tabs--narrow-overflow--monochrome \
+			 *     npx playwright test tests/visual/storybook.spec.ts
+			 *
+			 * Run that WITHOUT `--update-snapshots` first: the log line below prints
+			 * "captured 1", which is the proof that the allowlist selects what you
+			 * think before it is trusted with a write.
+			 *
+			 * Two safety properties, both asserted rather than documented:
+			 *  - it is refused outright under CI, so coverage cannot be narrowed by
+			 *    a stray environment variable in a pipeline;
+			 *  - the "skipped" assertion below still fires whenever it is NOT set,
+			 *    so it cannot quietly become the normal way this suite runs.
+			 *
+			 * A brand whose allowlist matches nothing captures 0 and FAILS on the
+			 * "captured no stories at all" assertion at the end of this loop. That
+			 * is deliberate, and it is what tests/visual/brand-independence.spec.ts
+			 * uses to plant a one-brand failure without needing any test-only hook
+			 * in the capture loop.
+			 */
+			const only = process.env.DS_VISUAL_ONLY;
+			expect(
+				process.env.CI && only,
+				"DS_VISUAL_ONLY narrows the capture set and must never be set in CI",
+			).toBeFalsy();
+			const allowed = only ? new Set(only.split(",").map((v) => v.trim())) : null;
+
 			const captured: string[] = [];
 			for (const id of storyIds) {
+				if (allowed && !allowed.has(`${id}${brand.suffix}`)) continue;
 				if (TIME_DEPENDENT.has(id)) continue;
 				// The brand is set through Storybook's own `globals` query param, which
 				// is what .storybook/preview.tsx's decorator reads. It composes with a
@@ -197,10 +269,18 @@ test.describe("Storybook visual baselines", () => {
 			// Fail loudly if the exclusion list silently grows to cover everything, and
 			// make the skipped count visible in the run output rather than implicit.
 			const skipped = storyIds.length - captured.length;
-			expect(skipped).toBeLessThanOrEqual(TIME_DEPENDENT.size);
+			if (!allowed) expect(skipped).toBeLessThanOrEqual(TIME_DEPENDENT.size);
+			// Printed unconditionally, and read by brand-independence.spec.ts. The
+			// count is the only evidence a reader has that a green run exercised the
+			// suite rather than a slice of it.
 			console.log(
 				`visual baselines [${brand.id}]: captured ${captured.length}, skipped ${skipped} time-dependent`,
 			);
+			// A brand that captured nothing must never report success. Without this,
+			// an allowlist naming only the other brand would make this test green on
+			// zero coverage — and green-on-zero is the exact failure mode this whole
+			// file is being hardened against.
+			expect(captured.length, `[${brand.id}] captured no stories at all`).toBeGreaterThan(0);
 		});
 	}
 });
