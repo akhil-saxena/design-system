@@ -25,7 +25,15 @@ Import the CSS layers in your app entry point (order matters):
 import "@akhil-saxena/design-system/tokens.css";
 import "@akhil-saxena/design-system/primitives.css";
 import "@akhil-saxena/design-system/utilities.css";
+import "@akhil-saxena/design-system/fonts/default.css"; // or /fonts/monochrome.css
 ```
+
+That fourth line is not optional, and it is new in 2.0.0. `tokens.css` still names the
+type families but no longer carries their `@font-face` rules, so a page that imports only
+the first three leaves every type token naming a family the browser has never heard of, and
+the whole page falls back at once. Import `fonts/default.css` for the original
+paper/ink/amber typography, or `fonts/monochrome.css` alongside
+`themes/monochrome.css`. See [Subpath imports](#subpath-imports).
 
 Then use components:
 
