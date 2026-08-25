@@ -1,4 +1,5 @@
 import { type Page, expect, test } from "@playwright/test";
+import { pickUpWithSpace, recordKeyboardSensorAttachment } from "./dnd-keyboard";
 
 /**
  * E34 — which tile a keyboard pick-up actually grabs, measured in Chromium.
@@ -28,6 +29,9 @@ const TILE = ".ds-atom-sortable-item";
 const LIVE_REGION = '[id^="DndLiveRegion"]';
 
 async function openStory(page: Page) {
+	// Before the goto: the recorder is an init script, and a listener added during
+	// mount is invisible to a patch installed after the page has loaded.
+	await recordKeyboardSensorAttachment(page);
 	await page.goto(`/iframe.html?id=${STORY}&viewMode=story`);
 	await page.waitForSelector(TILE, { state: "attached", timeout: 15_000 });
 	// Mounted in an effect, so it is absent from the markup the page first parses.
@@ -59,12 +63,23 @@ async function expectHeld(page: Page, labels: string[]) {
  *  attaches the KeyboardSensor's document keydown listener in a `setTimeout` after
  *  that, so an ArrowDown sent the instant the tile looks held is dropped on the
  *  floor — and the failure then reads as a broken reorder rather than a lost key.
- *  Measured: this spec failed exactly that way before the settle was added. */
+ *  Measured: this spec failed exactly that way before the settle was added.
+ *
+ *  That settle used to be `waitForTimeout(100)`. It has been replaced by a wait
+ *  on the listener ITSELF (see ./dnd-keyboard). 100ms wins on an idle machine and
+ *  is a coin toss when six workers and a Vite dev server share twelve cores — a
+ *  fixed budget for an unbounded wait is the same race with a longer fuse, and
+ *  the sibling spec sortable-announce.spec.ts, which paced on the live region
+ *  instead, is the one that actually failed two full-suite runs in three.
+ *
+ *  `expectHeld` is KEPT, and not as belt-and-braces: it asserts the pick-up
+ *  grabbed the tile this test named, which is the defect (E34) the whole file
+ *  exists for. The sensor wait says the next key will be heard; expectHeld says
+ *  the right tile is holding it. Neither implies the other. */
 async function pickUp(page: Page, index: number, label: string) {
 	await page.locator(TILE).nth(index).focus();
-	await page.keyboard.press("Space");
+	await pickUpWithSpace(page);
 	await expectHeld(page, [label]);
-	await page.waitForTimeout(100);
 }
 
 /** Text currently in the live region, asserted non-empty so no downstream
@@ -120,9 +135,8 @@ test.describe("Sortable keyboard pick-up target (E34)", () => {
 		await expect(page.locator(TILE).nth(3)).toBeFocused();
 		await expectHeld(page, []);
 
-		await page.keyboard.press("Space");
+		await pickUpWithSpace(page);
 		await expectHeld(page, ["Task D"]);
-		await page.waitForTimeout(100);
 		await pressUntilSpoken(page, "ArrowDown", "task-e");
 		await page.keyboard.press("Space");
 

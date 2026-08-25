@@ -1,4 +1,5 @@
 import { type Page, expect, test } from "@playwright/test";
+import { pickUpWithSpace, recordKeyboardSensorAttachment } from "./dnd-keyboard";
 
 /**
  * E8 / G-13 — the announcer passthrough, driven by keyboard alone in a real
@@ -43,6 +44,9 @@ const RECORD_IDS = [
 ];
 
 async function openStory(page: Page, id: string) {
+	// Before the goto: the recorder is an init script, and a listener added during
+	// mount is invisible to a patch installed after the page has loaded.
+	await recordKeyboardSensorAttachment(page);
 	await page.goto(`/iframe.html?id=${id}&viewMode=story`);
 	await page.waitForSelector("#storybook-root", { state: "attached", timeout: 15_000 });
 	await page.waitForSelector(TILE, { state: "attached", timeout: 15_000 });
@@ -83,7 +87,7 @@ test.describe("Sortable announcer (E8 / G-13)", () => {
 		await page.locator(TILE).first().focus();
 		await expect(page.locator(TILE).first()).toBeFocused();
 
-		await page.keyboard.press("Space");
+		await pickUpWithSpace(page);
 		const pickUp = await spokenAfter(page, "");
 		console.log(`AFTER Space      ${JSON.stringify(pickUp)}`);
 
@@ -156,12 +160,14 @@ test.describe("Sortable announcer (E8 / G-13)", () => {
 		expect(before[1]).toBe("Lights, Camera, Art");
 
 		await page.locator(TILE).first().focus();
-		// Paced through the live region rather than pressed back to back. dnd-kit
-		// activates the KeyboardSensor and attaches its move listener across a
-		// frame, so three immediate presses lose the ArrowDown and the list does not
-		// move — measured, and it fails as "expected Lights, Camera, Art, received
-		// Into the Mist", which reads exactly like a broken reorder.
-		await page.keyboard.press("Space");
+		// Paced on the SENSOR, not on the live region. The comment this replaces was
+		// right about the mechanism and wrong about the remedy: dnd-kit attaches the
+		// move listener in a setTimeout inside KeyboardSensor.attach(), but the
+		// "Picked up ..." utterance is produced by handleStart() on the line ABOVE
+		// that setTimeout. So waiting for the announcement returns inside the race
+		// window rather than past it, and the lost ArrowDown reads as a broken
+		// reorder: "expected Lights, Camera, Art, received Into the Mist".
+		await pickUpWithSpace(page);
 		const pickUp = await spokenAfter(page, "");
 		await page.keyboard.press("ArrowDown");
 		const moved = await spokenAfter(page, pickUp);
@@ -186,7 +192,7 @@ test.describe("Sortable announcer (E8 / G-13)", () => {
 		await openStory(page, DEFAULTS);
 		await page.locator(TILE).first().focus();
 
-		await page.keyboard.press("Space");
+		await pickUpWithSpace(page);
 		const pickUp = await spokenAfter(page, "");
 		expect(pickUp).toBe("Draggable item task-a was moved over droppable area task-a.");
 
