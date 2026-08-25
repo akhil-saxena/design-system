@@ -131,6 +131,15 @@ const preview: Preview = {
 			},
 		},
 		layout: "centered",
+		/* FLAGGED, DELIBERATELY NOT CHANGED. #f5f3f0 and #1c1917 are the RETIRED
+		   identity's colours; they survived the monochrome rename because nothing in
+		   a brand sweep looks inside an addon parameter. 12b723c left this alone for
+		   a reason worth re-reading before anyone "finishes the job": pointing these
+		   at var(--cream) repaints the STORY CANVAS, whose #f5f3f0 body is recorded
+		   in all 1,019 visual baselines. A one-line change with a thousand-file blast
+		   radius. What HAS changed is the stake: the decorator no longer reads this
+		   parameter, so the wrong hexes are now cosmetic rather than load-bearing --
+		   a smaller problem than it was, not a fixed one. */
 		backgrounds: {
 			default: "light",
 			values: [
@@ -146,8 +155,40 @@ const preview: Preview = {
 	},
 	decorators: [
 		(Story, context) => {
-			const isDark =
-				context.globals.theme === "dark" || context.globals.backgrounds?.value === DARK_BG;
+			/* THE THEME TOOLBAR IS AUTHORITATIVE, and nothing else votes.
+
+			   This line used to read:
+
+			     context.globals.theme === "dark" ||
+			       context.globals.backgrounds?.value === DARK_BG
+
+			   The convenience was "pick a dark background, get a dark theme". The
+			   cost was that the Theme control could only ever express ONE of its two
+			   states. `backgrounds` is a STICKY global -- the manager persists the
+			   toolbar selection and restores it -- so once it holds DARK_BG that
+			   second clause is permanently true and every subsequent "Light" is
+			   swallowed. Reproduced in a real browser rather than reasoned about:
+			   with backgrounds pinned to #1c1917, driving theme dark -> light ->
+			   dark -> light left `<html class="dark">` on all four reads.
+
+			   NOTHING DEPENDED ON THE OR. Checked before removing it, not after:
+			   every story that wants dark sets `globals: { theme: "dark" }` (~70 of
+			   them since 01-19.1) and src/story-mode.test.ts FAILS the build if any
+			   story selects dark by pinning a backgrounds hex instead; every
+			   Playwright spec drives the axis with `?globals=theme:...`; the a11y
+			   runner sets only `globals=brand:...`. `parameters.backgrounds.default`
+			   does not feed it either -- measured on a fresh boot,
+			   `globals.backgrounds` is null until the toolbar is touched, so the five
+			   stories that declare their own `backgrounds.values` never reached this
+			   branch. There was no one-way version left worth keeping: `theme` is
+			   always defined by initialGlobals, so "an explicit theme wins" reduces
+			   to "theme wins".
+
+			   Guarded by tests/visual/theme-toggle-authority.spec.ts, which drives
+			   the exact stuck state through the toolbar's own channel.
+
+			   DARK_BG survives above because parameters.backgrounds still names it. */
+			const isDark = context.globals.theme === "dark";
 			const isMonochrome = context.globals.brand === "monochrome";
 			// Brand and mode are applied in ONE pass. Splitting them across two
 			// decorators paints a frame in the wrong brand, which is the flash D-34's
@@ -172,9 +213,9 @@ const preview: Preview = {
 					<div
 						className={isMonochrome ? undefined : "dark"}
 						// Read from the cascade, not from the DARK_BG constant, so the
-						// backdrop tracks whichever brand is mounted. DARK_BG stays below
-						// for the backgrounds parameter and the dark-detection branch,
-						// which are Storybook's own chrome and brand-independent.
+						// backdrop tracks whichever brand is mounted. DARK_BG is now used by
+						// the backgrounds parameter alone -- Storybook's own chrome, and
+						// brand-independent -- and no longer decides the mode.
 						style={{ background: "var(--cream)" }}
 					>
 						{Story()}

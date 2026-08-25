@@ -1,17 +1,31 @@
 import { addons } from "@storybook/preview-api";
 import { useEffect, useRef, useState } from "react";
 
-const DARK_BG = "#1c1917";
-
 // ─── Theme (wired to Storybook's `theme` global → `.dark` class on <html>) ─────
 
 type GlobalsPayload = { globals: Record<string, unknown> };
 
+/**
+ * THE SECOND COPY OF THE TOOLBAR DEFECT, and the one that would have made the
+ * fix in `.storybook/preview.tsx` look half-applied.
+ *
+ * This read `globals.theme === "dark" || globals.backgrounds?.value === "#1c1917"`,
+ * the same OR the preview decorator carried. `backgrounds` is a sticky global, so
+ * once the toolbar had ever selected the dark background the second clause was
+ * permanently true and neither the Theme toolbar NOR this page's own masthead
+ * toggle could return to light.
+ *
+ * It is not a duplicate that could be left for later. This handler fires on
+ * `globalsUpdated` and writes `.dark` onto `document.documentElement` directly —
+ * the same element the preview decorator writes — so on the Overview page it would
+ * have put the class straight back after the decorator removed it. Fixing one
+ * without the other yields a Theme toggle that works everywhere except the
+ * landing page, which is the first page anyone opens.
+ *
+ * `theme` is the only input now, matching the decorator exactly.
+ */
 function isDarkGlobals(globals: Record<string, unknown>) {
-	return (
-		globals.theme === "dark" ||
-		(globals.backgrounds as { value?: string } | undefined)?.value === DARK_BG
-	);
+	return globals.theme === "dark";
 }
 
 /**
