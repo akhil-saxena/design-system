@@ -4,7 +4,7 @@ import type { Page } from "@playwright/test";
  * Reads getComputedStyle out of a real Storybook render, in a chosen
  * brand × colour-mode cell.
  *
- * Every plan in the charcoal phase has to prove that a style APPLIED, not that
+ * Every plan in the monochrome phase has to prove that a style APPLIED, not that
  * a declaration exists. A grep cannot tell the difference, and this repository
  * has already paid for that once — see control-chrome.spec.ts, whose docstring
  * records screenshot baselines that were recorded with the bug already present
@@ -25,7 +25,7 @@ import type { Page } from "@playwright/test";
  * be the thing that passes.
  */
 
-export type Brand = "default" | "charcoal";
+export type Brand = "default" | "monochrome";
 export type Mode = "light" | "dark";
 
 export interface ProbeOptions {
@@ -48,10 +48,10 @@ export interface ProbeOptions {
 /**
  * How the axis was driven, recorded rather than assumed.
  *
- * Storybook 8.6 accepts `?globals=theme:dark;brand:charcoal`, so the URL path is
+ * Storybook 8.6 accepts `?globals=theme:dark;brand:monochrome`, so the URL path is
  * the normal one. The direct-DOM fallback exists because that query parameter is
  * undocumented surface that a Storybook upgrade could drop silently — and a
- * harness that quietly stopped applying the brand would turn every charcoal
+ * harness that quietly stopped applying the brand would turn every monochrome
  * assertion into a default-brand assertion that still passed.
  *
  * Module-level, so it is per-worker. Read it from a spec in the same file that
@@ -69,7 +69,7 @@ export async function probeComputed(
 ): Promise<Record<string, string>> {
 	const { story, brand, mode, selector, props, index = 0 } = opts;
 	const cell = `brand=${brand} mode=${mode}`;
-	const want = { brand: brand === "charcoal" ? "charcoal" : null, dark: mode === "dark" };
+	const want = { brand: brand === "monochrome" ? "monochrome" : null, dark: mode === "dark" };
 
 	const globals = `theme:${mode};brand:${brand}`;
 	await page.goto(`/iframe.html?id=${encodeURIComponent(story)}&viewMode=story&globals=${globals}`);

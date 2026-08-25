@@ -10,10 +10,10 @@ import { probeComputed } from "./computed";
  * Two declarations pinned `color: #1c1917` on a `background: var(--amber)` fill:
  * `.ds-atom-split-primary[data-variant="primary"]` and
  * `.ds-atom-datepicker-cell.is-selected`. That hex IS the default brand's
- * `--ink-inverse`, so `[data-brand="charcoal"]` could never override it. Charcoal
+ * `--ink-inverse`, so `[data-brand="monochrome"]` could never override it. Monochrome
  * maps `--amber` to `--ochre` `#b0722a`, where `#1c1917` measures 4.402 and
- * charcoal's own `--ink-inverse` `#161616` measures 4.555. Twelve stories failed
- * `DS_BRAND=charcoal npm run test:a11y` on exactly this, at exactly 4.402, and it
+ * monochrome's own `--ink-inverse` `#161616` measures 4.555. Twelve stories failed
+ * `DS_BRAND=monochrome npm run test:a11y` on exactly this, at exactly 4.402, and it
  * is the same defect `004254f` had already fixed one component over in Tabs.
  *
  * WHY A SPEC AND NOT A GREP
@@ -50,7 +50,7 @@ import { probeComputed } from "./computed";
  *    file into a tautology, so each cell asserts how many nodes it saw.
  *
  * THE BRAND IS ASSERTED AT THE PROBED ELEMENT, both halves, per E29. `--ochre` is
- * declared only in `src/themes/charcoal.css`, so reading it proves the brand
+ * declared only in `src/themes/monochrome.css`, so reading it proves the brand
  * layer reached the node; but 01-19.1 measured `--ochre` reading CORRECTLY at a
  * node whose neutrals were shadowed underneath, so a neutral is asserted too.
  */
@@ -99,13 +99,13 @@ const SELECTOR = [
 /**
  * The accent each brand paints these fills with, per cell.
  *
- * Charcoal is per-MODE since 01-22. Its accent used to be one ochre in both
+ * Monochrome is per-MODE since 01-22. Its accent used to be one ochre in both
  * modes; the near-monochrome accent is a light neutral that inverts with the
  * mode while --ink-inverse deliberately does not, which is the whole reason
  * a filled control still carries dark ink in both.
  */
 const ACCENT: Record<string, Record<string, string>> = {
-	charcoal: { light: "#111114", dark: "#f2f2f4" },
+	monochrome: { light: "#111114", dark: "#f2f2f4" },
 	default: { light: "#f59e0b", dark: "#f59e0b" },
 };
 
@@ -291,8 +291,8 @@ async function measureAccentInk(
 const CELLS = [
 	{ brand: "default", mode: "light" },
 	{ brand: "default", mode: "dark" },
-	{ brand: "charcoal", mode: "light" },
-	{ brand: "charcoal", mode: "dark" },
+	{ brand: "monochrome", mode: "light" },
+	{ brand: "monochrome", mode: "dark" },
 ] as const;
 
 for (const cell of CELLS) {
@@ -315,18 +315,18 @@ for (const cell of CELLS) {
 			});
 
 			// Brand, both halves, at the probed element.
-			if (cell.brand === "charcoal") {
-				expect(tok["--ochre"], `${story}: charcoal must declare --ochre`).toBe(
+			if (cell.brand === "monochrome") {
+				expect(tok["--ochre"], `${story}: monochrome must declare --ochre`).toBe(
 					cell.mode === "dark" ? "#f2f2f4" : "#111114",
 				);
-				expect(tok["--cream"], `${story}: charcoal neutrals must not be shadowed`).toBe(
+				expect(tok["--cream"], `${story}: monochrome neutrals must not be shadowed`).toBe(
 					cell.mode === "dark" ? "#0d0d0f" : "#fafafb",
 				);
-				// --ink-inverse INVERTS under charcoal since the monochrome-accent repair:
+				// --ink-inverse INVERTS under monochrome since the monochrome-accent repair:
 				// it inks the accent fill, and the accent fill inverts. Asserting one
 				// value here is what would go green on a theme that quietly re-pinned it
 				// and put near-black ink back on a near-black button.
-				expect(tok["--ink-inverse"], `${story}: charcoal --ink-inverse`).toBe(
+				expect(tok["--ink-inverse"], `${story}: monochrome --ink-inverse`).toBe(
 					cell.mode === "dark" ? "#0d0d0f" : "#fafafb",
 				);
 			} else {

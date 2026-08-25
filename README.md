@@ -63,8 +63,8 @@ side effects:
 
 ```ts
 import "@akhil-saxena/design-system/tokens.css";
-import "@akhil-saxena/design-system/themes/charcoal.css";
-import "@akhil-saxena/design-system/fonts/charcoal.css"; // or /fonts/default.css
+import "@akhil-saxena/design-system/themes/monochrome.css";
+import "@akhil-saxena/design-system/fonts/monochrome.css"; // or /fonts/default.css
 ```
 
 ### Per-component imports, and when you need them
@@ -112,9 +112,9 @@ subpath form is gated. On a hydrated island, use the subpath.
 `"./themes/*"`. This is deliberate and it is load-bearing — do not tidy it.
 
 Node substitutes whatever the `*` captured into the target. With `"./themes/*.css"`,
-importing `@akhil-saxena/design-system/themes/charcoal.css` captures `charcoal` and
-resolves to `dist/themes/charcoal.css`. Respell the entry `"./themes/*"` and the `*`
-captures `charcoal.css` instead, the target becomes `dist/themes/charcoal.css.css`,
+importing `@akhil-saxena/design-system/themes/monochrome.css` captures `monochrome` and
+resolves to `dist/themes/monochrome.css`. Respell the entry `"./themes/*"` and the `*`
+captures `monochrome.css` instead, the target becomes `dist/themes/monochrome.css.css`,
 and a consumer's build fails on that exact specifier with
 `[vite]: Rolldown failed to resolve import`.
 
@@ -129,7 +129,7 @@ Note the asymmetry with `./components/*`, which is spelled with the extension **
 the wildcard (`"./components/*": { "import": "./dist/components/*.js" }`). Both are
 correct for their own consumer syntax: a JS consumer writes `components/Chip` with no
 extension, so the `*` must capture `Chip`, whereas a CSS consumer writes
-`themes/charcoal.css` with one. They look inconsistent and are not — do not "fix" either
+`themes/monochrome.css` with one. They look inconsistent and are not — do not "fix" either
 to match the other.
 
 ## Components

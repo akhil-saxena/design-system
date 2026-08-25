@@ -123,9 +123,9 @@ export const DarkMode: Story = {
  * **It deliberately carries no scoped dark wrapper** — and as of plan 01-19.1 no
  * story in this library does. A probe inside such a wrapper measures the WRONG
  * BRAND: `tokens.css` targets `:root.dark, .dark`, so a scoped wrapper
- * re-declares roughly fifty neutral dark tokens, while `charcoal.css` is
+ * re-declares roughly fifty neutral dark tokens, while `monochrome.css` is
  * root-scoped and does not reach inside it. A probe in one of those stories read
- * 31,31,31 where charcoal declares 30,30,29 — it was rendering the default
+ * 31,31,31 where monochrome declares 30,30,29 — it was rendering the default
  * brand. The mode is driven from the Storybook theme global instead, so `<html>`
  * carries both `data-brand` and `.dark` and the cascade is the real one.
  * `src/story-mode.test.ts` enforces that across every story file, and

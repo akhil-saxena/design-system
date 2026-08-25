@@ -1,7 +1,7 @@
-/* Charcoal brand - FACE layer (D-29).
+/* Monochrome brand - FACE layer (D-29).
    Imported via:
-     import "@akhil-saxena/design-system/fonts/charcoal.css";
-   Pair it with theme-charcoal.css, which carries the tokens. This file carries
+     import "@akhil-saxena/design-system/fonts/monochrome.css";
+   Pair it with themes/monochrome.css, which carries the tokens. This file carries
    the faces and nothing else - zero custom properties - which is what makes
    DS-04 ("the token layer ends with no face rules") literally true rather than
    aspirational.
@@ -49,7 +49,7 @@
    and never fetched. Three roles depend on this - the 22px display subtitle,
    the 22px serif cross-link at the foot of Work and Photos, and this design
    system's own datepicker placeholder, which sets an italic style on the
-   charcoal serif token. */
+   monochrome serif token. */
 
 @import "@fontsource-variable/playfair-display/wght.css";
 @import "@fontsource-variable/playfair-display/wght-italic.css";

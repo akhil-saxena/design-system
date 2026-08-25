@@ -16,19 +16,19 @@ const MODE = process.env.DS_TEST_MODE ?? "a11y";
 /**
  * THE BRAND AXIS (D-37 / T-20-02).
  *
- *   DS_BRAND=charcoal npm run test:a11y
+ *   DS_BRAND=monochrome npm run test:a11y
  *
- * Without this, every a11y result in the charcoal release is default-brand-only.
+ * Without this, every a11y result in the monochrome release is default-brand-only.
  * Nothing pins the brand: `preview.tsx` sets `initialGlobals.brand = "default"`
- * deliberately (so charcoal is opt-in and no recorded baseline moves) and no
+ * deliberately (so monochrome is opt-in and no recorded baseline moves) and no
  * story overrides it — so an unqualified `test:a11y` sweeps the JobDash cream/
- * ink/amber palette exclusively. Charcoal is the brand that changes *colours*,
+ * ink/amber palette exclusively. Monochrome is the brand that changes *colours*,
  * and colour-contrast is where axe violations live, so a green default sweep
  * says nothing whatsoever about it.
  *
  * DEFAULT IS STILL "default", on purpose. This is a switch, not a re-point: the
  * committed gate keeps sweeping the brand every existing consumer is on, and the
- * charcoal sweep is a second, explicitly-requested run. Making charcoal the
+ * monochrome sweep is a second, explicitly-requested run. Making monochrome the
  * default here would silently change what `npm run test:a11y` means for anyone
  * who inherits this file.
  */
@@ -44,21 +44,21 @@ const config: TestRunnerConfig = {
 	 * switches stories over Storybook's channel without re-navigating, so a
 	 * `preVisit` that wrote `documentElement.dataset.brand` would be undone the
 	 * moment the decorator re-renders -- it calls `removeAttribute("data-brand")`
-	 * on every render whose `globals.brand` is not charcoal. Setting the DOM
+	 * on every render whose `globals.brand` is not monochrome. Setting the DOM
 	 * attribute directly is precisely the kind of change a grep can confirm and a
 	 * browser cannot; the global has to be set where Storybook reads it.
 	 *
 	 * AND IT MUST BOOT WITH A STORY ID. Storybook only reads the `globals` query
-	 * parameter on a boot that carries an `id`; `iframe.html?globals=brand:charcoal`
+	 * parameter on a boot that carries an `id`; `iframe.html?globals=brand:monochrome`
 	 * with no story silently discards it, and no later channel switch recovers it.
-	 * Measured all three ways: `?id=X&globals=brand:charcoal` resolves --cream to
-	 * charcoal's #f4f1ea; the same URL without `id` resolves #fcfcfc, the default
+	 * Measured all three ways: `?id=X&globals=brand:monochrome` resolves --cream to
+	 * monochrome's #f4f1ea; the same URL without `id` resolves #fcfcfc, the default
 	 * brand; and once the globals HAVE landed on an id-carrying boot they survive a
 	 * `setCurrentStory` switch to any other story, which is what makes one
 	 * navigation brand the entire sweep.
 	 *
 	 * The first version of this hook omitted the id and therefore swept the default
-	 * brand under a charcoal label. It was caught by postVisit's assertion below,
+	 * brand under a monochrome label. It was caught by postVisit's assertion below,
 	 * on all 508 stories, rather than by review -- which is the whole argument for
 	 * that assertion existing.
 	 */
@@ -72,7 +72,7 @@ const config: TestRunnerConfig = {
 		const seed = Object.entries(entries ?? {}).find(([, e]) => e.type === "story")?.[0];
 		if (!seed) throw new Error(`Could not read a story id from ${targetURL}/index.json`);
 		// Built by concatenation rather than URLSearchParams: the latter
-		// percent-encodes the ":" in "brand:charcoal" into "%3A", and this URL is
+		// percent-encodes the ":" in "brand:monochrome" into "%3A", and this URL is
 		// also what gets printed in a failure, where the encoded form is harder to
 		// paste into a browser.
 		const iframeURL = `${new URL("iframe.html", targetURL).toString()}?id=${seed}&viewMode=story&globals=brand:${BRAND}`;

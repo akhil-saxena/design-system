@@ -8,8 +8,8 @@
    own face layer (D-29, and D-36 for why removing them is a breaking change).
    A consumer must therefore additionally import exactly ONE face layer:
 
-     import "@akhil-saxena/design-system/fonts/default.css";   pre-2.0 families
-     import "@akhil-saxena/design-system/fonts/charcoal.css";  charcoal brand
+     import "@akhil-saxena/design-system/fonts/default.css";      pre-2.0 families
+     import "@akhil-saxena/design-system/fonts/monochrome.css";   monochrome brand
 
    Omit the face layer and EVERY family falls back at once, so the page is
    unmistakably wrong on first load rather than subtly wrong in one heading
@@ -296,7 +296,7 @@
    define the same values so var(--ink) etc resolve correctly on either. */
 :root.dark,
 .dark {
-	/* Dark-mode ramp — sourced from Cairn (neutral charcoal):
+	/* Dark-mode ramp — sourced from Cairn (neutral dark greys):
 	   - 3 distinct surface stops so page / column / card don't collapse into
 	     one slab.
 	   - Text is a neutral light grey; the amber accent is the only warm signal,

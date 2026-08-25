@@ -2,18 +2,18 @@ import { expect, test } from "@playwright/test";
 import { probeComputed, probeMeta } from "./computed";
 
 /**
- * E29. A charcoal-dark capture must read charcoal's neutrals, not the design
+ * E29. A monochrome-dark capture must read monochrome's neutrals, not the design
  * system's.
  *
  * `src/tokens.css` declares its dark block as `:root.dark, .dark`, so ANY
  * element carrying that class re-declares roughly fifty neutral dark tokens.
- * `src/themes/charcoal.css` is scoped to `:root[data-brand="charcoal"]` and
+ * `src/themes/monochrome.css` is scoped to `:root[data-brand="monochrome"]` and
  * cannot reach inside such an element. Sixty-seven story files used to wrap
- * themselves in `<div className="dark">`, so a charcoal-dark probe inside them
+ * themselves in `<div className="dark">`, so a monochrome-dark probe inside them
  * measured the DEFAULT brand while the render still looked plausibly dark —
  * measured before the fix, in this browser, at the deepest node of
- * `inputs-badge--dark-mode`: `--cream` `#181818` where charcoal declares
- * `#161616`, and `--wire` `rgba(255, 255, 255, 0.22)` where charcoal declares
+ * `inputs-badge--dark-mode`: `--cream` `#181818` where monochrome declares
+ * `#161616`, and `--wire` `rgba(255, 255, 255, 0.22)` where monochrome declares
  * `#727268`. Plan 01-19.1 removed every one of those wrappers; dark now comes
  * from the Storybook theme global, which `.storybook/preview.tsx` applies to
  * `document.documentElement`.
@@ -21,7 +21,7 @@ import { probeComputed, probeMeta } from "./computed";
  * Three deliberate choices, each answering a way this spec could lie:
  *
  * 1. THE BRAND IS ASSERTED AT THE PROBED ELEMENT, not from toolbar state.
- *    `--ochre` is declared ONLY in `src/themes/charcoal.css`, so reading it at
+ *    `--ochre` is declared ONLY in `src/themes/monochrome.css`, so reading it at
  *    the same node as the neutrals proves the brand layer reaches that node.
  *    Plan 01-18 caught its own hex-vs-rgb bug this way before it measured
  *    anything. Note the sharp edge that makes this necessary but not sufficient:
@@ -43,12 +43,12 @@ import { probeComputed, probeMeta } from "./computed";
  * exposed to the trap 01-18 hit, where `getComputedStyle` reported a
  * non-composited `rgba` fill as 2.020:1 when the composited truth was 1.114:1.
  *
- * There is no screenshot here. Charcoal's baselines are D-37 / plan 01-20, behind
+ * There is no screenshot here. Monochrome's baselines are D-37 / plan 01-20, behind
  * a human gate.
  */
 
 /**
- * Declared only in src/themes/charcoal.css — the brand fingerprint.
+ * Declared only in src/themes/monochrome.css — the brand fingerprint.
  *
  * This file probes DARK stories only, so one value suffices; since 01-22 the
  * token is per-mode and this is its dark value. It is a vestigial back-compat
@@ -57,9 +57,9 @@ import { probeComputed, probeMeta } from "./computed";
  * and that asymmetry is the whole assertion.
  */
 const OCHRE = "#f2f2f4";
-/** src/themes/charcoal.css, :root[data-brand="charcoal"].dark */
-const CHARCOAL_DARK_CREAM = "#0d0d0f";
-const CHARCOAL_DARK_WIRE = "#6d6d73";
+/** src/themes/monochrome.css, :root[data-brand="monochrome"].dark */
+const MONOCHROME_DARK_CREAM = "#0d0d0f";
+const MONOCHROME_DARK_WIRE = "#6d6d73";
 /** src/tokens.css, ":root.dark, .dark" — what a shadowed probe reads instead. */
 const DS_DARK_CREAM = "#181818";
 const DS_DARK_WIRE = "rgba(255, 255, 255, 0.22)";
@@ -115,14 +115,14 @@ const DEEP_READ = () => {
 	};
 };
 
-test.describe("charcoal-dark stories resolve charcoal's neutrals (E29)", () => {
+test.describe("monochrome-dark stories resolve monochrome's neutrals (E29)", () => {
 	for (const story of CONVERTED_DARK_STORIES) {
-		test(`${story} reads charcoal, not the design system's dark neutrals`, async ({ page }) => {
+		test(`${story} reads monochrome, not the design system's dark neutrals`, async ({ page }) => {
 			// probeComputed drives the cell and throws if <html> did not end up in it,
 			// so a value read below cannot belong to a different brand x mode.
 			await probeComputed(page, {
 				story,
-				brand: "charcoal",
+				brand: "monochrome",
 				mode: "dark",
 				selector: "#storybook-root",
 				props: ["--cream"],
@@ -130,21 +130,21 @@ test.describe("charcoal-dark stories resolve charcoal's neutrals (E29)", () => {
 			const deep = await page.evaluate(DEEP_READ);
 
 			// The cell, restated at the element rather than taken on trust.
-			expect(deep.htmlBrand).toBe("charcoal");
+			expect(deep.htmlBrand).toBe("monochrome");
 			expect(deep.htmlDark).toBe(true);
 			expect(deep.depth).toBeGreaterThan(0);
 
 			// The brand layer reaches the probed node.
 			expect(deep.ochre).toBe(OCHRE);
 
-			// ...and the neutrals at that same node are charcoal's, not the shadowed ones.
-			expect(deep.cream).toBe(CHARCOAL_DARK_CREAM);
+			// ...and the neutrals at that same node are monochrome's, not the shadowed ones.
+			expect(deep.cream).toBe(MONOCHROME_DARK_CREAM);
 			expect(deep.cream).not.toBe(DS_DARK_CREAM);
-			expect(deep.wire).toBe(CHARCOAL_DARK_WIRE);
+			expect(deep.wire).toBe(MONOCHROME_DARK_WIRE);
 			expect(deep.wire).not.toBe(DS_DARK_WIRE);
 
-			// Mechanism-independent: under charcoal the ONLY .dark element is <html>.
-			// preview.tsx drops the class from its own wrapper under charcoal for
+			// Mechanism-independent: under monochrome the ONLY .dark element is <html>.
+			// preview.tsx drops the class from its own wrapper under monochrome for
 			// exactly this reason, so anything scoped here is a reintroduction.
 			expect(deep.darkElements).toEqual(["html(root)"]);
 		});
@@ -153,8 +153,8 @@ test.describe("charcoal-dark stories resolve charcoal's neutrals (E29)", () => {
 	test("the same stories read the design system's neutrals under the default brand", async ({
 		page,
 	}) => {
-		// The other direction: charcoal's values must not leak when the brand is off,
-		// and `--ochre` must be ABSENT — a charcoal-only token resolving here would
+		// The other direction: monochrome's values must not leak when the brand is off,
+		// and `--ochre` must be ABSENT — a monochrome-only token resolving here would
 		// mean the brand layer was applied when nobody asked for it.
 		for (const story of CONVERTED_DARK_STORIES.slice(0, 4)) {
 			await probeComputed(page, {
@@ -187,7 +187,7 @@ test.describe("charcoal-dark stories resolve charcoal's neutrals (E29)", () => {
 		// in a worker that had probed nothing and read a vacuous 0/0.
 		await probeComputed(page, {
 			story: CONVERTED_DARK_STORIES[0] as string,
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "dark",
 			selector: "#storybook-root",
 			props: ["--cream"],

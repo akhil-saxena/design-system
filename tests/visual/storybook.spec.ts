@@ -19,8 +19,8 @@ import { type Page, expect, test } from "@playwright/test";
  * subject of the story — freezing it would document the wrong thing.
  *
  * This set is shared by every brand and is NOT widened per brand. A story that
- * is nondeterministic under charcoal but stable under the default brand would be
- * a finding about charcoal, not a candidate for this list.
+ * is nondeterministic under monochrome but stable under the default brand would be
+ * a finding about monochrome, not a candidate for this list.
  */
 const TIME_DEPENDENT = new Set([
 	// Driven by useClock() — re-renders every second with the real time.
@@ -45,7 +45,7 @@ const TIME_DEPENDENT = new Set([
 const FIXED_NOW = new Date("2026-06-15T12:00:00Z");
 
 /**
- * THE BRAND AXIS (D-37). Every story is captured once per brand, so charcoal
+ * THE BRAND AXIS (D-37). Every story is captured once per brand, so monochrome
  * gains the visual companion DS-06's numeric contrast contract cannot provide —
  * a token can pass a ratio assertion and still look wrong. The accepted cost is
  * a doubled snapshot count and a doubled review burden; it was weighed in
@@ -65,20 +65,20 @@ const FIXED_NOW = new Date("2026-06-15T12:00:00Z");
  * the brand that broke. Raising the timeout would have bought one test that can
  * only say "something, somewhere, moved".
  *
- * THE SUFFIX IS CHOSEN SO THE TWO BRANDS INTERLEAVE. `--charcoal` sorts
+ * THE SUFFIX IS CHOSEN SO THE TWO BRANDS INTERLEAVE. `--monochrome` sorts
  * immediately before the bare default name, because "-" (0x2D) precedes the "c"
  * of the "-chromium-darwin" platform suffix Playwright appends:
  *
- *   inputs-button--default--charcoal-chromium-darwin.png
+ *   inputs-button--default--monochrome-chromium-darwin.png
  *   inputs-button--default-chromium-darwin.png
  *
  * A reviewer comparing one component across brands reads two adjacent lines
  * instead of scrolling between two halves of a 1,000-file directory. Separate
- * subdirectories or a `charcoal-` prefix would both have produced that split.
+ * subdirectories or a `monochrome-` prefix would both have produced that split.
  */
 const BRANDS = [
 	{ id: "default", suffix: "" },
-	{ id: "charcoal", suffix: "--charcoal" },
+	{ id: "monochrome", suffix: "--monochrome" },
 ] as const;
 
 async function discoverStoryIds(page: Page): Promise<string[]> {
@@ -98,8 +98,8 @@ test.describe("Storybook visual baselines", () => {
 	 *
 	 * playwright.config.ts sets `fullyParallel: true` with a default worker count,
 	 * so splitting one test into two put both brand passes on the wire at once
-	 * against ONE Storybook dev server. Under that contention the charcoal pass
-	 * flagged `data-display-tabs--narrow-overflow--charcoal` at 96 px (a ratio of
+	 * against ONE Storybook dev server. Under that contention the monochrome pass
+	 * flagged `data-display-tabs--narrow-overflow--monochrome` at 96 px (a ratio of
 	 * 0.01), reporting "captured a stable screenshot" as it did so.
 	 *
 	 * The recorded bytes were never wrong. Re-running this same spec serially, with
@@ -133,7 +133,7 @@ test.describe("Storybook visual baselines", () => {
 
 			// A story id that already ends in a brand suffix would make two different
 			// stories share one baseline filename, silently. Assert it cannot happen
-			// rather than trusting that nobody ever names a story "--charcoal".
+			// rather than trusting that nobody ever names a story "--monochrome".
 			for (const suffix of BRANDS.map((b) => b.suffix).filter(Boolean)) {
 				const collisions = storyIds.filter((id) => id.endsWith(suffix));
 				expect(
@@ -150,7 +150,7 @@ test.describe("Storybook visual baselines", () => {
 				// story-level `globals: { theme: "dark" }` rather than replacing it:
 				// story-level globals only override the keys they declare, so a dark
 				// story stays dark and gains the brand. Measured, not assumed — under
-				// `brand:charcoal` a dark story resolves --cream to charcoal's #161616
+				// `brand:monochrome` a dark story resolves --cream to monochrome's #161616
 				// rather than the design system's #181818.
 				await page.goto(
 					`http://localhost:6006/iframe.html?id=${id}&viewMode=story&globals=brand:${brand.id}`,
@@ -180,7 +180,7 @@ test.describe("Storybook visual baselines", () => {
 				// first differing story ended the run and every story after it went
 				// unchecked. A date-dependent DatePicker story failing on a date rollover
 				// was silently hiding the rest of the suite. Kept in both brand tests: one
-				// charcoal mismatch must not hide the other 503 charcoal stories either.
+				// monochrome mismatch must not hide the other 503 monochrome stories either.
 				await expect.soft(page).toHaveScreenshot(`${id}${brand.suffix}.png`, {
 					fullPage: true,
 					// Nothing previously froze the system's 20 @keyframes / ~74 transitions

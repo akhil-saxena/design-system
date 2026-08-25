@@ -5,10 +5,10 @@ import { probeComputed } from "./computed";
  * E6 — every design-system control must be perceptible, and where its boundary
  * is a border, that border must clear WCAG SC 1.4.11's 3:1 non-text floor.
  *
- * WHY charcoal × light AND WHY A BROWSER
+ * WHY monochrome × light AND WHY A BROWSER
  *
- * Charcoal light is the worst cell in the system and the one that produced the
- * finding: `.ds-atom-input` fills with `var(--cream)`, and charcoal's light
+ * Monochrome light is the worst cell in the system and the one that produced the
+ * finding: `.ds-atom-input` fills with `var(--cream)`, and monochrome's light
  * `--cream` is `#F4F1EA` — the page background. Measured fill delta 1.000:1,
  * exactly zero. Its only edge was `1px solid var(--rule)` at 1.38:1, so a text
  * field on the theme whose entire admin is interactive controls had no
@@ -114,7 +114,7 @@ interface Hit {
 	behind: string;
 }
 
-test("every control's boundary clears 3:1 in charcoal light", async ({ page }) => {
+test("every control's boundary clears 3:1 in monochrome light", async ({ page }) => {
 	await page.goto("http://localhost:6006/index.json");
 	const entries = JSON.parse(await page.evaluate(() => document.body.innerText)).entries as Record<
 		string,
@@ -139,7 +139,7 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 
 	for (const id of ids) {
 		await page.goto(
-			`http://localhost:6006/iframe.html?id=${encodeURIComponent(id)}&viewMode=story&globals=theme:light;brand:charcoal`,
+			`http://localhost:6006/iframe.html?id=${encodeURIComponent(id)}&viewMode=story&globals=theme:light;brand:monochrome`,
 		);
 		// `attached` alone is a race, and a silent one: #storybook-root ships in
 		// iframe.html's static markup, so it exists long before React renders into
@@ -176,8 +176,8 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 		// ourselves would paper over exactly that.
 		expect(
 			cell.brand,
-			`story ${id} did not receive brand=charcoal from the globals query parameter; any value read here would belong to the default brand`,
-		).toBe("charcoal");
+			`story ${id} did not receive brand=monochrome from the globals query parameter; any value read here would belong to the default brand`,
+		).toBe("monochrome");
 
 		// THE MODE IS READ, NOT FORCED — this is the repair for F-20-3.
 		//
@@ -217,7 +217,7 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 		//
 		// The stories are NOT the thing to fix. 01-19.1 moved every story off
 		// hardcoded dark wrappers onto story-level globals on purpose, and
-		// brand-isolation.spec.ts asserts from the DOM that under charcoal the only
+		// brand-isolation.spec.ts asserts from the DOM that under monochrome the only
 		// `.dark` element is <html>. Undoing that to make this spec pass would
 		// trade a real guard for a green tick.
 		if (cell.dark) {
@@ -298,8 +298,8 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 				// A story that demonstrates dark mode wraps its content in `.dark`, so its
 				// controls are NOT in the cell this spec measures: they resolve the dark
 				// token block, and in a brand-less demo they resolve the DEFAULT theme's
-				// dark values rather than charcoal's. Reading them here reports a
-				// dark-mode number as a charcoal-light failure.
+				// dark values rather than monochrome's. Reading them here reports a
+				// dark-mode number as a monochrome-light failure.
 				if (el.closest(".dark")) continue;
 				const cs = getComputedStyle(el);
 				// Checkbox, Radio and Toggle hide the native input and draw the control
@@ -452,7 +452,7 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 		.soft(
 			weakBorder,
 			[
-				"SC 1.4.11: these controls have no fill to delimit them and a border below 3:1, in charcoal light.",
+				"SC 1.4.11: these controls have no fill to delimit them and a border below 3:1, in monochrome light.",
 				`  ${weakBorder.join("\n  ")}`,
 				roster,
 			].join("\n"),
@@ -472,7 +472,7 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 		.soft(
 			invisible,
 			[
-				"These controls are imperceptible in charcoal light — the fill matches the page AND the border is below 3:1.",
+				"These controls are imperceptible in monochrome light — the fill matches the page AND the border is below 3:1.",
 				`  ${invisible.join("\n  ")}`,
 				roster,
 			].join("\n"),
@@ -515,7 +515,7 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
 
 	console.log(
 		`control-boundary: ${roster}\n  --wire=${wire}  --rule=${rule}` +
-			`\n  measured ${ids.length - modePinnedDark.length} stories in charcoal light;` +
+			`\n  measured ${ids.length - modePinnedDark.length} stories in monochrome light;` +
 			` skipped ${modePinnedDark.length} whose story-level globals pin a different mode` +
 			`\n  skipped: ${modePinnedDark.join(", ")}`,
 	);
@@ -534,14 +534,16 @@ test("every control's boundary clears 3:1 in charcoal light", async ({ page }) =
  * halves of a source-level grep gate stayed green — and while jsdom, which drops
  * `var()` inside a border shorthand entirely, reported no change either.
  *
- * Checked in both modes: --wire is 3.44:1 on charcoal light and 3.72:1 on
- * charcoal dark, and the dark-mode secondary rules are separate declarations.
+ * Checked in both modes: --wire is 3.44:1 on monochrome light and 3.72:1 on
+ * monochrome dark, and the dark-mode secondary rules are separate declarations.
  */
 for (const mode of ["light", "dark"] as const) {
-	test(`Button secondary binds --wire from the stylesheet (charcoal ${mode})`, async ({ page }) => {
+	test(`Button secondary binds --wire from the stylesheet (monochrome ${mode})`, async ({
+		page,
+	}) => {
 		const read = await probeComputed(page, {
 			story: "inputs-button--variants",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode,
 			selector: '.ds-atom-btn[data-variant="secondary"]',
 			props: ["border-top-color", "border-top-width", "border-top-style", "--wire", "--rule"],

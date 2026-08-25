@@ -283,18 +283,18 @@ export const DarkMode: Story = {
  *    `checkA11y` to `#storybook-root`, and a portaled panel is outside that
  *    element. Every other dialog story in this library is scanned without its
  *    dialog in it.
- * 3. It is the story the charcoal computed-style probe reads
+ * 3. It is the story the monochrome computed-style probe reads
  *    (`tests/visual/confirm-panel.spec.ts`), in all four brand x mode cells.
  *
  * There is deliberately no scoped dark wrapper here — and as of plan 01-19.1 no
- * story in this library has one. Under charcoal such a wrapper re-declares the
+ * story in this library has one. Under monochrome such a wrapper re-declares the
  * design system's own neutral dark tokens below the brand layer — `:root.dark,
- * .dark` in tokens.css matches any element, charcoal.css only declares
- * `:root[data-brand="charcoal"].dark` — so the panel would resolve `--cream-2`
- * to #1f1f1f instead of charcoal's #1e1e1d. That is the hazard
+ * .dark` in tokens.css matches any element, monochrome.css only declares
+ * `:root[data-brand="monochrome"].dark` — so the panel would resolve `--cream-2`
+ * to #1f1f1f instead of monochrome's #1e1e1d. That is the hazard
  * `.storybook/preview.tsx` documents on its own wrapper, and it was measured
  * here: the first draft of this story carried the class and the probe read
- * 31,31,31 where charcoal declares 30,30,29. The mode comes from the theme
+ * 31,31,31 where monochrome declares 30,30,29. The mode comes from the theme
  * global instead, enforced by `src/story-mode.test.ts`.
  */
 export const InlinePanel: Story = {

@@ -9,7 +9,7 @@ import { type Page, type Route, expect, test } from "@playwright/test";
  * That cannot prove a download: a face rule is a declaration, and whether the
  * browser fetches the file depends on `unicode-range` matching and on a glyph
  * actually being rendered. Criterion 4 is worded as a download — "a page
- * consuming only the charcoal theme DOWNLOADS Playfair Display, DM Sans and IBM
+ * consuming only the monochrome theme DOWNLOADS Playfair Display, DM Sans and IBM
  * Plex Mono, and does NOT download Inter, Archivo, JetBrains Mono or
  * Newsreader" — so it needs a network measurement.
  *
@@ -22,7 +22,7 @@ import { type Page, type Route, expect, test } from "@playwright/test";
  * stylesheets named in each test and nothing else.
  *
  * The stylesheets are the REAL ones off disk — src/tokens.css,
- * src/themes/charcoal.css and src/fonts/*.css — with the Fontsource entry
+ * src/themes/monochrome.css and src/fonts/*.css — with the Fontsource entry
  * points inlined and their relative url() targets re-pointed at routed paths
  * that serve the actual woff2 bytes. So this exercises the whole chain the
  * criterion is about: a --font-* token names a family, the face layer declares
@@ -47,7 +47,7 @@ function repoRoot(configFile: string | undefined): string {
  * negative half would pass vacuously, which is the failure mode this whole
  * spec exists to avoid.
  */
-const CHARCOAL_FAMILIES = {
+const MONOCHROME_FAMILIES = {
 	"Playfair Display": /(^|\/)playfair-display-/i,
 	"DM Sans": /(^|\/)dm-sans-/i,
 	"IBM Plex Mono": /(^|\/)ibm-plex-mono-/i,
@@ -60,7 +60,7 @@ const PRE_2_0_FAMILIES = {
 	Newsreader: /(^|\/)newsreader-/i,
 } as const;
 
-const ORIGIN = "http://charcoal-font-probe.test";
+const ORIGIN = "http://monochrome-font-probe.test";
 
 /** A stylesheet with its @imports inlined and its url() targets re-pointed at
  *  routed paths. Returns the CSS plus the routed-path -> disk-path map. */
@@ -106,27 +106,27 @@ async function probe(page: Page, root: string, faceLayers: string[]): Promise<st
 	const assets = new Map<string, string>();
 	const sheets: Record<string, string> = {
 		"/tokens.css": readFileSync(join(root, "src/tokens.css"), "utf8"),
-		"/charcoal-theme.css": readFileSync(join(root, "src/themes/charcoal.css"), "utf8"),
+		"/monochrome-theme.css": readFileSync(join(root, "src/themes/monochrome.css"), "utf8"),
 	};
 	for (const layer of faceLayers) {
 		sheets[`/${layer}.css`] = inlineFaceLayer(join(root, `src/fonts/${layer}.css`), root, assets);
 	}
 
-	const links = ["/tokens.css", "/charcoal-theme.css", ...faceLayers.map((l) => `/${l}.css`)]
+	const links = ["/tokens.css", "/monochrome-theme.css", ...faceLayers.map((l) => `/${l}.css`)]
 		.map((href) => `<link rel="stylesheet" href="${href}">`)
 		.join("\n");
 
-	// data-brand="charcoal" is set on <html> exactly as a real consumer sets it,
-	// so the three families below are reached THROUGH the charcoal --font-*
+	// data-brand="monochrome" is set on <html> exactly as a real consumer sets it,
+	// so the three families below are reached THROUGH the monochrome --font-*
 	// tokens rather than being named directly. A token that lost its `Variable`
 	// suffix would stop matching a declared face and simply not download.
 	const html = `<!doctype html>
-<html lang="en" data-brand="charcoal">
+<html lang="en" data-brand="monochrome">
 <head><meta charset="utf-8">${links}</head>
 <body>
-<h1 style="font-family: var(--font-display)">Display heading in the charcoal serif</h1>
-<p style="font-family: var(--font-body)">Body copy in the charcoal sans, long enough to render.</p>
-<code style="font-family: var(--font-mono)">const mono = "charcoal";</code>
+<h1 style="font-family: var(--font-display)">Display heading in the monochrome serif</h1>
+<p style="font-family: var(--font-body)">Body copy in the monochrome sans, long enough to render.</p>
+<code style="font-family: var(--font-mono)">const mono = "monochrome";</code>
 </body></html>`;
 
 	// Subscribe BEFORE navigating. A listener attached after goto() misses the
@@ -162,16 +162,16 @@ async function probe(page: Page, root: string, faceLayers: string[]): Promise<st
 	return fontRequests;
 }
 
-test.describe("charcoal font downloads (criterion 4)", () => {
-	test("a page consuming only charcoal fetches its three families and no others", async ({
+test.describe("monochrome font downloads (criterion 4)", () => {
+	test("a page consuming only monochrome fetches its three families and no others", async ({
 		page,
 	}, testInfo) => {
 		const root = repoRoot(testInfo.config.configFile);
-		const urls = await probe(page, root, ["charcoal"]);
-		console.log(`charcoal-only probe fetched ${urls.length} font files:\n  ${urls.join("\n  ")}`);
+		const urls = await probe(page, root, ["monochrome"]);
+		console.log(`monochrome-only probe fetched ${urls.length} font files:\n  ${urls.join("\n  ")}`);
 
 		// Positive half.
-		for (const [family, pattern] of Object.entries(CHARCOAL_FAMILIES)) {
+		for (const [family, pattern] of Object.entries(MONOCHROME_FAMILIES)) {
 			expect(
 				urls.filter((u) => pattern.test(u)),
 				`${family} was never downloaded. Observed: ${urls.join(", ") || "(nothing)"}`,
@@ -182,31 +182,31 @@ test.describe("charcoal font downloads (criterion 4)", () => {
 		for (const [family, pattern] of Object.entries(PRE_2_0_FAMILIES)) {
 			expect(
 				urls.filter((u) => pattern.test(u)),
-				`${family} was downloaded by a charcoal-only page`,
+				`${family} was downloaded by a monochrome-only page`,
 			).toEqual([]);
 		}
 
 		// Exhaustiveness: every observed file must be attributable to one of the
 		// seven families. A Fontsource file rename then fails HERE, loudly,
 		// instead of quietly turning the negative half into a tautology.
-		const patterns = Object.values({ ...CHARCOAL_FAMILIES, ...PRE_2_0_FAMILIES });
+		const patterns = Object.values({ ...MONOCHROME_FAMILIES, ...PRE_2_0_FAMILIES });
 		expect(urls.filter((u) => !patterns.some((p) => p.test(u)))).toEqual([]);
 	});
 
-	test("charcoal fetches none of the pre-2.0 families even when they are declared", async ({
+	test("monochrome fetches none of the pre-2.0 families even when they are declared", async ({
 		page,
 	}, testInfo) => {
-		// The load-bearing version. With only the charcoal layer linked, no Inter
+		// The load-bearing version. With only the monochrome layer linked, no Inter
 		// face exists, so "Inter was not downloaded" is true by construction and
 		// cannot fail — the shape of assertion this phase has twice shipped by
 		// accident. Here BOTH layers are linked, so all 81 faces are declared and
 		// the browser genuinely could fetch Inter. It does not, because the
-		// charcoal --font-* tokens never name it.
+		// monochrome --font-* tokens never name it.
 		const root = repoRoot(testInfo.config.configFile);
-		const urls = await probe(page, root, ["charcoal", "default"]);
+		const urls = await probe(page, root, ["monochrome", "default"]);
 		console.log(`both-layers probe fetched ${urls.length} font files:\n  ${urls.join("\n  ")}`);
 
-		for (const [family, pattern] of Object.entries(CHARCOAL_FAMILIES)) {
+		for (const [family, pattern] of Object.entries(MONOCHROME_FAMILIES)) {
 			expect(
 				urls.filter((u) => pattern.test(u)),
 				`${family} was never downloaded`,
@@ -215,10 +215,10 @@ test.describe("charcoal font downloads (criterion 4)", () => {
 		for (const [family, pattern] of Object.entries(PRE_2_0_FAMILIES)) {
 			expect(
 				urls.filter((u) => pattern.test(u)),
-				`${family} was downloaded although charcoal names no token that reaches it`,
+				`${family} was downloaded although monochrome names no token that reaches it`,
 			).toEqual([]);
 		}
-		const patterns = Object.values({ ...CHARCOAL_FAMILIES, ...PRE_2_0_FAMILIES });
+		const patterns = Object.values({ ...MONOCHROME_FAMILIES, ...PRE_2_0_FAMILIES });
 		expect(urls.filter((u) => !patterns.some((p) => p.test(u)))).toEqual([]);
 	});
 });

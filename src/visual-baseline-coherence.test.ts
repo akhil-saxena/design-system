@@ -138,7 +138,7 @@ function renameCandidates(id: string, all: Set<string>): string[] {
 
 /**
  * THE BRAND AXIS (D-37). Baseline names in the gating store carry an optional
- * brand suffix, so `inputs-button--default--charcoal` and
+ * brand suffix, so `inputs-button--default--monochrome` and
  * `inputs-button--default` are two recordings of ONE story. The suffix is
  * stripped before an id is compared to the story set.
  *
@@ -147,16 +147,16 @@ function renameCandidates(id: string, all: Set<string>): string[] {
  * before and after. What changes is WHY. `splitId` splits on "--" and keeps only
  * the first two segments, so it discards the brand suffix anyway and the strip
  * cannot alter `renameCandidates`. It alters the `ids.has()` lookup, and there
- * the difference is total: of the 504 charcoal names, the unstripped form
+ * the difference is total: of the 504 monochrome names, the unstripped form
  * recognises 0 as live story ids and excuses all 504 through the rename
  * tolerance, while the stripped form recognises all 504 as live and excuses
- * none. The charcoal half of this store was green by way of a tolerance built
+ * none. The monochrome half of this store was green by way of a tolerance built
  * for a different purpose, which is the same shape as a test that passes for the
  * wrong reason.
  *
  * The first draft of this comment claimed the strip closes a hole that admits a
- * dead charcoal id. It does not, and the control meant to demonstrate it -
- * planting `overlays-card--default--charcoal`, a charcoal baseline for a
+ * dead monochrome id. It does not, and the control meant to demonstrate it -
+ * planting `overlays-card--default--monochrome`, a monochrome baseline for a
  * renamed-away story - stayed green both before and after, because the rename
  * tolerance is SUPPOSED to excuse exactly that. A control that plants something
  * the test deliberately tolerates proves nothing about the test.
@@ -164,14 +164,14 @@ function renameCandidates(id: string, all: Set<string>): string[] {
  * WHAT THIS FILE CAN AND CANNOT SEE. It can catch: a legacy directory that is
  * neither live nor in the manifest; a rotted manifest; a snapshot whose id has
  * no live story AND no same-component/story under another category (a typo, or
- * a genuinely deleted component); a live story missing a charcoal baseline; and
- * a charcoal baseline that is byte-identical to its default one. It CANNOT
+ * a genuinely deleted component); a live story missing a monochrome baseline; and
+ * a monochrome baseline that is byte-identical to its default one. It CANNOT
  * catch: a baseline for a deliberately deleted story whose component name still
  * exists elsewhere, which the rename tolerance excuses by design; or anything
  * about image CONTENT, since every check here is over filenames and hashes. A
  * baseline recorded with a visual defect present still compares clean forever.
  */
-const BRAND_SUFFIXES = ["--charcoal"] as const;
+const BRAND_SUFFIXES = ["--monochrome"] as const;
 
 function stripBrand(name: string): { id: string; brand: string } {
 	for (const suffix of BRAND_SUFFIXES) {
@@ -233,14 +233,14 @@ describe("the baseline stores agree with the story set (F-19-3)", () => {
 		expect(unexplained).toEqual([]);
 	});
 
-	it("D-37: every recorded story has a charcoal baseline beside its default one", () => {
+	it("D-37: every recorded story has a monochrome baseline beside its default one", () => {
 		// The parity claim of plan 01-20 made checkable, so it cannot decay into a
 		// one-time assertion in a SUMMARY. A story added later and captured under one
 		// brand only turns this red.
 		//
 		// Scoped to LIVE ids on purpose: the store also holds pending-rename orphans
 		// (overlays-card--*, overlays-stickynote--*) which were never captured under
-		// charcoal and should not be, since the decision to move or drop them is
+		// monochrome and should not be, since the decision to move or drop them is
 		// still open. Time-dependent stories have no baseline in either brand, so
 		// they fall out of scope by having no default recording to pair with.
 		const recorded = readdirSync(PLAYWRIGHT_DIR)
@@ -261,16 +261,16 @@ describe("the baseline stores agree with the story set (F-19-3)", () => {
 		}
 	});
 
-	it("D-37: charcoal baselines are actually charcoal renders, not default ones", () => {
+	it("D-37: monochrome baselines are actually monochrome renders, not default ones", () => {
 		// THE GAP THIS CLOSES. Every other check in this file is a FILENAME check. If
-		// the `globals=brand:charcoal` query parameter silently stopped being honoured
+		// the `globals=brand:monochrome` query parameter silently stopped being honoured
 		// - a Storybook upgrade, a renamed global, a decorator rewrite - the capture
-		// would write 504 default-brand images under charcoal names and every
+		// would write 504 default-brand images under monochrome names and every
 		// name-level assertion here would still pass. The a11y runner guards this per
 		// story by asserting <html data-brand> in postVisit; the Playwright visual
 		// suite has no equivalent, so the recorded bytes are the only evidence left.
 		//
-		// A charcoal render must therefore DIFFER from its default counterpart. Three
+		// A monochrome render must therefore DIFFER from its default counterpart. Three
 		// stories legitimately do not, and they are enumerated rather than absorbed by
 		// a threshold, so a fourth is a failure and not a rounding error.
 		const BRAND_INVARIANT = new Set([
@@ -283,15 +283,15 @@ describe("the baseline stores agree with the story set (F-19-3)", () => {
 			// deliberately by 01-19.1 (its finding 1) rather than tokenised.
 			"foundation-dotgrid--high-opacity-amber",
 		]);
-		const suffix = "--charcoal-chromium-darwin.png";
-		const charcoal = readdirSync(PLAYWRIGHT_DIR).filter((f) => f.endsWith(suffix));
-		expect(charcoal.length).toBeGreaterThan(450);
+		const suffix = "--monochrome-chromium-darwin.png";
+		const monochrome = readdirSync(PLAYWRIGHT_DIR).filter((f) => f.endsWith(suffix));
+		expect(monochrome.length).toBeGreaterThan(450);
 		const sha = (f: string) =>
 			createHash("sha256")
 				.update(readFileSync(path.join(PLAYWRIGHT_DIR, f)))
 				.digest("hex");
 		const identical: string[] = [];
-		for (const file of charcoal) {
+		for (const file of monochrome) {
 			const id = file.slice(0, -suffix.length);
 			const plain = `${id}-chromium-darwin.png`;
 			if (!existsSync(path.join(PLAYWRIGHT_DIR, plain))) continue;
@@ -299,7 +299,7 @@ describe("the baseline stores agree with the story set (F-19-3)", () => {
 		}
 		expect(
 			identical.filter((id) => !BRAND_INVARIANT.has(id)).sort(),
-			"charcoal baselines byte-identical to their default counterpart, so the brand axis did not reach these captures",
+			"monochrome baselines byte-identical to their default counterpart, so the brand axis did not reach these captures",
 		).toEqual([]);
 		// The allowlist must not rot either: an entry that starts differing is stale.
 		expect(

@@ -3,7 +3,7 @@
      import "@akhil-saxena/design-system/fonts/default.css";
    Pair it with tokens.css, which carries the tokens. This file carries the
    faces and nothing else - zero custom properties - exactly like
-   fonts/charcoal.css, which is what makes DS-04 ("the token layer ends with no
+   fonts/monochrome.css, which is what makes DS-04 ("the token layer ends with no
    face rules") literally true rather than aspirational.
 
    WHY THIS FILE EXISTS AT ALL. It carries the four families the design system

@@ -6,7 +6,7 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
-## 2.0.0-beta.1 — The charcoal brand, and a font layer you now import yourself
+## 2.0.0-beta.1 — The monochrome brand, and a font layer you now import yourself
 
 **A prerelease, published under the `next` dist-tag.** Nothing about
 `npm install @akhil-saxena/design-system` changes for anyone: npm caret ranges
@@ -39,7 +39,7 @@ import "@akhil-saxena/design-system/tokens.css";
 import "@akhil-saxena/design-system/fonts/default.css";  // ← add this
 ```
 
-Adopting the charcoal brand instead? Import `fonts/charcoal.css`, which carries
+Adopting the monochrome brand instead? Import `fonts/monochrome.css`, which carries
 Playfair Display, DM Sans and IBM Plex Mono.
 
 The failure is deliberately total rather than gradual. Per-family subpaths were
@@ -98,30 +98,30 @@ longer render badges by themselves.**
 
   `render` is `(value, row) => ReactNode`, and any column may now use it.
 
-### Added — the charcoal brand
+### Added — the monochrome brand
 
 A second brand alongside the existing cream/ink/amber identity, which is
 untouched. Opt in per document:
 
 ```js
 import "@akhil-saxena/design-system/tokens.css";
-import "@akhil-saxena/design-system/themes/charcoal.css";
-import "@akhil-saxena/design-system/fonts/charcoal.css";
+import "@akhil-saxena/design-system/themes/monochrome.css";
+import "@akhil-saxena/design-system/fonts/monochrome.css";
 ```
 
 ```html
-<html data-brand="charcoal">
+<html data-brand="monochrome">
 ```
 
-Every rule in `themes/charcoal.css` is scoped to `:root[data-brand="charcoal"]`
-and `:root[data-brand="charcoal"].dark`, so importing it costs nothing until the
+Every rule in `themes/monochrome.css` is scoped to `:root[data-brand="monochrome"]`
+and `:root[data-brand="monochrome"].dark`, so importing it costs nothing until the
 attribute is set — which is what lets a brand switch happen without a reload. 50
 properties per block, both modes. The seven `--amber*` tokens are bridged onto
-charcoal's own accent ramp so a component referencing an amber token does not
+monochrome's own accent ramp so a component referencing an amber token does not
 leave a yellow hole in the page, and five surface tokens that previously had no
 brand value are now declared.
 
-**Charcoal is near-monochrome, and that is a correction rather than a starting
+**Monochrome is near-monochrome, and that is a correction rather than a starting
 position.** Earlier drafts of this brand shipped an ochre accent on warm
 neutrals. It was replaced during the beta, and the reason is measurable rather
 than aesthetic, which is why it is stated here instead of being quietly
@@ -148,12 +148,12 @@ surfaces — 4.80–5.27 light, 8.32–10.49 dark, clear of AA on all three stop
 both modes. The line drawn here is *meaning*, not saturation: identity colour is
 gone, semantic colour is not.
 
-- **`fonts/default.css` and `fonts/charcoal.css`** — face layers, carrying
+- **`fonts/default.css` and `fonts/monochrome.css`** — face layers, carrying
   `@font-face` and no custom properties at all.
 - **New export subpaths**: `./themes/*.css`, `./fonts/*.css`, `./css/*.css` and
   per-component `./components/*`. The `.css` sits inside the wildcard on purpose
-  — `"./themes/*"` would make `*` capture `charcoal.css` and resolve to
-  `dist/themes/charcoal.css.css`, failing a consumer's build on that exact
+  — `"./themes/*"` would make `*` capture `monochrome.css` and resolve to
+  `dist/themes/monochrome.css.css`, failing a consumer's build on that exact
   specifier. `./css/*` is kept alongside `./css/*.css` so existing extensionless
   spellings keep resolving.
 
@@ -203,10 +203,10 @@ gone, semantic colour is not.
 
 - **Text fields, selects and textareas have a visible edge in every theme,
   including the default one.** Control boundaries now come from `--wire`
-  (`rgba(0,0,0,0.18)` light, `rgba(255,255,255,0.22)` dark). Under charcoal these
+  (`rgba(0,0,0,0.18)` light, `rgba(255,255,255,0.22)` dark). Under monochrome these
   controls were effectively invisible before — a 1.000:1 fill delta against the
   page with a 1.38:1 hairline. **This visibly darkens the edge of every field in
-  the default theme too**, and is the most noticeable non-charcoal change here.
+  the default theme too**, and is the most noticeable non-monochrome change here.
 - **Card, Chip and Text no longer outrank your own class.** Their styling moved
   into `:where()` at specificity (0,0,0), so `.my-card { padding: 0 }` wins.
   Previously `.ds-atom-text[data-variant="body"]` weighed (0,2,0) and beat any
@@ -222,10 +222,10 @@ gone, semantic colour is not.
 
 ### Fixed
 
-- **Charcoal's light-mode primary button filled mid grey and read as disabled.**
+- **Monochrome's light-mode primary button filled mid grey and read as disabled.**
   The accent was held at `#8e8e97`, which measures **3.11:1** against the
   near-white page — under even the 3:1 floor a non-text control needs to be
-  seen — while charcoal dark already had its accent at the ink end. `--amber`
+  seen — while monochrome dark already had its accent at the ink end. `--amber`
   now aliases `--ink` in **both** blocks, so a filled control is a black slab
   with a white label in light and a white slab with a black label in dark. The
   primary button's label goes **5.98 → 18.07** and its fill **3.11 → 18.07**
@@ -235,7 +235,7 @@ gone, semantic colour is not.
   token layer — which is why the previous release was right to leave the grey
   in place rather than paper over it:
 
-  - **`--ink-inverse` now inverts with the mode under charcoal.** It inks the
+  - **`--ink-inverse` now inverts with the mode under monochrome.** It inks the
     accent fill, so it has to. It was pinned near-black in both blocks, and a
     single near-black ink on a fill that reaches the ink end measures **1.03**.
     Its two non-fill consumers moved off it: the pinned `#fef08a` highlight pins
@@ -248,7 +248,7 @@ gone, semantic colour is not.
     both modes. This is finding G3, closed at the component.
   - **`Snackbar` accents from `--amber-vivid`.** It fills from `--ink`, so an
     accent that aliases the ink disappears into it. That collapse had *already*
-    shipped in charcoal dark at exactly **1.00:1** and no gate reported it:
+    shipped in monochrome dark at exactly **1.00:1** and no gate reported it:
     axe-core returns `incomplete` with messageKey `equalRatio` rather than a
     violation for a ratio that rounds to 1.00.
 
@@ -256,7 +256,7 @@ gone, semantic colour is not.
   measured between 1.00 and 1.11 once it did: `SegmentedControl`'s active label
   (`#000`), `MultiSelect`'s tick (`#1f1b17`), `Checkbox`'s tick (`#1c1917`) and
   `DateRangePicker`'s selected-cell event dot (`var(--ink)`, which was already
-  1.00:1 in charcoal dark for the same reason as the snackbar). All four read
+  1.00:1 in monochrome dark for the same reason as the snackbar). All four read
   `--ink-inverse` now. **The default brand renders identically** — every literal
   replaced resolves to the value that brand already painted.
 
@@ -300,22 +300,22 @@ gone, semantic colour is not.
   dropped over…" on every click. The pointer sensor now requires real movement
   before a drag begins.
 - **`DatePicker`, `SplitButton` and `DateRangePicker` failed WCAG AA under
-  charcoal in both modes**, all measuring exactly **4.402:1**. Each hardcoded
+  monochrome in both modes**, all measuring exactly **4.402:1**. Each hardcoded
   `#1c1917` for its ink — which *is* the default brand's `--ink-inverse`, so
-  charcoal could never override it. Now reading the token: **4.555:1**. Because the
-  literal and the token agree in the default brand, this moved **27 charcoal nodes
+  monochrome could never override it. Now reading the token: **4.555:1**. Because the
+  literal and the token agree in the default brand, this moved **27 monochrome nodes
   and zero default ones** — measured, not assumed.
-- **Tinted `StatusPill` stages were unreadable in charcoal dark**, at **1.29:1**
+- **Tinted `StatusPill` stages were unreadable in monochrome dark**, at **1.29:1**
   and **1.53:1**. The cause was `--amber-ink` collapsed to a single dark value
   across both modes and then used on a 10% tint. A census of all five consumers
   found none is a solid fill, so the token was wrong rather than misused, and
   fixing it repaired `Badge` and the open `DatePicker` trigger too. Now **6.31:1**
   and **5.34:1**.
 - **A `RichText` `mark` was invisible in both brands** — **1.061:1** under
-  charcoal and **1.006:1** in the *default* brand, which was the worse of the two
+  monochrome and **1.006:1** in the *default* brand, which was the worse of the two
   and had never been reported, because axe declines to judge a ratio rounding to
   1.00. Now **15.55:1** and **15.03:1**.
-- **Charcoal's active tab pill label was below AA**, and the dark pill track was
+- **Monochrome's active tab pill label was below AA**, and the dark pill track was
   translucent, so an inactive tab label's contrast depended on whatever happened
   to be behind the component.
 
@@ -350,12 +350,12 @@ shipped an unstyled pager.
 ### Testing
 
 - **Visual baselines are recorded per brand.** Every story is captured under both
-  the default brand and charcoal, in both modes — 1,019 baselines — so a charcoal
+  the default brand and monochrome, in both modes — 1,019 baselines — so a monochrome
   token cannot pass a numeric contrast assertion while looking wrong. The suite
   is one test per brand, so a failure names the brand.
-- Charcoal has bidirectional token-exhaustiveness gates with a parse floor, 54
+- Monochrome has bidirectional token-exhaustiveness gates with a parse floor, 54
   three-surface contrast ratios, and a font-family-to-face agreement check.
-- `test:a11y` can sweep either brand: `DS_BRAND=charcoal npm run test:a11y`. The
+- `test:a11y` can sweep either brand: `DS_BRAND=monochrome npm run test:a11y`. The
   default remains the default brand.
 
 ### Known issues in this beta
@@ -363,10 +363,10 @@ shipped an unstyled pager.
 These are why it is a beta. Every figure below was measured in a browser with the
 brand asserted at the probed element, not read off a linter.
 
-**Charcoal's accessibility sweep is now clean, and the honest number is still
+**Monochrome's accessibility sweep is now clean, and the honest number is still
 larger than the gate reports.**
 
-`DS_BRAND=charcoal npm run test:a11y` passes **508 / 508** across 84 suites,
+`DS_BRAND=monochrome npm run test:a11y` passes **508 / 508** across 84 suites,
 matching the default brand. It failed **11 stories** earlier in this beta, and
 those 11 are gone by construction rather than by repair — every one of them
 involved the retired ochre `#b0722a`, so removing the accent hue dissolved both
@@ -400,15 +400,15 @@ someone to find:
    and the two constraints have no overlapping solution. The theme documents the
    accent as a fill, never text; these five rules are the ones that disagree.
 2. **`.ds-atom-btn[data-variant="primary"]:hover` hardcodes `color: #fff`** over
-   `var(--amber-d)`. In charcoal dark that pairing reads **2.98:1**, essentially
+   `var(--amber-d)`. In monochrome dark that pairing reads **2.98:1**, essentially
    unchanged from the 3.01:1 it measured before. The default brand has the same
    defect more severely, at **1.62:1**, because its own dark `--amber-d` is
    brighter still. The fix is a one-line dark-mode override in `primitives.css`
    and belongs to the component, not the theme.
 3. **Warning-tone surfaces keep an amber wash in dark mode.** `AlertBanner`,
    `Toast` and `DateRangePicker` override to `rgba(245, 158, 11, …)` literals
-   under `.dark`, which charcoal cannot reach. They remain legible — the ink over
-   them clears AA on every surface stop — but charcoal dark is not strictly
+   under `.dark`, which monochrome cannot reach. They remain legible — the ink over
+   them clears AA on every surface stop — but monochrome dark is not strictly
    monochrome for those three components.
 
 **The gate under-reports, and this is the part worth reading.** Four separate blind
@@ -430,9 +430,9 @@ pre-release total was **46–64 stories, not 25**. Fixing the scoping is deliber
 not in this beta: it would turn a green gate red across a surface nobody has
 triaged yet, and that is a choice to make in daylight rather than in a release.
 
-**`npm run test:a11y` does not cover charcoal unless you ask it to.** The brand
+**`npm run test:a11y` does not cover monochrome unless you ask it to.** The brand
 global defaults to `default` and no story overrides it, so an unqualified green run
-says nothing about charcoal. Use `DS_BRAND=charcoal`.
+says nothing about monochrome. Use `DS_BRAND=monochrome`.
 
 ## 1.11.4 — Invisible tracks, and a visual suite that was hiding failures
 

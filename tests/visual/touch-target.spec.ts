@@ -64,10 +64,15 @@ interface Box {
  */
 async function probeBoxes(
 	page: Page,
-	opts: { story: string; brand: "default" | "charcoal"; mode: "light" | "dark"; selector: string },
+	opts: {
+		story: string;
+		brand: "default" | "monochrome";
+		mode: "light" | "dark";
+		selector: string;
+	},
 ): Promise<Box[]> {
 	const { story, brand, mode, selector } = opts;
-	const want = { brand: brand === "charcoal" ? "charcoal" : null, dark: mode === "dark" };
+	const want = { brand: brand === "monochrome" ? "monochrome" : null, dark: mode === "dark" };
 	await page.goto(
 		`/iframe.html?id=${encodeURIComponent(story)}&viewMode=story&globals=theme:${mode};brand:${brand}`,
 	);
@@ -140,7 +145,7 @@ test.describe("coarse pointer", () => {
 	test("every anchor in AppBar clears 44px", async ({ page }) => {
 		const boxes = await probeBoxes(page, {
 			story: "layout-appbar--anchor-navigation",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-appbar a",
 		});
@@ -153,7 +158,7 @@ test.describe("coarse pointer", () => {
 	test("every link in Footer clears 44px — the <a> form", async ({ page }) => {
 		const boxes = await probeBoxes(page, {
 			story: "layout-footer--compact-with-links",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-footer-link",
 		});
@@ -168,7 +173,7 @@ test.describe("coarse pointer", () => {
 	test("every link in Footer clears 44px — the <button> form", async ({ page }) => {
 		const boxes = await probeBoxes(page, {
 			story: "layout-footer--compact",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-footer-link",
 		});
@@ -187,7 +192,7 @@ test.describe("coarse pointer", () => {
 		// correct in the source. Reproduced verbatim.
 		await probeBoxes(page, {
 			story: "layout-appbar--anchor-navigation",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-appbar",
 		});
@@ -233,13 +238,13 @@ test.describe("coarse pointer", () => {
 	test("--ds-appbar-h still reports the height the bar actually paints", async ({ page }) => {
 		const [bar] = await probeBoxes(page, {
 			story: "layout-appbar--anchor-navigation",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-appbar",
 		});
 		const read = await probeComputed(page, {
 			story: "layout-appbar--anchor-navigation",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-appbar",
 			props: ["--ds-appbar-h", "min-height"],
@@ -284,7 +289,7 @@ test.describe("fine pointer", () => {
 	test("AppBar anchors keep their designed density", async ({ page }) => {
 		const boxes = await probeBoxes(page, {
 			story: "layout-appbar--anchor-navigation",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-appbar a",
 		});
@@ -294,7 +299,7 @@ test.describe("fine pointer", () => {
 		}
 		const read = await probeComputed(page, {
 			story: "layout-appbar--anchor-navigation",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-appbar a",
 			props: ["min-height", "min-width"],
@@ -311,7 +316,7 @@ test.describe("fine pointer", () => {
 	test("Footer links keep their designed density", async ({ page }) => {
 		const boxes = await probeBoxes(page, {
 			story: "layout-footer--compact-with-links",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-footer-link",
 		});
@@ -320,7 +325,7 @@ test.describe("fine pointer", () => {
 		}
 		const read = await probeComputed(page, {
 			story: "layout-footer--compact-with-links",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-footer-link",
 			props: ["min-height", "min-width"],
@@ -335,13 +340,13 @@ test.describe("fine pointer", () => {
 	test("--ds-appbar-h reports the fine-pointer height", async ({ page }) => {
 		const [bar] = await probeBoxes(page, {
 			story: "layout-appbar--anchor-navigation",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-appbar",
 		});
 		const read = await probeComputed(page, {
 			story: "layout-appbar--anchor-navigation",
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: ".ds-atom-appbar",
 			props: ["--ds-appbar-h"],

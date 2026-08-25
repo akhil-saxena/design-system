@@ -1,17 +1,17 @@
-/* Charcoal brand - TOKEN layer (D-27, D-29, D-31).
+/* Monochrome brand - TOKEN layer (D-27, D-29, D-31).
    Imported via:
-     import "@akhil-saxena/design-system/themes/charcoal.css";
+     import "@akhil-saxena/design-system/themes/monochrome.css";
    Load it after the design system's own token layer and before primitives.css.
    That ordering is for READABILITY of the cascade, not for correctness. The
    exhaustiveness invariant below is what makes this file order-independent, so
    a bundler that emits it somewhere else in the sequence changes nothing about
    which value wins. Read the ordering as house style, never as a load-bearing
    precondition - if it ever becomes one, the invariant has been broken.
-   Pair it with fonts-charcoal.css, which carries the face rules this file
+   Pair it with fonts/monochrome.css, which carries the face rules this file
    deliberately does not - that split is D-29 and it is the whole reason this
    file declares custom properties and nothing else.
 
-   THE IDENTITY, and why it is near-monochrome. Charcoal shipped its first five
+   THE IDENTITY, and why it is near-monochrome. This brand shipped its first five
    betas as a warm theme: an ochre accent at hue 32.2 and neutrals tinted to
    match, cream at hue 42 and 31% saturation. It was rejected on sight during
    the 01-20 capture review, and the diagnosis turned out to be arithmetic
@@ -34,11 +34,11 @@
    that carried only IDENTITY is gone. The line is meaning, not saturation.
 
    SCOPE (D-27). Two flat blocks, no nesting:
-     [data-brand="charcoal"]        light, specificity (0,2,0)
-     [data-brand="charcoal"].dark   dark,  specificity (0,3,0)
+     [data-brand="monochrome"]        light, specificity (0,2,0)
+     [data-brand="monochrome"].dark   dark,  specificity (0,3,0)
    The design system declares its dark values on the selector list
    ":root.dark, .dark". Each selector in a list carries its own specificity, so
-   charcoal light at (0,2,0) beats bare ".dark" (0,1,0) outright, and ties only
+   monochrome light at (0,2,0) beats bare ".dark" (0,1,0) outright, and ties only
    with ":root.dark".
 
    THE EXHAUSTIVENESS INVARIANT - the single load-bearing rule in this file.
@@ -47,7 +47,7 @@
    not change between modes and properties that are pure aliases. A property
    declared only in light ties ":root.dark" at (0,2,0), and the winner is then
    decided by whichever stylesheet the bundler emitted last - measured across
-   four deliberately-constructed orders, one of which loses charcoal entirely
+   four deliberately-constructed orders, one of which loses monochrome entirely
    in dark mode while another applies the light value there. Light mode never
    breaks, because (0,2,0) always beats ":root" at (0,1,0), which is exactly
    why this class of bug ships. Hold the invariant and the cascade is
@@ -56,7 +56,7 @@
    src/tokens.test.ts, whose exhaustiveness case lands in plan 01-03.
 
    OWNERSHIP (D-31), written as an allowlist so it cannot erode one token at a
-   time. Charcoal owns colour, type identity and geometry accents. It declares
+   time. Monochrome owns colour, type identity and geometry accents. It declares
    nothing from the sizing side of that line - no spacing scale, no type scale,
    no line-height or letter-spacing steps, no sidebar width, no z-index, no
    duration and no easing. Sizes express how big the system is; stacks and
@@ -99,8 +99,8 @@
    block fails the parity count as well as the invariant, and a value added to
    light alone is exactly the bug described above. */
 
-/* ─── Charcoal - LIGHT (admin default, D-08) ──────────────────────────── */
-:root[data-brand="charcoal"] {
+/* ─── Monochrome - LIGHT (admin default, D-08) ──────────────────────────── */
+:root[data-brand="monochrome"] {
 	/* Type identity. The Variable-suffixed name MUST come first in every
 	   stack. Fontsource registers the two variable families with "Variable"
 	   appended, so a stack whose head is the plain name matches no face and
@@ -109,7 +109,7 @@
 	   fallback for a locally installed copy. IBM Plex Mono has no Variable
 	   alias, because no variable build of it is published, so its stack
 	   correctly names the plain family. Agreement between these stacks and the
-	   faces in fonts-charcoal.css is enforced by check-font-names.mjs.
+	   faces in fonts/monochrome.css is enforced by check-font-names.mjs.
 	   NOTHING in this group changed when the palette did: the display face was
 	   compared against four alternatives at the same review that rejected the
 	   warm palette, and kept. This is a colour change and only a colour change. */
@@ -125,7 +125,7 @@
 	--display: var(--font-display);
 	--serif: var(--font-serif);
 
-	/* Weights. Charcoal authors in 400 / 500 / 700. 600 stays because design
+	/* Weights. Monochrome authors in 400 / 500 / 700. 600 stays because design
 	   system primitives reference it internally and DM Sans renders it
 	   correctly, but it is not used in authored copy. 800 and 900 have no place
 	   in an editorial serif identity and both families would synthesise or
@@ -193,7 +193,7 @@
 	   on near-black across every filled control in the system at once - 1.03 for
 	   the token itself, 1.08 to 1.11 for the three literals beside it.
 	   The token's NAME was always the correct description of the role. Only its
-	   charcoal values contradicted it.
+	   monochrome values contradicted it.
 	   Two consumers had leaned on the old pinning, and both were repaired in the
 	   same commit rather than left to find this out. The pinned pale-yellow
 	   highlight now pins its own foreground, which is the rule G5 established and
@@ -278,7 +278,7 @@
 	   --focus-ring-soft is the exception that had to be restated. The design
 	   system spells it as a literal rgba of its own warm accent, in BOTH its
 	   light and dark blocks - so it is the one focus treatment --focus cannot
-	   reach, and charcoal painted the design system's amber around every focused
+	   reach, and monochrome painted the design system's amber around every focused
 	   text field in dark mode while the border beside it followed the brand.
 	   Derived through color-mix on --focus rather than restated as a second rgba
 	   literal, so it cannot drift from the token it is meant to track. Alphas
@@ -290,7 +290,7 @@
 	--focus-ring-soft: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent);
 
 	/* Elevation. Geometry accents sit on the theme side of the ownership line,
-	   so charcoal owns them. Light mode keeps the design system's black-alpha
+	   so monochrome owns them. Light mode keeps the design system's black-alpha
 	   geometry, which reads correctly on a near-white page - but it is RESTATED
 	   here rather than inherited, so the dark block's override has a stated
 	   counterpart and the theme is exhaustive in both directions, not just the
@@ -355,15 +355,15 @@
 	--amber-warm: var(--amber-l);
 
 	/* SURFACE MAPPING. The design system carries five surface tokens that
-	   charcoal left at neutral values, so a component reaching for the raised
+	   monochrome left at neutral values, so a component reaching for the raised
 	   panel rendered a flat near-black in dark mode instead of this file's
 	   raised stop. All five sit on the "may redefine" side of the D-31
-	   allowlist, so mapping them is charcoal's job, and leaving them unmapped
+	   allowlist, so mapping them is monochrome's job, and leaving them unmapped
 	   is the one outcome that is not a decision. They are MAPPED, not retired:
 	   shipped components already read them, and retiring a token by omission
 	   makes it resolve to nothing.
 
-	   Each one aliases the charcoal surface whose ROLE it matches - the app
+	   Each one aliases the monochrome surface whose ROLE it matches - the app
 	   background onto the page, the raised and warm papers onto paper, the
 	   deep and deepest wells onto panel. Because all five collapse onto
 	   --cream, --cream-2 or --cream-3, every foreground ratio already measured
@@ -377,7 +377,7 @@
 	--pg: var(--cream-3);
 }
 
-/* ─── Charcoal - DARK (public default, DSGN-03) ────────────────────────
+/* ─── Monochrome - DARK (public default, DSGN-03) ────────────────────────
    Specificity (0,3,0), which outranks ":root.dark" at (0,2,0) by arithmetic
    rather than by source order. Every property the light block declares is
    restated below - same count, same names - including the aliases and the
@@ -387,7 +387,7 @@
    the three surfaces of THIS mode, and every one of them was recomputed
    rather than carried over - the surfaces themselves moved. This is the mode
    the public site ships in, and it is the one the identity was chosen on. */
-:root[data-brand="charcoal"].dark {
+:root[data-brand="monochrome"].dark {
 	/* Type identity does not change between modes - restated because the
 	   invariant admits no exceptions, including for identical values. */
 	--font-serif: "Playfair Display Variable", "Playfair Display", Georgia, serif;
@@ -500,7 +500,7 @@
 	   system's --shadow-1/2/3 are black-alpha and are therefore INVISIBLE on a
 	   near-black page, so every card below overlay level would read as flat.
 	   Shadow is a geometry accent, which D-31 puts on the theme side of the
-	   line, so this is a charcoal deliverable rather than an upstream gap.
+	   line, so this is a monochrome deliverable rather than an upstream gap.
 	   --shadow-3 keeps a real drop shadow because modals and the lightbox sit
 	   over a scrim, where a black shadow does read; everything below overlay
 	   level expresses elevation as --cream-2 / --cream-3 plus a hairline ring. */

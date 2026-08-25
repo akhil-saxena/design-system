@@ -8,10 +8,10 @@ import { describe, expect, it } from "vitest";
  *
  * `src/tokens.css` declares its dark block as `:root.dark, .dark`, so a wrapper
  * inside a story that carries the class re-declares roughly fifty neutral dark
- * tokens BELOW the brand layer, while `src/themes/charcoal.css` is scoped to
- * `:root[data-brand="charcoal"]` and cannot reach inside it. Measured
- * consequence: a charcoal-dark probe inside such a wrapper read `--cream`
- * `#181818` (the design system's neutral) instead of charcoal's `#161616`, and
+ * tokens BELOW the brand layer, while `src/themes/monochrome.css` is scoped to
+ * `:root[data-brand="monochrome"]` and cannot reach inside it. Measured
+ * consequence: a monochrome-dark probe inside such a wrapper read `--cream`
+ * `#181818` (the design system's neutral) instead of monochrome's `#161616`, and
  * `--wire` `rgba(255,255,255,0.22)` instead of `#727268` — so the capture pinned
  * the DEFAULT brand while still looking plausibly dark. Plan 01-19.1 measured
  * both values in a real browser before and after removing the wrappers.
@@ -67,7 +67,7 @@ const isDarkClassValue = (value: string) => value.split(/\s+/).includes("dark");
  * check, and plan 01-19.1 verified by experiment that all three slip past this
  * function. They are not the shape anyone writes by accident, and the real
  * backstop is mechanism-independent: `tests/visual/brand-isolation.spec.ts`
- * asserts in a browser that under charcoal the ONLY element carrying `.dark` is
+ * asserts in a browser that under monochrome the ONLY element carrying `.dark` is
  * `<html>`, which catches any reintroduction however it was spelled.
  */
 function findDarkWrappers(sf: ts.SourceFile): string[] {
@@ -268,11 +268,13 @@ describe(".storybook/preview.tsx keeps its own guarded wrapper", () => {
 	const PREVIEW = ".storybook/preview.tsx";
 
 	it("still carries the brand-conditional wrapper, which is correct and load-bearing", () => {
-		// Under charcoal the class must be absent, or the design system's
+		// Under monochrome the class must be absent, or the design system's
 		// ":root.dark, .dark" block re-declares its neutrals below the brand layer
 		// on this very wrapper. Under the default brand it is redundant but
 		// harmless, and every recorded baseline was captured with it present.
-		expect(readFileSync(PREVIEW, "utf8")).toContain('className={isCharcoal ? undefined : "dark"}');
+		expect(readFileSync(PREVIEW, "utf8")).toContain(
+			'className={isMonochrome ? undefined : "dark"}',
+		);
 	});
 
 	it("is not flagged by the story guard, because the value is conditional rather than literal", () => {

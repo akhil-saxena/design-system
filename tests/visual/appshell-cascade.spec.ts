@@ -70,14 +70,14 @@ async function readShell(page: Page): Promise<Shell> {
 	});
 }
 
-/** Land in a real charcoal x light render of the shell, animation frozen. */
+/** Land in a real monochrome x light render of the shell, animation frozen. */
 async function open(page: Page, story = STORY): Promise<void> {
 	// probeComputed carries the guards: it asserts the brand x mode cell it landed
 	// in rather than trusting the query parameter, and it throws when the selector
 	// matches nothing instead of returning an empty object.
 	await probeComputed(page, {
 		story,
-		brand: "charcoal",
+		brand: "monochrome",
 		mode: "light",
 		selector: ".ds-atom-appshell",
 		props: ["--ds-sidebar-w"],

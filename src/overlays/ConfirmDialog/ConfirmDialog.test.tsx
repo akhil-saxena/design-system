@@ -190,8 +190,8 @@ describe("ConfirmDialog", () => {
 	 * — NOT a theme token". That was the codified form of the sibling repo's
 	 * PROJECT.md decision "ConfirmDialog is always-light glass surface — not
 	 * token-driven internally" (CONSTRAINT-010), and a second brand invalidates it:
-	 * nothing in the charcoal cascade could reach a hardcoded value, so the panel
-	 * was a near-white card floating on a charcoal page.
+	 * nothing in the monochrome cascade could reach a hardcoded value, so the panel
+	 * was a near-white card floating on a monochrome page.
 	 *
 	 * The assertion is now that the panel carries NO inline background, because
 	 * inline styles beat class rules without !important — leaving the object in

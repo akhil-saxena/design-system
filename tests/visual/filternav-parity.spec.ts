@@ -17,18 +17,18 @@ import { type Brand, type Mode, probeComputed } from "./computed";
  * both components in one DOM so they are compared under one cascade rather than
  * across two navigations. It carries no `.dark` decorator: a story that sets
  * `className="dark"` re-declares tokens.css's neutral dark block inside its own
- * subtree while charcoal.css, being root-scoped, does not reach in — so a probe
+ * subtree while monochrome.css, being root-scoped, does not reach in — so a probe
  * there measures the default brand and passes.
  */
 
 const STORY = "data-display-filternav--beside-segmented-control";
 /**
- * Per MODE for charcoal since 01-22: the near-monochrome accent is a light
+ * Per MODE for monochrome since 01-22: the near-monochrome accent is a light
  * neutral that inverts with the mode, where the retired ochre was one value in
  * both. The default brand still declares its accent once at :root.
  */
 const BRAND_AMBER: Record<Brand, Record<"light" | "dark", string>> = {
-	charcoal: { light: "#111114", dark: "#f2f2f4" },
+	monochrome: { light: "#111114", dark: "#f2f2f4" },
 	default: { light: "#f59e0b", dark: "#f59e0b" },
 };
 
@@ -102,13 +102,13 @@ async function read(
 	});
 	expect(
 		got["--amber"],
-		`brand did not reach ${selector}; a scoped .dark wrapper strands charcoal.css`,
+		`brand did not reach ${selector}; a scoped .dark wrapper strands monochrome.css`,
 	).toBe(BRAND_AMBER[brand][mode]);
 	const { "--amber": _drop, ...rest } = got;
 	return rest;
 }
 
-for (const brand of ["charcoal", "default"] as const) {
+for (const brand of ["monochrome", "default"] as const) {
 	for (const mode of ["light", "dark"] as const) {
 		test(`${brand} x ${mode}: FilterNav is computationally identical to SegmentedControl`, async ({
 			page,
@@ -207,7 +207,7 @@ for (const brand of ["charcoal", "default"] as const) {
 test("the anchors are real, resolved links — crawlable and Back-button-capable", async ({
 	page,
 }) => {
-	await page.goto(`/iframe.html?id=${STORY}&viewMode=story&globals=theme:dark;brand:charcoal`);
+	await page.goto(`/iframe.html?id=${STORY}&viewMode=story&globals=theme:dark;brand:monochrome`);
 	await page.waitForSelector(".ds-atom-filternav a");
 	const links = await page.$$eval(".ds-atom-filternav a", (els) =>
 		els.map((e) => ({
@@ -231,7 +231,7 @@ test("the anchors are real, resolved links — crawlable and Back-button-capable
 });
 
 test("the keyboard model is a link list, not a radiogroup", async ({ page }) => {
-	await page.goto(`/iframe.html?id=${STORY}&viewMode=story&globals=theme:dark;brand:charcoal`);
+	await page.goto(`/iframe.html?id=${STORY}&viewMode=story&globals=theme:dark;brand:monochrome`);
 	await page.waitForSelector(".ds-atom-filternav a");
 	const first = page.locator(".ds-atom-filternav a").first();
 	await first.focus();
@@ -259,7 +259,7 @@ test("the keyboard model is a link list, not a radiogroup", async ({ page }) => 
 
 test("a rejected href is not a link in the browser either (T-18-01)", async ({ page }) => {
 	await page.goto(
-		"/iframe.html?id=data-display-filternav--rejected-hrefs&viewMode=story&globals=theme:light;brand:charcoal",
+		"/iframe.html?id=data-display-filternav--rejected-hrefs&viewMode=story&globals=theme:light;brand:monochrome",
 	);
 	await page.waitForSelector(".ds-atom-filternav");
 	const anchors = await page.$$eval(".ds-atom-filternav a", (els) =>

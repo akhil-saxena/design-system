@@ -45,7 +45,7 @@ for (const css of ["tokens.css", "primitives.css", "utilities.css"]) {
 }
 
 // The same contract, one level down: package.json `exports` maps ./themes/*.css
-// and ./fonts/*.css at these paths — the specifiers the charcoal theme and both
+// and ./fonts/*.css at these paths — the specifiers the monochrome theme and both
 // face layers are documented under. `files` is ["dist", ...], so a file this
 // loop misses is not published at all, and the 404 surfaces at a consumer's
 // build rather than ours. Throwing is the point here too.

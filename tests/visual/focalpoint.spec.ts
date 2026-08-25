@@ -44,11 +44,11 @@ import { hexToRgb, probeComputed } from "./computed";
  *
  * WHY EVERY PROBE ASSERTS ITS BRAND. E29: two stories in this repository set
  * `className="dark"` on a wrapper AND a hardcoded page colour, so a probe inside
- * them measured the DEFAULT brand while reporting a charcoal number. The stories
+ * them measured the DEFAULT brand while reporting a monochrome number. The stories
  * this file drives carry no such wrapper — the mode and brand come from the
  * toolbar globals — and `--ochre` is read off the probed element as proof of
  * which brand the measurement belongs to, because `--ochre` is declared only in
- * `charcoal.css`.
+ * `monochrome.css`.
  */
 
 const STORY = "inputs-focalpointpicker--default";
@@ -76,7 +76,7 @@ function watchErrors(page: Page) {
 async function openStory(
 	page: Page,
 	story: string,
-	opts: { brand?: "default" | "charcoal"; mode?: "light" | "dark" } = {},
+	opts: { brand?: "default" | "monochrome"; mode?: "light" | "dark" } = {},
 ) {
 	const brand = opts.brand ?? "default";
 	const mode = opts.mode ?? "light";
@@ -91,7 +91,7 @@ async function openStory(
 		dark: document.documentElement.classList.contains("dark"),
 	}));
 	expect(cell.brand, `story ${story} did not land in brand ${brand}`).toBe(
-		brand === "charcoal" ? "charcoal" : null,
+		brand === "monochrome" ? "monochrome" : null,
 	);
 	expect(cell.dark).toBe(mode === "dark");
 	await page.evaluate(() => document.fonts.ready.then(() => undefined));
@@ -595,7 +595,7 @@ test("every part of the component is inside #storybook-root, so test:a11y sees i
 
 test.describe("brand", () => {
 	for (const mode of ["light", "dark"] as const) {
-		test(`the marker fill is amber in the default brand and ochre in charcoal (${mode})`, async ({
+		test(`the marker fill is amber in the default brand and ochre in monochrome (${mode})`, async ({
 			page,
 		}) => {
 			const def = await probeComputed(page, {
@@ -606,21 +606,21 @@ test.describe("brand", () => {
 				props: ["background-color", "--ochre", "--amber"],
 			});
 			// The brand assertion ON THE PROBED ELEMENT. `--ochre` is declared only in
-			// charcoal.css, so an empty value here is proof this read belongs to the
+			// monochrome.css, so an empty value here is proof this read belongs to the
 			// default brand rather than to a scoped wrapper (E29).
 			expect(def["--ochre"]).toBe("");
 			expect(def["background-color"]).toBe(hexToRgb("#f59e0b"));
 
 			const cha = await probeComputed(page, {
 				story: STORY,
-				brand: "charcoal",
+				brand: "monochrome",
 				mode,
 				selector: DOT,
 				props: ["background-color", "--ochre", "--amber"],
 			});
-			const charcoalAccent = mode === "dark" ? "#f2f2f4" : "#111114";
-			expect(cha["--ochre"]).toBe(charcoalAccent);
-			expect(cha["background-color"]).toBe(hexToRgb(charcoalAccent));
+			const monochromeAccent = mode === "dark" ? "#f2f2f4" : "#111114";
+			expect(cha["--ochre"]).toBe(monochromeAccent);
+			expect(cha["background-color"]).toBe(hexToRgb(monochromeAccent));
 		});
 	}
 });

@@ -3,7 +3,7 @@ import { type Brand, type Mode, hexToRgb, probeComputed } from "./computed";
 
 /**
  * F-15-5: D-45's three statuses were **not distinguishable by fill**. Measured on
- * charcoal light: Live vs Maintained **1.02:1**, and all three fills within
+ * monochrome light: Live vs Maintained **1.02:1**, and all three fills within
  * 1.07–1.14:1 of the page. "Only the words and their text colours separate them,
  * at 9.5px."
  *
@@ -20,16 +20,16 @@ import { type Brand, type Mode, hexToRgb, probeComputed } from "./computed";
  * being applied. It cannot catch the axis being applied and then **overridden
  * inside the story**: `tokens.css` targets `:root.dark, .dark`, so a story
  * decorator that sets `className="dark"` re-declares ~50 neutral dark tokens
- * inside its own subtree while `charcoal.css`, being root-scoped, does not reach
+ * inside its own subtree while `monochrome.css`, being root-scoped, does not reach
  * in. A probe in such a story measures the DEFAULT brand and passes confidently.
  * Two of this component's sibling stories do exactly that, with a hardcoded
  * `#1c1917` background as well.
  *
  * So every read below also asserts `--amber` **on the probed element**. It is the
- * accent bridge: `tokens.css` declares it once as `#f59e0b`, and charcoal aliases
+ * accent bridge: `tokens.css` declares it once as `#f59e0b`, and monochrome aliases
  * it onto `--ochre` (`#b0722a`) in both of its blocks. It therefore differs by
  * brand in all four cells, and it is exactly the kind of token a scoped `.dark`
- * wrapper strands. `--ochre` is asserted too — it exists in charcoal.css and
+ * wrapper strands. `--ochre` is asserted too — it exists in monochrome.css and
  * nowhere else, so an empty read is positive proof the brand did not apply.
  *
  * The story probed is `inputs-statuspill--status-ladder`, which carries no
@@ -39,16 +39,16 @@ import { type Brand, type Mode, hexToRgb, probeComputed } from "./computed";
 const STORY = "inputs-statuspill--status-ladder";
 
 /**
- * Only charcoal declares these. `--amber` is charcoal's accent bridge.
+ * Only monochrome declares these. `--amber` is monochrome's accent bridge.
  *
  * Held as hex because that is what Chromium reports for a custom property:
  * `getPropertyValue` resolves the `var()` chain but keeps the AUTHORED format,
- * so charcoal's `--ochre` -> `--amber` -> `--ink` chain reads `#111114`, not
+ * so monochrome's `--ochre` -> `--amber` -> `--ink` chain reads `#111114`, not
  * `rgb(17,17,20)`.
  * A first draft of this file compared against the rgb spelling and every case
  * failed — which is the brand guard doing its job on itself.
  *
- * Per MODE for charcoal since 01-22. The alias direction also flipped: the
+ * Per MODE for monochrome since 01-22. The alias direction also flipped: the
  * accent literal now lives on `--amber`, the token components actually consume,
  * and `--ochre` is the vestigial back-compat name pointing at it.
  */
@@ -56,7 +56,7 @@ const BRAND_MARKER: Record<
 	Brand,
 	{ amber: Record<"light" | "dark", string>; ochreIsSet: boolean }
 > = {
-	charcoal: { amber: { light: "#111114", dark: "#f2f2f4" }, ochreIsSet: true },
+	monochrome: { amber: { light: "#111114", dark: "#f2f2f4" }, ochreIsSet: true },
 	default: { amber: { light: "#f59e0b", dark: "#f59e0b" }, ochreIsSet: false },
 };
 
@@ -119,11 +119,11 @@ async function readTriad(
 		const marker = BRAND_MARKER[brand];
 		expect(
 			got["--amber"],
-			`brand did not reach the probed element: --amber read ${JSON.stringify(got["--amber"])}. A story decorator setting className="dark" strands charcoal.css, which is root-scoped.`,
+			`brand did not reach the probed element: --amber read ${JSON.stringify(got["--amber"])}. A story decorator setting className="dark" strands monochrome.css, which is root-scoped.`,
 		).toBe(marker.amber[mode]);
 		expect(
 			(got["--ochre"] ?? "").length > 0,
-			`--ochre is declared only by charcoal.css; read ${JSON.stringify(got["--ochre"])}`,
+			`--ochre is declared only by monochrome.css; read ${JSON.stringify(got["--ochre"])}`,
 		).toBe(marker.ochreIsSet);
 
 		out.push({
@@ -137,7 +137,7 @@ async function readTriad(
 	return out;
 }
 
-for (const brand of ["charcoal", "default"] as const) {
+for (const brand of ["monochrome", "default"] as const) {
 	for (const mode of ["light", "dark"] as const) {
 		for (const [name, tones] of Object.entries(TRIADS)) {
 			test(`${brand} x ${mode}: the ${name} triad is distinguishable by fill (F-15-5)`, async ({
@@ -161,7 +161,7 @@ for (const brand of ["charcoal", "default"] as const) {
 					// The panel is the deepest of the three surfaces and admin zebra puts
 					// pills on it, so a fill that only separates from the page is not done.
 					expect.soft(vsPanel, `${r.tone} fill vs panel`).toBeGreaterThanOrEqual(1.08);
-					// 9.5–11px type: the large-text allowance never applies, and charcoal's
+					// 9.5–11px type: the large-text allowance never applies, and monochrome's
 					// contract holds 7:1 elsewhere.
 					expect.soft(onFill, `${r.tone} text on its own fill`).toBeGreaterThanOrEqual(7);
 				}
@@ -197,7 +197,7 @@ for (const brand of ["charcoal", "default"] as const) {
 	}
 }
 
-test("charcoal x light: the marker is a shape distinction, not another colour", async ({
+test("monochrome x light: the marker is a shape distinction, not another colour", async ({
 	page,
 }) => {
 	// The non-colour signal. Step 1 is a hollow ring (transparent centre, a real
@@ -208,13 +208,13 @@ test("charcoal x light: the marker is a shape distinction, not another colour", 
 	for (const tone of ["muted", "secondary", "primary"]) {
 		const got = await probeComputed(page, {
 			story: STORY,
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: `.ds-atom-statuspill[data-tone="${tone}"] .ds-atom-statuspill-marker`,
 			props: ["background-color", "border-radius", "border-top-width", "--amber"],
 		});
 		expect(got["--amber"], "brand did not reach the marker").toBe(
-			BRAND_MARKER.charcoal.amber.light,
+			BRAND_MARKER.monochrome.amber.light,
 		);
 		shapes[tone] = {
 			transparent: /rgba\([^)]*,\s*0\s*\)|transparent/.test(got["background-color"] as string),
@@ -237,12 +237,12 @@ test("the preset stage path renders no marker, so no existing pill moves", async
 	// data-tone, so its fill is still the tint the stage rules give it.
 	const got = await probeComputed(page, {
 		story: "inputs-statuspill--all-stages",
-		brand: "charcoal",
+		brand: "monochrome",
 		mode: "light",
 		selector: '.ds-atom-statuspill[data-stage="offer"]',
 		props: ["background-color", "--amber"],
 	});
-	expect(got["--amber"]).toBe(BRAND_MARKER.charcoal.amber.light);
+	expect(got["--amber"]).toBe(BRAND_MARKER.monochrome.amber.light);
 	// rgba(34,197,94,.14), unchanged by this plan.
 	expect(got["background-color"]).toMatch(/34,\s*197,\s*94/);
 });

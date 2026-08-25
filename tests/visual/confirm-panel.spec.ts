@@ -5,8 +5,8 @@ import { probeComputed } from "./computed";
  * F-15-3: `ConfirmDialog`'s panel had no `.ds-atom-confirm-panel` rule anywhere
  * under `dist/css/`. It was one inline style object with a hardcoded
  * `rgba(255,255,255,.97)` background, and **nothing in any theme's cascade
- * reached it** — so under charcoal it was a near-white card floating on a
- * charcoal page.
+ * reached it** — so under monochrome it was a near-white card floating on a
+ * monochrome page.
  *
  * A grep proves nothing here. That is the entire finding: the declaration existed,
  * the class existed, and the style still did not apply, because an inline style
@@ -19,9 +19,9 @@ import { probeComputed } from "./computed";
  * closed behind a button, and a portaled panel would also sit outside the story
  * root. `inline` puts it in place, so there is something to measure. That story
  * carries no scoped `.dark` decorator on purpose — see its docstring; a first
- * draft that did read 31,31,31 where charcoal declares 30,30,29, because
+ * draft that did read 31,31,31 where monochrome declares 30,30,29, because
  * tokens.css's ":root.dark, .dark" block re-declares the neutral dark tokens
- * inside any such wrapper and charcoal.css is root-scoped.
+ * inside any such wrapper and monochrome.css is root-scoped.
  */
 
 const STORY = "overlays-confirmdialog--inline-panel";
@@ -45,19 +45,19 @@ function parseColour(value: string): [number, number, number, number] {
 const NEAR_WHITE_97 = "the hardcoded rgba(255,255,255,.97) the finding measured";
 
 test.describe("ConfirmDialog panel is in the cascade (F-15-3)", () => {
-	test("charcoal x dark: the panel is a charcoal surface, not a near-white card", async ({
+	test("monochrome x dark: the panel is a monochrome surface, not a near-white card", async ({
 		page,
 	}) => {
 		const got = await probeComputed(page, {
 			story: STORY,
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "dark",
 			selector: PANEL,
 			props: ["background-color", "box-shadow", "--panel", "--cream-2"],
 		});
 		const [r, g, b, a] = parseColour(got["background-color"]!);
 
-		// charcoal dark --cream-2 is #17171A since the theme went near-monochrome.
+		// monochrome dark --cream-2 is #17171A since the theme went near-monochrome.
 		// The 97% glass is preserved, so the expected paint is that colour at .97.
 		expect.soft(Math.round(r), NEAR_WHITE_97).toBeCloseTo(23, 0);
 		expect.soft(Math.round(g)).toBeCloseTo(23, 0);
@@ -69,22 +69,22 @@ test.describe("ConfirmDialog panel is in the cascade (F-15-3)", () => {
 		// the assertions above; this one fails if it returned the OLD value.
 		expect(Math.round(r), NEAR_WHITE_97).toBeLessThan(128);
 
-		// Rule C-5: charcoal's dark --shadow-3 leads with a hairline ring, where an
+		// Rule C-5: monochrome's dark --shadow-3 leads with a hairline ring, where an
 		// alpha-only shadow is invisible against a near-black page. The old
 		// hardcoded `0 16px 48px rgba(0,0,0,.18)` had no ring at all.
 		expect(got["box-shadow"]).toMatch(/rgba?\([^)]*\)\s+0px\s+0px\s+0px\s+1px|0px 0px 0px 1px/);
 	});
 
-	test("charcoal x light: the panel is the charcoal paper surface", async ({ page }) => {
+	test("monochrome x light: the panel is the monochrome paper surface", async ({ page }) => {
 		const got = await probeComputed(page, {
 			story: STORY,
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "light",
 			selector: PANEL,
 			props: ["background-color", "--panel", "--cream-2"],
 		});
 		const [r, g, b, a] = parseColour(got["background-color"]!);
-		// charcoal light --panel is var(--cream-2) = #FDFDFE since the theme went
+		// monochrome light --panel is var(--cream-2) = #FDFDFE since the theme went
 		// near-monochrome. One unit off pure white, and that unit is load-bearing
 		// for THIS file — see the guard below.
 		expect.soft(Math.round(r)).toBeCloseTo(253, 0);
@@ -96,7 +96,7 @@ test.describe("ConfirmDialog panel is in the cascade (F-15-3)", () => {
 		//
 		// This used to read `expect(b).toBeLessThan(255)` — "it is a cream white,
 		// not a pure one, so it came from the cascade rather than from the old
-		// hardcoded #ffffff". A draft of the monochrome palette set charcoal light's
+		// hardcoded #ffffff". A draft of the monochrome palette set monochrome light's
 		// paper to pure #FFFFFF and killed that proxy outright: hardcoding the panel
 		// back to rgba(255,255,255,.97) left this case GREEN. Measured, not
 		// reasoned — the control was run, and only the dark case failed.
@@ -108,7 +108,7 @@ test.describe("ConfirmDialog panel is in the cascade (F-15-3)", () => {
 		// RESOLVED --panel token, which holds whatever the values are.
 		const panel = (got["--panel"] ?? "").trim();
 		const cream2 = (got["--cream-2"] ?? "").trim();
-		expect(panel, "charcoal light --panel must resolve through --cream-2").toBe(cream2);
+		expect(panel, "monochrome light --panel must resolve through --cream-2").toBe(cream2);
 		expect(panel, "--panel did not resolve at the probed element").toMatch(/^#[0-9a-f]{6}$/i);
 		const [pr, pg, pb] = [1, 3, 5].map((i) => Number.parseInt(panel.slice(i, i + 2), 16));
 		expect([Math.round(r), Math.round(g), Math.round(b)], NEAR_WHITE_97).toEqual([pr, pg, pb]);
@@ -135,9 +135,9 @@ test.describe("ConfirmDialog panel is in the cascade (F-15-3)", () => {
 	test("the danger tone wash resolves through a token in both brands", async ({ page }) => {
 		// `rgba(239,68,68,.1)` was hardcoded, so it painted the same wash in every
 		// brand and every mode. --red-bg is a real tint in each.
-		const charcoal = await probeComputed(page, {
+		const monochrome = await probeComputed(page, {
 			story: STORY,
-			brand: "charcoal",
+			brand: "monochrome",
 			mode: "dark",
 			selector: `${PANEL} > div > div:first-child`,
 			props: ["background-color", "--red-bg"],
@@ -151,11 +151,11 @@ test.describe("ConfirmDialog panel is in the cascade (F-15-3)", () => {
 		});
 		// The token is declared, and the two cells disagree — which is the whole
 		// difference between a token and a literal.
-		expect(charcoal["--red-bg"]).not.toBe("");
+		expect(monochrome["--red-bg"]).not.toBe("");
 		expect(dflt["--red-bg"]).not.toBe("");
-		expect(charcoal["background-color"]).not.toBe(dflt["background-color"]);
+		expect(monochrome["background-color"]).not.toBe(dflt["background-color"]);
 		// And neither is the literal it replaced.
-		for (const cell of [charcoal, dflt]) {
+		for (const cell of [monochrome, dflt]) {
 			expect(cell["background-color"]).not.toMatch(/239,\s*68,\s*68/);
 		}
 	});

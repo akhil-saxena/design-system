@@ -26,7 +26,7 @@ import { hexToRgb, probeComputed } from "./computed";
  *      painted the link `var(--ink-2)` — grey, inside a red error box. The fix is
  *      (0,2,1); this is the case that proves it took.
  *
- * Charcoal × light throughout: it is the worst cell for warning text, since
+ * Monochrome × light throughout: it is the worst cell for warning text, since
  * `--amber-d` aliases `--ochre-d` there rather than the brighter dark-mode step.
  *
  * 01-10's lesson is the reason this file exists at all: that plan's specified fix
@@ -34,7 +34,7 @@ import { hexToRgb, probeComputed } from "./computed";
  * and only a computed-style read in a real browser caught it.
  */
 
-const CELL = { brand: "charcoal", mode: "light" } as const;
+const CELL = { brand: "monochrome", mode: "light" } as const;
 
 /** WCAG 2.x relative-luminance contrast, on `rgb(r, g, b)` strings. */
 function ratio(a: string, b: string): number {
@@ -55,7 +55,7 @@ function ratio(a: string, b: string): number {
 	return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }
 
-test.describe("field contract, charcoal x light", () => {
+test.describe("field contract, monochrome x light", () => {
 	test("E15: the required marker renders a visible glyph from the stylesheet", async ({ page }) => {
 		// probeComputed owns the navigation and asserts the cell actually took, so a
 		// value read below cannot silently belong to the default brand.
@@ -145,7 +145,7 @@ test.describe("field contract, charcoal x light", () => {
 
 		// The seen half, part one: the tone rule beat both base declarations.
 		expect(read.warnColor).not.toBe(read.plainColor);
-		// By identity: charcoal light aliases --amber-d onto --ochre-d.
+		// By identity: monochrome light aliases --amber-d onto --ochre-d.
 		expect(read.amberD).toBe(read.ochreD);
 		expect(read.warnColor, "warning is not painted with --amber-d").toBe(hexToRgb(read.amberD));
 
@@ -158,9 +158,9 @@ test.describe("field contract, charcoal x light", () => {
 		// AA for normal text, in the worst cell. Reported so the SUMMARY can quote it.
 		const contrast = ratio(read.warnColor as string, read.behind);
 		console.log(
-			`[01-11] charcoal light warning text ${read.warnColor} on ${read.behind} = ${contrast.toFixed(2)}:1`,
+			`[01-11] monochrome light warning text ${read.warnColor} on ${read.behind} = ${contrast.toFixed(2)}:1`,
 		);
-		expect(contrast, "warning text fails AA in charcoal light").toBeGreaterThanOrEqual(4.5);
+		expect(contrast, "warning text fails AA in monochrome light").toBeGreaterThanOrEqual(4.5);
 	});
 
 	test("G-6: the summary link is ON the item, and outranks Link's own variant rule", async ({

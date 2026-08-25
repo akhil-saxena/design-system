@@ -4,19 +4,19 @@ import { create } from "@storybook/theming/create";
 // so without these every story renders in a fallback family and all 488 visual
 // baselines move. Both brands are loaded because Storybook is a two-brand
 // development environment by construction; criterion 4 ("a page consuming only
-// charcoal downloads only charcoal's three families") is a property of a real
+// monochrome downloads only monochrome's three families") is a property of a real
 // consumer, not of this preview, and is measured in tests/visual/font-download
 // against an isolated page. Face rules do not participate in the cascade with
 // selector rules, so their position relative to the token layers is arbitrary.
 import "../src/fonts/default.css";
-import "../src/fonts/charcoal.css";
+import "../src/fonts/monochrome.css";
 import "../src/tokens.css";
-// Charcoal is imported unconditionally, in the position its own header
+// Monochrome is imported unconditionally, in the position its own header
 // documents (after the token layer, before primitives). It costs nothing when
-// the brand is off: every rule in it is scoped to :root[data-brand="charcoal"],
+// the brand is off: every rule in it is scoped to :root[data-brand="monochrome"],
 // which matches nothing until the decorator sets the attribute. Importing it
 // conditionally would mean the toolbar could not switch brands without a reload.
-import "../src/themes/charcoal.css";
+import "../src/themes/monochrome.css";
 import "../src/primitives.css";
 import "../src/utilities.css";
 import "./storybook.css";
@@ -55,7 +55,7 @@ const preview: Preview = {
 				icon: "paintbrush",
 				items: [
 					{ value: "default", title: "Default" },
-					{ value: "charcoal", title: "Charcoal" },
+					{ value: "monochrome", title: "Monochrome" },
 				],
 				dynamicTitle: false,
 			},
@@ -63,8 +63,8 @@ const preview: Preview = {
 	},
 	initialGlobals: {
 		theme: "light",
-		// Default, deliberately: charcoal must be opt-in so none of the recorded
-		// visual baselines move. Charcoal's own captures are D-37 / plan 01-20.
+		// Default, deliberately: monochrome must be opt-in so none of the recorded
+		// visual baselines move. Monochrome's own captures are D-37 / plan 01-20.
 		brand: "default",
 	},
 	parameters: {
@@ -111,29 +111,29 @@ const preview: Preview = {
 		(Story, context) => {
 			const isDark =
 				context.globals.theme === "dark" || context.globals.backgrounds?.value === DARK_BG;
-			const isCharcoal = context.globals.brand === "charcoal";
+			const isMonochrome = context.globals.brand === "monochrome";
 			// Brand and mode are applied in ONE pass. Splitting them across two
 			// decorators paints a frame in the wrong brand, which is the flash D-34's
 			// no-flash module exists to remove — and it would make every first-frame
 			// screenshot unreliable.
 			document.documentElement.classList.toggle("dark", isDark);
-			if (isCharcoal) document.documentElement.dataset.brand = "charcoal";
+			if (isMonochrome) document.documentElement.dataset.brand = "monochrome";
 			else document.documentElement.removeAttribute("data-brand");
 			if (isDark) {
 				return (
 					// The dark class on this wrapper is redundant — the decorator already
 					// put it on <html>, and every .dark rule in the system is written with
 					// a descendant combinator, so they all still match from there. Under
-					// charcoal it is worse than redundant: the design system's own
+					// monochrome it is worse than redundant: the design system's own
 					// ":root.dark, .dark" block would match this div and RE-DECLARE its 50
 					// neutral dark tokens below the brand layer, so --cream resolved to
-					// #181818 instead of charcoal's #161616 and --wire to
-					// rgba(255,255,255,0.22) — measured, not assumed. Every charcoal-dark
+					// #181818 instead of monochrome's #161616 and --wire to
+					// rgba(255,255,255,0.22) — measured, not assumed. Every monochrome-dark
 					// probe in this phase reads an element inside this wrapper, so leaving
 					// the class on would have made all of them measure the design system's
 					// neutrals while still looking green.
 					<div
-						className={isCharcoal ? undefined : "dark"}
+						className={isMonochrome ? undefined : "dark"}
 						// Read from the cascade, not from the DARK_BG constant, so the
 						// backdrop tracks whichever brand is mounted. DARK_BG stays below
 						// for the backgrounds parameter and the dark-detection branch,

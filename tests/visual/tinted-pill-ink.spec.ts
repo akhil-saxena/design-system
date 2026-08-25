@@ -11,20 +11,20 @@ import { probeComputed } from "./computed";
  * `[data-stage="screening"]` and `[data-stage="interviewing"]` paint
  * `rgba(245,158,11,0.10)` / `0.18` and take `color: var(--amber-ink)`. The
  * default brand flips `--amber-ink` to a light `#f5c56b` in dark mode, which is
- * correct for a tint. Charcoal aliases it to `--ink-inverse` `#161616` in BOTH
- * modes, so charcoal dark put near-black ink on a near-black page and measured
- * 1.294:1 and 1.530:1 — the second-worst readings in the charcoal sweep.
+ * correct for a tint. Monochrome aliases it to `--ink-inverse` `#161616` in BOTH
+ * modes, so monochrome dark put near-black ink on a near-black page and measured
+ * 1.294:1 and 1.530:1 — the second-worst readings in the monochrome sweep.
  *
- * The component declarations were never wrong; the theme's alias was. Charcoal's
+ * The component declarations were never wrong; the theme's alias was. Monochrome's
  * DARK `--amber-ink` now points at its own ochre-as-text step, which fixes all
- * FOUR of the token's charcoal-dark consumers — the two pills here, plus Badge
+ * FOUR of the token's monochrome-dark consumers — the two pills here, plus Badge
  * `[data-tone="warning"]` (1.30 -> 6.27) and the open DatePicker trigger
  * (1.09 -> 7.53). Neither of those two is rendered by any story, in either mode.
  *
  * WHY THE RATIO ASSERTION IS NOT ENOUGH, AND WHAT THE SECOND ONE ADDS
  *
  * 1. THE RATIO, composited by hand. These are the only two nodes in the whole
- *    charcoal violation set whose backdrop is translucent, so they are the only
+ *    monochrome violation set whose backdrop is translucent, so they are the only
  *    ones whose ratio is a function of the page rather than of the component.
  *    `getComputedStyle` reports `rgba(245,158,11,0.10)` verbatim and compositing
  *    it is the entire measurement — plan 01-18 read a fill as 2.020:1 where the
@@ -45,7 +45,7 @@ import { probeComputed } from "./computed";
  *    the sweep asserts how many pills it saw.
  *
  * THE BRAND IS ASSERTED AT THE PROBED ELEMENT, both halves, per E29 — a
- * charcoal-only token AND a neutral, because 01-19.1 measured `--ochre` reading
+ * monochrome-only token AND a neutral, because 01-19.1 measured `--ochre` reading
  * correctly at a node whose neutrals were shadowed underneath.
  */
 
@@ -198,8 +198,8 @@ async function measurePills(page: import("@playwright/test").Page, story: string
 const CELLS = [
 	{ brand: "default", mode: "light" },
 	{ brand: "default", mode: "dark" },
-	{ brand: "charcoal", mode: "light" },
-	{ brand: "charcoal", mode: "dark" },
+	{ brand: "monochrome", mode: "light" },
+	{ brand: "monochrome", mode: "dark" },
 ] as const;
 
 for (const cell of CELLS) {
@@ -220,11 +220,11 @@ for (const cell of CELLS) {
 			});
 
 			// Brand, both halves, at the probed element.
-			if (cell.brand === "charcoal") {
-				expect(tok["--ochre"], `${story}: charcoal must declare --ochre`).toBe(
+			if (cell.brand === "monochrome") {
+				expect(tok["--ochre"], `${story}: monochrome must declare --ochre`).toBe(
 					cell.mode === "dark" ? "#f2f2f4" : "#111114",
 				);
-				expect(tok["--cream"], `${story}: charcoal neutrals must not be shadowed`).toBe(
+				expect(tok["--cream"], `${story}: monochrome neutrals must not be shadowed`).toBe(
 					cell.mode === "dark" ? "#0d0d0f" : "#fafafb",
 				);
 			} else {
@@ -237,20 +237,20 @@ for (const cell of CELLS) {
 			// THE TOKEN CONTRACT, which is where the fix actually lives.
 			//
 			// tokens.css defines `--amber-ink` as the ink for a TINTED pill of the same
-			// hue. Charcoal aliased it to `--ink-inverse` in BOTH modes, which is right
+			// hue. Monochrome aliased it to `--ink-inverse` in BOTH modes, which is right
 			// for a solid ochre fill and wrong for a wash, and that alias was the whole
 			// defect. Pinning the resolved value per cell is worth more than the ratio
 			// assertions below on their own, because `--amber-ink` has FOUR consumers in
-			// charcoal dark and only one of them — this pill — is rendered by any story
+			// monochrome dark and only one of them — this pill — is rendered by any story
 			// at all. Badge `[data-tone="warning"]` and the open DatePicker trigger are
 			// shipped states no story reaches, so no story-driven sweep, axe's or this
 			// one's, can measure them. Asserting the token is the only coverage those
 			// two have, which is why this is not redundant with the ratios below.
 			expect(
 				tok["--amber-ink"],
-				`${story}: --amber-ink must be the tinted-pill ink for this cell. Charcoal dark aliasing it back to --ink-inverse is the defect this file exists for, and it would silently re-break Badge and the open DatePicker trigger too, which no story renders`,
+				`${story}: --amber-ink must be the tinted-pill ink for this cell. Monochrome dark aliasing it back to --ink-inverse is the defect this file exists for, and it would silently re-break Badge and the open DatePicker trigger too, which no story renders`,
 			).toBe(
-				cell.brand === "charcoal"
+				cell.brand === "monochrome"
 					? cell.mode === "dark"
 						? "#a8a8ae"
 						: "#525258"

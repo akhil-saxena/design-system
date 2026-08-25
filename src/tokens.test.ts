@@ -35,16 +35,16 @@ const lightTokens = declaredIn(block(tokensCss, ":root {"));
 const darkTokens = declaredIn(block(tokensCss, ":root.dark,"));
 
 /**
- * The charcoal brand layer, parsed with the *same* block()/declaredIn() the
+ * The monochrome brand layer, parsed with the *same* block()/declaredIn() the
  * default theme uses. One parser and one WCAG formula serve both themes, so a
  * disagreement between them is a real disagreement rather than an artefact of
  * a second implementation.
  */
-const charcoalCss = readFileSync(join(SRC, "themes/charcoal.css"), "utf8");
-const CHARCOAL_LIGHT = ':root[data-brand="charcoal"] {';
-const CHARCOAL_DARK = ':root[data-brand="charcoal"].dark {';
-const charcoalLight = declaredIn(block(charcoalCss, CHARCOAL_LIGHT));
-const charcoalDark = declaredIn(block(charcoalCss, CHARCOAL_DARK));
+const monochromeCss = readFileSync(join(SRC, "themes/monochrome.css"), "utf8");
+const MONOCHROME_LIGHT = ':root[data-brand="monochrome"] {';
+const MONOCHROME_DARK = ':root[data-brand="monochrome"].dark {';
+const monochromeLight = declaredIn(block(monochromeCss, MONOCHROME_LIGHT));
+const monochromeDark = declaredIn(block(monochromeCss, MONOCHROME_DARK));
 
 /** Every source file that can reference a token. */
 function walk(dir: string, acc: string[] = []): string[] {
@@ -139,45 +139,45 @@ describe("token layer", () => {
 		expect(bare).toEqual([]);
 	});
 
-	it("restates every charcoal light token in the charcoal dark block", () => {
-		// The mechanism, not just the rule. A charcoal token declared only in the
+	it("restates every monochrome light token in the monochrome dark block", () => {
+		// The mechanism, not just the rule. A monochrome token declared only in the
 		// light block still resolves at (0,2,0) in dark mode, which *ties*
 		// ":root.dark" at (0,2,0). The tie is then decided by whichever stylesheet
 		// the bundler emitted last, and the two possible orders produce two
-		// DIFFERENT wrong answers: charcoal's light value painted in dark mode, or
-		// charcoal dropped in dark mode entirely. Light mode never breaks, because
+		// DIFFERENT wrong answers: monochrome's light value painted in dark mode, or
+		// monochrome dropped in dark mode entirely. Light mode never breaks, because
 		// (0,2,0) beats ":root" at (0,1,0) unconditionally — which is exactly why
 		// this class of bug ships unnoticed.
-		const lightOnly = [...charcoalLight].filter((t) => !charcoalDark.has(t));
+		const lightOnly = [...monochromeLight].filter((t) => !monochromeDark.has(t));
 		expect(lightOnly).toEqual([]);
 	});
 
-	it("declares a charcoal light value for every token charcoal dark overrides", () => {
+	it("declares a monochrome light value for every token monochrome dark overrides", () => {
 		// The same shape as the tokens.css assertion at the top of this group, and
 		// it catches the same real regression (--rule-strong shipped dark-only).
 		// Not redundant with the mirror above: one-directional exhaustiveness would
-		// satisfy charcoal's own invariant while violating the design system's,
-		// because charcoal's dark block redefines --shadow-1/2/3 and its light
+		// satisfy monochrome's own invariant while violating the design system's,
+		// because monochrome's dark block redefines --shadow-1/2/3 and its light
 		// block must therefore restate them.
-		const darkOnly = [...charcoalDark].filter((t) => !charcoalLight.has(t));
+		const darkOnly = [...monochromeDark].filter((t) => !monochromeLight.has(t));
 		expect(darkOnly).toEqual([]);
 	});
 
-	it("parses a whole charcoal block rather than a truncated one", () => {
+	it("parses a whole monochrome block rather than a truncated one", () => {
 		// block() closes on the first `\n}` — a brace at column 0. Indent the
-		// charcoal closing brace by one space, or nest a rule inside the block, and
+		// monochrome closing brace by one space, or nest a rule inside the block, and
 		// the slice truncates, declaredIn() returns nearly nothing, both set
 		// differences above are trivially empty and the mirror passes for the WRONG
 		// REASON. A floor rather than the exact count, so the additive growth this
 		// phase and 06.1 will keep doing does not need a test edit.
 		const truncated = [
 			"is not a small theme, it is a TRUNCATED PARSE:",
-			"check src/themes/charcoal.css for an indented closing brace or a nested",
-			"rule inside the charcoal block. block() closes on the first",
+			"check src/themes/monochrome.css for an indented closing brace or a nested",
+			"rule inside the monochrome block. block() closes on the first",
 			"newline-plus-brace at column 0, so a stray one truncates the slice.",
 		].join(" ");
-		expect(charcoalLight.size, `charcoal light ${truncated}`).toBeGreaterThanOrEqual(25);
-		expect(charcoalDark.size, `charcoal dark ${truncated}`).toBeGreaterThanOrEqual(25);
+		expect(monochromeLight.size, `monochrome light ${truncated}`).toBeGreaterThanOrEqual(25);
+		expect(monochromeDark.size, `monochrome dark ${truncated}`).toBeGreaterThanOrEqual(25);
 
 		// The floor above catches an UNDER-parse, and on its own that is only half
 		// the job — measured, not assumed. Indenting the LIGHT block's closing
@@ -186,29 +186,30 @@ describe("token layer", () => {
 		// whole and returns the same 49 names. The floor sails through at 49 >= 25
 		// and both mirrors pass, because a set unioned with itself equals itself.
 		// So assert the structural precondition block() actually depends on. This
-		// is charcoal.css's own stated contract — its header requires exactly two
+		// is monochrome.css's own stated contract — its header requires exactly two
 		// lines beginning with a closing brace — and it is what makes an indented
 		// brace, a nested rule and a stray at-rule all fail loudly instead of
 		// quietly changing which declarations get measured.
-		const closers = (charcoalCss.match(/^}/gm) ?? []).length;
-		expect(closers, "charcoal.css must have exactly one closing brace at column 0 per block").toBe(
-			2,
-		);
+		const closers = (monochromeCss.match(/^}/gm) ?? []).length;
 		expect(
-			block(charcoalCss, CHARCOAL_LIGHT).includes(CHARCOAL_DARK),
-			"the charcoal light slice ran on into the dark block — its closing brace is indented",
+			closers,
+			"monochrome.css must have exactly one closing brace at column 0 per block",
+		).toBe(2);
+		expect(
+			block(monochromeCss, MONOCHROME_LIGHT).includes(MONOCHROME_DARK),
+			"the monochrome light slice ran on into the dark block — its closing brace is indented",
 		).toBe(false);
 	});
 
-	it("declares the same number of charcoal tokens in both blocks", () => {
-		expect(charcoalLight.size).toBe(charcoalDark.size);
+	it("declares the same number of monochrome tokens in both blocks", () => {
+		expect(monochromeLight.size).toBe(monochromeDark.size);
 		// The line above compares Set sizes, and the two mirrors already imply it
 		// for name sets — so on its own it can never be the thing that goes red.
 		// The failure it is *supposed* to catch, a name declared twice in one
 		// block, is absorbed by the Set before it is ever compared. Count the raw
 		// declarations too, or "same count, same names" is half unchecked.
-		expect(declarationCount(block(charcoalCss, CHARCOAL_LIGHT))).toBe(charcoalLight.size);
-		expect(declarationCount(block(charcoalCss, CHARCOAL_DARK))).toBe(charcoalDark.size);
+		expect(declarationCount(block(monochromeCss, MONOCHROME_LIGHT))).toBe(monochromeLight.size);
+		expect(declarationCount(block(monochromeCss, MONOCHROME_DARK))).toBe(monochromeDark.size);
 	});
 });
 
@@ -216,21 +217,21 @@ describe("token layer", () => {
  * THE SEAM between the two exhaustiveness checks above, which is where the
  * amber focus ring lived undetected through fifteen plans.
  *
- * The mirrors above compare charcoal's own two blocks against each other, and
+ * The mirrors above compare monochrome's own two blocks against each other, and
  * the tokens.css mirror compares its dark block against its light one. Neither
  * can see a token that tokens.css overrides in ITS OWN dark block while
- * charcoal never mentions it at all: such a token is in lightTokens and in
+ * monochrome never mentions it at all: such a token is in lightTokens and in
  * darkTokens, so the first mirror is satisfied, and it is in neither
- * charcoalLight nor charcoalDark, so both charcoal mirrors are satisfied
+ * monochromeLight nor monochromeDark, so both monochrome mirrors are satisfied
  * vacuously. --focus-ring-soft was exactly that shape. It spelled --amber-d as
- * an rgba literal in both tokens.css blocks, so charcoal's `--focus` rebinding
- * could not reach it, and every focused text field in charcoal dark drew a
+ * an rgba literal in both tokens.css blocks, so monochrome's `--focus` rebinding
+ * could not reach it, and every focused text field in monochrome dark drew a
  * #fbbf24 glow at 30% around an ochre border. No contrast gate samples it
  * because it is a box-shadow, and no exhaustiveness gate compared it because
- * charcoal never overrode it.
+ * monochrome never overrode it.
  *
  * So assert reachability directly rather than symmetry: a brand-accent colour
- * spelled as a LITERAL in tokens.css is unreachable by any brand, and charcoal
+ * spelled as a LITERAL in tokens.css is unreachable by any brand, and monochrome
  * must therefore redeclare the token that carries it.
  */
 describe("brand accent reach", () => {
@@ -280,10 +281,10 @@ describe("brand accent reach", () => {
 	 *
 	 *  - channel spread >= 60/255 is chroma. It admits the amber ramp (#b45309
 	 *    spreads 171, #fbbf24 spreads 215) and rejects warm-tinted NEUTRALS,
-	 *    which charcoal is entitled to inherit: --g-bd spreads 28,
+	 *    which monochrome is entitled to inherit: --g-bd spreads 28,
 	 *    --fill-disabled 12, the dark --g-bg 4.
 	 *  - hue 18-70 is the amber/ochre wedge. It rejects the status reds, which
-	 *    charcoal deliberately shares rather than rebrands: every one of them
+	 *    monochrome deliberately shares rather than rebrands: every one of them
 	 *    sits at hue 0-3.5 (--red, --red-ink, --red-vivid, --error-ring).
 	 */
 	const SPREAD_MIN = 60;
@@ -303,7 +304,7 @@ describe("brand accent reach", () => {
 		expect(isBrandAccent([247, 236, 219])).toBe(false); // --g-bd, spread 28
 	});
 
-	it("leaves no brand-accent literal in tokens.css beyond charcoal's reach", () => {
+	it("leaves no brand-accent literal in tokens.css beyond monochrome's reach", () => {
 		const unreachable: string[] = [];
 		for (const [mode, sel] of [
 			["light", ":root {"],
@@ -311,42 +312,44 @@ describe("brand accent reach", () => {
 		] as const)
 			for (const [name, value] of valueDecls(block(tokensCss, sel)))
 				for (const [lit, rgb] of literals(value))
-					if (isBrandAccent(rgb) && !charcoalLight.has(name))
+					if (isBrandAccent(rgb) && !monochromeLight.has(name))
 						unreachable.push(
-							`tokens.css ${mode} ${name}: ${lit} is a brand accent charcoal cannot reach`,
+							`tokens.css ${mode} ${name}: ${lit} is a brand accent monochrome cannot reach`,
 						);
 		expect(unreachable).toEqual([]);
 	});
 
-	it("smuggles no accent hue into charcoal itself", () => {
+	it("smuggles no accent hue into monochrome itself", () => {
 		// The bypass the case above cannot see: redeclare the token INSIDE
-		// charcoal and paint it amber anyway.
+		// monochrome and paint it amber anyway.
 		//
-		// This assertion used to compare charcoal's own literals against its ochre
-		// ramp, and that premise is gone: charcoal is near-monochrome and HAS no
+		// This assertion used to compare monochrome's own literals against its ochre
+		// ramp, and that premise is gone: this brand is near-monochrome and HAS no
 		// accent ramp to compare against. The successor is strictly stronger and
-		// needs no reference set at all - charcoal may declare NO brand-accent
+		// needs no reference set at all - monochrome may declare NO brand-accent
 		// literal whatsoever. A set-difference gate can pass vacuously on an empty
 		// reference; "there are none" cannot.
 		const foreign: string[] = [];
 		let scanned = 0;
 		for (const [mode, sel] of [
-			["light", CHARCOAL_LIGHT],
-			["dark", CHARCOAL_DARK],
+			["light", MONOCHROME_LIGHT],
+			["dark", MONOCHROME_DARK],
 		] as const)
-			for (const [name, value] of valueDecls(block(charcoalCss, sel)))
+			for (const [name, value] of valueDecls(block(monochromeCss, sel)))
 				for (const [lit, rgb] of literals(value)) {
 					scanned++;
 					if (isBrandAccent(rgb))
 						foreign.push(
-							`charcoal ${mode} ${name}: ${lit} is an accent hue, and charcoal has no accent hue`,
+							`monochrome ${mode} ${name}: ${lit} is an accent hue, and monochrome has no accent hue`,
 						);
 				}
 		// Anti-vacuity, in the one form that still applies: the scan must actually
-		// have parsed charcoal's literals. A parse that yields nothing would report
+		// have parsed monochrome's literals. A parse that yields nothing would report
 		// "no accent found" for the wrong reason, which is the failure mode this
 		// file has shipped before.
-		expect(scanned, "parsed no colour literals out of charcoal at all").toBeGreaterThanOrEqual(20);
+		expect(scanned, "parsed no colour literals out of monochrome at all").toBeGreaterThanOrEqual(
+			20,
+		);
 		expect(foreign).toEqual([]);
 	});
 });
@@ -577,8 +580,8 @@ describe("token contrast (WCAG)", () => {
 		const cells = [
 			["default light", tokensCss, LIGHT],
 			["default dark", tokensCss, DARK],
-			["charcoal light", charcoalCss, CHARCOAL_LIGHT],
-			["charcoal dark", charcoalCss, CHARCOAL_DARK],
+			["monochrome light", monochromeCss, MONOCHROME_LIGHT],
+			["monochrome dark", monochromeCss, MONOCHROME_DARK],
 		] as const;
 		const same: string[] = [];
 		for (const [label, css, sel] of cells) {
@@ -614,7 +617,7 @@ describe("token contrast (WCAG)", () => {
 });
 
 /**
- * Charcoal's contrast register - every foreground token measured against ALL
+ * Monochrome's contrast register - every foreground token measured against ALL
  * THREE surfaces of its own mode, never against the page alone.
  *
  * Page-only measurement is how two wrong values survived review, and it is the
@@ -626,13 +629,13 @@ describe("token contrast (WCAG)", () => {
  * preference.
  *
  * The helpers above are reused deliberately. One WCAG formula serves both
- * themes, so a disagreement between charcoal and the default theme is a real
+ * themes, so a disagreement between monochrome and the default theme is a real
  * disagreement rather than a second implementation's rounding.
  */
-describe("charcoal token contrast (WCAG)", () => {
+describe("monochrome token contrast (WCAG)", () => {
 	const MODES = [
-		["light", CHARCOAL_LIGHT],
-		["dark", CHARCOAL_DARK],
+		["light", MONOCHROME_LIGHT],
+		["dark", MONOCHROME_DARK],
 	] as const;
 
 	/**
@@ -652,7 +655,7 @@ describe("charcoal token contrast (WCAG)", () => {
 	 * The three bars, with the contract's measured values recorded beside each
 	 * so a reader can see exactly what moved. Order is page / paper / panel.
 	 *
-	 * Every figure below was RECOMPUTED when charcoal went near-monochrome in
+	 * Every figure below was RECOMPUTED when the brand went near-monochrome in
 	 * plan 01-22. The surfaces themselves moved, so not one number here is
 	 * carried over from the warm palette.
 	 *
@@ -751,7 +754,7 @@ describe("charcoal token contrast (WCAG)", () => {
 	 */
 	function measure(selector: string, fg: string, bg: string): number | string {
 		try {
-			return contrast(resolve(charcoalCss, selector, fg), resolve(charcoalCss, selector, bg));
+			return contrast(resolve(monochromeCss, selector, fg), resolve(monochromeCss, selector, bg));
 		} catch (e) {
 			return (e as Error).message;
 		}
@@ -760,7 +763,7 @@ describe("charcoal token contrast (WCAG)", () => {
 	/** Same, but against a hex a COMPONENT pins beyond any theme's reach. */
 	function measureOnLiteral(selector: string, fg: string, bgHex: string): number | string {
 		try {
-			return contrast(resolve(charcoalCss, selector, fg), bgHex);
+			return contrast(resolve(monochromeCss, selector, fg), bgHex);
 		} catch (e) {
 			return (e as Error).message;
 		}
@@ -775,7 +778,7 @@ describe("charcoal token contrast (WCAG)", () => {
 					const m = measure(selector, token, surfaceToken);
 					const shown = typeof m === "number" ? m.toFixed(2) : "unresolved";
 					cases.push({
-						name: `charcoal ${mode} ${token} on ${surface} clears ${label} = ${shown}`,
+						name: `monochrome ${mode} ${token} on ${surface} clears ${label} = ${shown}`,
 						run: () => {
 							if (typeof m === "string") throw new Error(m);
 							expect(m).toBeGreaterThanOrEqual(bar);
@@ -792,7 +795,7 @@ describe("charcoal token contrast (WCAG)", () => {
 		const inkShown = typeof inkOnFill === "number" ? inkOnFill.toFixed(2) : "unresolved";
 		const inkExpected = ACCENT_CONTRACT[`${mode} --ink-inverse on --amber`];
 		cases.push({
-			name: `charcoal ${mode} --ink-inverse clears the 4.5:1 text bar on the --amber fill = ${inkShown}`,
+			name: `monochrome ${mode} --ink-inverse clears the 4.5:1 text bar on the --amber fill = ${inkShown}`,
 			run: () => {
 				if (typeof inkOnFill === "string") throw new Error(inkOnFill);
 				expect(Number(inkOnFill.toFixed(2))).toBe(inkExpected);
@@ -809,7 +812,7 @@ describe("charcoal token contrast (WCAG)", () => {
 			const shown = typeof m === "number" ? m.toFixed(2) : "unresolved";
 			const expected = ACCENT_CONTRACT[`${mode} ${CHIP_TOKEN} on the pinned ${chip} chip ${hex}`];
 			cases.push({
-				name: `charcoal ${mode} ${CHIP_TOKEN} clears the 4.5:1 text bar on the pinned ${chip} chip ${hex} = ${shown}`,
+				name: `monochrome ${mode} ${CHIP_TOKEN} clears the 4.5:1 text bar on the pinned ${chip} chip ${hex} = ${shown}`,
 				run: () => {
 					if (typeof m === "string") throw new Error(m);
 					expect(Number(m.toFixed(2))).toBe(expected);
@@ -823,10 +826,10 @@ describe("charcoal token contrast (WCAG)", () => {
 	//    pinned surface, and it is read from the parsed file rather than inferred
 	//    from the two matching ratios above - which would be circular.
 	{
-		const light = resolve(charcoalCss, CHARCOAL_LIGHT, CHIP_TOKEN);
-		const dark = resolve(charcoalCss, CHARCOAL_DARK, CHIP_TOKEN);
+		const light = resolve(monochromeCss, MONOCHROME_LIGHT, CHIP_TOKEN);
+		const dark = resolve(monochromeCss, MONOCHROME_DARK, CHIP_TOKEN);
 		cases.push({
-			name: `charcoal ${CHIP_TOKEN} is one value across modes, which is what lets it paint a pinned surface = ${light}`,
+			name: `monochrome ${CHIP_TOKEN} is one value across modes, which is what lets it paint a pinned surface = ${light}`,
 			run: () => {
 				expect(light).toBe(dark);
 			},
@@ -837,22 +840,22 @@ describe("charcoal token contrast (WCAG)", () => {
 	//    alone is satisfied by flattening the accent back onto a single value,
 	//    which is exactly the change that produced the grey primary button.
 	{
-		const light = resolve(charcoalCss, CHARCOAL_LIGHT, "--amber");
-		const dark = resolve(charcoalCss, CHARCOAL_DARK, "--amber");
+		const light = resolve(monochromeCss, MONOCHROME_LIGHT, "--amber");
+		const dark = resolve(monochromeCss, MONOCHROME_DARK, "--amber");
 		cases.push({
-			name: `charcoal --amber inverts with the mode, ${light} light against ${dark} dark`,
+			name: `monochrome --amber inverts with the mode, ${light} light against ${dark} dark`,
 			run: () => {
 				expect(light).not.toBe(dark);
 				// And it inverts by reaching the ink at BOTH ends, which is the
 				// identity claim. A near-black light accent that stopped tracking
 				// --ink would pass the inequality above and still be wrong.
-				expect(light).toBe(resolve(charcoalCss, CHARCOAL_LIGHT, "--ink"));
-				expect(dark).toBe(resolve(charcoalCss, CHARCOAL_DARK, "--ink"));
+				expect(light).toBe(resolve(monochromeCss, MONOCHROME_LIGHT, "--ink"));
+				expect(dark).toBe(resolve(monochromeCss, MONOCHROME_DARK, "--ink"));
 			},
 		});
 	}
 
-	it("measures 56 charcoal cases: 48 tiered plus 8 accent-contract", () => {
+	it("measures 56 monochrome cases: 48 tiered plus 8 accent-contract", () => {
 		// Assert the case COUNT, not only the cases. A token quietly dropped from
 		// a tier list would otherwise produce a smaller green run, which reads
 		// exactly like a pass. Same shape as the parse floor, and the same reason:
@@ -992,16 +995,16 @@ function faceCensus(file: string, seen = new Set<string>()): FaceCensus {
 	return { total, families, perImport };
 }
 
-const CHARCOAL_FACE_LAYER = join(SRC, "fonts/charcoal.css");
+const MONOCHROME_FACE_LAYER = join(SRC, "fonts/monochrome.css");
 const DEFAULT_FACE_LAYER = join(SRC, "fonts/default.css");
 
 /**
- * The five charcoal entry points and the faces each is expected to contribute.
+ * The five monochrome entry points and the faces each is expected to contribute.
  * Written out per entry point rather than as a bare total so that a Fontsource
  * minor bump changing one subset count fails with a diff naming it, instead of
  * a total that is off by one with nothing to point at.
  */
-const CHARCOAL_ENTRY_POINTS: Record<string, number> = {
+const MONOCHROME_ENTRY_POINTS: Record<string, number> = {
 	"@fontsource-variable/playfair-display/wght.css": 4, // cyrillic, vietnamese, latin-ext, latin
 	"@fontsource-variable/playfair-display/wght-italic.css": 4, // the same four, drawn italic
 	"@fontsource-variable/dm-sans/wght.css": 2, // latin-ext, latin
@@ -1011,10 +1014,10 @@ const CHARCOAL_ENTRY_POINTS: Record<string, number> = {
 
 /** Registered by Fontsource's variable packages WITH the suffix. A token naming
  *  the plain "Playfair Display" matches nothing and renders Georgia. */
-const CHARCOAL_FAMILIES = ["DM Sans Variable", "IBM Plex Mono", "Playfair Display Variable"];
+const MONOCHROME_FAMILIES = ["DM Sans Variable", "IBM Plex Mono", "Playfair Display Variable"];
 
 /** The four families the design system shipped before v2.0.0. Criterion 4 is
- *  that a page consuming only charcoal never downloads any of them. */
+ *  that a page consuming only monochrome never downloads any of them. */
 const PRE_2_0_FAMILIES = ["Inter", "Archivo", "JetBrains Mono", "Newsreader"];
 
 describe("font delivery", () => {
@@ -1036,7 +1039,7 @@ describe("font delivery", () => {
 	});
 
 	for (const [label, file] of [
-		["charcoal", CHARCOAL_FACE_LAYER],
+		["monochrome", MONOCHROME_FACE_LAYER],
 		["default", DEFAULT_FACE_LAYER],
 	] as const) {
 		it(`fonts/${label}.css carries faces only, never tokens`, () => {
@@ -1047,27 +1050,27 @@ describe("font delivery", () => {
 	}
 
 	// ── (b) The face census — criterion 4 ────────────────────────────────────
-	const charcoalCensus = faceCensus(CHARCOAL_FACE_LAYER);
+	const monochromeCensus = faceCensus(MONOCHROME_FACE_LAYER);
 
-	it("resolves the charcoal face layer to exactly its five entry points", () => {
+	it("resolves the monochrome face layer to exactly its five entry points", () => {
 		// Keyed comparison, so adding a sixth entry point or renaming one fails
 		// here with a diff rather than silently shifting the total below.
-		expect(charcoalCensus.perImport).toEqual(CHARCOAL_ENTRY_POINTS);
+		expect(monochromeCensus.perImport).toEqual(MONOCHROME_ENTRY_POINTS);
 	});
 
-	it("resolves the charcoal face layer to exactly 12 @font-face rules", () => {
-		expect(charcoalCensus.total).toBe(12);
+	it("resolves the monochrome face layer to exactly 12 @font-face rules", () => {
+		expect(monochromeCensus.total).toBe(12);
 	});
 
-	it("names exactly the three charcoal families, with the Variable suffix", () => {
-		expect([...new Set(charcoalCensus.families)].sort()).toEqual(CHARCOAL_FAMILIES);
+	it("names exactly the three monochrome families, with the Variable suffix", () => {
+		expect([...new Set(monochromeCensus.families)].sort()).toEqual(MONOCHROME_FAMILIES);
 	});
 
-	it("downloads none of the four pre-2.0 families under charcoal", () => {
+	it("downloads none of the four pre-2.0 families under monochrome", () => {
 		// The criterion's actual content, asserted separately from the positive
 		// half above: "these three are present" and "those four are absent" are
 		// different claims, and only the second one is what D-30 bought.
-		const banned = charcoalCensus.families.filter((f) =>
+		const banned = monochromeCensus.families.filter((f) =>
 			PRE_2_0_FAMILIES.some((p) => f.toLowerCase().includes(p.toLowerCase())),
 		);
 		expect(banned).toEqual([]);
@@ -1113,14 +1116,14 @@ describe("font delivery", () => {
 			.trim()
 			.replace(/^['"]|['"]$/g, "");
 
-	// Charcoal declares all eight font tokens in BOTH of its blocks, so both are
+	// Monochrome declares all eight font tokens in BOTH of its blocks, so both are
 	// checked. Reading only the light block would leave a wrong family name in the
 	// dark block undetected — the same light-only blind spot that let --rule-strong
 	// ship dark-only, pointing the other way.
 	for (const [theme, css, selector, layer, faceLayer] of [
 		["default", tokensCss, ":root {", "default", DEFAULT_FACE_LAYER],
-		["charcoal light", charcoalCss, CHARCOAL_LIGHT, "charcoal", CHARCOAL_FACE_LAYER],
-		["charcoal dark", charcoalCss, CHARCOAL_DARK, "charcoal", CHARCOAL_FACE_LAYER],
+		["monochrome light", monochromeCss, MONOCHROME_LIGHT, "monochrome", MONOCHROME_FACE_LAYER],
+		["monochrome dark", monochromeCss, MONOCHROME_DARK, "monochrome", MONOCHROME_FACE_LAYER],
 	] as const) {
 		const registered = new Set(faceCensus(faceLayer).families.map((f) => f.toLowerCase()));
 		const tokens = fontTokensOf(css, selector);
@@ -1146,7 +1149,7 @@ describe("font delivery", () => {
 		for (const name of tokens) {
 			it(`${theme} ${name} names a family that fonts/${layer}.css actually declares`, () => {
 				// resolve() follows var(), so breaking one token surfaces every token
-				// that resolves through it. Charcoal's --font-display, --display and
+				// that resolves through it. Monochrome's --font-display, --display and
 				// --serif all resolve through --font-serif; a per-token check that
 				// did not follow aliases would report one failure and leave three
 				// tokens silently rendering Georgia.

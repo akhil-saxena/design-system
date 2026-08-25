@@ -43,7 +43,7 @@ const normalizeTone = (tone: ConfirmDialogTone): CanonicalTone =>
 const tones: Record<CanonicalTone, { color: string; bg: string; icon: ReactNode }> = {
 	danger: {
 		color: "var(--red)",
-		// --red is inherited by charcoal deliberately ("Destructive is inherited,
+		// --red is inherited by monochrome deliberately ("Destructive is inherited,
 		// not redefined"), so the ink was already token-driven; the WASH was the
 		// hardcoded half. --red-bg is a real tint in both modes (#f4e0dd / #2e1a18).
 		bg: "var(--red-bg)",
@@ -65,12 +65,12 @@ const tones: Record<CanonicalTone, { color: string; bg: string; icon: ReactNode 
 	},
 	warning: {
 		color: "var(--amber-d)",
-		// No amber TINT token survives charcoal: --amber-l, --amber-soft and
+		// No amber TINT token survives monochrome: --amber-l, --amber-soft and
 		// --amber-warm all collapse to the solid --ochre accent there, which would
 		// paint a solid ochre block behind ochre text. (Token names are written bare
 		// here on purpose. src/tokens.test.ts scans src for the var-reference syntax
 		// and requires every name it finds to be declared in the base token layer —
-		// comments included — and --ochre is declared only in charcoal.css. Writing
+		// comments included — and --ochre is declared only in monochrome.css. Writing
 		// the reference syntax in this comment fails that gate, twice: once for
 		// --ochre and once for whatever placeholder the explanation used.) So this
 		// uses primitives.css's own
@@ -113,7 +113,7 @@ const tones: Record<CanonicalTone, { color: string; bg: string; icon: ReactNode 
 	},
 	neutral: {
 		color: "var(--ink)",
-		// A black alpha is invisible on charcoal dark (#161616); --panel2 is the
+		// A black alpha is invisible on monochrome dark (#161616); --panel2 is the
 		// neutral chip surface in both modes and both brands.
 		bg: "var(--panel2)",
 		icon: (
@@ -164,7 +164,7 @@ const toneButtonStyle: Record<CanonicalTone, { variant: ButtonVariant; style?: C
 // says, under Technical Constraints Summary: "ConfirmDialog is always-light glass
 // surface (rgba(255,255,255,.97)) — not token-driven internally" (CONSTRAINT-010).
 // That was a correct single-brand decision and a second brand invalidates it: a
-// near-white card floating on a charcoal page is not a glass surface, it is a
+// near-white card floating on a monochrome page is not a glass surface, it is a
 // hole. The panel is now token-driven, and the 97%-plus-blur glass job is kept as
 // a color-mix against --panel so the effect is preserved rather than
 // reconstructed. That PROJECT.md line is not edited from here (it belongs to that

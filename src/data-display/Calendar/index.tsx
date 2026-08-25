@@ -173,7 +173,7 @@ function eventHour(ev: CalendarEvent): number | null {
  * `ev.color` is caller-supplied and lands as an inline `background`, while the
  * chip's ink came from `--ink-inverse` in the stylesheet. That worked only for
  * as long as `--ink-inverse` was a near-black in every brand and mode. It is
- * not: charcoal makes it invert with the accent fill it inks, and the moment it
+ * not: monochrome makes it invert with the accent fill it inks, and the moment it
  * did, seven Calendar stories put a near-white label on a mid-tone event colour
  * — 34 axe violations between 2.18 and 3.60, none of which existed in the CSS
  * that produced them. Same failure family as the pinned highlight mark (G5) and
@@ -191,7 +191,7 @@ function eventHour(ev: CalendarEvent): number | null {
  * (`--blue-vivid` renders #3b82f6, the fallback claims #1d6aff), so reading it
  * would be measuring the wrong colour. Deferring to the stylesheet instead is
  * what produced the 34 violations in the first place. The dark ink is what the
- * default brand already paints on every one of these chips and what charcoal
+ * default brand already paints on every one of these chips and what monochrome
  * painted before its accent began to invert, so this is the value the component
  * has always rendered here, now stated where the background is stated.
  *

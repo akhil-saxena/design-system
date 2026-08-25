@@ -58,11 +58,11 @@ export type StatusPillProps =
  * in every brand and both modes — the hue tokens do not: `--green` is a dark
  * editorial green in light (#2f7a52) and a light pastel in dark (#7fcfa1), so it
  * inverts, and `--ochre` is identical in both modes and therefore changes role.
- * Measured: a single mix percentage that clears 1.2:1 in charcoal light fails in
+ * Measured: a single mix percentage that clears 1.2:1 in monochrome light fails in
  * the other three brand × mode cells.
  *
  * Three is also the CEILING, measured rather than chosen. Six pairwise-1.2:1
- * steps span 1.2^6 = 2.99x from the page, which in charcoal dark puts the last
+ * steps span 1.2^6 = 2.99x from the page, which in monochrome dark puts the last
  * step at a fill whose text contrast is 3.76:1 — below AA, at a pill's type
  * size, where the large-text allowance never applies. Three steps hold 7:1 text
  * in all four cells. D-13 and D-45 both need exactly three states, so the

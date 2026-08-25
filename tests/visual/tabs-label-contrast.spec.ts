@@ -52,7 +52,7 @@ import { probeComputed } from "./computed";
  * would turn this whole file into a tautology.
  *
  * THE BRAND IS ASSERTED AT THE PROBED ELEMENT, both halves, per E29. `--ochre`
- * is declared only in `src/themes/charcoal.css`, so reading it proves the brand
+ * is declared only in `src/themes/monochrome.css`, so reading it proves the brand
  * layer reached the node; but 01-19.1 measured `--ochre` reading CORRECTLY at a
  * node whose neutrals were shadowed underneath, so a neutral is asserted too.
  */
@@ -188,8 +188,8 @@ async function measureLabels(
 const CELLS = [
 	{ brand: "default", mode: "light" },
 	{ brand: "default", mode: "dark" },
-	{ brand: "charcoal", mode: "light" },
-	{ brand: "charcoal", mode: "dark" },
+	{ brand: "monochrome", mode: "light" },
+	{ brand: "monochrome", mode: "dark" },
 ] as const;
 
 for (const cell of CELLS) {
@@ -213,15 +213,17 @@ for (const cell of CELLS) {
 			});
 
 			// Brand, both halves, at the probed element.
-			if (cell.brand === "charcoal") {
-				expect(tok["--ochre"], `${story}: charcoal must declare --ochre at the label`).toBe(
+			if (cell.brand === "monochrome") {
+				expect(tok["--ochre"], `${story}: monochrome must declare --ochre at the label`).toBe(
 					cell.mode === "dark" ? "#f2f2f4" : "#111114",
 				);
-				expect(tok["--cream"], `${story}: charcoal neutrals must not be shadowed`).toBe(
+				expect(tok["--cream"], `${story}: monochrome neutrals must not be shadowed`).toBe(
 					cell.mode === "dark" ? "#0d0d0f" : "#fafafb",
 				);
 			} else {
-				expect(tok["--ochre"], `${story}: default brand must NOT see charcoal's --ochre`).toBe("");
+				expect(tok["--ochre"], `${story}: default brand must NOT see monochrome's --ochre`).toBe(
+					"",
+				);
 				expect(tok["--cream"], `${story}: default neutrals expected`).toBe(
 					cell.mode === "dark" ? "#181818" : "#fcfcfc",
 				);

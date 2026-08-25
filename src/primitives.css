@@ -173,7 +173,7 @@ fieldset.ds-atom-field {
 	   declared a second time in the FormValidation section below at equal
 	   specificity (0,1,0), so source order gives that copy every property here —
 	   the rendered colour is var(--red), not var(--red-ink). Left as-is rather
-	   than "tidied": var(--red) measures 4.67:1 on charcoal-light --cream, so it
+	   than "tidied": var(--red) measures 4.67:1 on monochrome-light --cream, so it
 	   clears AA and changing which copy wins is a visual change this plan does not
 	   own. Recorded as a finding instead. Do not add a tone rule at (0,1,0). */
 	color: var(--red-ink);
@@ -186,7 +186,7 @@ fieldset.ds-atom-field {
    announces requiredness. Selector is (0,1,1) deliberately: a consumer's own
    `.ds-atom-field-required::after` ties and wins on source order, which is the
    intent. The asterisk carries the meaning, so the colour is not doing the work
-   (1.4.1); --red-ink is the text-safe red at 6.06:1 on charcoal-light --cream. */
+   (1.4.1); --red-ink is the text-safe red at 6.06:1 on monochrome-light --cream. */
 .ds-atom-field-required::after {
 	content: "*";
 	color: var(--red-ink);
@@ -421,7 +421,7 @@ fieldset.ds-atom-field {
    THE TONE FILLS ARE CARRIED OVER AS THE SAME LITERALS, deliberately. They are
    brand-blind alpha washes rather than tokens, which is a real defect — but
    re-pointing `rgba(245,158,11,.15)` at `--amber-vivid` is a VISUAL change under
-   charcoal, where that token aliases `--ochre`. A class hook must not move
+   monochrome, where that token aliases `--ochre`. A class hook must not move
    pixels. For a status that has to be told apart at a glance, use StatusPill's
    generic tone path below: these washes all land within 1.15:1 of a light page,
    which is F-15-5. */
@@ -1396,7 +1396,7 @@ fieldset.ds-atom-field {
    The 97% is kept as a color-mix against --panel rather than dropped, because
    the near-opacity plus blur(14px) is the deliberate glass job and --panel is
    already both mode-aware and brand-aware: #ffffff / #1c1c1c in the default
-   brand, #FBF9F4 / #1E1E1D under charcoal. --g-bg was NOT used: charcoal does
+   brand, #FBF9F4 / #1E1E1D under monochrome. --g-bg was NOT used: monochrome does
    not redefine it, so it would paint a white 55% glass on a cream page.
 
    Geometry (width, radius, padding, blur) stays literal on purpose. It carries
@@ -1409,7 +1409,7 @@ fieldset.ds-atom-field {
 	border-radius: 14px;
 	border: 1px solid var(--rule);
 	padding: 22px;
-	/* var(--shadow-3), not a hardcoded black alpha: charcoal's Rule C-5 makes the
+	/* var(--shadow-3), not a hardcoded black alpha: monochrome's Rule C-5 makes the
 	   dark elevation a hairline (0 0 0 1px var(--rule-strong)) where an alpha
 	   shadow is invisible against #161616. Same token .ds-atom-modal uses. */
 	box-shadow: var(--shadow-3);
@@ -2179,14 +2179,14 @@ fieldset.ds-atom-field {
 	text-transform: uppercase;
 	/* See the tone stripe above: the snackbar fills from var(--ink), so an
 	   accent that aliases the ink disappears into it. Measured on the shipped
-	   charcoal dark palette this label was 1.00:1 — invisible, and unreported,
+	   monochrome dark palette this label was 1.00:1 — invisible, and unreported,
 	   because axe returns `incomplete`/equalRatio rather than a violation at
-	   1.00. The vivid step reads 5.80 in charcoal light and 2.90 in charcoal
+	   1.00. The vivid step reads 5.80 in monochrome light and 2.90 in monochrome
 	   dark; the dark figure is short of the text bar and is recorded as an open
 	   finding rather than passed off as fixed. The default brand is
 	   byte-identical, and its own dark-mode reading of 1.83 on this label is a
 	   separate, pre-existing defect that this change deliberately does not
-	   touch — repairing it moves a non-charcoal baseline. */
+	   touch — repairing it moves a non-monochrome baseline. */
 	color: var(--amber-vivid);
 	cursor: pointer;
 	transition: background-color 0.12s, color 0.12s;
@@ -2529,7 +2529,7 @@ fieldset.ds-atom-field {
 	/* Always dark ink on amber bg - handoff invariant; --ink would flip to
 	   cream in dark mode and lose contrast against the amber surface. The
 	   invariant was right and the expression of it was wrong: #1c1917 IS the
-	   default brand's --ink-inverse, so charcoal's #161616 could never reach
+	   default brand's --ink-inverse, so monochrome's #161616 could never reach
 	   here and the selected date measured 4.402 on --ochre instead of 4.555.
 	   --ink-inverse is exactly "ink that stays dark on an accent fill in both
 	   modes", and it is byte-identical to the old literal in the default brand.
@@ -2628,7 +2628,7 @@ fieldset.ds-atom-field {
 /* var(--ink-inverse), not var(--ink). The cell's fill IS var(--amber), and
    under a monochrome brand the accent aliases the ink — so the dot painted
    itself in its own background at exactly 1.00:1. That has been the shipped
-   state in charcoal dark since the monochrome palette landed and no gate saw
+   state in monochrome dark since the palette landed and no gate saw
    it: axe returns `incomplete` with messageKey `equalRatio` rather than a
    violation for a ratio that rounds to 1.00. Default brand: #1c1c1a → #1c1917,
    7.95 → 8.14 on #f59e0b. */
@@ -2900,8 +2900,8 @@ fieldset.ds-atom-field {
 	background: var(--amber);
 	/* var(), not the literal #1c1917 that used to sit here -- the same repair as
 	   the Tabs pill above. That hex IS the default brand's --ink-inverse, so
-	   hardcoding it meant charcoal's override (#161616) could never reach this
-	   rule: charcoal's --amber is --ochre #b0722a, and #1c1917 on it measures
+	   hardcoding it meant monochrome's override (#161616) could never reach this
+	   rule: monochrome's --amber is --ochre #b0722a, and #1c1917 on it measures
 	   4.402 -- below AA -- where #161616 measures 4.555. Resolves to #1c1917 in
 	   the default brand, so this is byte-identical there. NOT --amber-ink: that
 	   token is the ink for a TINTED amber, and in default dark it is #f5c56b,
@@ -3487,7 +3487,7 @@ fieldset.ds-atom-field {
 	border-color: var(--amber);
 	/* var(--ink-inverse), not the pinned #1f1b17 that used to sit here. The
 	   comment it replaces asserted "the amber fill is constant across themes, so
-	   its glyph color is constant too" — that premise died when charcoal made the
+	   its glyph color is constant too" — that premise died when monochrome made the
 	   accent invert with the mode, and the pinned glyph then measured 1.10 on the
 	   light-mode fill. --ink-inverse is the ink for the accent fill and inverts
 	   with it; it resolves to #1c1917 in the default brand, where it measures
@@ -3582,7 +3582,7 @@ fieldset.ds-atom-field {
    inverts with it. Resolves to #1c1917 in the default brand, where the literal
    measured 9.78 and the token measures 8.14 — both clear of AA on #f59e0b.
    The .dark rule below keeps its literal: #000 on this mode's near-white fill
-   measures 18.78 under charcoal and 9.78 under the default brand, so it is
+   measures 18.78 under monochrome and 9.78 under the default brand, so it is
    not wrong, and repointing it would move a default-brand baseline for style
    rather than for correctness. */
 .ds-atom-segmented-btn[data-active] {
@@ -4347,10 +4347,10 @@ fieldset.ds-atom-field {
 .dark .ds-atom-tabs[data-variant="pill"] .ds-atom-tabs-trigger[data-active] {
 	background: var(--amber);
 	/* var(), not the literal #1c1917 that used to sit here. That hex IS the
-	   default brand's --ink-inverse, so hardcoding it meant charcoal's override
-	   (#161616) could never reach this rule: charcoal's --amber is --ochre
+	   default brand's --ink-inverse, so hardcoding it meant monochrome's override
+	   (#161616) could never reach this rule: monochrome's --amber is --ochre
 	   #b0722a, and #1c1917 on it measures 4.402 — below AA — where #161616
-	   measures 4.555, which is the 4.56 charcoal.css already documents for the
+	   measures 4.555, which is the 4.56 monochrome.css already documents for the
 	   ink-on-accent pairing. Resolves to #1c1917 in the default brand, so this
 	   is byte-identical there. NOT --amber-ink: that token is the ink for a
 	   TINTED amber, and in default dark it is #f5c56b, which would measure
@@ -5075,9 +5075,9 @@ fieldset.ds-atom-field {
    `color: inherit` was the defect: this rule PINS a pale yellow background that
    no brand or mode can move, and then delegates the foreground to whatever the
    surrounding text colour happens to be. In dark mode that inherited ink is
-   near-white, so the highlighted word became invisible — 1.061:1 under charcoal
+   near-white, so the highlighted word became invisible — 1.061:1 under monochrome
    and 1.006:1 under the DEFAULT brand, the worst readings measured anywhere in
-   the charcoal a11y sweep. The default brand is not exempt and never was; axe
+   the monochrome a11y sweep. The default brand is not exempt and never was; axe
    simply declines to report a ratio that rounds to 1.00, returning `incomplete`
    with messageKey `equalRatio` instead of a violation, so the green default-brand
    gate has been hiding it.
@@ -5085,16 +5085,16 @@ fieldset.ds-atom-field {
    Pinning a background and inheriting a foreground is the one combination that
    cannot be safe across modes. `--ink-inverse` is exactly "ink that stays dark on
    a light fill in both modes" and is the same token G1 uses for the accent fills:
-   #161616 in charcoal (14.4:1 here) and #1c1917 in the default brand (13.9:1). */
+   #161616 in monochrome (14.4:1 here) and #1c1917 in the default brand (13.9:1). */
 .ds-atom-richtext-surface .ProseMirror mark {
 	background: #fef08a;
 	/* PINNED, deliberately, and this is the rule stated in the note above rather
 	   than an exception to it: a rule that pins a background must pin its
 	   foreground. --ink-inverse stood in for that while it happened to be
-	   mode-independent in every brand; under charcoal it now inverts with the
+	   mode-independent in every brand; under monochrome it now inverts with the
 	   accent fill it inks, which would put #fafafb on this pale yellow at 1.12.
 	   The value is what the default brand already resolved --ink-inverse to, so
-	   that brand is byte-identical; charcoal moves from 16.68 to 15.03 here. */
+	   that brand is byte-identical; monochrome moves from 16.68 to 15.03 here. */
 	color: #1c1917;
 	border-radius: 2px;
 	padding: 0 1px;
@@ -5854,8 +5854,8 @@ fieldset.ds-atom-field {
 .ds-atom-field-error[data-tone="warning"] {
 	/* An EXISTING token, not a new one: --amber-d is already the text-tuned
 	   warning colour in this file (PasswordStrength's label uses it for scores
-	   2-3). Under charcoal it aliases --ochre-d and measures 5.22:1 on
-	   charcoal-light --cream and 5.60:1 on --panel, the worst-case cell.
+	   2-3). Under monochrome it aliases --ochre-d and measures 5.22:1 on
+	   monochrome-light --cream and 5.60:1 on --panel, the worst-case cell.
 	   Inventing an unmeasured warning value would bypass the contrast register. */
 	color: var(--amber-d);
 }
@@ -6671,7 +6671,7 @@ fieldset.ds-atom-field {
 }
 /* The one neutral stage: every other stage has a tinted fill that delimits it,
    so their borders are decorative and stay on --rule. This one fills with
-   --cream-2, which is 1.06:1 against the page in charcoal light, so its border
+   --cream-2, which is 1.06:1 against the page in monochrome light, so its border
    is doing the whole job. The pill is a control — it is a <button> and changing
    stage is what it is for; [data-interactive="false"] is the exception. */
 .ds-atom-statuspill[data-stage="wishlist"] {
@@ -6707,10 +6707,10 @@ fieldset.ds-atom-field {
 }
 /* The two stages above are correct as written: `--amber-ink` is defined by
    tokens.css as the ink for a TINTED pill of the same hue, which is exactly what
-   they are. Charcoal used to alias it to `--ink-inverse` in dark and so painted
+   they are. Monochrome used to alias it to `--ink-inverse` in dark and so painted
    near-black ink on a near-black page — 1.294:1 and 1.530:1. That was a theme
-   bug, not a component bug, and it is fixed in src/themes/charcoal.css by
-   pointing charcoal's DARK `--amber-ink` at its own ochre-as-text step. Fixing it
+   bug, not a component bug, and it is fixed in src/themes/monochrome.css by
+   pointing monochrome's DARK `--amber-ink` at its own ochre-as-text step. Fixing it
    here instead was tried and is wrong twice over: `src/tokens.test.ts` requires
    every var() in this file to resolve from the BASE token layer, and the same
    defect was independently failing three other consumers of the token. */
@@ -6719,7 +6719,7 @@ fieldset.ds-atom-field {
 	box-shadow: var(--focus-ring);
 }
 /* ── Generic tone path (G-5, F-15-5) ──────────────────────────────────
-   F-15-5 measured D-45's three statuses on charcoal light at a 1.02:1 fill
+   F-15-5 measured D-45's three statuses on monochrome light at a 1.02:1 fill
    separation, with all three within 1.07-1.14:1 of the page: "only the words
    separate them, at 9.5px." The cause is the tinted-pill model itself — a
    12-15% alpha wash of ANY hue composites to within 1.15:1 of a light page, so
@@ -6731,16 +6731,16 @@ fieldset.ds-atom-field {
    Measured: --green is a dark editorial #2f7a52 in light and a light pastel
    #7fcfa1 in dark, so it INVERTS; --ochre is identical in both modes and
    therefore changes role from dark to light relative to the surface. A single
-   mix percentage that clears 1.2:1 in charcoal light fails in the other three
+   mix percentage that clears 1.2:1 in monochrome light fails in the other three
    brand x mode cells — so the percentages below are per-mode, and hue moves off
    the fill onto the marker and the hairline where it cannot carry the burden.
 
-   MEASURED, charcoal light (page #F4F1EA, paper #FBF9F4, panel #EDE9E0):
+   MEASURED, monochrome light (page #F4F1EA, paper #FBF9F4, panel #EDE9E0):
      step 1  16%  rgb(215,213,208)  vs page 1.300  vs panel 1.21  text 12.08:1
      step 2  27%  rgb(190,188,184)  vs page 1.681  vs panel 1.57  text  9.34:1
      step 3  38%  rgb(166,164,159)  vs page 2.208  vs panel 2.06  text  7.11:1
      pairwise 1/2 1.293   2/3 1.313   1/3 1.698
-   MEASURED, charcoal dark (page #161616, paper #1E1E1D, panel #242423):
+   MEASURED, monochrome dark (page #161616, paper #1E1E1D, panel #242423):
      step 1   7%  rgb(44,44,43)     vs page 1.295  vs panel 1.11  text 11.32:1
      step 2  15%  rgb(61,60,58)     vs page 1.642  vs panel 1.41  text  8.92:1
      step 3  22%  rgb(75,74,72)     vs page 2.044  vs panel 1.76  text  7.17:1
@@ -6749,11 +6749,11 @@ fieldset.ds-atom-field {
    brand-scoped. Verified in Chromium by tests/visual/status-ladder.spec.ts,
    which asserts the brand at the point of measurement — a probe inside a story
    carrying a hardcoded `.dark` wrapper reads the default brand's neutrals, not
-   charcoal's, because tokens.css matches ".dark" and charcoal.css is
+   monochrome's, because tokens.css matches ".dark" and monochrome.css is
    root-scoped.
 
    THREE STEPS IS A CEILING, NOT A PREFERENCE. Six pairwise-1.2:1 steps span
-   1.2^6 = 2.99x from the page; in charcoal dark that puts the sixth step's text
+   1.2^6 = 2.99x from the page; in monochrome dark that puts the sixth step's text
    at 3.76:1, below AA at a pill's type size where the large-text allowance
    never applies. Three steps hold 7:1 in all four cells. D-13 and D-45 both
    need exactly three states.
@@ -7372,7 +7372,7 @@ fieldset.ds-atom-field {
 	margin-left: -22px;
 }
 /* The dot's FILL is tokenised and its rings are not, deliberately. `--amber`
-   aliases `--ochre` under charcoal, so the marker is brand-responsive — and it
+   aliases `--ochre` under monochrome, so the marker is brand-responsive — and it
    is the property tests/visual/focalpoint.spec.ts reads to prove which brand it
    measured in. The white and black rings are literals because the thing behind
    them is a consumer photograph rather than a themed surface: no token can be

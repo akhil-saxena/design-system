@@ -181,7 +181,7 @@ function FileInputControl({
 		background: dragOver ? "var(--paper-deep)" : "var(--paper-warm)",
 		// --wire, not the previous hardcoded #E8D9AC: that hex did not respond to
 		// the theme at all, and measured 1.37:1 against the dropzone's own paper
-		// fill in charcoal light. The dropzone's dashed border is the only thing
+		// fill in monochrome light. The dropzone's dashed border is the only thing
 		// delimiting it, which is Rule C-3's load-bearing case. Stays inline
 		// because it is driven by the dragOver prop; only the token changes.
 		border: `2px dashed ${dragOver ? "var(--amber)" : "var(--wire)"}`,

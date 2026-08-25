@@ -10,13 +10,13 @@ import { probeComputed } from "./computed";
  * — a pale yellow no brand or mode can move — and `color: inherit`. So the
  * foreground followed the page while the background did not. In dark mode the
  * inherited ink is near-white, and the highlighted word disappeared: 1.061:1
- * under charcoal, 1.006:1 under the default brand.
+ * under monochrome, 1.006:1 under the default brand.
  *
  * WHY THE DEFAULT BRAND MATTERS HERE, AND WHY NOBODY SAW IT
  *
- * The charcoal triage recorded this as charcoal-specific, on the evidence that
+ * The monochrome triage recorded this as monochrome-specific, on the evidence that
  * the same story is clean under `brand: default`. It is not. The default brand
- * measures 1.006:1 — WORSE than charcoal — and the reason the gate is green is
+ * measures 1.006:1 — WORSE than monochrome — and the reason the gate is green is
  * that axe-core refuses to judge a ratio that rounds to 1.00: it returns
  * `incomplete` with messageKey `equalRatio` rather than a violation, and
  * `checkA11y` only fails on violations. A defect that is bad enough to round to
@@ -73,11 +73,11 @@ const PINNED_BG = "#fef08a";
  * with a literal, and no token gets to move underneath it. The value is what the
  * default brand already resolved --ink-inverse to, so that brand is unchanged.
  */
-const INK: Record<string, string> = { charcoal: "#1c1917", default: "#1c1917" };
+const INK: Record<string, string> = { monochrome: "#1c1917", default: "#1c1917" };
 
 /** `--ink`, which DOES flip — the reason a pinned surface cannot inherit. */
 const FLIPPING_INK: Record<string, Record<string, string>> = {
-	charcoal: { light: "#111114", dark: "#f2f2f4" },
+	monochrome: { light: "#111114", dark: "#f2f2f4" },
 	default: { light: "#1c1c1a", dark: "#ededed" },
 };
 
@@ -178,7 +178,7 @@ async function measureMarks(page: import("@playwright/test").Page, story: string
 	) as Promise<Mark[]>;
 }
 
-const BRANDS = ["default", "charcoal"] as const;
+const BRANDS = ["default", "monochrome"] as const;
 const MODES = ["light", "dark"] as const;
 
 for (const brand of BRANDS) {
@@ -199,11 +199,11 @@ for (const brand of BRANDS) {
 				});
 
 				// Brand, both halves, at the probed element.
-				if (brand === "charcoal") {
-					expect(tok["--ochre"], `${story}/${mode}: charcoal must declare --ochre`).toBe(
+				if (brand === "monochrome") {
+					expect(tok["--ochre"], `${story}/${mode}: monochrome must declare --ochre`).toBe(
 						mode === "dark" ? "#f2f2f4" : "#111114",
 					);
-					expect(tok["--cream"], `${story}/${mode}: charcoal neutrals not shadowed`).toBe(
+					expect(tok["--cream"], `${story}/${mode}: monochrome neutrals not shadowed`).toBe(
 						mode === "dark" ? "#0d0d0f" : "#fafafb",
 					);
 				} else {
@@ -221,14 +221,14 @@ for (const brand of BRANDS) {
 					`${story}/${mode}: --ink must flip between modes or this spec is vacuous`,
 				).toBe(FLIPPING_INK[brand]?.[mode]);
 				// And the ANTI-premise, which is new: --ink-inverse is no longer a
-				// mode-independent near-black under charcoal, so it is no longer a
+				// mode-independent near-black under monochrome, so it is no longer a
 				// safe ink for a pinned surface. Asserted rather than assumed,
 				// because the tempting "simplification" here is to point the mark
 				// back at it — and that would paint #fafafb on #fef08a at 1.12.
-				if (brand === "charcoal") {
+				if (brand === "monochrome") {
 					expect(
 						tok["--ink-inverse"],
-						`${story}/${mode}: charcoal --ink-inverse inverts with the accent fill, which is exactly why the mark must not read it`,
+						`${story}/${mode}: monochrome --ink-inverse inverts with the accent fill, which is exactly why the mark must not read it`,
 					).toBe(mode === "dark" ? "#0d0d0f" : "#fafafb");
 				}
 

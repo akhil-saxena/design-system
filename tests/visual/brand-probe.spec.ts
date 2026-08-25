@@ -4,26 +4,26 @@ import { expect, test } from "@playwright/test";
 import { hexToRgb, probeComputed, probeMeta } from "./computed";
 
 /**
- * Charcoal must resolve to its own declared value in its own mode, no matter
+ * Monochrome must resolve to its own declared value in its own mode, no matter
  * where the bundler emitted its stylesheet.
  *
  * Phase 0 measured this in a throwaway consumer: 17 tokens x 4 deliberately
  * constructed import orders x 2 colour modes, twice, for 272 green assertions
  * against a live hazard. The default emitted order in that stack put the design
- * system's ":root.dark" chunk BEFORE the charcoal chunk, which is the ordering
- * that loses charcoal entirely in dark mode once the exhaustiveness invariant is
+ * system's ":root.dark" chunk BEFORE the monochrome chunk, which is the ordering
+ * that loses monochrome entirely in dark mode once the exhaustiveness invariant is
  * broken. None of that survives as a CI signal, because constructing four import
  * orders inside Storybook is not possible and faking it would prove nothing.
  *
  * What this spec asserts instead is the property that makes order irrelevant, in
- * the browser rather than in the source: for every custom property the charcoal
+ * the browser rather than in the source: for every custom property the monochrome
  * light block declares, the dark block declares it too, and the dark value is
- * what getComputedStyle returns under charcoal x dark. A property that fell
+ * what getComputedStyle returns under monochrome x dark. A property that fell
  * through to ":root.dark" — the whole failure mode — reads as the design
  * system's neutral instead, and the discriminating-set assertion below is what
  * makes that detectable rather than merely unlikely.
  *
- * Everything here is a computed value. There is no screenshot: charcoal's
+ * Everything here is a computed value. There is no screenshot: monochrome's
  * baselines are D-37 and land in plan 01-20, after the component fixes, so they
  * are recorded once against finished behaviour.
  */
@@ -43,7 +43,7 @@ const PAINT_STORY = "inputs-button--default";
 const PAINT_SELECTOR = ".ds-atom-btn";
 
 /**
- * The two blocks, read with the parser charcoal.css's own header specifies:
+ * The two blocks, read with the parser monochrome.css's own header specifies:
  * find the selector, then its opening brace, then the next newline-plus-brace at
  * column 0. The header calls that formatting load-bearing precisely because an
  * indented closing brace would silently truncate the parsed set and let the
@@ -51,16 +51,16 @@ const PAINT_SELECTOR = ".ds-atom-btn";
  */
 function blockOf(css: string, selector: string): string {
 	const at = css.indexOf(`${selector} {`);
-	if (at < 0) throw new Error(`charcoal.css declares no block for ${selector}`);
+	if (at < 0) throw new Error(`monochrome.css declares no block for ${selector}`);
 	const open = css.indexOf("{", at) + 1;
 	const close = css.indexOf("\n}", open);
 	if (close < 0)
-		throw new Error(`the ${selector} block in charcoal.css is never closed at column 0`);
+		throw new Error(`the ${selector} block in monochrome.css is never closed at column 0`);
 	return css.slice(open, close);
 }
 
 function declarationsOf(body: string): Map<string, string> {
-	// Comments first: charcoal.css's header warns that a colon written after a
+	// Comments first: monochrome.css's header warns that a colon written after a
 	// token name inside prose would otherwise be parsed as a real declaration.
 	const code = body.replace(/\/\*[\s\S]*?\*\//g, "");
 	const found = new Map<string, string>();
@@ -87,24 +87,24 @@ const norm = (v: string) => v.trim().replace(/\s+/g, " ").toLowerCase();
 /**
  * The repo root, derived from the config file rather than from config.rootDir —
  * which resolves to testDir (tests/visual) and sent the first run looking for
- * tests/visual/src/themes/charcoal.css.
+ * tests/visual/src/themes/monochrome.css.
  */
 function repoRoot(): string {
 	const configFile = test.info().config.configFile;
 	if (!configFile) {
-		throw new Error("no Playwright config file on test.info(); cannot locate charcoal.css");
+		throw new Error("no Playwright config file on test.info(); cannot locate monochrome.css");
 	}
 	return dirname(configFile);
 }
 
-function charcoalBlocks(rootDir: string) {
-	const css = readFileSync(join(rootDir, "src", "themes", "charcoal.css"), "utf8");
-	const light = declarationsOf(blockOf(css, ':root[data-brand="charcoal"]'));
-	const dark = declarationsOf(blockOf(css, ':root[data-brand="charcoal"].dark'));
+function monochromeBlocks(rootDir: string) {
+	const css = readFileSync(join(rootDir, "src", "themes", "monochrome.css"), "utf8");
+	const light = declarationsOf(blockOf(css, ':root[data-brand="monochrome"]'));
+	const dark = declarationsOf(blockOf(css, ':root[data-brand="monochrome"].dark'));
 	if (light.size === 0 || dark.size === 0) {
 		throw new Error(
 			[
-				`parsed ${light.size} light and ${dark.size} dark declarations out of charcoal.css;`,
+				`parsed ${light.size} light and ${dark.size} dark declarations out of monochrome.css;`,
 				"a zero count means the parser missed the block, not that the block is empty",
 			].join(" "),
 		);
@@ -112,21 +112,21 @@ function charcoalBlocks(rootDir: string) {
 	return { light, dark };
 }
 
-test.describe("charcoal brand cascade", () => {
+test.describe("monochrome brand cascade", () => {
 	test("anchor tokens resolve to their declared values in all four brand x mode cells", async ({
 		page,
 	}) => {
 		const props = ["--cream", "--ochre-d-strong", "--amber", "--panel"];
-		const cell = async (brand: "default" | "charcoal", mode: "light" | "dark") =>
+		const cell = async (brand: "default" | "monochrome", mode: "light" | "dark") =>
 			probeComputed(page, { story: TOKEN_STORY, brand, mode, selector: TOKEN_SELECTOR, props });
 
-		const charcoalLight = await cell("charcoal", "light");
-		const charcoalDark = await cell("charcoal", "dark");
+		const monochromeLight = await cell("monochrome", "light");
+		const monochromeDark = await cell("monochrome", "dark");
 		const defaultLight = await cell("default", "light");
 		const defaultDark = await cell("default", "dark");
 
 		// Declared values, not cross-cell agreement. Agreement alone would also
-		// pass if data-brand were misspelled everywhere, or if charcoal.css stopped
+		// pass if data-brand were misspelled everywhere, or if monochrome.css stopped
 		// being imported at all — every cell would agree on the design system's
 		// neutrals and this would go green while measuring nothing.
 		const expected = {
@@ -136,11 +136,11 @@ test.describe("charcoal brand cascade", () => {
 			"--panel": ["#fdfdfe", "#17171a"],
 		} as const;
 		for (const [token, [light, dark]] of Object.entries(expected)) {
-			expect.soft(norm(charcoalLight[token] ?? ""), `charcoal light ${token}`).toBe(light);
-			expect.soft(norm(charcoalDark[token] ?? ""), `charcoal dark ${token}`).toBe(dark);
+			expect.soft(norm(monochromeLight[token] ?? ""), `monochrome light ${token}`).toBe(light);
+			expect.soft(norm(monochromeDark[token] ?? ""), `monochrome dark ${token}`).toBe(dark);
 		}
 
-		// Charcoal is scoped: the default brand is untouched. These are the values
+		// Monochrome is scoped: the default brand is untouched. These are the values
 		// tokens.css actually declares. Plan 01-02 named #f5f3f0 / #1c1917 here,
 		// which are Storybook's own `backgrounds` constants and DARK_BG — chrome
 		// colours, not this token. Asserting the constant would have made the gate
@@ -150,10 +150,10 @@ test.describe("charcoal brand cascade", () => {
 		expect.soft(norm(defaultLight["--amber"] ?? ""), "default light --amber").toBe("#f59e0b");
 	});
 
-	test("every property charcoal declares wins in its own mode, so emission order cannot decide", async ({
+	test("every property monochrome declares wins in its own mode, so emission order cannot decide", async ({
 		page,
 	}) => {
-		const { light, dark } = charcoalBlocks(repoRoot());
+		const { light, dark } = monochromeBlocks(repoRoot());
 
 		// The invariant itself, read out of the source. Soft on purpose: a hard
 		// assert here short-circuits the run, and the browser half below is the half
@@ -174,12 +174,20 @@ test.describe("charcoal brand cascade", () => {
 
 		const props = [...light.keys()];
 		const opts = { story: TOKEN_STORY, selector: TOKEN_SELECTOR, props } as const;
-		const charcoalLight = await probeComputed(page, { ...opts, brand: "charcoal", mode: "light" });
-		const charcoalDark = await probeComputed(page, { ...opts, brand: "charcoal", mode: "dark" });
+		const monochromeLight = await probeComputed(page, {
+			...opts,
+			brand: "monochrome",
+			mode: "light",
+		});
+		const monochromeDark = await probeComputed(page, {
+			...opts,
+			brand: "monochrome",
+			mode: "dark",
+		});
 		const neutralDark = await probeComputed(page, { ...opts, brand: "default", mode: "dark" });
 
 		// Which properties could possibly reveal a fall-through: the ones whose
-		// charcoal dark value differs from what the design system paints in dark.
+		// monochrome dark value differs from what the design system paints in dark.
 		// For every other property the two agree, so no ordering could tell them
 		// apart and a green result there proves nothing. Counting them is what
 		// keeps this test honest.
@@ -187,12 +195,15 @@ test.describe("charcoal brand cascade", () => {
 		for (const name of props) {
 			const wantDark = norm(expand(dark.get(name) ?? "", dark));
 			const wantLight = norm(expand(light.get(name) ?? "", light));
-			expect.soft(norm(charcoalDark[name] ?? ""), `charcoal dark ${name}`).toBe(wantDark);
-			expect.soft(norm(charcoalLight[name] ?? ""), `charcoal light ${name}`).toBe(wantLight);
+			expect.soft(norm(monochromeDark[name] ?? ""), `monochrome dark ${name}`).toBe(wantDark);
+			expect.soft(norm(monochromeLight[name] ?? ""), `monochrome light ${name}`).toBe(wantLight);
 			if (norm(neutralDark[name] ?? "") !== wantDark) {
 				discriminating.push(name);
 				expect
-					.soft(norm(charcoalDark[name] ?? ""), `charcoal dark ${name} fell through to the neutral`)
+					.soft(
+						norm(monochromeDark[name] ?? ""),
+						`monochrome dark ${name} fell through to the neutral`,
+					)
 					.not.toBe(norm(neutralDark[name] ?? ""));
 			}
 		}
@@ -206,7 +217,7 @@ test.describe("charcoal brand cascade", () => {
 		// theatre.
 		expect(discriminating, "--wire must be able to reveal a fall-through").toContain("--wire");
 		console.log(
-			`charcoal cascade: ${props.length} properties asserted in both modes, ` +
+			`monochrome cascade: ${props.length} properties asserted in both modes, ` +
 				`${discriminating.length} of them distinguishable from the design system's dark values`,
 		);
 	});
@@ -216,8 +227,16 @@ test.describe("charcoal brand cascade", () => {
 	}) => {
 		const props = ["background-color", "color"];
 		const opts = { story: PAINT_STORY, selector: PAINT_SELECTOR, props } as const;
-		const charcoalLight = await probeComputed(page, { ...opts, brand: "charcoal", mode: "light" });
-		const charcoalDark = await probeComputed(page, { ...opts, brand: "charcoal", mode: "dark" });
+		const monochromeLight = await probeComputed(page, {
+			...opts,
+			brand: "monochrome",
+			mode: "light",
+		});
+		const monochromeDark = await probeComputed(page, {
+			...opts,
+			brand: "monochrome",
+			mode: "dark",
+		});
 		const neutralLight = await probeComputed(page, { ...opts, brand: "default", mode: "light" });
 
 		// A painted colour, not a token read. Button primary sets its background as
@@ -227,19 +246,19 @@ test.describe("charcoal brand cascade", () => {
 		// a monochrome accent: --ink-inverse is pinned dark in both modes because it
 		// also lands on a pinned light highlight literal no theme can reach.
 		expect
-			.soft(charcoalLight["background-color"], "charcoal light button fill")
+			.soft(monochromeLight["background-color"], "monochrome light button fill")
 			.toBe(hexToRgb("#111114"));
 		expect
-			.soft(charcoalDark["background-color"], "charcoal dark button fill")
+			.soft(monochromeDark["background-color"], "monochrome dark button fill")
 			.toBe(hexToRgb("#f2f2f4"));
 		// The ink inverts WITH the fill: white label on a black button in light,
 		// black label on a white one in dark. Both readings are 4.5+ by a wide
 		// margin, and the pair is the whole claim — one value in both modes is
 		// what put a near-black label on a near-black fill.
-		expect.soft(charcoalLight.color, "charcoal light button ink").toBe(hexToRgb("#fafafb"));
-		expect.soft(charcoalDark.color, "charcoal dark button ink").toBe(hexToRgb("#0d0d0f"));
+		expect.soft(monochromeLight.color, "monochrome light button ink").toBe(hexToRgb("#fafafb"));
+		expect.soft(monochromeDark.color, "monochrome dark button ink").toBe(hexToRgb("#0d0d0f"));
 		// The negative half: without the brand the same element paints the design
-		// system's amber, which is what makes the charcoal readings attributable.
+		// system's amber, which is what makes the monochrome readings attributable.
 		expect
 			.soft(neutralLight["background-color"], "default brand button fill")
 			.toBe(hexToRgb("#f59e0b"));
@@ -263,15 +282,15 @@ test.describe("charcoal brand cascade", () => {
  * between a declaration being present and a declaration applying — which is the
  * entire content of the three findings.
  *
- * Both brands, both modes. Charcoal is where the consequences land (`--ink-2`
- * is #44403a light and #c9c5bc dark under charcoal), so a default-brand-only
+ * Both brands, both modes. Monochrome is where the consequences land (`--ink-2`
+ * is #44403a light and #c9c5bc dark under monochrome), so a default-brand-only
  * check would miss a token that resolves in one brand and not the other.
  */
 const BOUNDARY_CELLS = [
 	{ brand: "default", mode: "light" },
 	{ brand: "default", mode: "dark" },
-	{ brand: "charcoal", mode: "light" },
-	{ brand: "charcoal", mode: "dark" },
+	{ brand: "monochrome", mode: "light" },
+	{ brand: "monochrome", mode: "dark" },
 ] as const;
 
 /**
