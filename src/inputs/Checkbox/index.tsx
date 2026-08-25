@@ -100,7 +100,12 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
 				<Check
 					size={12}
 					strokeWidth={3}
-					color="#1c1917"
+					// --ink-inverse, not the #1c1917 literal this used to pin. The box
+					// behind it fills with var(--amber), which inverts with the mode under
+					// a monochrome brand — a pinned near-black tick measured 1.08 on the
+					// light-mode fill. The token resolves to exactly #1c1917 in the default
+					// brand, so that brand is byte-identical.
+					color="var(--ink-inverse)"
 					style={{ display: "none" }}
 					className="ds-atom-checkbox-check"
 				/>

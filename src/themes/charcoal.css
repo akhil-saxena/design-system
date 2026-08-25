@@ -183,11 +183,25 @@
 	   very defect it exists to catch, which was measured rather than reasoned:
 	   hardcoding the panel white left the light case green. One unit off pure is
 	   invisible to a reader and restores the discrimination.
-	   --ink-inverse is the ink that goes ON a light fill and it is near-black
-	   in BOTH modes, which is a contract rather than a convenience - it also
-	   lands on the pinned highlight literal that no theme can reach, measuring
-	   16.68 there, and on the accent fill at 5.98 light and 17.37 dark. */
-	--ink-inverse: #0d0d0f;
+	   --ink-inverse is the ink that goes ON THE ACCENT FILL, and since the
+	   monochrome-accent repair it INVERTS with the mode - near-white here,
+	   near-black in dark - because the fill it inks now inverts too. That
+	   reverses the contract this file shipped through 01-22, and the reversal is
+	   the point rather than a side effect. While the light accent was a mid grey
+	   and the dark one near-white, a single near-black ink served both; the
+	   moment the light accent moved to the ink end that same value put near-black
+	   on near-black at 1.10 across every filled control in the system at once.
+	   The token's NAME was always the correct description of the role. Only its
+	   charcoal values contradicted it.
+	   Two consumers had leaned on the old pinning, and both were repaired in the
+	   same commit rather than left to find this out. The pinned pale-yellow
+	   highlight now pins its own foreground, which is the rule G5 established and
+	   the one this token was standing in for; and the tinted-pill ink no longer
+	   aliases it - see the accent bridge below. What is left are nine filled
+	   controls, every one of which wants the inverse of the page it sits on.
+	   It measures 18.07 on the accent fill here against 17.37 in dark, so the
+	   same control now reads within 0.7 of itself across the two modes. */
+	--ink-inverse: #fafafb;
 	--cream: #fafafb;
 	--page-bg: var(--cream);
 	--cream-2: #fdfdfe;
@@ -195,26 +209,43 @@
 	--cream-3: #f4f4f6;
 	--panel2: var(--cream-3);
 
-	/* Accent, and the rule that stops the two accent-text steps eroding into
-	   each other. The accent is now a NEUTRAL, so what survives from the warm
-	   palette is the structure and the measured lightness of each step, not the
-	   hue: the fill sits within 0.2 of the ratio its predecessor measured, and
-	   the text step within 0.03, so every relationship the theme was tuned
-	   around is intact while the colour is gone.
-	   The fill is a FILL - 3.11 / 3.19 / 2.96 as text here, which is exactly
-	   why nothing paints text with it - and it must stay LIGHT ENOUGH TO CARRY
-	   DARK INK in both modes, because every consumer that fills with it sets a
-	   dark foreground: --ink-inverse, a literal black, or #1f1b17. It measures
-	   5.98 against --ink-inverse here. It also lands as the foreground on two
-	   near-black chips that components pin as literals and no theme can reach -
-	   the app-bar logo mark and the dark card variant - where it measures 5.26
-	   and 5.38, both clear of AA. Those two readings are the whole of finding
-	   G3, and they are why the fill is a mid neutral here rather than the
-	   near-black a light-mode monochrome would otherwise reach for.
-	   The accent TEXT step below measures 5.63 / 5.78 / 5.35 and carries white
-	   at 5.88 when it is used as a hover fill. The strong step is 7.92 / 8.13 /
+	/* Accent. THE ACCENT IS THE INK, in both modes, and it is written as an
+	   alias in both blocks so that the symmetry is a rule rather than a
+	   coincidence that two literals happen to share. In a monochrome system the
+	   primary action and the primary text make the same claim - maximum contrast
+	   against the page - so binding them states the identity rather than merely
+	   saving a literal. It measures 18.07 / 18.54 / 17.16 here against 17.37 /
+	   16.00 / 14.86 in dark: a black button on a near-white page, a near-white
+	   button on a near-black one.
+	   WHAT SHIPPED BEFORE, and why it was wrong. Through 01-22 the light accent
+	   was a mid grey, and a primary button filled mid grey on a near-white page
+	   reads as DISABLED - it measured 3.11 against the page, below even the 3:1
+	   floor a non-text control needs in order to be seen - while the dark block
+	   already had its accent at the ink end. The two modes were asymmetric and
+	   only one of them was right. Found by eye in a capture review, on a button
+	   no automated gate had an opinion about.
+	   WHY IT WAS HELD THERE, because the reason was real and is worth keeping.
+	   Three consumer groups pinned the accent into a mid band and all three had
+	   to move first. Every filled control painted a near-black foreground on it,
+	   so the fill could not be dark. Two components pin a near-black chip and
+	   painted the accent as TEXT on it, so the fill could not be dark there
+	   either - that is finding G3. And the snackbar fills from the ink ramp while
+	   accenting from this token, so at the ink end the two would have collapsed
+	   onto one colour. The bands do not intersect: no value of this token gives a
+	   black button and a legible chip at the same time, which is why this was
+	   never a token-layer change and why 01-22 was right to decline to make it
+	   one. The chips and the snackbar now read the mode-stable vivid step, which
+	   is what that token is for, and the filled controls read --ink-inverse,
+	   which now inverts with them.
+	   The accent TEXT step below is UNCHANGED, and that is a measured decision
+	   rather than an oversight. As a hover fill it is now a LIFT off a near-black
+	   base instead of a darkening of a mid one, and the step it makes measures
+	   37.40 in L* against dark's 33.67 - so leaving it where it is makes the two
+	   modes MORE symmetric than carrying it down would have, which was the whole
+	   reason to consider moving it. It reads 5.63 / 5.78 / 5.35 as text and
+	   carries white at 5.88 as a hover fill. The strong step is 7.92 / 8.13 /
 	   7.52, reserved for accent TEXT at or below 22px. */
-	--amber: #8e8e97;
+	--amber: var(--ink);
 	--amber-d: #64646a;
 	--ochre: var(--amber);
 	--ochre-d: var(--amber-d);
@@ -283,17 +314,38 @@
 	   That was finding G2. It is a pale neutral again here, measuring 11.98
 	   against the banner title, 6.03 against its description and 14.89 against
 	   --ink, so the group dissolves rather than being patched.
-	   The vivid step is the one token in this file that keeps a hue, and it is
-	   kept on purpose: its three consumers are all status dots in a red / amber
-	   / green triad, so it is semantic colour in the same sense --red and
-	   --green are. It is neutralised here to a mid grey nonetheless, because
-	   the identity brief admits no accent hue at all - see the SUMMARY for the
-	   consequence, which is that the middle of that triad now reads by position
+	   The vivid step is the MODE-STABLE accent, and that property - identical in
+	   both blocks, by the design system's own documentation of it - is now
+	   load-bearing rather than incidental. Three of its consumers are status dots
+	   in a red / amber / green triad, and it is neutralised to a mid grey here
+	   because the identity brief admits no accent hue at all; see the SUMMARY for
+	   the consequence, which is that the middle of that triad reads by position
 	   and label rather than by colour.
-	   --amber-ink is the ink for a TINTED pill, never for a solid fill, and in
-	   this mode it aliases --ink-inverse, which measures 16.68 / 17.06 / 15.93
-	   on the amber washes those pills actually use. */
-	--amber-ink: var(--ink-inverse);
+	   It gained three consumers in the monochrome-accent repair, and they are the
+	   reason to read this token as a role and not as a leftover. A background
+	   that a component PINS beyond any theme's reach cannot follow the mode, so a
+	   foreground on it must not either - and once the accent began inverting, the
+	   accent was exactly the wrong token for those places. The app-bar logo mark
+	   and the dark card variant pin a near-black chip, and the snackbar fills
+	   from the ink ramp; all three now read this step, at 5.26, 5.38 and 5.80 in
+	   light and 5.26, 5.38 and 2.90 in dark. The snackbar's dark figure is short
+	   of the text bar and is recorded as a finding rather than hidden: it was
+	   1.00 before, invisible, and axe does not report a ratio that rounds to 1.00
+	   at all.
+	   --amber-ink is the ink for a TINTED pill, never for a solid fill, and it
+	   aliases the MUTED ink in both blocks now. It used to alias --ink-inverse
+	   here, which was safe only for as long as --ink-inverse was pinned dark; the
+	   moment that token began to invert, a near-white ink would have landed on
+	   the pale washes these pills actually use and measured 1.09 there. Pointing
+	   it at the muted step instead makes the two blocks agree in TEXT as well as
+	   in role, and it is the same correction, in the same direction, that the
+	   dark block already carries: a tinted-pill ink is an INK, so it belongs on
+	   the ink ramp rather than on a token whose job is to invert. It measures
+	   7.44 / 7.63 / 7.06 on the opaque stops, and on the amber wash the warning
+	   badge composites it over - rgba(245,158,11,0.15) - it reads 6.34 / 6.51 /
+	   6.03, composited by hand rather than read from getComputedStyle, which does
+	   not composite alpha at all. */
+	--amber-ink: var(--ink-3);
 	--amber-l: #e4e4ea;
 	--amber-soft: var(--amber-l);
 	--amber-vivid: #8e8e97;
@@ -379,14 +431,15 @@
 	   not collapse into one slab - that separation is what carries elevation
 	   here, since shadow cannot (see the elevation note below). Channel spread
 	   runs 2 to 4, a faint cool cast and nothing a reader would name as a hue.
-	   --ink-inverse stays near-black: it is the ink on a LIGHT fill, and the
-	   accent fill is light in both modes, so this token cannot invert with the
-	   mode the way an ordinary foreground would. It is also the ink on the one
-	   highlight literal a component pins outright, which is what settled the
-	   question - a token that must work on a pinned light surface has no mode
-	   to follow. It happens to equal this mode's page value; that is a
-	   coincidence of a monochrome ramp, not an alias, and the two are declared
-	   separately because their roles are unrelated. */
+	   --ink-inverse is near-black HERE and near-white in light, because it inks
+	   the accent fill and the accent fill inverts with the mode. It used to be
+	   pinned near-black in both blocks; the light block carries the full account
+	   of why that pinning was correct then and is wrong now. In this mode the
+	   value did not move at all - only its light counterpart did - so every
+	   figure measured against it here still stands. It reads 17.37 on the accent
+	   fill. It happens to equal this mode's page value; that is a coincidence of
+	   a monochrome ramp, not an alias, and the two stay declared separately
+	   because their roles are unrelated. */
 	--ink-inverse: #0d0d0f;
 	--cream: #0d0d0f;
 	--page-bg: var(--cream);
@@ -396,24 +449,28 @@
 	--panel2: var(--cream-3);
 
 	/* Accent, dark. The fill is the candidate palette's accent value, adopted
-	   verbatim, and in this mode it is the brightest thing on the page - which
-	   is the whole shape of a monochrome accent: the fill inverts with the mode
-	   while --ink-inverse does not, so a filled control is a light slab with
-	   dark ink in both modes. It measures 17.37 against --ink-inverse here.
-	   On the two near-black chips that components pin as literals it reads
-	   15.27 and 15.64, comfortably clear - the dark half of finding G3, which
-	   the light block's note describes in full.
+	   verbatim, and it is the brightest thing on the page here - which is the
+	   whole shape of a monochrome accent. It is written as an alias of the
+	   primary ink, exactly as the light block is, because in a monochrome system
+	   the accent and the ink make the same claim; the two blocks are now
+	   identical in TEXT at this declaration, which is the strongest statement of
+	   the symmetry available. It measures 17.37 against --ink-inverse.
+	   This block did not move in the monochrome-accent repair. The light block
+	   did, to meet it. What DID change here is one thing worth naming: the two
+	   near-black chips a component pins beyond any theme's reach used to paint
+	   this token and read 15.27 and 15.64 on it, and they now paint the
+	   mode-stable vivid step and read 5.26 and 5.38 in BOTH modes. The chips lost
+	   contrast in this mode and gained the property they actually needed, which
+	   is a foreground that does not invert underneath a background that cannot.
 	   The accent TEXT step does NOT follow the fill upward, and that is
-	   deliberate rather than an oversight. It measures 6.52 / 6.01 / 5.58, which
-	   is within 0.06 of what the warm identity's own accent-text step would
-	   measure on THESE surfaces, so the relationship the theme was tuned around
-	   survives the repaint even though both sides of it moved. Pushing it to near-white would have read better as text
-	   and broken it as a fill: the primary button's hover rule hardcodes a white
-	   label over this token, so a near-white value puts white on white. At this
-	   value that pairing reads 2.98 against 3.01 before this change, so the
-	   defect is held level rather than deepened - see the SUMMARY, which records
-	   it as an unreached literal rather than pretending it is fixed. The strong step is 9.00 / 8.29 / 7.70. */
-	--amber: #f2f2f4;
+	   deliberate. It measures 6.52 / 6.01 / 5.58. Pushing it to near-white would
+	   read better as text and break it as a fill: the primary button's hover rule
+	   hardcodes a white label over this token, so a near-white value puts white
+	   on white. At this value that pairing reads 2.98, which the repair holds
+	   level rather than deepening - see the SUMMARY, which records it as an
+	   unreached literal rather than pretending it is fixed. The strong step is
+	   9.00 / 8.29 / 7.70. */
+	--amber: var(--ink);
 	--amber-d: #95959b;
 	--ochre: var(--amber);
 	--ochre-d: var(--amber-d);
@@ -460,24 +517,25 @@
 	   cells all have dark-mode overrides that paint low-alpha amber literals
 	   this file cannot reach, which is why finding G2 was a light-mode group
 	   with no dark half. --ink measures 13.45 on it.
-	   --amber-ink does NOT follow --ink-inverse here, and the reason it used to
-	   was a misreading of the token. tokens.css defines it as text for use on a
-	   TINTED pill of the same hue, and pinning it near-black put near-black ink
-	   on near-black surfaces. It aliases this mode's strong accent-text step,
-	   and across every consumer - three low-alpha amber washes and the date
+	   --amber-ink aliases the MUTED ink, and both blocks now say so in the same
+	   words. It once aliased --ink-inverse in light and the strong accent-text
+	   step here, and both were misreadings of the same token: tokens.css defines
+	   it as text for use on a TINTED pill of the same hue, so it is an INK and
+	   belongs on the ink ramp. Pinning it near-black put near-black ink on
+	   near-black surfaces; pointing it at an accent step pointed a pill's ink at
+	   a fill. Across every consumer - three low-alpha amber washes and the date
 	   picker's open trigger, none of them a solid fill - the worst of the three
-	   surface stops reads 5.89, 4.99, 5.32 and 7.56 respectively, so all four
-	   clear AA on every stop. It aliases the MUTED ink rather than the strong
-	   accent-text step it used to: with a neutral accent those two are a single
-	   grey apart, and pointing a tinted-pill ink at an accent token is the
-	   misreading this alias was corrected for once already. Composited by hand
-	   rather than read from getComputedStyle, which does not composite alpha at
-	   all: reading that pill's fill as opaque returns a number roughly twice
-	   the truth.
-	   The vivid step is identical in both blocks, which is the property the
-	   design system documents for it, and it is a mid grey that reads 5.98 /
-	   5.51 / 5.12 here against 3.11 / 3.25 / 2.96 in light - one value that
-	   stays visible in both modes. */
+	   surface stops reads 5.89, 4.99, 5.32 and 7.56, so all four clear AA on
+	   every stop. Composited by hand rather than read from getComputedStyle,
+	   which does not composite alpha at all: reading that pill's fill as opaque
+	   returns a number roughly twice the truth.
+	   The vivid step is identical in both blocks - the property the design system
+	   documents for it, and the property the monochrome-accent repair now leans
+	   on. It is a mid grey reading 5.98 / 5.51 / 5.12 here against 3.11 / 3.19 /
+	   2.96 in light: one value that stays visible in both modes, which is what a
+	   foreground on a PINNED background needs and what an inverting accent by
+	   definition cannot offer. The light block lists the three consumers it
+	   gained and what each of them measures. */
 	--amber-ink: var(--ink-3);
 	--amber-l: #26262c;
 	--amber-soft: var(--amber-l);

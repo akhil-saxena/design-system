@@ -167,6 +167,79 @@ function eventHour(ev: CalendarEvent): number | null {
 
 // ─── CalendarChip - event chip with HoverCard ────────────────────────────
 
+/**
+ * A chip that PINS its own background must pin its own foreground.
+ *
+ * `ev.color` is caller-supplied and lands as an inline `background`, while the
+ * chip's ink came from `--ink-inverse` in the stylesheet. That worked only for
+ * as long as `--ink-inverse` was a near-black in every brand and mode. It is
+ * not: charcoal makes it invert with the accent fill it inks, and the moment it
+ * did, seven Calendar stories put a near-white label on a mid-tone event colour
+ * — 34 axe violations between 2.18 and 3.60, none of which existed in the CSS
+ * that produced them. Same failure family as the pinned highlight mark (G5) and
+ * the pinned logo chip (G3): a fixed surface underneath a foreground that is
+ * free to move.
+ *
+ * Chooses by MEASURED ratio rather than by a luminance threshold, so a caller
+ * passing a pale event colour gets dark ink rather than the near-white a
+ * midpoint rule would hand it.
+ *
+ * FALLS BACK TO THE DARK INK, not to the stylesheet, for anything it cannot
+ * parse — and that path is the common one rather than the exotic one. Every
+ * shipped story passes a `var(--blue-vivid, #1d6aff)`-shaped expression, not a
+ * hex, and the literal inside such a fallback is NOT what the token resolves to
+ * (`--blue-vivid` renders #3b82f6, the fallback claims #1d6aff), so reading it
+ * would be measuring the wrong colour. Deferring to the stylesheet instead is
+ * what produced the 34 violations in the first place. The dark ink is what the
+ * default brand already paints on every one of these chips and what charcoal
+ * painted before its accent began to invert, so this is the value the component
+ * has always rendered here, now stated where the background is stated.
+ *
+ * The two candidates are the design system's own pinned inks, so for every
+ * event colour the shipped stories use this returns exactly the value the
+ * default brand already rendered.
+ */
+const CHIP_INK_DARK = "#1c1917";
+const CHIP_INK_LIGHT = "#fdfdfe";
+function chipInk(color: string): string {
+	const t = color.trim();
+	let rgb: [number, number, number] | null = null;
+	const hx = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(t);
+	if (hx) {
+		const raw = hx[1] as string;
+		const h =
+			raw.length === 3
+				? raw
+						.split("")
+						.map((c) => c + c)
+						.join("")
+				: raw;
+		const v = Number.parseInt(h, 16);
+		rgb = [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+	} else {
+		const m = /^rgba?\(([^)]*)\)$/.exec(t);
+		if (m) {
+			const parts = (m[1] ?? "")
+				.split(/[,\s/]+/)
+				.filter(Boolean)
+				.map(Number);
+			if (parts.length >= 3 && !parts.slice(0, 3).some(Number.isNaN)) {
+				rgb = [parts[0] as number, parts[1] as number, parts[2] as number];
+			}
+		}
+	}
+	if (!rgb) return CHIP_INK_DARK;
+	const lin = (c: number) => {
+		const x = c / 255;
+		return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+	};
+	const L = 0.2126 * lin(rgb[0]) + 0.7152 * lin(rgb[1]) + 0.0722 * lin(rgb[2]);
+	// --ink-inverse's two pinned values, measured rather than assumed.
+	const onDark = (L + 0.05) / (0.01004 + 0.05);
+	const onLight = (0.98289 + 0.05) / (L + 0.05);
+	return onDark >= onLight ? CHIP_INK_DARK : CHIP_INK_LIGHT;
+}
+
 function CalendarChip({ ev, date }: { ev: CalendarEvent; date: Date }) {
 	const anchorRef = useRef<HTMLSpanElement>(null);
 	const fmt = (d: Date) =>
@@ -178,7 +251,7 @@ function CalendarChip({ ev, date }: { ev: CalendarEvent; date: Date }) {
 			<span
 				ref={anchorRef}
 				className="ds-atom-calendar-chip"
-				style={ev.color ? { background: ev.color } : undefined}
+				style={ev.color ? { background: ev.color, color: chipInk(ev.color) } : undefined}
 				onClick={(e) => e.stopPropagation()}
 			>
 				{ev.label}
@@ -538,7 +611,11 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 												<li
 													key={ev.id}
 													className="ds-atom-calendar-chip"
-													style={ev.color ? { background: ev.color } : undefined}
+													style={
+														ev.color
+															? { background: ev.color, color: chipInk(ev.color) }
+															: undefined
+													}
 												>
 													{ev.label}
 												</li>
@@ -568,7 +645,11 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 												<li
 													key={ev.id}
 													className="ds-atom-calendar-chip"
-													style={ev.color ? { background: ev.color } : undefined}
+													style={
+														ev.color
+															? { background: ev.color, color: chipInk(ev.color) }
+															: undefined
+													}
 												>
 													{ev.label}
 												</li>
@@ -609,7 +690,11 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 														<div
 															key={ev.id}
 															className="ds-atom-calendar-chip"
-															style={ev.color ? { background: ev.color } : undefined}
+															style={
+																ev.color
+																	? { background: ev.color, color: chipInk(ev.color) }
+																	: undefined
+															}
 														>
 															{ev.label}
 														</div>
@@ -638,7 +723,9 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 								<li key={ev.id} className="ds-atom-calendar-events-item">
 									<span
 										className="ds-atom-calendar-events-dot"
-										style={ev.color ? { background: ev.color } : undefined}
+										style={
+											ev.color ? { background: ev.color, color: chipInk(ev.color) } : undefined
+										}
 										aria-hidden="true"
 									/>
 									<span>{ev.label}</span>
@@ -661,7 +748,9 @@ function CalendarRoot(props: CalendarProps, ref: React.Ref<HTMLDivElement>) {
 									<li key={ev.id} className="ds-atom-calendar-events-item">
 										<span
 											className="ds-atom-calendar-events-dot"
-											style={ev.color ? { background: ev.color } : undefined}
+											style={
+												ev.color ? { background: ev.color, color: chipInk(ev.color) } : undefined
+											}
 											aria-hidden="true"
 										/>
 										<span>{ev.label}</span>
@@ -694,7 +783,7 @@ function AgendaList({
 				<li key={ev.id} className="ds-atom-calendar-agenda-item">
 					<span
 						className="ds-atom-calendar-agenda-dot"
-						style={ev.color ? { background: ev.color } : undefined}
+						style={ev.color ? { background: ev.color, color: chipInk(ev.color) } : undefined}
 						aria-hidden="true"
 					/>
 					<time dateTime={toDate(ev.date).toISOString()} className="ds-atom-calendar-agenda-time">

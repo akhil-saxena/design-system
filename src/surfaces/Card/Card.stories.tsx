@@ -199,7 +199,7 @@ export const Composed: Story = {
 					gap: 8,
 				}}
 			>
-				<span style={{ width: 4, height: 14, background: "var(--amber)", borderRadius: 2 }} />
+				<span style={{ width: 4, height: 14, background: "var(--amber-vivid)", borderRadius: 2 }} />
 				<span style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: 14 }}>
 					Section Header
 				</span>
@@ -370,7 +370,7 @@ export const StatCard: Story = {
 				>
 					<RollingNumber value={2} />
 				</div>
-				<div style={{ fontSize: 11, color: "var(--amber)", marginTop: 4 }}>1 active</div>
+				<div style={{ fontSize: 11, color: "var(--amber-vivid)", marginTop: 4 }}>1 active</div>
 			</Card>
 		</div>
 	),

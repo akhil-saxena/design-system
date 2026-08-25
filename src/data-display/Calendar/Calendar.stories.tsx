@@ -167,7 +167,6 @@ const BASE_EVENTS: CalendarEvent[] = [
 		id: "e5",
 		date: new Date(2026, 3, 18),
 		label: "Team standup",
-		color: "var(--amber, #f59e0b)",
 	},
 	{
 		id: "e6",
@@ -192,7 +191,7 @@ const OVERFLOW_EVENTS: CalendarEvent[] = [
 		color: "var(--purple-l)",
 	},
 	{ id: "o2", date: new Date(2026, 3, 12), label: "PM sync", color: "var(--blue-vivid, #1d6aff)" },
-	{ id: "o3", date: new Date(2026, 3, 12), label: "Retro", color: "var(--amber, #f59e0b)" },
+	{ id: "o3", date: new Date(2026, 3, 12), label: "Retro" },
 	{
 		id: "o4",
 		date: new Date(2026, 3, 12),
@@ -241,7 +240,6 @@ const WEEK_EVENTS: CalendarEvent[] = [
 		id: "w4",
 		date: new Date(2026, 3, 10, 15, 0),
 		label: "Sprint review",
-		color: "var(--amber, #f59e0b)",
 	},
 ];
 
@@ -272,7 +270,7 @@ const DAY_EVENTS: CalendarEvent[] = [
 		label: "PM sync",
 		color: "var(--green-vivid, #16a34a)",
 	},
-	{ id: "d4", date: new Date(2026, 3, 15, 16, 30), label: "Retro", color: "var(--amber, #f59e0b)" },
+	{ id: "d4", date: new Date(2026, 3, 15, 16, 30), label: "Retro" },
 ];
 
 // ─── Stories ──────────────────────────────────────────────────────────────

@@ -37,7 +37,17 @@ const DefaultLogo = () => (
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",
-				color: "var(--amber)",
+				// var(--amber-vivid), not var(--amber). The chip above is PINNED, so its
+				// foreground must not follow the mode either — and --amber does, under any
+				// brand whose accent inverts. Charcoal's does: at the ink end it measures
+				// 1.10 on this chip in light mode. --amber-vivid is the accent value that
+				// is declared identically in both of a theme's blocks, which is the exact
+				// property a pinned surface needs. It reads 5.26 in both charcoal modes,
+				// and it is #f59e0b in the default brand in both modes — the same value
+				// --amber resolved to here, so that brand renders byte-identically.
+				// This is finding G3, closed at the component rather than by holding a
+				// whole theme's accent inside a band that suited nothing else.
+				color: "var(--amber-vivid)",
 				fontFamily: "var(--display)",
 				fontWeight: 800,
 				fontSize: 13,
