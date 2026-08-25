@@ -198,8 +198,10 @@
 	   same commit rather than left to find this out. The pinned pale-yellow
 	   highlight now pins its own foreground, which is the rule G5 established and
 	   the one this token was standing in for; and the tinted-pill ink no longer
-	   aliases it - see the accent bridge below. What is left are nine filled
-	   controls, every one of which wants the inverse of the page it sits on.
+	   aliases it - see the accent bridge below. What is left are fourteen filled
+	   controls - twelve in the stylesheet plus the primary button's and the
+	   checkbox tick's inline styles - and every one of them wants the inverse of
+	   the page it sits on.
 	   It measures 18.07 on the accent fill here against 17.37 in dark, so the
 	   same control now reads within 0.7 of itself across the two modes. */
 	--ink-inverse: #fafafb;
