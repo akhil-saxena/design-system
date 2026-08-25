@@ -19,7 +19,14 @@ describe("displayed version", () => {
 	const overview = readFileSync(join(root, "src", "OverviewPage.tsx"), "utf8");
 
 	it("matches package.json everywhere the Overview page prints it", () => {
-		const printed = [...overview.matchAll(/v(\d+\.\d+\.\d+)/g)].map((m) => m[1]);
+		// The prerelease suffix is part of the version, so it must be part of the capture.
+		// Without `(?:-...)?` this regex reads only the `2.0.0` out of `v2.0.0-beta.1` and
+		// compares it against package.json's `2.0.0-beta.1` — so the assertion could never
+		// pass on a prerelease, and could never catch a page printing the bare `v2.0.0`
+		// while a beta was what shipped. Widening the capture makes it bite in both cases.
+		const printed = [...overview.matchAll(/v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/g)].map(
+			(m) => m[1],
+		);
 		expect(printed.length, "expected the Overview page to print the version").toBeGreaterThan(0);
 		for (const found of printed) expect(found).toBe(version);
 	});
