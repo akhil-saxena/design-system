@@ -174,6 +174,123 @@ test.describe("Tabs overflow is decided by geometry, not by font timing", () => 
 			).toBeLessThanOrEqual(bar.containerWidth);
 		});
 
+		/**
+		 * The walk-through this closes.
+		 *
+		 * The three assertions above all read the story at its shipped 300px, and
+		 * the story sits 0.25px inside a boundary. Widening its container by 20px
+		 * would therefore turn every one of them green while leaving the component
+		 * exactly as broken — which is precisely the "move the story off the cliff"
+		 * repair the original finding listed, and called the flattering one.
+		 *
+		 * Sweeping the container width removes the story's geometry from the
+		 * argument. At each width the rendered count is compared against a count
+		 * this test computes from tab widths IT measured, so there is no width at
+		 * which the component can be wrong unobserved. It also catches the ratchet
+		 * head-on: the old measurement could shrink but never grow, so it fails on
+		 * the first widening step regardless of where the sweep starts.
+		 */
+		test(`the rendered count matches the geometry at every container width — ${brand}`, async ({
+			page,
+		}) => {
+			await openStory(page, brand, { deferRO: false });
+
+			const sweep = await page.evaluate(async () => {
+				const LABELS = ["Dashboard", "Analytics", "Reports", "Settings", "Team", "Billing"];
+				const COUNTS: (number | null)[] = [null, null, null, 2, null, null];
+				const tablist = document.querySelector<HTMLElement>("[role='tablist']");
+				if (!tablist) throw new Error("no tablist");
+				const bar = tablist.closest<HTMLElement>(".ds-atom-tabs-list");
+				const root = tablist.closest<HTMLElement>(".ds-atom-tabs");
+				const wrapper = root?.parentElement;
+				if (!bar || !root || !wrapper) throw new Error("story shape changed");
+
+				// Intrinsic widths, measured by the TEST, from its own strip. These
+				// depend on the font but not on the container, so once is enough.
+				const holder = document.createElement("div");
+				holder.style.cssText =
+					"position:absolute;top:0;left:0;width:0;height:0;overflow:hidden;visibility:hidden";
+				const strip = document.createElement("div");
+				strip.className = "ds-atom-tabs-tablist";
+				strip.style.width = "max-content";
+				LABELS.forEach((label, i) => {
+					const btn = document.createElement("button");
+					btn.type = "button";
+					btn.className = "ds-atom-tabs-trigger";
+					const span = document.createElement("span");
+					span.className = "ds-atom-tabs-label";
+					span.textContent = label;
+					btn.appendChild(span);
+					const c = COUNTS[i];
+					if (typeof c === "number") {
+						const cs = document.createElement("span");
+						cs.className = "ds-atom-tabs-count";
+						cs.textContent = String(c);
+						btn.appendChild(cs);
+					}
+					strip.appendChild(btn);
+				});
+				const moreProbe = document.createElement("button");
+				moreProbe.type = "button";
+				moreProbe.className = "ds-atom-tabs-more";
+				const icon = document.createElement("span");
+				icon.style.cssText = "display:block;width:16px;height:16px";
+				moreProbe.appendChild(icon);
+				holder.appendChild(strip);
+				holder.appendChild(moreProbe);
+				root.appendChild(holder);
+				const stripLeft = strip.getBoundingClientRect().left;
+				const cumulative = Array.from(
+					strip.children,
+					(el) => el.getBoundingClientRect().right - stripLeft,
+				);
+				const moreWidth = moreProbe.getBoundingClientRect().width;
+				holder.remove();
+
+				const total = cumulative[cumulative.length - 1] ?? 0;
+				const originalMaxWidth = wrapper.style.maxWidth;
+				const rows: { width: number; container: number; rendered: number; expected: number }[] = [];
+
+				// Upward, because the ratchet only shows on a widening step.
+				for (let w = 240; w <= 440; w += 8) {
+					wrapper.style.maxWidth = `${w}px`;
+					await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+					await new Promise((r) => setTimeout(r, 40));
+					const barStyle = getComputedStyle(bar);
+					const gap = Number.parseFloat(barStyle.columnGap) || 0;
+					const container =
+						bar.clientWidth -
+						(Number.parseFloat(barStyle.paddingLeft) || 0) -
+						(Number.parseFloat(barStyle.paddingRight) || 0);
+					let expected: number;
+					if (total <= container) {
+						expected = cumulative.length;
+					} else {
+						const available = container - (gap + moreWidth);
+						expected = cumulative.filter((c) => c <= available).length;
+					}
+					rows.push({
+						width: w,
+						container,
+						rendered: tablist.querySelectorAll("[role='tab']").length,
+						expected,
+					});
+				}
+				wrapper.style.maxWidth = originalMaxWidth;
+				return rows;
+			});
+
+			const wrong = sweep.filter((r) => r.rendered !== r.expected);
+			expect(
+				wrong.map(
+					(r) => `@${r.width}px(bar ${r.container}): rendered ${r.rendered}, fits ${r.expected}`,
+				),
+				"the rendered tab count disagrees with the measured geometry at these container widths",
+			).toEqual([]);
+			// A sweep that silently stopped measuring would pass vacuously.
+			expect(sweep.length).toBeGreaterThan(20);
+		});
+
 		test(`the first hidden tab genuinely does not fit — ${brand}`, async ({ page }) => {
 			await openStory(page, brand, { deferRO: false });
 			const bar = await readBar(page);
