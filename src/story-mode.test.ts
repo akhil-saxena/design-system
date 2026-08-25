@@ -268,12 +268,21 @@ describe(".storybook/preview.tsx keeps its own guarded wrapper", () => {
 	const PREVIEW = ".storybook/preview.tsx";
 
 	it("still carries the brand-conditional wrapper, which is correct and load-bearing", () => {
-		// Under monochrome the class must be absent, or the design system's
-		// ":root.dark, .dark" block re-declares its neutrals below the brand layer
-		// on this very wrapper. Under the default brand it is redundant but
-		// harmless, and every recorded baseline was captured with it present.
+		// Under monochrome the class must be absent WHEN <html> ALREADY CARRIES IT,
+		// or the design system's ":root.dark, .dark" block re-declares its neutrals
+		// below the brand layer on this very wrapper. Under the default brand it is
+		// redundant but harmless, and every recorded baseline was captured with it
+		// present.
+		//
+		// The `&& pageIsDark` qualifier is not a loosening of that rule, it is the
+		// rule stated precisely. In STORY mode <html> is dark whenever this branch
+		// runs, so `isMonochrome && pageIsDark` and a bare `isMonochrome` are the
+		// same expression and the baselines are untouched. It only differs in DOCS
+		// mode, where <html> now follows the toolbar rather than whichever story
+		// block rendered last — so a dark story CAN sit on a light page, and
+		// dropping the class there would render it light under monochrome alone.
 		expect(readFileSync(PREVIEW, "utf8")).toContain(
-			'className={isMonochrome ? undefined : "dark"}',
+			'className={isMonochrome && pageIsDark ? undefined : "dark"}',
 		);
 	});
 
