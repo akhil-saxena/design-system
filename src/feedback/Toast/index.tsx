@@ -75,7 +75,9 @@ export interface ToastProviderProps {
  *   </ToastProvider>
  *
  * Mounts a fixed top-right region (z-1100) that renders only when ≥1 toast
- * is active. Max 3 concurrent toasts; 4th added → oldest FIFO drops.
+ * is active. Max 3 concurrent LIVE toasts; 4th added → oldest FIFO drops.
+ * A dropped toast keeps its node for SLIDE_OUT_MS while it animates out, so the
+ * region may briefly hold more than 3 nodes - but never more than 3 live ones.
  * Each toast auto-dismisses after `duration` ms (default 3000); pass
  * `duration: Infinity` to disable auto-dismiss.
  *
@@ -129,7 +131,13 @@ export function ToastProvider({ children }: ToastProviderProps) {
 			const id = ++nextToastId;
 			const duration = opts?.duration ?? DEFAULT_DURATION;
 			setToasts((prev) => {
-				const overflow = prev.length + 1 - MAX_CONCURRENT;
+				// Count only LIVE toasts. A node already marked `dismissing` is mid-slide-out
+				// and removes itself after SLIDE_OUT_MS, so it holds no slot. Measuring the
+				// cap against `prev.length` counted those leaving nodes, so a toast arriving
+				// inside the window evicted a second live toast and the region settled BELOW
+				// the cap - 2 live at the 5th, 1 live at the 6th (F-8).
+				const live = prev.reduce((n, t) => (t.dismissing ? n : n + 1), 0);
+				const overflow = live + 1 - MAX_CONCURRENT;
 				let next = prev;
 				if (overflow > 0) {
 					// FIFO drop: pick the OLDEST non-dismissing toast(s) and mark them dismissing.

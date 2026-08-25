@@ -24,6 +24,34 @@ function FireOnMount({
 	return null;
 }
 
+type ToastApi = ReturnType<typeof useToast>;
+
+const INF = { duration: Number.POSITIVE_INFINITY };
+
+/** Hands the imperative api back to the test so toasts can be fired across separate acts. */
+function CaptureApi({ onReady }: { onReady: (api: ToastApi) => void }) {
+	const toast = useToast();
+	useEffect(() => {
+		onReady(toast);
+	}, [toast, onReady]);
+	return null;
+}
+
+/**
+ * The region as the user sees it: `total` counts rendered nodes, `live` counts only
+ * those NOT already sliding out. The cap is on live toasts - a node carrying
+ * `data-dismissing` is mid-animation and will remove itself, so it does not occupy a slot.
+ */
+function regionState() {
+	const nodes = Array.from(document.querySelectorAll(".ds-atom-toast"));
+	const live = nodes.filter((n) => n.getAttribute("data-dismissing") !== "true");
+	return {
+		total: nodes.length,
+		live: live.length,
+		liveMessages: live.map((n) => n.querySelector(".ds-atom-toast-msg")?.textContent ?? ""),
+	};
+}
+
 describe("Toast", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
@@ -156,6 +184,131 @@ describe("Toast", () => {
 		expect(screen.getByText("two")).toBeInTheDocument();
 		expect(screen.getByText("three")).toBeInTheDocument();
 		expect(screen.getByText("four")).toBeInTheDocument();
+	});
+
+	// --- F-8: overflow must be computed from LIVE toasts, not from rendered nodes. ---
+	// A node already marked `dismissing` is mid-slide-out and removes itself after
+	// SLIDE_OUT_MS. Counting it as occupying a slot makes a toast that arrives inside
+	// that window evict two live toasts instead of one, settling BELOW the cap.
+
+	it("a toast arriving during a slide-out evicts only one live toast (F-8)", () => {
+		let api!: ToastApi;
+		const capture = (a: ToastApi) => {
+			api = a;
+		};
+		render(
+			<ToastProvider>
+				<CaptureApi onReady={capture} />
+			</ToastProvider>,
+		);
+
+		act(() => {
+			api.info("one", INF);
+			api.success("two", INF);
+			api.warning("three", INF);
+		});
+		expect(regionState()).toMatchObject({ total: 3, live: 3 });
+
+		// 4th: the oldest starts its 200ms slide-out. 4 nodes / 3 live is the deliberate
+		// window the FIFO-drop test above already encodes - it must stay exactly that.
+		act(() => {
+			api.error("four", INF);
+		});
+		expect(regionState()).toMatchObject({ total: 4, live: 3 });
+
+		// 5th arrives INSIDE that window, while "one" still carries data-dismissing.
+		act(() => {
+			vi.advanceTimersByTime(100);
+		});
+		act(() => {
+			api.success("five", INF);
+		});
+		// Only "two" may be evicted. Counting the dismissing "one" would evict "three" too.
+		expect(regionState().live).toBe(3);
+
+		act(() => {
+			vi.advanceTimersByTime(400);
+		});
+		expect(regionState()).toMatchObject({ total: 3, live: 3 });
+		expect(regionState().liveMessages).toEqual(["three", "four", "five"]);
+	});
+
+	it("a sixth toast during the window still settles at 3 live (F-8 boundary)", () => {
+		let api!: ToastApi;
+		const capture = (a: ToastApi) => {
+			api = a;
+		};
+		render(
+			<ToastProvider>
+				<CaptureApi onReady={capture} />
+			</ToastProvider>,
+		);
+
+		act(() => {
+			api.info("one", INF);
+			api.success("two", INF);
+			api.warning("three", INF);
+		});
+		act(() => {
+			api.error("four", INF);
+		});
+		act(() => {
+			vi.advanceTimersByTime(100);
+		});
+		act(() => {
+			api.success("five", INF);
+		});
+		// 6th, with two removals still in flight - the case that would compound the defect.
+		act(() => {
+			vi.advanceTimersByTime(50);
+		});
+		act(() => {
+			api.error("six", INF);
+		});
+		expect(regionState().live).toBe(3);
+
+		act(() => {
+			vi.advanceTimersByTime(400);
+		});
+		expect(regionState()).toMatchObject({ total: 3, live: 3 });
+		expect(regionState().liveMessages).toEqual(["four", "five", "six"]);
+	});
+
+	it("a fifth toast after the window closes is unaffected (F-8 control)", () => {
+		let api!: ToastApi;
+		const capture = (a: ToastApi) => {
+			api = a;
+		};
+		render(
+			<ToastProvider>
+				<CaptureApi onReady={capture} />
+			</ToastProvider>,
+		);
+
+		act(() => {
+			api.info("one", INF);
+			api.success("two", INF);
+			api.warning("three", INF);
+		});
+		act(() => {
+			api.error("four", INF);
+		});
+		// Let the slide-out finish: no dismissing node remains, so prev.length == live.
+		act(() => {
+			vi.advanceTimersByTime(250);
+		});
+		expect(regionState()).toMatchObject({ total: 3, live: 3 });
+
+		act(() => {
+			api.success("five", INF);
+		});
+		expect(regionState().live).toBe(3);
+
+		act(() => {
+			vi.advanceTimersByTime(400);
+		});
+		expect(regionState()).toMatchObject({ total: 3, live: 3 });
+		expect(regionState().liveMessages).toEqual(["three", "four", "five"]);
 	});
 
 	it("dismiss(id) is callable without throwing", () => {
