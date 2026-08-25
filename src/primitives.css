@@ -2631,7 +2631,7 @@ fieldset.ds-atom-field {
    state in charcoal dark since the monochrome palette landed and no gate saw
    it: axe returns `incomplete` with messageKey `equalRatio` rather than a
    violation for a ratio that rounds to 1.00. Default brand: #1c1c1a → #1c1917,
-   8.10 → 8.14 on #f59e0b. */
+   7.95 → 8.14 on #f59e0b. */
 .ds-atom-datepicker-cell.is-selected .ds-atom-datepicker-event-dot {
 	background: var(--ink-inverse);
 }
@@ -3490,7 +3490,8 @@ fieldset.ds-atom-field {
 	   its glyph color is constant too" — that premise died when charcoal made the
 	   accent invert with the mode, and the pinned glyph then measured 1.10 on the
 	   light-mode fill. --ink-inverse is the ink for the accent fill and inverts
-	   with it; it resolves to #1c1917 in the default brand, 8.14 on #f59e0b. */
+	   with it; it resolves to #1c1917 in the default brand, where it measures
+	   8.14 on #f59e0b against the retired literal's 7.97. */
 	color: var(--ink-inverse);
 }
 .ds-atom-multiselect-option-label {
@@ -3579,9 +3580,9 @@ fieldset.ds-atom-field {
    it measures 1.11 the moment the light-mode accent reaches the ink end. This
    token is the system's name for "the ink that goes on the accent fill" and it
    inverts with it. Resolves to #1c1917 in the default brand, where the literal
-   measured 10.36 and the token measures 8.14 — both clear of AA on #f59e0b.
+   measured 9.78 and the token measures 8.14 — both clear of AA on #f59e0b.
    The .dark rule below keeps its literal: #000 on this mode's near-white fill
-   measures 18.78 under charcoal and 10.36 under the default brand, so it is
+   measures 18.78 under charcoal and 9.78 under the default brand, so it is
    not wrong, and repointing it would move a default-brand baseline for style
    rather than for correctness. */
 .ds-atom-segmented-btn[data-active] {
@@ -5093,7 +5094,7 @@ fieldset.ds-atom-field {
 	   mode-independent in every brand; under charcoal it now inverts with the
 	   accent fill it inks, which would put #fafafb on this pale yellow at 1.12.
 	   The value is what the default brand already resolved --ink-inverse to, so
-	   that brand is byte-identical; charcoal moves from 16.72 to 15.07 here. */
+	   that brand is byte-identical; charcoal moves from 16.68 to 15.03 here. */
 	color: #1c1917;
 	border-radius: 2px;
 	padding: 0 1px;
