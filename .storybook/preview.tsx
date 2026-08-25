@@ -112,10 +112,18 @@ const DARK_BG = "#1c1917";
 type ChromeGlobals = { theme?: unknown; brand?: unknown };
 
 function applyChrome(globals: ChromeGlobals) {
-	const root = document.documentElement;
-	root.classList.toggle("dark", globals.theme === "dark");
-	if (globals.brand === "monochrome") root.dataset.brand = "monochrome";
-	else root.removeAttribute("data-brand");
+	/* `document.documentElement` is spelled out three times rather than aliased to
+	   a `root` local, and that is not a style preference. src/story-mode.test.ts's
+	   findDarkWrappers flags any `classList.add|toggle("dark")` whose callee text
+	   does not end in `documentElement.classList.*` — the whole point of E29 being
+	   that `.dark` on anything BUT the root re-declares fifty neutral tokens below
+	   the brand layer. An alias is invisible to a static callee check, so writing
+	   `root.classList.toggle` made that gate fire on this very line. It was right
+	   to: the alias hid the one fact the gate exists to verify. Widening the guard
+	   to chase aliases would have traded a real check for a tidier local. */
+	document.documentElement.classList.toggle("dark", globals.theme === "dark");
+	if (globals.brand === "monochrome") document.documentElement.dataset.brand = "monochrome";
+	else document.documentElement.removeAttribute("data-brand");
 }
 
 /* The toolbar's own selection, un-merged with any story-level override.
