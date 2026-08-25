@@ -125,6 +125,56 @@ async function selectAll(page: import("@playwright/test").Page) {
 }
 
 /**
+ * Extends the selection from the start of the document until it covers exactly
+ * `word`, CHECKING THE SELECTION AFTER EVERY SINGLE KEYSTROKE.
+ *
+ * The same lesson `selectAll` above records, in the one place that had not
+ * learned it. G-4 used to press Shift+ArrowRight seven times in a row and then
+ * assume seven characters were selected. Measured under a loaded machine — every
+ * 0ms macrotask deferred, which is what six Playwright workers and a Vite dev
+ * server do to each other on twelve cores — one of the seven is dropped, and the
+ * failure reads:
+ *
+ *   Expected substring: "**Reduced**"
+ *   Received string:    "**Reduce**d **p95 latency** by 40% across three services"
+ *
+ * Six characters, not seven. That is not a broken serializer, which is what the
+ * assertion appears to be about; it is a lost keystroke, and no amount of
+ * waiting afterwards recovers it — a key that was never delivered never arrives.
+ *
+ * So the press is retried against the selection rather than counted. Reading
+ * `window.getSelection()` and not `editor.state.selection` is deliberate:
+ * ProseMirror's mirror of the selection lags the DOM by design (measured: 13 of
+ * 25 loads still reported the pre-keystroke position while the DOM selection was
+ * already correct), so polling the mirror would wait on the wrong clock. The DOM
+ * selection is also the thing Chromium's native ⌘B actually acts on, which is
+ * the input path this case exercises.
+ */
+async function selectLeadingWord(page: import("@playwright/test").Page, word: string) {
+	const domSelection = () => page.evaluate(() => window.getSelection()?.toString() ?? "");
+	// The click-and-Home is retried as a unit for `selectAll`'s reason: if the
+	// editor was not focused when the click resolved, Home went to the document
+	// and every extension after it starts from the wrong place.
+	for (let attempt = 0; attempt < 5; attempt += 1) {
+		await page.locator(".ProseMirror").click();
+		await page.keyboard.press("Home");
+		// One press, one check. A dropped press leaves the selection unchanged and
+		// is simply pressed again; there is no budget to exhaust.
+		for (let i = 0; i < word.length * 3; i += 1) {
+			const current = await domSelection();
+			if (current === word) return;
+			// Longer than the target, or diverging from it, means the anchor is
+			// wrong — more presses cannot fix that, so start over.
+			if (current.length >= word.length || !word.startsWith(current)) break;
+			await page.keyboard.press("Shift+ArrowRight");
+		}
+	}
+	expect(await domSelection(), `the editor selection never reached ${JSON.stringify(word)}`).toBe(
+		word,
+	);
+}
+
+/**
  * The keymap-only combinations, pressed with Control.
  *
  * Not a convenience: `Mod-` is bound to Ctrl in this browser because
@@ -294,15 +344,7 @@ test.describe("G-4: the stored shape, in a browser", () => {
 		const stored = page.locator("#storybook-root pre").first();
 		await expect(stored).toContainText("Reduced **p95 latency** by 40%");
 		// Bold the first word too and watch the stored string gain a second run.
-		await page.locator(".ProseMirror").click();
-		await page.keyboard.press("Home");
-		await page.keyboard.press("Shift+ArrowRight");
-		await page.keyboard.press("Shift+ArrowRight");
-		await page.keyboard.press("Shift+ArrowRight");
-		await page.keyboard.press("Shift+ArrowRight");
-		await page.keyboard.press("Shift+ArrowRight");
-		await page.keyboard.press("Shift+ArrowRight");
-		await page.keyboard.press("Shift+ArrowRight");
+		await selectLeadingWord(page, "Reduced");
 		await page.keyboard.press("Meta+b");
 		await expect(stored).toContainText("**Reduced**");
 		// And no markup string anywhere in the stored value — the whole point.
