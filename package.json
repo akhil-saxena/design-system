@@ -68,7 +68,7 @@
 		"typecheck": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit",
 		"prepare": "is-ci || husky",
 		"prepublishOnly": "npm run build && npm test",
-		"test:a11y": "start-server-and-test \"npm run storybook -- --quiet --no-open\" http://localhost:6006 \"DS_TEST_MODE=a11y test-storybook\"",
+		"test:a11y": "node scripts/storybook-runner.mjs --mode a11y",
 		"test:visual:capture": "start-server-and-test \"npm run storybook -- --quiet --no-open\" http://localhost:6006 \"DS_TEST_MODE=visual test-storybook\"",
 		"test:coverage": "vitest run --coverage",
 		"css:check": "node scripts/split-css.mjs --check"
