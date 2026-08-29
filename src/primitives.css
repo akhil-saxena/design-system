@@ -3640,6 +3640,47 @@ fieldset.ds-atom-field {
 	font-size: 14px;
 	padding: 0 18px;
 }
+
+/* ─── DS atom: SegmentedControl · touch targets (D-3) ──────────────────
+   The 44px coarse-pointer floor, applied to the segment button and therefore to
+   FilterNav's anchors, which carry the same class.
+
+   WHAT WAS MEASURED. The three declared sizes are 28px, 32px and 40px, and the
+   file carried exactly two `@media (pointer: coarse)` blocks — AppBar's anchors
+   and Footer's links — neither of which mentions this control. So EVERY size was
+   under the floor on every phone: the consumer whose gallery filter produced the
+   finding runs `data-size="lg"` and measured 40px against 44, and the default
+   `md` measures 32.
+
+   min-height, NOT a bigger height and NOT more padding. Three reasons, all of
+   them load-bearing:
+
+     1. The used height of a box is max(min-height, height), so a min-height here
+        wins over `.ds-atom-segmented[data-size] .ds-atom-segmented-btn`'s
+        `height` — which is (0,3,0) and would otherwise beat anything a
+        single-class rule could say — WITHOUT entering a specificity contest at
+        all. Different property, no contest to lose.
+     2. It leaves the DRAWN geometry alone. The pill's border-radius, its 2px
+        wrapper padding and the active segment's fill are all unchanged; only the
+        hit box grows, and only where a finger is the pointer.
+     3. Padding would be beaten by an inline declaration on the same element, the
+        trap that findings E3, E5 and F-12-2 record and that the AppBar block
+        further down this file was written to avoid.
+
+   WIDTH IS DELIBERATELY NOT FLOORED, and this is the one place this rule falls
+   short of the project's contract. A short label — "All" — measures 42.98px wide
+   at `md`, just under 44. A min-width would push every segment out to 44 and
+   visibly redraw a control whose whole point is that its segments are sized to
+   their labels, and the segments are adjacent with a 2px gap, so the horizontal
+   miss distance between two targets is 2px rather than a gap of dead space. The
+   height is the axis a thumb misses on. Recorded rather than silently skipped. */
+@media (pointer: coarse) {
+	.ds-atom-segmented-btn {
+		box-sizing: border-box;
+		min-height: 44px;
+	}
+}
+
 /* Dark mode */
 .dark .ds-atom-segmented {
 	background: var(--cream-2);
