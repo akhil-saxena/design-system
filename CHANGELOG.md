@@ -6,6 +6,118 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## 2.0.0-beta.2 — Five user-visible defects, each measured before and after
+
+**A prerelease, published under the `next` dist-tag.** Nothing about
+`npm install @akhil-saxena/design-system` changes for anyone: npm caret ranges
+never match a prerelease, so `latest` has not moved. To try it:
+
+```
+npm install @akhil-saxena/design-system@2.0.0-beta.2
+```
+
+Every item below was reproduced in a browser against the published
+`2.0.0-beta.1`, fixed, and re-measured. Five of the twenty-one findings a
+consumer's Phase 5 audit raised; the other sixteen are still open.
+
+### Fixed
+
+**1. `AppBar` overflowed a 344px viewport, and no consumer could compress it.**
+
+The bar's logo+nav lead, its nav group and its actions group are `<div>`s AppBar
+renders itself around your slot content. They carried `display`, `align-items`
+and `gap` as **inline styles**, which no stylesheet can beat at any specificity
+— so a site built on this bar reported `scrollWidth` **358** against a 344px
+viewport on every route, 14px of horizontal scroll with the theme toggle pushed
+off the edge, and the only lever available was `!important` reaching into
+internals it did not own.
+
+They now carry `.ds-atom-appbar-lead`, `.ds-atom-appbar-nav` and
+`.ds-atom-appbar-actions`, styled from `primitives.css`, and the sheet tightens
+both gaps below 380px. Measured after: 0px of overflow at 344 at both pointers,
+on all six routes, with 360, 375, 380, 390, 768, 841, 1024 and 1440 unchanged.
+Override either gap from your own sheet, no `!important` needed:
+
+```css
+.ds-atom-appbar-nav { gap: 8px; }
+```
+
+**2. `SegmentedControl` (and `FilterNav`) missed the 44px coarse-pointer floor.**
+
+All three sizes shipped under it — `sm` 28px, `md` 32px, `lg` 40px — because
+neither of the sheet's two `@media (pointer: coarse)` blocks mentioned this
+control. A `min-height: 44px` now applies to `.ds-atom-segmented-btn` under that
+query, which `FilterNav`'s anchors inherit because they carry the same class.
+
+Used height is `max(min-height, height)`, so this wins over the `[data-size]`
+height rule without a specificity contest and **the drawn geometry does not
+change**: at a fine pointer the three sizes still measure 28, 32 and 40.
+
+**3. `Lightbox`'s close, prev and next rendered at 32×32px.**
+
+A lost cascade contest, not a wrong number: the controls are `IconButton`s at
+`size="md"`, so `.ds-atom-iconbtn[data-size="md"]` at (0,2,0) beat the Lightbox's
+own 40px rule at (0,1,0). Measured at 390×844 coarse **and** 1440×900 fine —
+32×32 in both, so it was never touch-only.
+
+The size now sits at (0,3,0) and applies: **40×40** at a fine pointer, and
+**44×44** under `(pointer: coarse)`, where these are the only affordances for
+closing and navigating.
+
+**4. `--ds-appbar-h` was unreadable by the one element it exists for, and 10px
+short.**
+
+It was declared on `.ds-atom-appbar`. Custom properties inherit to descendants,
+not siblings — and the documented recipe,
+`min-height: calc(100svh - var(--ds-appbar-h))`, is for a section placed *under*
+the bar. Read from a sibling it resolved to the empty string and the `calc()`
+fell back to `auto`.
+
+It now lives on `:root` (as does its coarse-pointer re-declaration), and the
+value is **57px**, not 47: 47 described a bar holding nothing but the 22px logo
+mark, and was under-reported by every real composition including three of this
+library's own stories. 57 is `32 + 2×12 + 1`, where 32px is the height of the
+system's `md` controls, so the property is now the number the bar is floored at
+rather than a guess. `withSearch` reports 61px from its own selector.
+
+**Behavioural change worth knowing:** because the property is the bar's
+`min-height`, a bar whose content is shorter than 32px now paints 57px where it
+previously painted 47–53. Six of this library's AppBar stories moved by 4–10px.
+If you were relying on the shorter bar, set the property yourself —
+`:root { --ds-appbar-h: 47px }` — and the bar will follow it.
+
+**5. `Lightbox` had no swipe-to-dismiss.**
+
+A downward swipe did nothing: too little horizontal travel to navigate, and past
+the tap slop so backdrop-close had bailed too. On a phone that left a ≤10px
+backdrop tap and one button as the only ways out of a full-screen overlay.
+
+A downward swipe of 44px or more, at least 1.5× more vertical than horizontal,
+from anywhere on the overlay including the image, now closes it. It cannot
+collide with swipe-to-navigate: that needs `|dx| ≥ 1.5|dy|` and this needs
+`|dy| > 1.5|dx|`, and both at once would require `|dy| > 2.25|dy|`.
+
+The handler alone was not enough. `.ds-atom-lightbox-backdrop` declared
+`touch-action: pan-y`, which handed the vertical axis to the browser — measured
+with real touch input, the dismiss branch plus `pan-y` still left the overlay
+open. The declaration is now **`pinch-zoom`**, which claims both pan axes for the
+component and hands back only the two-finger gesture. `pan-x` was measured and
+rejected: it fixes the dismiss and breaks navigation. `pinch-zoom` rather than
+`none` because the overlay's subject is a photograph — dispatching a real pinch
+reads `visualViewport.scale` 1 under `none` and 5 under `pinch-zoom`, and the
+`pan-y` this replaces already forbade it.
+
+### Notes
+
+- No API changed. No prop was added, removed or renamed.
+- One `Lightbox` unit test was renamed: it asserted that a downward drag did
+  nothing, under a title describing behaviour the component no longer has.
+- 12 visual baselines were re-recorded, all `layout-appbar--*`, both brands,
+  for item 4. Verified by digest over all 1,019 recorded images: exactly those
+  12 changed and 1,007 are byte-identical.
+
+---
+
 ## 2.0.0-beta.1 — The monochrome brand, and a font layer you now import yourself
 
 **A prerelease, published under the `next` dist-tag.** Nothing about
