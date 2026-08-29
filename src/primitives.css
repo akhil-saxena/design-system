@@ -5640,32 +5640,73 @@ fieldset.ds-atom-field {
 }
 
 /* ─── DS atom: AppBar (DS-72) ──────────────────────────────────────── */
+/* --ds-appbar-h — the bar's height, exposed so a consumer does not have to
+   measure it. A full-viewport section placed under the bar needs
+   `min-height: calc(100svh - var(--ds-appbar-h))`; a bare `100svh` puts its
+   bottom edge below the fold by exactly the bar's height. Before this property
+   existed the only way to write that calc was to measure the bar in devtools and
+   paste the number into a page stylesheet, where it rots.
+
+   DECLARED ON :root, NOT ON .ds-atom-appbar, AND THAT IS THE WHOLE FIX (D-2a).
+   Custom properties inherit to DESCENDANTS, not to siblings. The recipe above is
+   for a section placed UNDER the bar — a SIBLING of it — so with the declaration
+   on the bar's own class `var(--ds-appbar-h)` resolved to nothing at the one
+   call site the property exists for, and the calc fell back to `auto`. Measured
+   in Chromium on the site built on this bar, on every route: read from inside
+   the bar, `47px`; read from a sibling, the empty string. The consumer wrote a
+   flex column instead and left a comment forbidding a local re-declaration by
+   name. This is that comment's fix.
+
+   STILL NOT INLINE ON THE ELEMENT, for the original reason. A custom property
+   set from the component's `style` object is fixed at construction: no media
+   query can reach it. That is the mistake --ds-sidebar-w made, and it is why
+   AppShell's sidebar width is unreachable. At :root the coarse-pointer block
+   further down this file still re-declares it when the touch floor grows the
+   bar.
+
+   :root RATHER THAN THE BAR MEANS ONE VALUE PER DOCUMENT. A page with two
+   structurally different AppBars gets one number for both; that is the cost of
+   making it readable from outside the bar, it is not what a topbar is, and such
+   a page should set the property itself.
+
+   57px, NOT THE 47px THIS SHIPPED AS (D-2b). 47 was 22px of default logo mark
+   + 2x12 padding + the 1px border — the floor of a bar containing nothing but
+   the mark. It was under-reported by every real composition, including three of
+   this library's own stories, because anything the system itself puts in a slot
+   is taller than 22px. Measured at a fine pointer, declared 47 against painted:
+   Default 53, Minimal 51, WithSearch 61, and the consumer's bar 57. 57 is
+   32 + 2x12 + 1: 32px is the height of the system's md control — IconButton,
+   which is what sits in an actions slot — so the floor now covers anything up to
+   that and the property becomes SELF-FULFILLING there rather than a guess,
+   because the bar's min-height is this same value.
+
+   WHAT IT STILL CANNOT PROMISE, stated because the previous docstring promised
+   more than it could keep. The slots take arbitrary ReactNodes, so a taller
+   child still makes a taller bar and CSS cannot read layout back into a custom
+   property. Two such cases are handled below because the STYLESHEET can detect
+   them — the bar's own search input, and the coarse-pointer anchor floor. A
+   third is not: at a width where the row does not fit, the logo's label wraps to
+   two lines and the bar grows with it — measured 63px for Default at 390px, and
+   57px for Minimal and Centered at the same width, so it is the ROW not fitting
+   rather than the logo alone. Constrain your slot content, or set --ds-appbar-h
+   yourself and let the bar follow it. */
+:root {
+	--ds-appbar-h: 57px;
+}
+/* The withSearch variant renders a TextInput ITSELF — it is the component's own
+   content, not a consumer slot, so its height is knowable and the property says
+   so rather than under-reporting by 4px. 36px input + 2x12 + 1. */
+:root:has(.ds-atom-appbar[data-variant="withSearch"]) {
+	--ds-appbar-h: 61px;
+}
+
 .ds-atom-appbar {
-	/* --ds-appbar-h — the bar's height, exposed so a consumer does not have to
-	   measure it. A full-viewport section placed under the bar needs
-	   `min-height: calc(100svh - var(--ds-appbar-h))`; a bare `100svh` puts its
-	   bottom edge below the fold by exactly the bar's height. Before this
-	   property existed the only way to write that calc was to measure the bar in
-	   devtools and paste the number into a page stylesheet, where it rots.
-
-	   DECLARED HERE, AT CLASS LEVEL, AND DELIBERATELY NOT INLINE ON THE ELEMENT.
-	   A custom property set from the component's `style` object is fixed at
-	   construction: no media query, no container query and no future density
-	   axis can reach it, because there is no selector to re-declare it from.
-	   That is the mistake --ds-sidebar-w made, and it is why AppShell's sidebar
-	   width is unreachable. At class level the coarse-pointer block further down
-	   this file re-declares this property when the touch floor grows the bar, so
-	   the number keeps matching the paint instead of going stale.
-
-	   min-height, NOT height, and box-sizing: border-box so the value means the
+	/* min-height, NOT height, and box-sizing: border-box so the value means the
 	   whole box. The bar's height is content-determined — its logo, nav and
 	   actions are consumer slots — so a fixed height would clip whatever a
-	   consumer puts in them. The value below is the bar's floor: a 22px logo
-	   mark + 2x12px padding + the 1px bottom border. It is exact for a bar whose
-	   slots fit one row, which is AppBar's design contract; a consumer who
-	   overfills a slot until it wraps gets a taller bar than the property
-	   reports. See the AppBar docstring for that limitation stated in full. */
-	--ds-appbar-h: 47px;
+	   consumer puts in them. Reading the property here is what makes it
+	   self-fulfilling: the number a sibling subtracts is the number this bar is
+	   floored at. */
 	box-sizing: border-box;
 	min-height: var(--ds-appbar-h);
 	transition: background-color 0.2s ease, box-shadow 0.2s ease, backdrop-filter 0.2s ease;
@@ -5826,16 +5867,22 @@ fieldset.ds-atom-field {
 
 	/* The floor makes the tallest row item 44px, so the bar becomes
 	   44 + 2x12 padding + 1px border = 69px, and --ds-appbar-h has to say so: a
-	   property claiming 47px while the bar paints 69px on a phone is worse than
+	   property claiming 57px while the bar paints 69px on a phone is worse than
 	   no property at all. THIS re-declaration is the whole reason the property is
-	   declared on the class rather than inline on the element -- an inline custom
-	   property is fixed at construction and no media query can reach it.
+	   declared from a selector rather than inline on the element -- an inline
+	   custom property is fixed at construction and no media query can reach it.
 
 	   :has(a) rather than the bare class, so the taller value applies only to
 	   bars that actually contain anchors. A bar whose slots hold only Buttons is
 	   not grown by the rule above, and telling it 69px would be the same lie in
-	   the other direction. */
-	.ds-atom-appbar:has(a) {
+	   the other direction.
+
+	   ON :root, MATCHING THE BASE DECLARATION (D-2a). `.ds-atom-appbar:has(a)`
+	   set the taller value on the bar, where a sibling could not read it -- so the
+	   one composition whose number is most wrong for a consumer (a phone, a bar of
+	   links, 69 against a declared 57) was also the one most thoroughly out of
+	   reach. `:root:has(.ds-atom-appbar a)` puts it where the base value is. */
+	:root:has(.ds-atom-appbar a) {
 		--ds-appbar-h: 69px;
 	}
 }

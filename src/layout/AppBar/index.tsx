@@ -108,22 +108,36 @@ const DefaultLogo = () => (
  * A bare `100svh` there is not "close enough": it pushes the section's bottom
  * edge below the fold by exactly the height of the bar above it.
  *
- * The property is declared on `.ds-atom-appbar` in primitives.css — on the
- * class, not inline on the element. That is deliberate and it is the whole point:
- * an inline custom property is fixed at construction, so no media query can
- * drive it. Because this one lives on the class, the coarse-pointer touch-target
- * block re-declares it when the 44px floor grows the bar, and a consumer can
- * override it for their own bar with `.my-bar { --ds-appbar-h: 64px }`.
+ * The property is declared on `:root` in primitives.css — not inline on the
+ * element, and no longer on `.ds-atom-appbar` either.
  *
- * ### The one thing it does not promise
+ * Not inline, because an inline custom property is fixed at construction and no
+ * media query can drive it; the coarse-pointer block re-declares this one when
+ * the 44px touch floor grows the bar.
  *
- * `--ds-appbar-h` is the bar's **floor**, applied as `min-height`, and it is the
- * bar's exact height whenever the `logo`, `nav` and `actions` slots fit on one
- * row — which is what a topbar is. It cannot be an oracle: those three slots take
- * arbitrary `ReactNode`s, so the rendered height is content-determined, and CSS
- * custom properties are inputs to layout rather than readings of it. Overfill a
- * slot until the row wraps and the bar will be taller than the property says.
- * If you need the guarantee, constrain your slot content — or set
+ * Not on `.ds-atom-appbar`, because custom properties inherit to DESCENDANTS and
+ * not to siblings — and the recipe above is for a section placed UNDER the bar,
+ * which is a sibling. Declared on the bar, `var(--ds-appbar-h)` resolved to
+ * nothing at the one call site the property exists for, and the `calc()` fell
+ * back to `auto`. That was measured on a real consumer, on every route, twice.
+ *
+ * A consumer overriding it should do so at a scope their own sibling can also
+ * reach: `:root { --ds-appbar-h: 64px }`, not `.my-bar { … }`.
+ *
+ * ### What it promises, and what it does not
+ *
+ * `--ds-appbar-h` is the bar's **floor**, applied as `min-height`, so the bar
+ * paints exactly this value whenever every slot child is 32px or shorter — 32px
+ * being the height of the system's own md controls, which is what the value is
+ * derived from (32 + 2x12 padding + the 1px border = 57). Two compositions taller
+ * than that are handled because the stylesheet can detect them: the `withSearch`
+ * variant's own 36px input (61px), and the coarse-pointer anchor floor (69px).
+ *
+ * It cannot be an oracle. The three slots take arbitrary `ReactNode`s, so the
+ * rendered height is content-determined and CSS custom properties are inputs to
+ * layout rather than readings of it. Put something taller than 32px in a slot, or
+ * squeeze the row until it wraps, and the bar will be taller than the property
+ * says. If you need the guarantee, constrain your slot content — or set
  * `--ds-appbar-h` yourself and let the bar follow it.
  */
 export const AppBar = forwardRef<HTMLElement, AppBarProps>(
