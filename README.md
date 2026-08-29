@@ -262,6 +262,7 @@ build, and a hand-copied list here would be the thing that goes stale.
 - All non-essential motion is disabled under `prefers-reduced-motion: reduce`. Loading indicators (button spinner, progress, skeleton) are deliberately exempt so in-progress states stay perceivable.
 - `.ds-visually-hidden` is available for screen-reader-only text.
 - `IconButton` takes a **required** `label`, so an icon-only control cannot be built without an accessible name.
+- `Button` and `Link` both take `as`, for the case where the visual contract and the semantic one disagree. `Button as="a" href="…"` is a link that looks like a button; `Link as="button"` is a button that looks like a link. **`disabled` is translated, not forwarded** — an anchor has no `disabled` attribute, so a disabled `Button as="a"` gets `aria-disabled="true"`, loses its `href`, leaves the tab order and does not fire `onClick`. A `type` is never emitted on a non-button, where it would mean the MIME type of the linked resource.
 
 ### `RichText`: choosing an output format
 

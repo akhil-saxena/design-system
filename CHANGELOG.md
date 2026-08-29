@@ -6,6 +6,161 @@ Format: `## X.Y.Z — Release summary` with subsections per change type.
 
 ---
 
+## 2.0.0-beta.3 — One blocking gap, two smaller ones, and a dark bar nobody had seen
+
+**A prerelease, published under the `next` dist-tag.** Nothing about
+`npm install @akhil-saxena/design-system` changes for anyone: npm caret ranges
+never match a prerelease, so `latest` has not moved. To try it:
+
+```
+npm install @akhil-saxena/design-system@2.0.0-beta.3
+```
+
+Each item was reproduced in a browser against `2.0.0-beta.2` — in this
+package's own Storybook **and** against the consumer's own build, at six device
+classes and both pointers — fixed, and re-measured. Every fix has a negative
+control that was run.
+
+### Added
+
+**1. `Button` accepts `as`, so a control can look like a button and navigate.**
+
+`ButtonProps` extended `ButtonHTMLAttributes<HTMLButtonElement>` and had no
+`as`; `Link` has had `as?: ElementType` all along. A hero call-to-action that
+navigates, or a "Download the PDF" that hands over a file, could not be built
+out of `Button` at all — every consumer meeting that case either dropped to a
+text link or hand-rolled the fill in app CSS.
+
+```tsx
+<Button as="a" href="/work" variant="primary" size="lg">See the work</Button>
+```
+
+Three props do not survive the element swap intact, and are handled rather than
+forwarded:
+
+- **`disabled`** — an anchor has no `disabled` attribute. React renders one, the
+  browser ignores it, and the control looks disabled while staying focusable,
+  clickable and navigable. That is worse than not offering `as` at all, so on
+  anything that is not a native `<button>` it becomes `aria-disabled="true"`,
+  the `href` is **dropped** (an anchor without one is not a link, is not
+  focusable, and has no link role), `tabIndex` is pinned to `-1`, and `onClick`
+  is withheld. Those four are applied after your own props, so spreading a
+  wrapper's props cannot re-arm a control that reads disabled.
+- **`type`** — suppressed on a non-button. The default `type="button"` exists so
+  a Button cannot submit an enclosing form; on an `<a>`, `type` is the MIME type
+  of the linked resource, so `"button"` there is a false claim about a file. An
+  explicit `type` is dropped with it, because `ButtonProps` types it as the
+  button union and none of those three values means anything on an anchor. If
+  you genuinely want `<a type="…">`, use `Link`.
+- **`loading`** — unchanged. `aria-busy` is a global ARIA attribute and carries
+  across the swap as-is.
+
+`primitives.css` learns the same distinction: `.ds-atom-btn:disabled` never
+matched an anchor, so a disabled one painted fully opaque and accepted clicks.
+It is now `:is(:disabled, [aria-disabled="true"])`, and the seven variant hover
+guards are `:not(:disabled, [aria-disabled="true"])` — both shapes hold the
+selectors at exactly the specificity they already had.
+
+`.ds-atom-btn` also gained `text-decoration: none`. A `<button>` has no
+underline, so nothing needed to say so until this class could land on an `<a>`:
+measured, the primary CTA painted the amber fill **and** a text underline.
+
+Measured on the consumer's own build at all six device classes and both
+pointers: two `<a>` elements, filled primary and outlined secondary, 46px tall
+against the 44px coarse floor, no underline, no `type` attribute, and 0px of
+horizontal overflow at 344px. `astro check` on that consumer reports 0 errors.
+
+### Fixed
+
+**2. `AppBarVariant` promised `minimal` and nothing implemented it.**
+
+`grep -c 'data-variant="minimal"' dist/primitives.css` returned **0**. The
+component did branch on the variant — a minimal bar renders different children —
+but it painted its chrome from an inline `style` object that made no
+distinction, so `layout-appbar--minimal` and `layout-appbar--default` computed
+the identical `rgba(255, 255, 255, 0.55)` background and the identical
+`blur(14px)`. Selecting it changed nothing you could see, with no way to find
+out why.
+
+It is implemented, not removed from the union: removing it would delete working
+branching and break any consumer already passing it, to fix a variant that was
+three-quarters built. A minimal bar now has no surface fill and no
+backdrop-filter **at rest**, and still takes the frosted treatment when you set
+`scrolled` — that prop is how you say there is content underneath the bar, and a
+minimal bar that stayed transparent through it would be one the reader cannot
+separate from what is moving under it. Its transparent 1px bottom border stays,
+because it is the `+1` in `--ds-appbar-h`'s `32 + 2×12 + 1 = 57`.
+
+**3. A scrolled `AppBar` in dark mode painted nearly white.**
+
+Found while fixing the above, and not previously reported by anyone.
+`.dark .ds-atom-appbar[data-scrolled="true"]` has declared
+`rgba(28, 25, 23, 0.92)` for as long as it has existed, and had never once
+applied — the inline chrome outranked it. Measured before: a scrolled bar in
+dark mode painted `rgba(255, 255, 255, 0.92)` across the top of a dark page. No
+story covers dark + scrolled, so no screenshot baseline was ever going to catch
+it.
+
+Both are the same root cause. `background`, `backdrop-filter`, `border-bottom`
+and `box-shadow` were assembled in JS and spread into the header's `style`
+attribute, while `primitives.css` declared all four identically and could never
+win. The chrome moved to the sheet; the values did not change, and light mode is
+unchanged at rest and scrolled.
+
+**4. `Link`'s `footer` and `action` underlines were invisible on a dark surface.**
+
+Both variants inlined `textDecorationColor: "rgba(0, 0, 0, 0.25)"` — a fixed
+black. On a `#0d0d0f` page that composites to `rgb(10, 10, 11)` against a
+`rgb(13, 13, 15)` surface: three parts in 255, which is not an underline. Read
+on the consumer's built site at all six device classes and both pointers.
+
+Swapping the literal for a token in place would have fixed the colour and left
+the mechanism intact. `primitives.css` **already** declared the right dark value
+and that rule had never applied, because an inline declaration cannot be beaten
+by any stylesheet rule at any specificity. So `color` and `text-decoration-color`
+moved into the sheet beside the rest of the variant, at (0,2,0) — reachable from
+your own stylesheet without `!important`, which is what the finding actually
+asked for.
+
+The mode difference lives in a new token, `--link-underline-quiet`
+(`currentColor` at 25% in light, 40% in dark), rather than in a `.dark` rule. A
+`.dark .ds-atom-link[data-variant]` override would be (0,3,0), would tie with
+the hover rule and win on file order, and dark-mode hover would silently stop
+deepening the underline. `currentColor` rather than `var(--ink)` so the
+underline tracks whatever ink the link is painted in, including your own.
+
+Re-measured on the consumer's rebuild, all six device classes: the underline is
+its ink at 40%, composited `rgb(105, 105, 107)` against `rgb(13, 13, 15)` — a
+delta of **91.6/255** where it was **3/255**.
+
+`fontSize` and `fontWeight` stay inline. They were never the finding, nothing
+competes for them, and moving type metrics would open a cascade contest this
+change has no reason to have.
+
+### Visual baselines
+
+**All 1,019 existing baselines are byte-identical**, verified by sha256 over
+every image before and after. Two were added, for the new
+`Inputs/Button → AsAnchor` story.
+
+`layout-appbar--minimal` does render differently — 70,441 pixels, 8% of the
+image, at zero tolerance — but the change is low-amplitude and sits under the
+suite's default per-pixel threshold, so its baseline still depicts the pre-fix
+chrome. Deliberately not re-recorded: the comparator cannot tell the two apart
+in either direction, so re-recording would buy no regression detection. The
+computed-style spec is what holds that fix.
+
+### Still open
+
+`Link`'s `inline` variant, `Text`, `Eyebrow` and `Button`'s own variant fills
+still set colour as inline styles (D-10, D-19, D-22). `Text` still has no lever
+for the display face. `Eyebrow`, `Chip` and `StatusPill` still have no `as`
+(D-6 is closed only for `Button`). `AppBar` still renders a `DefaultLogo`
+placeholder when `logo` is omitted, and a `Sign in` button when a `minimal`
+bar's `actions` slot is empty (D-23, and its sibling).
+
+---
+
 ## 2.0.0-beta.2 — Five user-visible defects, each measured before and after
 
 **A prerelease, published under the `next` dist-tag.** Nothing about
