@@ -6951,18 +6951,61 @@ fieldset.ds-atom-field {
 	cursor: pointer;
 	transition: color 0.15s, text-decoration-color 0.15s;
 }
-.ds-atom-link:hover {
+/* THE VARIANT COLOUR PAIR, AND WHY IT IS HERE RATHER THAN ON THE ELEMENT (D-4).
+
+   `footer` and `action` used to set `color` and `textDecorationColor` as INLINE
+   styles, the second of them the literal `rgba(0, 0, 0, 0.25)`. Two things
+   followed, and both were measured rather than reasoned about:
+
+     1. On a dark surface the underline vanished. A consumer on #0d0d0f read
+        `text-decoration-color: rgba(0, 0, 0, 0.25)` on every one of its footer
+        links, at all six device classes and both pointers — composited, three
+        parts in 255 away from the page it sat on.
+     2. The dark override that used to live at this spot — `.dark
+        .ds-atom-link[data-variant="footer"] { text-decoration-color: rgba(255,
+        255, 255, 0.4) }` — WAS ALREADY CORRECT AND HAD NEVER ONCE APPLIED. An
+        inline declaration cannot be beaten by any stylesheet rule at any
+        specificity. The fix was written, shipped, and dead.
+
+   So the colour moves into the sheet, where the rest of the variant already
+   lives, and the mode goes into --link-underline-quiet rather than into a `.dark`
+   rule here. See the token's note for why: a (0,3,0) dark override would outrank
+   the hover rule below.
+
+   (0,2,0). Deliberately NOT `:where()` at (0,0,0): `.ds-atom-link` above declares
+   `color: inherit` at (0,1,0), and a zero-specificity variant rule would lose to
+   it and paint the footer link in whatever ink it inherited. (0,2,0) is still one
+   class short of what a consumer needs to override it, which is the entire
+   complaint D-4 filed — an inline style needed `!important`. */
+.ds-atom-link[data-variant="footer"],
+.ds-atom-link[data-variant="action"] {
+	color: var(--ink);
+	text-decoration-color: var(--link-underline-quiet);
+}
+/* (0,3,0), and enumerated rather than the bare `.ds-atom-link:hover` this
+   replaces, for two independent reasons:
+
+     - `.ds-atom-link:hover` is (0,2,0) and TIES with the variant rule above.
+       A tie is decided by source order alone, and this repository has already
+       lost a fix to exactly that (D-17, where a (0,1,0) Lightbox rule lost to
+       IconButton's (0,2,0) and the repair had to be scoped to (0,3,0) to hold).
+       Hover is the state that must win; it says so in the selector.
+     - `default` and `quiet` are excluded because they own their own hover
+       treatment at (0,3,0) — amber for `default`, an underline that appears at
+       all for `quiet`. Including them here would tie with those two rules
+       instead, trading one source-order dependency for another.
+
+   `inline` is listed even though its colour is still an inline style, so that
+   the rule keeps matching the same set it always did. */
+.ds-atom-link[data-variant="inline"]:hover,
+.ds-atom-link[data-variant="footer"]:hover,
+.ds-atom-link[data-variant="action"]:hover {
 	text-decoration-color: currentColor;
 }
 .ds-atom-link:focus-visible {
 	outline: none;
 	box-shadow: var(--focus-ring);
 	border-radius: 2px;
-}
-.dark .ds-atom-link[data-variant="footer"],
-.dark .ds-atom-link[data-variant="action"] {
-	color: var(--ink);
-	text-decoration-color: rgba(255, 255, 255, 0.4);
 }
 
 /* ─── DS atom: Heading / Text / Eyebrow ────────────────────────────────

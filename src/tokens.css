@@ -105,6 +105,27 @@
 	--rule: rgba(0, 0, 0, 0.08);
 	--rule-strong: rgba(0, 0, 0, 0.14);
 
+	/* The quiet underline under a footer/action Link, at rest. RELATIVE TO THE
+	   LINK'S OWN INK rather than to a fixed black — which is the whole point (D-4).
+
+	   The literal it replaces was `rgba(0, 0, 0, 0.25)`, set as an INLINE style by
+	   the Link component. A consumer on a #0d0d0f page measured the underline at
+	   rgba(0, 0, 0, 0.25) over rgb(13, 13, 15) at all six device classes and both
+	   pointers: a composite of rgb(10, 10, 11) against a rgb(13, 13, 15) surface,
+	   three parts in 255, which is no underline at all. primitives.css already
+	   carried the correct dark override and it could never apply — an inline
+	   declaration outranks every stylesheet rule at every specificity.
+
+	   `currentColor`, not var(--ink), so the underline tracks whatever ink the link
+	   is actually painted in — including a consumer's own `color` prop or class.
+
+	   The percentage is the only thing that varies by mode, so the MODE LIVES IN
+	   THIS TOKEN and not in a `.dark` rule. A `.dark .ds-atom-link[data-variant]`
+	   override would be (0,3,0); it would outrank the hover rule below and a
+	   dark-mode hover would silently stop deepening the underline. Varying the
+	   token keeps exactly one declaration in the cascade for this property. */
+	--link-underline-quiet: color-mix(in srgb, currentColor 25%, transparent);
+
 	/* Vivids - decorative-only (dots, fills, borders), never text */
 	--amber-vivid: #f59e0b;
 	--blue-vivid: #3b82f6;
@@ -329,6 +350,11 @@
 
 	--rule: rgba(255, 255, 255, 0.09);
 	--rule-strong: rgba(255, 255, 255, 0.14);
+
+	/* 40%, not the light block's 25%. This is the value primitives.css always
+	   intended for dark — it declared `rgba(255, 255, 255, 0.4)` in a rule the
+	   inline style made unreachable — now expressed where it can take effect. */
+	--link-underline-quiet: color-mix(in srgb, currentColor 40%, transparent);
 
 	/* Glass tints to deepest surface (anchored instead of floating) */
 	--g-bg: rgba(15, 13, 11, 0.7);
