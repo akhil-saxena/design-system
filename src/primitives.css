@@ -1712,11 +1712,32 @@ fieldset.ds-atom-field {
 .ds-atom-lightbox-backdrop {
 	position: fixed;
 	inset: 0;
-	/* Keep vertical panning with the browser, claim the horizontal axis for the
-	   swipe handler. Without this the browser consumes a horizontal drag as a
-	   scroll/overscroll gesture before pointerup reaches the component, so the
-	   swipe is inert on exactly the devices it exists for. */
-	touch-action: pan-y;
+	/* Claim BOTH pan axes for the component's own gestures, and hand back only
+	   pinch (PUB-06).
+
+	   This was `pan-y`, which kept the vertical axis with the browser. That is why
+	   swipe-to-dismiss could not be added by a consumer and had to be fixed here:
+	   the browser consumed a downward drag as a scroll/overscroll gesture before
+	   `pointerup` ever reached the component. MEASURED with real touch input at
+	   390x844 — with the dismiss branch already in the handler and `pan-y` still
+	   declared, a 350px downward swipe left the overlay OPEN. The JS half alone
+	   does nothing.
+
+	   NOT `pan-x`, which the finding offered as an alternative: measured on the
+	   same rig, it fixes the dismiss and BREAKS navigation — a 180px leftward
+	   swipe no longer changes slide, because the browser takes the horizontal axis
+	   instead.
+
+	   `pinch-zoom` RATHER THAN `none`, and this is the only part that is not
+	   forced. Both give the component the two single-finger gestures; they differ
+	   on the two-finger one. Measured by dispatching a real pinch and reading
+	   `visualViewport.scale`: under `none` it stays at 1, under `pinch-zoom` it
+	   reaches 5. This overlay's whole subject is a photograph, often the only copy
+	   of it a reader will see, so being able to magnify it is not a nicety. The
+	   value this replaces already forbade pinch, so this is a gain over what
+	   shipped as well as over the proposed fix. Nothing scrolls underneath —
+	   useScrollLock holds the body — so no panning is being given up. */
+	touch-action: pinch-zoom;
 	background: rgba(0, 0, 0, 0.92);
 	animation: lightboxFade 0.2s ease-out;
 	z-index: var(--z-max);

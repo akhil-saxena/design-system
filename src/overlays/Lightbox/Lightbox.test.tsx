@@ -464,7 +464,7 @@ describe("Lightbox", () => {
 		expect(onIndexChange).not.toHaveBeenCalled();
 	});
 
-	it("a predominantly vertical drag does not steal the scroll gesture", () => {
+	it("a predominantly vertical drag does not navigate", () => {
 		const onIndexChange = vi.fn();
 		const { baseElement } = render(
 			<Lightbox
@@ -477,6 +477,11 @@ describe("Lightbox", () => {
 		);
 		// 60px across, 200px down: past the distance threshold but nowhere near
 		// horizontally dominant.
+		//
+		// This case was called "does not steal the scroll gesture" and asserted
+		// only this. Since PUB-06 that gesture is not inert — it is the DISMISS
+		// gesture, and the block below asserts it closes. Renamed rather than left
+		// with a title describing behaviour the component no longer has.
 		swipe(backdropOf(baseElement), [500, 100], [440, 300]);
 		expect(onIndexChange).not.toHaveBeenCalled();
 	});
@@ -532,6 +537,131 @@ describe("Lightbox", () => {
 		fireEvent.click(backdrop, { clientX: 300, clientY: 550 });
 		expect(onIndexChange).toHaveBeenCalledWith(1);
 		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	// ── swipe DOWN to dismiss (PUB-06) ────────────────────────────────────────
+	//
+	// Before this, a downward swipe did nothing at all: too little dx to reach
+	// the navigation branch, and already past BACKDROP_TAP_SLOP_PX so the
+	// backdrop-close path had bailed too. On a phone that left a <=10px backdrop
+	// tap and one button as the only ways out of a full-screen overlay.
+	//
+	// WHAT THESE CASES CANNOT SEE. jsdom implements no `touch-action`, so every
+	// case below passes with the backdrop still declaring `pan-y` — under which a
+	// real browser consumes the vertical drag before `pointerup` is ever
+	// dispatched, and the gesture is inert on precisely the devices it exists
+	// for. MEASURED: with this handler in place and `pan-y` still declared, a
+	// 350px downward touch swipe at 390x844 left the overlay open. The CSS half
+	// is asserted in tests/visual/lightbox-swipe-dismiss.spec.ts, in a browser,
+	// with real touch input; these cases own the handler logic only.
+
+	it("a downward swipe past the threshold closes the overlay", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(
+			<Lightbox open onClose={onClose} items={threeItems} activeIndex={0} />,
+		);
+		swipe(backdropOf(baseElement), [200, 200], [200, 400]);
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("an UPWARD swipe of the same distance does not close", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(
+			<Lightbox open onClose={onClose} items={threeItems} activeIndex={0} />,
+		);
+		// The threshold is `dy >= …`, not `Math.abs(dy) >= …`. An upward flick is
+		// not a dismissal in any platform's vocabulary.
+		swipe(backdropOf(baseElement), [200, 400], [200, 200]);
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("a downward drag under the distance threshold does not close", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(
+			<Lightbox open onClose={onClose} items={threeItems} activeIndex={0} />,
+		);
+		// 40px down — over the 10px tap slop, under the 44px swipe floor, so this
+		// is an ambiguous drag and must resolve to no action at all.
+		swipe(backdropOf(baseElement), [200, 200], [200, 240]);
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("a diagonal drag inside the dominance ratio closes nothing and navigates nothing", () => {
+		const onClose = vi.fn();
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={onClose}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		// 100 across, 80 down: 100 <= 80*1.5 so it does not navigate, and
+		// 80 <= 100*1.5 so it does not dismiss. The ambiguous wedge belongs to
+		// neither gesture, which is the point of having a dominance ratio at all.
+		swipe(backdropOf(baseElement), [500, 100], [400, 180]);
+		expect(onIndexChange).not.toHaveBeenCalled();
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("a horizontal swipe navigates and never dismisses, by construction", () => {
+		const onClose = vi.fn();
+		const onIndexChange = vi.fn();
+		const { baseElement } = render(
+			<Lightbox
+				open
+				onClose={onClose}
+				items={threeItems}
+				activeIndex={0}
+				onIndexChange={onIndexChange}
+			/>,
+		);
+		// Dismissal needs |dy| > 1.5|dx| and navigation needs |dx| >= 1.5|dy|;
+		// satisfying both would require |dy| > 2.25|dy|. The two branches cannot
+		// overlap for any non-zero travel, so this is not an ordering accident.
+		swipe(backdropOf(baseElement), [500, 300], [400, 340]);
+		expect(onIndexChange).toHaveBeenCalledWith(1);
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it("a downward swipe that starts on the image closes too", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(
+			<Lightbox open onClose={onClose} items={threeItems} activeIndex={0} />,
+		);
+		// The gesture people actually make. Gating dismissal on the backdrop would
+		// make the overlay's largest surface the one place it does not work.
+		const img = baseElement.querySelector(".ds-atom-lightbox-image") as Element;
+		fireEvent.pointerDown(img, { clientX: 200, clientY: 200, pointerId: 1 });
+		fireEvent.pointerUp(backdropOf(baseElement), { clientX: 200, clientY: 400, pointerId: 1 });
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("a downward swipe dismisses a SINGLE-item Lightbox, where navigation is inert", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(
+			<Lightbox open onClose={onClose} items={oneItem} activeIndex={0} />,
+		);
+		// goPrev/goNext return early when showNav is false; dismissal must not
+		// inherit that gate — a one-image overlay still has to be closable.
+		swipe(backdropOf(baseElement), [200, 200], [200, 400]);
+		expect(onClose).toHaveBeenCalledTimes(1);
+	});
+
+	it("the dismiss does not fire twice through the click that follows it", () => {
+		const onClose = vi.fn();
+		const { baseElement } = render(
+			<Lightbox open onClose={onClose} items={threeItems} activeIndex={0} />,
+		);
+		const backdrop = backdropOf(baseElement);
+		swipe(backdrop, [200, 200], [200, 400]);
+		// Chromium emits a click on the backdrop after this gesture. The travel
+		// check has already set backdropTapRef false — 200px is well past the 10px
+		// slop — so onBackdropClick must not add a second call.
+		fireEvent.click(backdrop, { clientX: 200, clientY: 400 });
+		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
 	// ── screen-reader slide announcements (G-14, informed by G-13) ────────────

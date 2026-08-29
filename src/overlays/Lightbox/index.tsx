@@ -84,6 +84,26 @@ const SWIPE_MIN_DISTANCE_PX = 44;
 const SWIPE_HORIZONTAL_DOMINANCE = 1.5;
 
 /**
+ * Minimum DOWNWARD travel, in CSS pixels, before a drag counts as
+ * swipe-to-dismiss (PUB-06).
+ *
+ * The same 44px as the navigation threshold, deliberately, and reusing that
+ * constant rather than declaring a second number: the two gestures are the same
+ * gesture on perpendicular axes, and a dismiss that triggered sooner than a
+ * navigation would make the overlay feel like it was looking for an excuse to
+ * close. Downward only — `dy >= …`, not `Math.abs(dy) >= …` — because an upward
+ * flick on a photo is not a dismissal in any platform's vocabulary, and reading
+ * it as one would close the overlay on a gesture the user meant as nothing.
+ *
+ * IT CANNOT COLLIDE WITH NAVIGATION, by construction rather than by ordering.
+ * Dismissal needs |dy| > 1.5|dx| and navigation needs |dx| >= 1.5|dy|; both at
+ * once would require |dy| > 2.25|dy|, which no non-zero travel satisfies. The
+ * branch is placed before the horizontal distance guard only because that guard
+ * returns early on a pure vertical drag, not because the two overlap.
+ */
+const SWIPE_DISMISS_MIN_DISTANCE_PX = SWIPE_MIN_DISTANCE_PX;
+
+/**
  * Lightbox - full-bleed media-display overlay where the image IS the surface.
  * D-350: heavier backdrop rgba(0,0,0,.92), arrow-key navigation with wrap-
  * around, always-dark invariant (NO :root.dark overrides). Modal-adjacent
@@ -101,6 +121,22 @@ const SWIPE_HORIZONTAL_DOMINANCE = 1.5;
  *     onClose={() => setOpen(false)}
  *     items={[{ src: "/a.jpg", alt: "Resume" }]}
  *   />
+ *
+ * ## Dismissal (PUB-06)
+ *
+ * Three ways out, and on a touch device the third is the one people reach for:
+ * Escape, the close button, a tap on the backdrop, and a SWIPE DOWN — 44px of
+ * downward travel that is at least 1.5x more vertical than horizontal, from
+ * anywhere on the overlay including the image. It cannot collide with
+ * swipe-to-navigate: that needs |dx| >= 1.5|dy| and this needs |dy| > 1.5|dx|,
+ * and both at once would require |dy| > 2.25|dy|.
+ *
+ * The gesture needs `touch-action` on the backdrop as much as it needs the
+ * handler. The stylesheet declares `pinch-zoom`, which claims both pan axes for
+ * the component and hands the browser only the two-finger one; under the `pan-y`
+ * that shipped before, the compositor consumed a downward drag as a scroll and
+ * `pointerup` never arrived — measured with real touch input, with this handler
+ * already in place. That is also why a consumer could not add this themselves.
  *
  * Clicking the backdrop closes the overlay, and that is deliberately not
  * suppressible: no finding asks for it, the Lightbox has no fail-closed use, and
@@ -238,6 +274,22 @@ export function Lightbox({ open, onClose, items, activeIndex, onIndexChange, ref
 		// portfolio's tree, and taking on a dependency to subtract two numbers is
 		// supply-chain surface for nothing. Pointer events rather than touch
 		// events, so pen and mouse-drag take the same path a finger does.
+
+		// Swipe DOWN to dismiss (PUB-06). Before the horizontal guard below, which
+		// returns early on a pure vertical drag — that early return is why a
+		// downward swipe previously did nothing at all: too little dx to navigate,
+		// and already past BACKDROP_TAP_SLOP_PX so backdrop-close had bailed too.
+		// On a phone that left a <=10px backdrop tap and one 32px button as the
+		// only ways out of a full-screen overlay.
+		//
+		// Not gated on where the gesture started. A downward drag beginning on the
+		// image is the gesture people actually make, and gating it on the backdrop
+		// would make the overlay's largest surface the one place it does not work.
+		if (dy >= SWIPE_DISMISS_MIN_DISTANCE_PX && dy > Math.abs(dx) * SWIPE_HORIZONTAL_DOMINANCE) {
+			onClose();
+			return;
+		}
+
 		if (Math.abs(dx) < SWIPE_MIN_DISTANCE_PX) return;
 		if (Math.abs(dx) < Math.abs(dy) * SWIPE_HORIZONTAL_DOMINANCE) return;
 		// Reuse goPrev/goNext so wrap-around, clamping and the
