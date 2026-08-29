@@ -62,4 +62,41 @@ describe("AppBar", () => {
 		const input = document.querySelector('input[type="search"]') as HTMLInputElement;
 		expect(input.placeholder).toBe("Find something...");
 	});
+	/**
+	 * The bar's chrome moved out of the style attribute so primitives.css could
+	 * reach it — which is what makes `minimal` expressible and what makes the
+	 * dark scrolled rule apply. These cases guard the move; they cannot prove the
+	 * result, because jsdom has no cascade. tests/visual/appbar-minimal.spec.ts
+	 * measures what is actually painted.
+	 */
+	describe("chrome is not inlined", () => {
+		for (const scrolled of [false, true]) {
+			it(`scrolled=${scrolled} emits no background, blur, border or shadow inline`, () => {
+				const { container } = render(<AppBar scrolled={scrolled} />);
+				const header = container.querySelector("header") as HTMLElement;
+				const style = header.getAttribute("style") ?? "";
+				for (const decl of ["background", "backdrop-filter", "border-bottom", "box-shadow"]) {
+					expect(style, `${decl} is inline again; no stylesheet rule can beat it`).not.toContain(
+						decl,
+					);
+				}
+			});
+		}
+
+		it("still exposes the state the stylesheet keys on", () => {
+			const { container } = render(<AppBar variant="minimal" scrolled={false} />);
+			const header = container.querySelector("header") as HTMLElement;
+			expect(header).toHaveAttribute("data-variant", "minimal");
+			// "false", not absent: the minimal rule is
+			// [data-variant="minimal"][data-scrolled="false"], and an absent attribute
+			// would drop it to (0,2,0) and into a tie.
+			expect(header).toHaveAttribute("data-scrolled", "false");
+		});
+
+		it("still merges a consumer style prop", () => {
+			const { container } = render(<AppBar style={{ paddingInline: 40 }} />);
+			const header = container.querySelector("header") as HTMLElement;
+			expect(header.style.paddingInline).toBe("40px");
+		});
+	});
 });

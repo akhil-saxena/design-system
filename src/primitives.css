@@ -5768,6 +5768,40 @@ fieldset.ds-atom-field {
 	border-bottom-color: var(--rule);
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
+/* THE `minimal` VARIANT, WHICH UNTIL NOW WAS A TYPE AND NOTHING ELSE.
+   `AppBarVariant` has always offered "minimal", and AppBar has always branched on
+   it — a minimal bar renders a different set of children. What it never had was a
+   different LOOK: `grep -c 'data-variant="minimal"' dist/primitives.css` returned
+   0, and the component painted its chrome from an inline `style` object that made
+   no distinction. Measured in Chromium at 1440x900, `layout-appbar--minimal` and
+   `layout-appbar--default` computed the identical `rgba(255, 255, 255, 0.55)`
+   background and the identical `blur(14px)`. The union accepted a value the
+   package did not implement, and the consumer who selected it had no way to learn
+   that from the outside.
+
+   Minimal means less chrome: no surface fill and no blur, so the bar reads as
+   part of the page rather than as a plate laid over it.
+
+   SCOPED TO [data-scrolled="false"], and that is a design decision rather than a
+   detail. `scrolled` is how a consumer says "there is now content underneath
+   this bar"; a minimal bar that stayed transparent through it would be a bar the
+   reader cannot separate from what is scrolling under it. Minimal describes the
+   bar AT REST.
+
+   (0,3,0). `.ds-atom-appbar[data-scrolled="true"]` above is (0,2,0) and the two
+   never match the same element anyway — data-scrolled is always exactly one of
+   "true"/"false" — but a (0,2,0) selector here would ALSO tie with that rule for
+   any future reader who adds a third state, and this repository has already lost
+   a fix to a (0,2,0) tie decided by file order (D-17). The extra attribute earns
+   its place by making the win structural.
+
+   The transparent bottom border is deliberately left in force: it paints nothing,
+   and it is the +1 in --ds-appbar-h's 32 + 2x12 + 1 = 57. Removing it would make
+   a minimal bar one pixel shorter than the property every consumer subtracts. */
+.ds-atom-appbar[data-variant="minimal"][data-scrolled="false"] {
+	background: none;
+	backdrop-filter: none;
+}
 /* ─── DS atom: AppBar · layout groups (D-21) ───────────────────────────
    The bar's three inner rows — the logo+nav lead, the nav group inside it, and
    the actions group — used to carry `display`, `align-items` and `gap` as INLINE

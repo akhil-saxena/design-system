@@ -75,6 +75,41 @@ const DefaultLogo = () => (
  * Provides 4 variants: minimal, withSearch, default, centered.
  * Consumer-driven `scrolled` prop applies frosted-glass background + shadow transition.
  *
+ * ## The bar's CHROME is styled, not inline — and that is what makes `minimal` real
+ *
+ * `background`, `backdrop-filter`, `border-bottom` and `box-shadow` used to be
+ * built here, in JS, as a `scrolledStyles` object spread into the header's `style`
+ * attribute. primitives.css declared all four as well, identically, plus the
+ * scrolled state and a dark-mode scrolled override — and NONE OF THE STYLESHEET
+ * EVER APPLIED, because an inline declaration outranks every rule at every
+ * specificity. Two things followed from that, both measured in Chromium:
+ *
+ *   1. `variant="minimal"` painted the same chrome as `variant="default"` —
+ *      `rgba(255, 255, 255, 0.55)` background and `blur(14px)`, byte for byte.
+ *      The variant existed in the type union and in this file's branching, so it
+ *      changed the bar's CONTENT, but there was no CSS keyed on
+ *      `[data-variant="minimal"]` anywhere in the package (`grep -c` returned 0)
+ *      and no inline branch for it either. A consumer selecting it saw the bar it
+ *      already had, with no way to find out why.
+ *   2. A scrolled bar in dark mode painted `rgba(255, 255, 255, 0.92)` — very
+ *      nearly white. `.dark .ds-atom-appbar[data-scrolled="true"]` has declared
+ *      `rgba(28, 25, 23, 0.92)` for exactly this case all along, and was dead.
+ *
+ * The values in primitives.css are the same values this file used to inline, so
+ * moving them paints no differently at rest or scrolled in light mode. What moves
+ * is what was already broken: dark + scrolled, and `minimal`.
+ *
+ * `minimal` is now `[data-variant="minimal"][data-scrolled="false"]` — no
+ * background, no backdrop-filter. Scoped to the un-scrolled state ON PURPOSE:
+ * `scrolled` is the consumer's signal that the bar has content behind it, and a
+ * minimal bar that stayed transparent through that would be a bar you cannot find.
+ * Written as (0,3,0) rather than a (0,2,0) that ties with
+ * `[data-scrolled="true"]` and is settled by file order.
+ *
+ * The transparent 1px bottom border STAYS on a minimal bar. It paints nothing, and
+ * it is one of the three terms in --ds-appbar-h (32 + 2x12 + 1 = 57); dropping it
+ * would silently make every minimal bar a pixel shorter than the property says.
+ *
  * ## The bar's layout groups are styled, not inline (D-21)
  *
  * The logo+nav lead, the nav group inside it and the actions group are rendered
@@ -155,20 +190,6 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 		},
 		ref,
 	) => {
-		const scrolledStyles: CSSProperties = scrolled
-			? {
-					background: "rgba(255, 255, 255, 0.92)",
-					backdropFilter: "blur(14px)",
-					borderBottom: "1px solid var(--rule)",
-					boxShadow: "0 4px 16px rgba(0, 0, 0, 0.04)",
-				}
-			: {
-					background: "var(--surf-2)",
-					backdropFilter: "blur(14px)",
-					borderBottom: "1px solid transparent",
-					boxShadow: "none",
-				};
-
 		const logoNode = logo ?? <DefaultLogo />;
 
 		if (variant === "minimal") {
@@ -178,7 +199,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 					className={`ds-atom-appbar${className ? ` ${className}` : ""}`}
 					data-variant="minimal"
 					data-scrolled={String(scrolled)}
-					style={{ ...scrolledStyles, ...style }}
+					style={style}
 				>
 					{logoNode}
 					{actions ?? <Button size="sm">Sign in</Button>}
@@ -194,7 +215,6 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 					data-variant="centered"
 					data-scrolled={String(scrolled)}
 					style={{
-						...scrolledStyles,
 						justifyContent: "center",
 						position: "relative",
 						...style,
@@ -218,7 +238,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 					className={`ds-atom-appbar${className ? ` ${className}` : ""}`}
 					data-variant="withSearch"
 					data-scrolled={String(scrolled)}
-					style={{ ...scrolledStyles, ...style }}
+					style={style}
 				>
 					<div className="ds-atom-appbar-lead">
 						{logoNode}
@@ -241,7 +261,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 				className={`ds-atom-appbar${className ? ` ${className}` : ""}`}
 				data-variant="default"
 				data-scrolled={String(scrolled)}
-				style={{ ...scrolledStyles, ...style }}
+				style={style}
 			>
 				<div className="ds-atom-appbar-lead">
 					{logoNode}
