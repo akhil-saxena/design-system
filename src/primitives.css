@@ -5601,6 +5601,87 @@ fieldset.ds-atom-field {
 	border-bottom-color: var(--rule);
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
+/* ─── DS atom: AppBar · layout groups (D-21) ───────────────────────────
+   The bar's three inner rows — the logo+nav lead, the nav group inside it, and
+   the actions group — used to carry `display`, `align-items` and `gap` as INLINE
+   styles on unnamed <div>s. Those divs are not slots: AppBar renders them itself,
+   around whatever the consumer passes, so a consumer has no element to select and
+   no prop to reach them with. An inline declaration cannot be beaten by any
+   stylesheet at any specificity, which left `!important` reaching past a
+   component into its own internals as the only lever a consumer had. That is the
+   inline-style class of defect recorded three times against this package on
+   COLOUR (findings D-4, D-10, D-19); this is the same defect on LAYOUT, and it
+   was the more expensive one.
+
+   WHAT IT COST, MEASURED. At 344x882 — the narrowest class in the consumer's
+   responsive contract — the default bar's minimum row width is
+   padding + logo + 28 + nav(3 links + 2x18) + 32px toggle, which exceeded the
+   viewport: `document.documentElement.scrollWidth` read 358 against a 344px
+   viewport on EVERY route of the site built on it, 14px of horizontal scroll with
+   the theme toggle as the element pushed off. Reproduced here before the fix and
+   re-measured after it.
+
+   THE VALUES ARE UNCHANGED at every width at or above the narrow query below, so
+   moving them out of the style attribute moves no pixel on its own. This rule
+   exists to make them REACHABLE; the query that follows is what makes them
+   correct at the narrow end.
+
+   min-width is deliberately NOT set to 0 on the lead. Letting it shrink does not
+   remove the overflow — the anchors inside it do not shrink below their own
+   min-content — it only moves the overflow from the bar to the lead, where it
+   would slide the nav under the toggle instead of past the viewport edge. The gap
+   query is what actually reclaims the pixels. */
+.ds-atom-appbar-lead {
+	display: flex;
+	align-items: center;
+	gap: 28px;
+}
+.ds-atom-appbar[data-variant="withSearch"] .ds-atom-appbar-lead {
+	gap: 24px;
+}
+.ds-atom-appbar-nav {
+	display: flex;
+	gap: 18px;
+}
+.ds-atom-appbar-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.ds-atom-appbar[data-variant="centered"] .ds-atom-appbar-actions {
+	position: absolute;
+	right: 20px;
+	gap: 6px;
+}
+
+/* The narrow class, and only the narrow class.
+   380px, not 400 and not 360. The overflow was measured present at 344 and 350
+   and ABSENT at 360, 374 and 390, so a query at 360 would leave no headroom for a
+   consumer whose nav labels are one character longer than the ones that produced
+   the finding, and a query at 400 would restyle 390 — the single most common
+   phone width, which has no overflow to fix. 380 covers the whole folded-cover
+   class with room to spare and stops short of 390.
+
+   A width query rather than a container query: `.ds-atom-appbar` is not a
+   container and making it one would change the containment of every consumer's
+   slot content. The bar is full-bleed by construction, so its width IS the
+   viewport width here and the proxy is exact rather than approximate.
+
+   Gaps only. The bar's own horizontal padding is deliberately untouched: a
+   consumer that breaks the bar out of its shell and pays the gutter back inside
+   it (`.ds-atom-appbar { padding-inline: … }`) owns that number, and moving it
+   from under them would misalign the bar against the page's gutters at exactly
+   the class this query exists for. */
+@media (max-width: 380px) {
+	.ds-atom-appbar-lead,
+	.ds-atom-appbar[data-variant="withSearch"] .ds-atom-appbar-lead {
+		gap: 12px;
+	}
+	.ds-atom-appbar-nav {
+		gap: 10px;
+	}
+}
+
 .ds-atom-appbar-search {
 	background: var(--cream-2);
 	border: 1px solid var(--wire);

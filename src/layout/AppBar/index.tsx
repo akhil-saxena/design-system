@@ -75,6 +75,22 @@ const DefaultLogo = () => (
  * Provides 4 variants: minimal, withSearch, default, centered.
  * Consumer-driven `scrolled` prop applies frosted-glass background + shadow transition.
  *
+ * ## The bar's layout groups are styled, not inline (D-21)
+ *
+ * The logo+nav lead, the nav group inside it and the actions group are rendered
+ * by AppBar, not passed in — so a consumer has no element to select and no prop
+ * to reach them with. They used to carry `display`, `align-items` and `gap` as
+ * INLINE styles, which no consumer stylesheet can beat at any specificity, and
+ * a site built on this bar consequently overflowed a 344px viewport by 14px on
+ * every route with no lever short of `!important` reaching into the component's
+ * internals. They now carry `.ds-atom-appbar-lead`, `.ds-atom-appbar-nav` and
+ * `.ds-atom-appbar-actions`, styled from primitives.css, and the stylesheet
+ * tightens both gaps below 380px. Override either from your own sheet:
+ *
+ * ```css
+ * .ds-atom-appbar-nav { gap: 8px; }
+ * ```
+ *
  * ## Reading the bar's height: `--ds-appbar-h`
  *
  * A full-viewport section placed under the bar has to subtract the bar's height,
@@ -172,7 +188,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 				>
 					{logoNode}
 					{(nav || actions) && (
-						<div style={{ position: "absolute", right: 20, display: "flex", gap: 6 }}>
+						<div className="ds-atom-appbar-actions">
 							{nav}
 							{actions}
 						</div>
@@ -190,7 +206,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 					data-scrolled={String(scrolled)}
 					style={{ ...scrolledStyles, ...style }}
 				>
-					<div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+					<div className="ds-atom-appbar-lead">
 						{logoNode}
 						<TextInput
 							type="search"
@@ -199,9 +215,7 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 							onChange={(e) => onSearchChange?.(e.target.value)}
 						/>
 					</div>
-					{actions && (
-						<div style={{ display: "flex", gap: 8, alignItems: "center" }}>{actions}</div>
-					)}
+					{actions && <div className="ds-atom-appbar-actions">{actions}</div>}
 				</header>
 			);
 		}
@@ -215,11 +229,11 @@ export const AppBar = forwardRef<HTMLElement, AppBarProps>(
 				data-scrolled={String(scrolled)}
 				style={{ ...scrolledStyles, ...style }}
 			>
-				<div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+				<div className="ds-atom-appbar-lead">
 					{logoNode}
-					{nav && <div style={{ display: "flex", gap: 18 }}>{nav}</div>}
+					{nav && <div className="ds-atom-appbar-nav">{nav}</div>}
 				</div>
-				{actions && <div style={{ display: "flex", gap: 8, alignItems: "center" }}>{actions}</div>}
+				{actions && <div className="ds-atom-appbar-actions">{actions}</div>}
 			</header>
 		);
 	},
