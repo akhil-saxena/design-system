@@ -248,4 +248,201 @@ describe("Button — token scale adherence", () => {
 		const style = getByRole("button").getAttribute("style") ?? "";
 		expect(style).toContain("height: var(--space-11)");
 	});
+	/**
+	 * D-5 / D-6 — `as`, and specifically what happens to the three props that do
+	 * not survive the swap intact.
+	 *
+	 * These cases are deliberately about the DOM Button emits, not about how it
+	 * paints. jsdom implements no specificity and no cascade, so it cannot see
+	 * that `.ds-atom-btn:disabled` never matched an anchor — that half is proved
+	 * in tests/visual/button-as-anchor.spec.ts, in a real browser. What jsdom CAN
+	 * see is whether the attributes that make an anchor inert are actually on it,
+	 * which is the half a naive `as` implementation gets wrong.
+	 */
+	describe("as (D-5)", () => {
+		it("renders the element it is told to, and keeps the button's class contract", () => {
+			const { container } = render(
+				<Button as="a" href="/work">
+					See the work
+				</Button>,
+			);
+			const a = container.querySelector("a");
+			expect(a, 'as="a" did not produce an anchor').not.toBeNull();
+			expect(a).toHaveAttribute("href", "/work");
+			expect(a).toHaveClass("ds-atom-btn");
+			expect(a).toHaveAttribute("data-variant", "primary");
+		});
+
+		it("is a link to the accessibility tree, not a button", () => {
+			const { getByRole, queryByRole } = render(
+				<Button as="a" href="/work">
+					See the work
+				</Button>,
+			);
+			expect(getByRole("link", { name: "See the work" })).toBeInTheDocument();
+			expect(queryByRole("button")).toBeNull();
+		});
+
+		it("does not emit type on a non-button, where it would mean a MIME type", () => {
+			const { getByRole } = render(
+				<Button as="a" href="/cv.pdf">
+					Download
+				</Button>,
+			);
+			// The default is type="button", which exists so a Button cannot submit an
+			// enclosing form. On an <a>, `type` is a hint about the linked resource,
+			// so emitting "button" there would be a factual claim about the file.
+			expect(getByRole("link")).not.toHaveAttribute("type");
+		});
+
+		it("drops even an explicit type on a non-button", () => {
+			// `type` is typed as the button union — "submit" | "reset" | "button" —
+			// and none of those means anything on an anchor, where the attribute is a
+			// MIME hint. Forwarding one would put a false claim about the linked
+			// resource into the markup, so it is dropped rather than passed through.
+			const { getByRole } = render(
+				<Button as="a" href="/cv.pdf" type="submit">
+					Download
+				</Button>,
+			);
+			expect(getByRole("link")).not.toHaveAttribute("type");
+		});
+
+		it("keeps the native disabled attribute when it really is a button", () => {
+			const { getByRole } = render(<Button disabled>Save</Button>);
+			expect(getByRole("button")).toBeDisabled();
+			expect(getByRole("button")).not.toHaveAttribute("aria-disabled");
+		});
+
+		/**
+		 * THE CASE THE PROP LIVES OR DIES ON. React renders an unknown `disabled`
+		 * attribute on an <a> and the browser ignores it completely: the link keeps
+		 * its href, keeps its place in the tab order, and still navigates. A
+		 * `Button as="a"` that forwarded `disabled` would look disabled and behave
+		 * live, which is strictly worse than having no `as` prop at all.
+		 */
+		it("translates disabled into something an anchor actually obeys", () => {
+			const { container } = render(
+				<Button as="a" href="/work" disabled>
+					See the work
+				</Button>,
+			);
+			const a = container.querySelector("a") as HTMLAnchorElement;
+			expect(
+				a,
+				"the disabled attribute was forwarded to an element that ignores it",
+			).not.toHaveAttribute("disabled");
+			expect(a).toHaveAttribute("aria-disabled", "true");
+			expect(a).toHaveAttribute("tabindex", "-1");
+			// No href: an anchor without one is not a link, is not focusable, and has
+			// no link role. This is the part that makes it inert rather than merely
+			// announced as inert.
+			expect(a, "a disabled link kept its href and can still be followed").not.toHaveAttribute(
+				"href",
+			);
+			expect(a.getAttribute("role")).toBeNull();
+		});
+
+		it("withholds onClick while disabled as an anchor", () => {
+			const onClick = vi.fn();
+			const { container } = render(
+				<Button as="a" href="/work" disabled onClick={onClick}>
+					See the work
+				</Button>,
+			);
+			fireEvent.click(container.querySelector("a") as HTMLAnchorElement);
+			expect(onClick).not.toHaveBeenCalled();
+		});
+
+		it("treats loading as disabled on an anchor too, and still announces it busy", () => {
+			const { container } = render(
+				<Button as="a" href="/work" loading>
+					See the work
+				</Button>,
+			);
+			const a = container.querySelector("a") as HTMLAnchorElement;
+			// aria-busy is a GLOBAL ARIA attribute, so the loading contract is
+			// unchanged by the element swap — that is why it is not special-cased.
+			expect(a).toHaveAttribute("aria-busy", "true");
+			expect(a).toHaveAttribute("aria-disabled", "true");
+			expect(a, "a loading link could still be followed mid-operation").not.toHaveAttribute("href");
+		});
+
+		/**
+		 * The inert attributes are spread AFTER `...rest` precisely so this cannot
+		 * happen. Without that ordering a consumer's own props — often spread in
+		 * bulk from a wrapper — would silently re-arm a control that reads disabled.
+		 */
+		it("does not let a consumer spread its way back out of the disabled state", () => {
+			const { container } = render(
+				<Button as="a" disabled {...{ href: "/work", tabIndex: 0, "aria-disabled": false }}>
+					See the work
+				</Button>,
+			);
+			const a = container.querySelector("a") as HTMLAnchorElement;
+			expect(a).toHaveAttribute("aria-disabled", "true");
+			expect(a).toHaveAttribute("tabindex", "-1");
+			expect(a).not.toHaveAttribute("href");
+		});
+
+		it("leaves an enabled anchor entirely alone", () => {
+			const onClick = vi.fn();
+			const { getByRole } = render(
+				<Button as="a" href="/work" onClick={onClick}>
+					See the work
+				</Button>,
+			);
+			const a = getByRole("link");
+			expect(a).not.toHaveAttribute("aria-disabled");
+			expect(a).not.toHaveAttribute("tabindex");
+			fireEvent.click(a);
+			expect(onClick).toHaveBeenCalledTimes(1);
+		});
+
+		it("drops href on a real button rather than emitting an attribute it has no use for", () => {
+			const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+			const { getByRole } = render(<Button href="/work">See the work</Button>);
+			expect(getByRole("button")).not.toHaveAttribute("href");
+			expect(warn, "the dropped href was silent").toHaveBeenCalledWith(
+				expect.stringContaining('Pass as="a"'),
+			);
+			warn.mockRestore();
+		});
+
+		it("renders a custom component and hands it the styling contract", () => {
+			const Anchor = ({ children, ...rest }: { children?: React.ReactNode }) => (
+				<a data-custom="yes" {...rest}>
+					{children}
+				</a>
+			);
+			const { container } = render(
+				<Button as={Anchor} href="/work">
+					See the work
+				</Button>,
+			);
+			const a = container.querySelector("a") as HTMLAnchorElement;
+			expect(a).toHaveAttribute("data-custom", "yes");
+			expect(a).toHaveClass("ds-atom-btn");
+			// Not a native <button>, so the disabled translation applies to it too —
+			// the component cannot know whether a custom element honours `disabled`,
+			// and guessing that it does is the failure this prop must not have.
+			expect(a).not.toHaveAttribute("disabled");
+		});
+
+		it("forwards the ref to whatever element it rendered", () => {
+			const ref = createRef<HTMLElement>();
+			render(
+				<Button as="a" href="/work" ref={ref}>
+					See the work
+				</Button>,
+			);
+			expect(ref.current).toBeInstanceOf(HTMLAnchorElement);
+		});
+
+		it("defaults to a button, so nothing about the existing contract moved", () => {
+			const { getByRole } = render(<Button>Save</Button>);
+			expect(getByRole("button").tagName).toBe("BUTTON");
+			expect(getByRole("button")).toHaveAttribute("type", "button");
+		});
+	});
 });

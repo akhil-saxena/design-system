@@ -1,14 +1,83 @@
-import { type ButtonHTMLAttributes, type CSSProperties, type ReactNode, forwardRef } from "react";
+import {
+	type AnchorHTMLAttributes,
+	type ButtonHTMLAttributes,
+	type CSSProperties,
+	type ElementType,
+	type ReactNode,
+	forwardRef,
+} from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 /**
+ * The anchor attributes a Button needs once it can BE an anchor (D-5).
+ *
+ * Picked rather than intersected with the whole of AnchorHTMLAttributes, because
+ * `type` is declared by both — `"submit" | "reset" | "button"` on a button and a
+ * free `string` on an anchor — and intersecting them yields a `type` that accepts
+ * neither. Nothing here collides: ButtonHTMLAttributes declares `form`,
+ * `formAction`, `formTarget`, `name`, `value`, `type` and `disabled`, and none of
+ * those seven names appear below.
+ */
+type AnchorNavigationProps = Pick<
+	AnchorHTMLAttributes<HTMLAnchorElement>,
+	"href" | "target" | "rel" | "download" | "hrefLang" | "ping" | "referrerPolicy"
+>;
+
+/**
  * Props for the Button primitive.
  *
- * Extends all native `<button>` attributes (`onClick`, `type`, `aria-*`, etc) via spread.
+ * Extends all native `<button>` attributes (`onClick`, `type`, `aria-*`, etc) via spread,
+ * plus the anchor navigation attributes that `as="a"` makes meaningful.
  */
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps
+	extends ButtonHTMLAttributes<HTMLButtonElement>,
+		AnchorNavigationProps {
+	/**
+	 * Override the rendered element, mirroring `Link`'s prop of the same name.
+	 *
+	 * The case this exists for is a control with the VISUAL contract of a button
+	 * and the SEMANTIC contract of a link: a hero call-to-action that navigates, a
+	 * "Download the PDF" that hands over a file. Before this prop, a consumer
+	 * meeting that case had two options — ship it as a text `Link`, which is what
+	 * it looks like, or hand-roll the button's fill in app CSS, which is what a
+	 * design system exists to prevent.
+	 *
+	 * ## `disabled` does not survive the swap, and is translated rather than dropped
+	 *
+	 * `disabled` is a button attribute. An anchor has none: React would render
+	 * `disabled=""` on the `<a>`, the browser would ignore it, and the control
+	 * would look disabled while remaining focusable, clickable and navigable. That
+	 * is worse than not offering `as` at all, so on any element other than a
+	 * native `<button>` a disabled (or `loading`) Button instead gets
+	 * `aria-disabled="true"`, loses its `href` — an anchor without one is not a
+	 * link, is not focusable and has no link role — is pinned to `tabIndex={-1}`,
+	 * and has its `onClick` withheld. primitives.css matches
+	 * `[aria-disabled="true"]` alongside `:disabled`, so it also *looks* disabled
+	 * and stops responding to hover.
+	 *
+	 * ## `type` is never emitted on a non-button
+	 *
+	 * The default `type="button"` exists so a Button inside a form cannot submit
+	 * it. On an anchor, `type` means something entirely different — the MIME type
+	 * of the linked resource — so emitting `"button"` there would be a false claim
+	 * about a file. It is suppressed for anything that is not a native `<button>`,
+	 * and an explicit `type` is suppressed with it: `ButtonProps` types `type` as
+	 * `"submit" | "reset" | "button"`, inherited from `ButtonHTMLAttributes`, and
+	 * none of those three is a MIME type. Widening the union so an anchor could
+	 * carry `type="application/pdf"` would cost typo-safety on the common case to
+	 * buy an attribute almost nothing needs; a consumer who genuinely wants it
+	 * should reach for `Link`, which is typed as an anchor throughout.
+	 *
+	 * ## `loading` is unchanged
+	 *
+	 * `aria-busy` is a global ARIA attribute, valid on every element, so the
+	 * loading state announces identically on a button and an anchor.
+	 *
+	 * @default "button"
+	 */
+	as?: ElementType;
 	/**
 	 * Visual variant.
 	 *
@@ -150,8 +219,9 @@ const sizeStyles: Record<ButtonSize, CSSProperties> = {
  * <Button variant="danger" icon={<Trash2 size={14} />}>Delete</Button>
  * <Button variant="primary" loading>Saving…</Button>
  */
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+export const Button = forwardRef<HTMLElement, ButtonProps>(function Button(
 	{
+		as,
 		variant = "primary",
 		size = "md",
 		loading,
@@ -160,22 +230,66 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 		style,
 		disabled,
 		className,
+		type,
+		href,
+		onClick,
+		tabIndex,
 		...rest
 	},
 	ref,
 ) {
+	const Tag = (as ?? "button") as ElementType;
+	// The string "button" and nothing else. A custom component passed as `as`
+	// might well render a native button underneath, but this component cannot
+	// know that, and guessing wrong is what puts a live `disabled` attribute on
+	// something that ignores it. Treating every non-string and every other tag as
+	// "not a native button" fails towards the ARIA path, which is inert on a real
+	// button too — merely redundant rather than broken.
+	const isNativeButton = Tag === "button";
+	const inert = Boolean(disabled || loading);
+
+	if (process.env.NODE_ENV !== "production" && href !== undefined && isNativeButton) {
+		console.warn(
+			'Button: `href` was passed but the element renders as <button>, which has no href. Pass as="a" to render a link. The href has been dropped rather than emitted as an invalid attribute.',
+		);
+	}
+
+	// `disabled` and `type` are button-only attributes; emitting either on an
+	// anchor is invalid HTML that the browser ignores, which is precisely how a
+	// "disabled" link stays clickable. `type` is dropped entirely on a non-button
+	// rather than forwarded, because the three values ButtonProps admits are the
+	// button union and none of them means anything on an <a>.
+	const nativeButtonProps = isNativeButton ? { disabled: inert, type: type ?? "button" } : {};
+
+	// Spread AFTER `...rest`, deliberately, and empty in every other case. These
+	// four are the entire behavioural content of "disabled" on an element that has
+	// no disabled attribute, and a consumer who spreads props over the top of them
+	// gets a control that reads disabled and behaves live. Nothing else in this
+	// component is protected this way, because nothing else is a safety property.
+	const inertProps =
+		!isNativeButton && inert
+			? { "aria-disabled": true as const, tabIndex: -1, href: undefined, onClick: undefined }
+			: {};
+
 	return (
-		<button
+		<Tag
 			ref={ref}
-			type="button"
 			className={`ds-atom-btn${className ? ` ${className}` : ""}`}
 			data-variant={variant}
 			data-loading={loading ? "true" : undefined}
 			// aria-busy marks the control as mid-operation. Previously the only
 			// signal was a decorative, aria-hidden spinner plus `disabled`, so the
-			// transition into a loading state was silent to assistive tech.
+			// transition into a loading state was silent to assistive tech. It is a
+			// GLOBAL ARIA attribute, so it carries across the `as` swap unchanged.
 			aria-busy={loading || undefined}
-			disabled={disabled || loading}
+			// Withheld while inert on every element, not only the ones that cannot
+			// express `disabled`. A native disabled button would not fire it anyway;
+			// stating it once here is what makes the anchor path correct without a
+			// second branch.
+			onClick={inert ? undefined : onClick}
+			href={isNativeButton ? undefined : href}
+			tabIndex={tabIndex}
+			{...nativeButtonProps}
 			style={{
 				...baseStyle,
 				...sizeStyles[size],
@@ -183,10 +297,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 				...style,
 			}}
 			{...rest}
+			{...inertProps}
 		>
 			{loading ? <Spinner /> : icon}
 			{children}
-		</button>
+		</Tag>
 	);
 });
 

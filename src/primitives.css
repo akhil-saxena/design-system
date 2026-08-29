@@ -49,6 +49,15 @@
    primary / ghost / danger still set border-color inline, so they are unchanged. */
 .ds-atom-btn {
 	border: 1px solid var(--rule);
+	/* A <button> has no underline, so nothing here ever needed to say so — until
+	   `as` let this class land on an <a>, which brings one from the UA stylesheet.
+	   Measured on `inputs-button--as-anchor` before this line: the primary CTA
+	   painted the amber fill AND a text underline, so the control that exists to
+	   stop looking like a link looked like a link. This is the mirror image of the
+	   reset .ds-atom-link already carries for `Link as="button"`, and for the same
+	   reason: a polymorphic primitive has to neutralise the chrome of every
+	   element it can become, not just the one it started as. */
+	text-decoration: none;
 	transition:
 		transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1),
 		background-color 120ms ease,
@@ -69,7 +78,19 @@
 		transform: none;
 	}
 }
-.ds-atom-btn:disabled {
+/* `:is(:disabled, [aria-disabled="true"])`, not `:disabled` alone — Button can
+   now render as something other than a native <button> (D-5), and an <a> matches
+   `:disabled` never. Without the second clause a disabled `Button as="a"` painted
+   at full opacity and stayed clickable, which is the exact failure the `as` prop
+   is written to avoid.
+
+   `:is()` rather than a second selector in the list: `:is()` takes the specificity
+   of its most specific argument, and both arguments here are (0,1,0), so this
+   selector stays at (0,2,0) — byte-for-byte the weight `.ds-atom-btn:disabled`
+   carried. A comma-separated list would have been identical too; `:is()` is used
+   so the SAME shape can be reused inside the `:not()`s below, where a list would
+   NOT be equivalent and would quietly change the hover rules' specificity. */
+.ds-atom-btn:is(:disabled, [aria-disabled="true"]) {
 	opacity: 0.4;
 	cursor: not-allowed;
 	pointer-events: none;
@@ -79,7 +100,7 @@
 	box-shadow: var(--focus-ring);
 }
 /* Primary = brand amber. Hover darkens to amber-d. */
-.ds-atom-btn[data-variant="primary"]:hover:not(:disabled) {
+.ds-atom-btn[data-variant="primary"]:hover:not(:disabled, [aria-disabled="true"]) {
 	background: var(--amber-d);
 	color: #fff;
 }
@@ -102,7 +123,7 @@
    paints -- the primary button does not darken on hover today, and its #fff was
    dead code. This rule is here so that if those inline styles are ever lifted
    into the stylesheet, the hover does not silently ship a 1.67:1 label. */
-.dark .ds-atom-btn[data-variant="primary"]:hover:not(:disabled) {
+.dark .ds-atom-btn[data-variant="primary"]:hover:not(:disabled, [aria-disabled="true"]) {
 	color: var(--ink-inverse);
 }
 /* Rule C-3: secondary is an outlined surface on a near-page fill, so its border
@@ -114,15 +135,15 @@
 /* No border-color on hover: the 1.09:1 rgba that used to be declared here never
    actually applied (the inline --wire outranked it), and applying it now would
    drop the boundary below the 3:1 floor on hover only. The border stays --wire. */
-.ds-atom-btn[data-variant="secondary"]:hover:not(:disabled) {
+.ds-atom-btn[data-variant="secondary"]:hover:not(:disabled, [aria-disabled="true"]) {
 	background: var(--cream-2);
 }
-.ds-atom-btn[data-variant="ghost"]:hover:not(:disabled) {
+.ds-atom-btn[data-variant="ghost"]:hover:not(:disabled, [aria-disabled="true"]) {
 	background: rgba(0, 0, 0, 0.04);
 }
 /* Danger hover: stay on the --red token, just darken via filter so the
    color stays semantically tied to the system token rather than a one-off hex. */
-.ds-atom-btn[data-variant="danger"]:hover:not(:disabled) {
+.ds-atom-btn[data-variant="danger"]:hover:not(:disabled, [aria-disabled="true"]) {
 	filter: brightness(0.88);
 }
 .ds-atom-btn[data-loading="true"] {
@@ -134,7 +155,7 @@
 .dark .ds-atom-btn[data-variant="ghost"] {
 	color: var(--ink);
 }
-.dark .ds-atom-btn[data-variant="ghost"]:hover:not(:disabled) {
+.dark .ds-atom-btn[data-variant="ghost"]:hover:not(:disabled, [aria-disabled="true"]) {
 	background: rgba(255, 255, 255, 0.06);
 }
 .dark .ds-atom-btn[data-variant="secondary"] {
@@ -143,7 +164,7 @@
 /* v0.5.5 - secondary hover in dark mode: keep bg translucent-light over the
    dark surface so text stays readable. The light-mode rule uses var(--cream-2)
    which flips to a near-black in dark mode, causing text-on-bg contrast loss. */
-.dark .ds-atom-btn[data-variant="secondary"]:hover:not(:disabled) {
+.dark .ds-atom-btn[data-variant="secondary"]:hover:not(:disabled, [aria-disabled="true"]) {
 	background: rgba(255, 255, 255, 0.08);
 	color: var(--ink);
 }

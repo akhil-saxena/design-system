@@ -172,3 +172,43 @@ export const DarkMode: Story = {
 		},
 	},
 };
+
+/**
+ * D-5 — the control with a button's visual contract and a link's semantic one.
+ *
+ * The pair below is the case that produced the finding: a site's two hero calls
+ * to action, a filled primary and an outlined secondary, both of which NAVIGATE.
+ * Before `as` they could only ship as text links, because `Button` was always a
+ * `<button>` and re-implementing the fill in app CSS is what a design system
+ * exists to prevent.
+ *
+ * The third control is the part worth reading closely. `disabled` is a button
+ * attribute and an anchor has none, so it is not forwarded — the anchor gets
+ * `aria-disabled="true"`, loses its `href`, leaves the tab order and does not
+ * fire `onClick`. It looks disabled because primitives.css matches
+ * `[aria-disabled="true"]` next to `:disabled`, and it *is* disabled because it
+ * has nowhere to go.
+ */
+export const AsAnchor: Story = {
+	render: () => (
+		<div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+			<Button as="a" href="#work" variant="primary">
+				See the work
+			</Button>
+			<Button as="a" href="#photos" variant="secondary">
+				Photographs
+			</Button>
+			<Button as="a" href="#gone" variant="secondary" disabled>
+				Unavailable
+			</Button>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'`as` renders the Button as any element, mirroring `Link`. Use `as="a"` when the control looks like a button and navigates. `type` is suppressed on a non-button (there it would mean a MIME type), `disabled` is translated to `aria-disabled` plus href removal, and `loading`\'s `aria-busy` carries across unchanged.',
+			},
+		},
+	},
+};
